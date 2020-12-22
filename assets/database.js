@@ -5,6 +5,8 @@ class Database {
     constructor() {
         this.db = new sqlite3('./assets/db.db', { verbose: console.log });
         console.log('Database ready');
+        postMessage('database.js says hi boss')
+        // since this task is started from a worker, postMessage is global :D
     }
 
     close() {

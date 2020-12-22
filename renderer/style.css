@@ -4,3 +4,16 @@
 .btn {
     text-align: left;
 }
+
+#progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -60%);
+    color: white;
+    mix-blend-mode: color-dodge;
+}
+
+.bg-gray {
+    background-color: $gray-800;
+}

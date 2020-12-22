@@ -16,6 +16,14 @@
 </head>
 
 <body class="d-flex flex-column h-100">
+  <nav class="navbar navbar-border" style="padding: 0px;">
+    <div id="progress-text">More Progress Text</div>
+    <div class="progress bg-dark" style="height: 40px; width: 100%;">
+      <!-- nicest fucking progress bar youve ever seen -->
+      <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar"
+        style="width: 100%;" id="progress-bar"></div>
+    </div>
+  </nav>
   <main class="flex-shrink-0">
     <div class="container">
       <div class="row">
@@ -82,13 +90,6 @@
         id='logs-container'><code class='col' id='logs'>Program Ready</code></pre>
     </div>
   </main>
-  <footer class="footer mt-auto bg-light">
-    <div class="progress" style="height: 40px;">
-      <!-- nicest fucking progress bar youve ever seen -->
-      <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar"
-        style="width: 100%;" id="progress-bar">Program Ready</div>
-    </div>
-  </footer>
 
   <script src="./renderer.js"></script>
 </body>

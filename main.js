@@ -3,7 +3,6 @@ const {app, BrowserWindow,} = require('electron')
 const path = require('path')
 const ExcelReader = require('./assets/spreadsheet')
 const Database = require('./assets/database')
-const Validate = require('./assets/validators')
 
 // ipcMain.handle('updateManufacturer', (event, somearg) => {
 //   console.log(somearg);
@@ -14,25 +13,6 @@ const Validate = require('./assets/validators')
 //   db.populateManufacturers(data);
 //   db.close();
 // })
-
-// ipcMain.handle('validSingle', (event, desc) => {
-//   console.log(desc);
-//   let valid = new Validate;
-//   let result = valid.validateSingle(desc);
-//   console.log(result);
-// })
-
-// function createWorker() {
-//   const workerWindow = new BrowserWindow({
-//     // show: false,
-//     webPreferences: {
-//       nodeIntegration: true,
-//     }
-//   })
-//   workerWindow.loadFile(path.join('renderer', 'worker.html'))
-//   workerWindow.webContents.openDevTools()
-
-// }
 
 function createWindow () {
   // Create the browser window.
@@ -58,7 +38,6 @@ function createWindow () {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   createWindow()
-  // createWorker()
   
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
@@ -73,6 +52,3 @@ app.whenReady().then(() => {
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
 })
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.

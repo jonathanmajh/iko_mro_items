@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <!-- Remember to refer to SOP before working on file -->
+    <!-- P:\MRO Items\CORPORATE RELIABILITY ENGINEERING\Co-op Files\CO-OP TOOLS AND PROGRAMS\Asset Redirect - DNA Enhanced Page\AssetRedirectSOP.docx -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.slim.min.js"
+        type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.3/js/bootstrap.bundle.min.js"
+        type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"
+        type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"
+        type="text/javascript"></script>
+
+    <title>IKO DNA Asset Redirect</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-md navbar-light bg-white navbar-border">
+        <div class="progress" style="height: 40px; width: 100%;">
+            <!-- nicest fucking progress bar youve ever seen -->
+            <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar"
+              style="width: 100%;" id="progress-bar">Program Ready</div>
+          </div>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="table-responsive  text-nowrap">
+                <tbody>
+                    <tr>
+                        <td>
+                            <table class="table" id="information">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <h1 id="DNA"><strong>D</strong>ocument <br><strong>N</strong>avigation
+                                                <br><strong>A</strong>ccelerator
+                                            </h1>
+                                        </td>
+                                        <td>
+                                            <div class="row">
+                                                <h6>Site ID:</h6>
+                                            </div>
+                                            <div class="row">
+                                                <select id="siteName" onchange="ChangeSite()">
+                                                    <option value="RAM">RAM: Alconbury</option>
+                                                    <option value="CAM">CAM: Appley Bridge</option>
+                                                    <option value="GE">GE: Ashcroft</option>
+                                                    <option value="GR">GR: BramCal</option>
+                                                    <option value="BA">BA: Calgary</option>
+                                                    <option value="GJ">GJ: CRC Toronto</option>
+                                                    <option value="BL">BL: Hagerstown </option>
+                                                    <option selected value="GH">GH: Hawkesbury</option>
+                                                    <option value="GV">GV: Hillsboro (Southwest)</option>
+                                                    <option value="GK">GK: IG Brampton</option>
+                                                    <option value="CA">CA: Kankakee</option>
+                                                    <option value="GI">GI: Madoc </option>
+                                                    <option value="PBM">PBM: Senica/Sloviakia</option>
+                                                    <option value="GC">GC: Sumas</option>
+                                                    <option value="GS">GS: Sylacauga</option>
+                                                    <option value="GA">GA: Wilmington</option>
+                                                </select>
+                                            </div>
+                                            <div class="row" style="padding-top: 15px;">
+                                                <h6>Failure Class Description:</h6>
+                                            </div>
+                                            <div class="row text-wrap width-250">
+                                                <p id="failure-description">Please enter asset number</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="row">
+                                                <h6>Asset Number:</h6>
+                                            </div>
+                                            <div class="row">
+                                                <select id="assetNum" class="select2-asset-id"></select>
+                                            </div>
+                                            <div class="row" style="padding-top: 10px;">
+                                                <h6>Asset Description:</h6>
+                                            </div>
+                                            <div class="row text-wrap">
+                                                <p id="description">Please enter asset number</p>
+                                            </div>
+                                        </td>
+                                        <td style="padding-top: 40px;">
+                                            <button id="submitNum" onclick="checkData()">Generate</button>
+                                        </td>
+                                        <td style="position: relative; min-width: 295px;">
+                                            <video id="dna-render" autoplay muted loop playsinline
+                                                poster="/support/Reliability/ReliabilityShared/Pages/Assets/RotatingDNA_Cover.jpg">
+                                                <source
+                                                    src="/support/Reliability/ReliabilityShared/Pages/Assets/RotatingDNA.mp4?mobile=0"
+                                                    type="video/mp4" />
+                                            </video>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Asset<br />(Site Specific)</th>
+                                        <th scope="col">Failure Class<br />(Site Specific)</th>
+                                        <th scope="col">Asset<br />(All Sites)</th>
+                                        <th scope="col">Failure Class<br />(All Sites)</th>
+                                        <th scope="col">Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody id='dynamic-table-body'>
+                                    <tr id="placeholder">
+                                        <td>
+                                            <h4><i class="fa fa-ban"></i> Please refresh the page if you still see this
+                                                message after 5 seconds</h4>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <h4>Navigation links</h4>
+                            <table class="table table-fit">
+                                <tbody id='navlinks-table-body'>
+                                    <tr>
+                                        <td><a class="btn btn-primary btn-light-gray"
+                                                href="http://operations.connect.na.local/support/Reliability/ReliabilityShared/Pages/Assets/AssetRedirectSOP.pdf">Help</a>
+                                        </td>
+                                        <td>
+                                            <h4><i class="fa fa-question-circle"></i> Help (SOP)</h4>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><a class="btn btn-primary btn-light-gray"
+                                                href="http://operations.connect.na.local/support/Reliability/ReliabilityPublished/TrainingMaterial/AssetVideos/Forms/AllItems.aspx">Videos</a>
+                                        </td>
+                                        <td>
+                                            <h4><i class="fa fa-youtube-play"></i> Technical Training Videos (In
+                                                Developement)</h4>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><a class="btn btn-primary btn-light-gray" hidden href="#"></a></td>
+                                        <td>
+                                            <h4><i class="fa fa-chain"></i> Lockout and Tagout (In Developement)</h4>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><a class="btn btn-primary btn-light-gray"
+                                                href="http://operations.connect.na.local/support/Reliability/SitePages/Home.aspx">Home</a>
+                                        </td>
+                                        <td>
+                                            <h4><i class="fa fa-gears"></i> Reliability Sharepoint Homepage</h4>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><a class="btn btn-primary btn-light-gray"
+                                                href="http://operations.connect.na.local/support/Reliability/ReliabilityShared/Pages/DNASitemap.aspx?mobile=0">Map</a>
+                                        </td>
+                                        <td>
+                                            <h4><i class="fa fa-map"></i> DNA Site Map</h4>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><a class="btn btn-primary btn-light-gray"
+                                                href="http://operations.connect.na.local/support/Reliability/ReliabilityShared/Pages/AssetFinder2.aspx/?mobile=0">Finder</a>
+                                        </td>
+                                        <td>
+                                            <h4><i class="fa fa-search"></i> DNA Asset Finder</h4>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
