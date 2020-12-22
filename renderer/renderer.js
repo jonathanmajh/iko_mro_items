@@ -6,9 +6,10 @@
 // process.
 
 const { ipcRenderer } = require('electron')
+const worker = new Worker('./worker.js')
 
 document.getElementById("valid-single").addEventListener("click", validSingle);
-document.getElementById("valid-triple").addEventListener("click", stub);
+document.getElementById("valid-triple").addEventListener("click", test);
 document.getElementById("batch-file").addEventListener("click", stub);
 document.getElementById("single-input").addEventListener("hide.bs.collapse", stub);
 document.getElementById("batch-input").addEventListener("hide.bs.collapse", stub);
@@ -23,4 +24,9 @@ function stub() {
 function validSingle() {
     let raw_desc = document.getElementById("maximo-desc").value;
     ipcRenderer.invoke('validSingle', raw_desc);
+}
+
+async function test() {
+    worker.postMessage(['test', 1,2,3]);
+    console.log('send message to worker');
 }

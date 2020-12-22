@@ -1,26 +1,38 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow, ipcMain} = require('electron')
+const {app, BrowserWindow,} = require('electron')
 const path = require('path')
 const ExcelReader = require('./assets/spreadsheet')
 const Database = require('./assets/database')
 const Validate = require('./assets/validators')
 
-ipcMain.handle('updateManufacturer', (event, somearg) => {
-  console.log(somearg);
-  const excel = new ExcelReader();
-  let data = excel.getManufactures();
-  const db = new Database();
-  // db.createManufacturers();
-  db.populateManufacturers(data);
-  db.close();
-})
+// ipcMain.handle('updateManufacturer', (event, somearg) => {
+//   console.log(somearg);
+//   const excel = new ExcelReader();
+//   let data = excel.getManufactures();
+//   const db = new Database();
+//   // db.createManufacturers();
+//   db.populateManufacturers(data);
+//   db.close();
+// })
 
-ipcMain.handle('validSingle', (event, desc) => {
-  console.log(desc);
-  let valid = new Validate;
-  let result = valid.validateSingle(desc);
-  console.log(result);
-})
+// ipcMain.handle('validSingle', (event, desc) => {
+//   console.log(desc);
+//   let valid = new Validate;
+//   let result = valid.validateSingle(desc);
+//   console.log(result);
+// })
+
+// function createWorker() {
+//   const workerWindow = new BrowserWindow({
+//     // show: false,
+//     webPreferences: {
+//       nodeIntegration: true,
+//     }
+//   })
+//   workerWindow.loadFile(path.join('renderer', 'worker.html'))
+//   workerWindow.webContents.openDevTools()
+
+// }
 
 function createWindow () {
   // Create the browser window.
@@ -30,6 +42,7 @@ function createWindow () {
     webPreferences: {
       preload: path.join(__dirname, 'renderer', 'preload.js'),
       nodeIntegration: true,
+      nodeIntegrationInWorker: true,
     }
   })
 
@@ -45,6 +58,7 @@ function createWindow () {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   createWindow()
+  // createWorker()
   
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the

@@ -1,6 +1,6 @@
-# iko_mro_items
+# IKO MRO Items
 
-**Clone and run for a quick way to see Electron in action.**
+**GUI tool for validating item descriptions**
 
 Based on the minimal Electron application based on the [Quick Start Guide](https://electronjs.org/docs/tutorial/quick-start) within the Electron documentation.
 
