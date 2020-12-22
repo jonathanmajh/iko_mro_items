@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+  <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+  <title>IKO Item Standardizer</title>
+  <link rel="stylesheet" href="bootstrap.min.css" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="fontawesome.min.css" integrity="af1e6edc875a382b338bb25bd7c5c3f474a7f1b36212002a5896dd06f2186325">
+  <script src="bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"></script>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="row">
+      <h1 class='col'>IKO Item Standardizer</h1>
+    </div>
+    <div class="row">
+      <a class="btn col" data-bs-toggle="collapse" href="#single-input"><h2><i class="fas fa-angle-double-down"></i> Single Asset Mode</h2></a>
+    </div>
+
+    <div class='item-desc-input row collapse' id="single-input">
+      <h3 class='col'>Single Field Description</h3>
+
+      <div class='input-fields row'>
+        <label class='col' for="maximo-desc">Maximo Description:</label>
+        <input class='col' type="text" id="maximo-desc" name="maximo-desc">
+        <div class='col'>
+          <button id="valid-single">Validate</button>
+        </div>
+      </div>
+
+      <h3 class='col'>Triple Field Description</h3>
+      <div class='input-fields row'>
+        <div class="row">
+          <label class='col' for="main-desc">Description:</label>
+          <input class='col' type="text" id="main-desc" name="main-desc">
+          <div class='col'></div>
+        </div>
+        <div class="row">
+          <label class='col' for="ext-desc-1">Extended Description 2:</label>
+          <input class='col' type="text" id="ext-desc-1" name="ext-desc-1">
+          <div class='col'></div>
+        </div>
+        <div class="row">
+          <label class='col' for="ext-desc-2">Extended Description 2:</label>
+          <input class='col' type="text" id="ext-desc-2" name="ext-desc-2">
+          <div class='col'>
+            <button id="valid-triple">Validate</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class='row'>
+      <a class="btn col" data-bs-toggle="collapse" href="#batch-input"><h2><i class="fas fa-angle-double-down"></i> Batch Asset Mode</h2></a>
+      <div class='row collapse' id="batch-input">
+        <div class='col'>
+          <button id="batch-file">Select Excel File</button>
+        </div>
+        
+      </div>
+
+    </div>
+
+
+
+  </div>
+  <script src="./renderer.js"></script>
+</body>
+
+</html>
