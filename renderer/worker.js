@@ -20,8 +20,14 @@ onmessage = function (e) {
         let valid = new Validate;
         let result = valid.validateSingle(e.data[1]);
         console.log(result);
-        postMessage(result);
+        postMessage(['result', result]);
         postMessage('test message');
+    } else if (e.data[0] === 'validTriple') {
+        let valid = new Validate;
+        let result = valid.validateTriple(e.data[1]);
+        console.log(result);
+        postMessage(['result', result]);
+
     } else {
         console.log('unimplimented work');
     }

@@ -37,6 +37,13 @@
   white-space: nowrap;
   word-wrap: normal;
   direction: ltr;
+  vertical-align: bottom;
   -webkit-font-feature-settings: "liga";
   -webkit-font-smoothing: antialiased;
 }
+
+.bg-gray {
+  background-color: #adb5bd;
+}
+
+.material-icons.md-size { font-size: 36px; }
