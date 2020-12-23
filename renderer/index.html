@@ -2,32 +2,32 @@
 <html lang="en" class="h-100">
 
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-  <meta http-equiv="Content-Security-Policy" content="script-src 'self';">
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self';" />
   <title>IKO Item Standardizer</title>
   <link rel="stylesheet" href="bootstrap.min.css"
-    integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1">
-  <link rel="stylesheet" href="style.css">
+    integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" />
+  <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="fontawesome.min.css"
-    integrity="sha384-vp86vTRFVJgpjF9jiIGPEEqYqlDwgyBgEF109VFjmqGmIY/Y4HV4d3Gp2irVfcrp">
+    integrity="sha384-vp86vTRFVJgpjF9jiIGPEEqYqlDwgyBgEF109VFjmqGmIY/Y4HV4d3Gp2irVfcrp" />
   <script src="bootstrap.bundle.min.js"
     integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"></script>
 </head>
 
 <body class="d-flex flex-column h-100">
-  <nav class="navbar navbar-border" style="padding: 0px;">
-    <div id="progress-text">More Progress Text</div>
-    <div class="progress bg-dark" style="height: 40px; width: 100%;">
+  <nav class="navbar navbar-border" style="padding: 0px">
+    <div id="progress-text">Ready!</div>
+    <div class="progress bg-dark" style="height: 40px; width: 100%">
       <!-- nicest fucking progress bar youve ever seen -->
       <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar"
-        style="width: 100%;" id="progress-bar"></div>
+        style="width: 100%" id="progress-bar"></div>
     </div>
   </nav>
   <main class="flex-shrink-0">
     <div class="container">
       <div class="row">
-        <h1 class='col'>IKO Item Standardizer</h1>
+        <h1 class="col">IKO Item Standardizer</h1>
       </div>
       <div class="row">
         <a class="btn col" data-bs-toggle="collapse" href="#single-input">
@@ -35,61 +35,101 @@
         </a>
       </div>
 
-      <div class='item-desc-input row collapse' id="single-input">
-
+      <div class="item-desc-input row collapse" id="single-input">
         <a class="btn row" data-bs-toggle="collapse" href="#single-field">
-          <h5 class="col"><i class="fas fa-angle-double-down"></i> Single Field Description</h5>
+          <h5 class="col">
+            <i class="fas fa-angle-double-down"></i> Single Field Description
+          </h5>
         </a>
-        <div class='input-fields row collapse' id='single-field'>
-          <label class='col' for="maximo-desc">Maximo Description:</label>
-          <input class='col' type="text" id="maximo-desc" name="maximo-desc">
-          <div class='col'>
+        <div class="input-fields row collapse" id="single-field">
+          <label class="col" for="maximo-desc">Maximo Description:</label>
+          <input class="col" type="text" id="maximo-desc" name="maximo-desc" />
+          <div class="col">
             <button id="valid-single">Validate</button>
           </div>
         </div>
 
         <a class="btn row" data-bs-toggle="collapse" href="#triple-field">
-          <h5 class="col"><i class="fas fa-angle-double-down"></i> Triple Field Description</h5>
+          <h5 class="col">
+            <i class="fas fa-angle-double-down"></i> Triple Field Description
+          </h5>
         </a>
-        <div class='input-fields row collapse' id='triple-field'>
+        <div class="input-fields row collapse" id="triple-field">
           <div class="row">
-            <label class='col' for="main-desc">Description:</label>
-            <input class='col' type="text" id="main-desc" name="main-desc">
-            <div class='col'></div>
+            <label class="col" for="main-desc">Description:</label>
+            <input class="col" type="text" id="main-desc" name="main-desc" />
+            <div class="col"></div>
           </div>
           <div class="row">
-            <label class='col' for="ext-desc-1">Extended Description 2:</label>
-            <input class='col' type="text" id="ext-desc-1" name="ext-desc-1">
-            <div class='col'></div>
+            <label class="col" for="ext-desc-1">Extended Description 2:</label>
+            <input class="col" type="text" id="ext-desc-1" name="ext-desc-1" />
+            <div class="col"></div>
           </div>
           <div class="row">
-            <label class='col' for="ext-desc-2">Extended Description 2:</label>
-            <input class='col' type="text" id="ext-desc-2" name="ext-desc-2">
-            <div class='col'>
+            <label class="col" for="ext-desc-2">Extended Description 2:</label>
+            <input class="col" type="text" id="ext-desc-2" name="ext-desc-2" />
+            <div class="col">
               <button id="valid-triple">Validate</button>
             </div>
           </div>
         </div>
+        <div class="row">
+          <h5 class="col">Verified Description</h5>
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Main Description</th>
+                <th>Extended Description 1</th>
+                <th>Extended Description 2</th>
+                <th>Copy</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="triple-copy">
+                <th>Triple Description</th>
+                <td id="result-triple-main">1</td>
+                <td id="result-triple-ext1">2</td>
+                <td id="result-triple-ext2">3</td>
+                <td><i class="material-icons pointer">content_copy</i></td>
+              </tr>
+              <tr id="single-copy">
+                <th>Single Description</th>
+                <td id="result-single" colspan="3">lalalalalala</td>
+                <td><i class="material-icons pointer">content_copy</i></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div class='row'>
+      <div class="row">
         <a class="btn col" data-bs-toggle="collapse" href="#batch-input">
           <h3><i class="fas fa-angle-double-down"></i> Batch Asset Mode</h3>
         </a>
       </div>
-      <div class='row collapse' id="batch-input">
-        <div class='col'>
+      <div class="row collapse" id="batch-input">
+        <div class="col">
           <button id="batch-file">Select Excel File</button>
         </div>
       </div>
-      <div class='row'>
+      <div class="row">
         <a class="btn col" data-bs-toggle="collapse" href="#logs-container">
           <h3><i class="fas fa-angle-double-down"></i> Logs</h3>
         </a>
       </div>
-      <pre class='row collapse border border-success border-3'
-        id='logs-container'><code class='col' id='logs'>Program Ready</code></pre>
+      <pre class="row collapse border border-success border-3"
+        id="logs-container"><code class='col' id='logs'>Program Ready</code></pre>
     </div>
   </main>
+
+  <div class="toast-container position-absolute p-3 top-0 end-0" id="toastPlacement">
+    <div id='toast' class="toast d-flex align-items-center border-0">
+      <div class="toast-body" id="toast-message">
+        Hello, world! This is a toast message.
+      </div>
+      <button type="button" class="btn-close ms-auto me-2" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
 
   <script src="./renderer.js"></script>
 </body>
