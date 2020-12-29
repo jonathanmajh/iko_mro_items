@@ -46,4 +46,16 @@
   background-color: #adb5bd;
 }
 
-.material-icons.md-size { font-size: 36px; }
+.material-icons.md-size {
+  font-size: 36px;
+}
+
+.flex-shrink-0 {
+  overflow-y: scroll;
+  height: 90%;
+}
+
+div img {
+  object-fit: scale-down;
+  max-height: 50px;
+}

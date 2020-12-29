@@ -10,13 +10,28 @@ const { ipcRenderer, clipboard } = require('electron')
 document.getElementById("valid-single").addEventListener("click", validSingle);
 document.getElementById("valid-triple").addEventListener("click", validTriple);
 document.getElementById("batch-file").addEventListener("click", test);
-document.getElementById("single-input").addEventListener("hide.bs.collapse", stub);
-document.getElementById("single-input").addEventListener("show.bs.collapse", stub);
-document.getElementById("batch-input").addEventListener("show.bs.collapse", stub);
-document.getElementById("batch-input").addEventListener("hide.bs.collapse", stub);
+// document.getElementById("single-input").addEventListener("hide.bs.collapse", stub);
+// document.getElementById("single-input").addEventListener("show.bs.collapse", stub);
+// document.getElementById("batch-input").addEventListener("show.bs.collapse", stub);
+// document.getElementById("batch-input").addEventListener("hide.bs.collapse", stub);
 document.getElementById("single-copy").addEventListener("click", () => { copyResult('single') });
 document.getElementById("triple-copy").addEventListener("click", () => { copyResult('triple') });
 document.getElementById("triple-paste").addEventListener("click", triplePaste);
+
+const container = document.getElementById("main");
+
+container.addEventListener('click', (event) => {
+    let icon = event.target.getElementsByClassName("material-icons");
+    if (icon[0]?.innerHTML === "expand_less") {
+        icon[0].innerHTML = "expand_more";
+    } else if (icon[0]?.innerHTML === "expand_more") {
+        icon[0].innerHTML = "expand_less";
+    } else {
+        console.log('no icon found');
+        console.log(icon);
+    }
+})
+
 
 function stub() {
     console.log('stub function')
