@@ -27,7 +27,11 @@ onmessage = function (e) {
         let result = valid.validateTriple(e.data[1]);
         console.log(result);
         postMessage(['result', result]);
-
+    } else if (e.data[0] === 'validBatch') {
+        let valid = new Validate;
+        let result = valid.validateBatch(e.data[1]);
+        console.log(result);
+        postMessage(['result', result]);
     } else {
         console.log('unimplimented work');
     }

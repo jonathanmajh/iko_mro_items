@@ -1,4 +1,5 @@
 const Database = require('./database')
+const ExcelReader = require('./spreadsheet')
 
 class ManufacturerValidator {
     constructor() {
@@ -44,12 +45,34 @@ class Validate {
 
     validateTriple(raw_desc) {
         // ['a', 'b', 'c']
-        raw_desc = `${raw_desc[0]},${raw_desc[1]},${raw_desc[2]}`;
-        return this.validateSingle(raw_desc);
+        let value = raw_desc[0]
+        if (raw_desc[1]) {
+            value = `${value},${raw_desc[1]}`;
+        }
+        if (raw_desc[2]) {
+            value = `${value},${raw_desc[2]}`;
+        }
+        return this.validateSingle(value);
+    }
+
+    validateBatch(filePath) {
+        console.log(filePath);
+        filePath = filePath[0]
+        let excel = new ExcelReader(filePath);
+        let result = excel.getDescriptions();
+        for (let i=0; i<result.length; i++) {
+            result[i].result = this.validateSingle(result[i].value);
+        }
+        console.log(result);
+        filePath = filePath.split('.');
+        filePath = `${filePath[0]}_Validated.${filePath[1]}`;
+        excel.writeDescriptions(result, filePath);
+        return('wip')
     }
 
     assembleDescription(split_desc) {
-        let descriptions = ['', '', ''];
+        // TODO need to detect when strings are too long (ie over 90 chars)
+        let descriptions = ['', '', '', ''];
         for (let i = 0; i < split_desc.length - 1; i++) {
             split_desc[i] = `${split_desc[i]},`
         }
@@ -62,6 +85,13 @@ class Validate {
                     }
                 }
                 descriptions[2] = `${descriptions[2]}${split_desc[j]}`;
+                descriptions[3] = descriptions[0]
+                if (descriptions[1]) {
+                    descriptions[3] = `${descriptions[3]},${descriptions[1]}`;
+                }
+                if (descriptions[2]) {
+                    descriptions[3] = `${descriptions[3]},${descriptions[2]}`;
+                }
                 return descriptions
             }
             for (let i=position; i<3; i++) {

@@ -5,11 +5,12 @@
 // selectively enable features needed in the rendering
 // process.
 
-const { ipcRenderer, clipboard } = require('electron')
+const { clipboard } = require('electron')
+const { dialog } = require('electron').remote
 
 document.getElementById("valid-single").addEventListener("click", validSingle);
 document.getElementById("valid-triple").addEventListener("click", validTriple);
-document.getElementById("batch-file").addEventListener("click", test);
+document.getElementById("batch-file").addEventListener("click", validBatch);
 // document.getElementById("single-input").addEventListener("hide.bs.collapse", stub);
 // document.getElementById("single-input").addEventListener("show.bs.collapse", stub);
 // document.getElementById("batch-input").addEventListener("show.bs.collapse", stub);
@@ -32,6 +33,36 @@ container.addEventListener('click', (event) => {
     }
 })
 
+function validBatch() {
+    dialog.showOpenDialog([], {
+        title: "Select Spreadsheet with Names",
+        filters: [
+            { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb', 'csv'] },
+        ],
+        properties: [
+            'openFile'
+        ]
+    }).then(result => {
+        if (!result.canceled) {
+            console.log(result.filePaths);
+            const worker = new Worker('./worker.js');
+            worker.postMessage(['validBatch', result.filePaths]);
+            worker.onmessage = function (e) {
+                console.log('message from worker');
+                if (e.data[0] === 'result') {
+                    // showResult(e.data[1]);
+                } else {
+                    console.log('unimplemented worker message');
+                }
+                console.log(e);
+            }
+        } else {
+            console.log('file picker cancelled');
+        }
+    })
+
+
+}
 
 function stub() {
     console.log('stub function')
@@ -97,7 +128,7 @@ function showResult(result) {
     triDesc.innerHTML = result[2];
     triDesc = document.getElementById('result-single');
     triDesc.innerHTML = result.join();
-    triDesc = new bootstrap.Collapse(document.getElementById('verified-table'), {toggle: false});
+    triDesc = new bootstrap.Collapse(document.getElementById('verified-table'), { toggle: false });
     triDesc.show()
 }
 
