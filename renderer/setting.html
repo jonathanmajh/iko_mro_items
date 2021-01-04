@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self';" />
+</head>
+
+<body>
+
+  <main>
+      <button id="update-manu">Update Manufacturers</button>
+      <p>Requires an excel file with a sheet named 'Manufacturers'</p>
+      <button id="update-abbr">Update Abbreviations</button>
+      <p>Requires an excel file with a sheet named 'Abbreviations'</p>
+      <button id="export-all">View Current Data</button>
+      <p>Creates an excel file with sheets for 'Abbreviations', 'Manufacturers'</p>
+  </main>
+
+  <script src="./setting.js"></script>
+</body>
+
+</html>

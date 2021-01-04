@@ -5,19 +5,18 @@
 // selectively enable features needed in the rendering
 // process.
 
-const { clipboard } = require('electron')
+const { clipboard, ipcRenderer } = require('electron')
 const { dialog } = require('electron').remote
 
 document.getElementById("valid-single").addEventListener("click", validSingle);
 document.getElementById("valid-triple").addEventListener("click", validTriple);
 document.getElementById("batch-file").addEventListener("click", validBatch);
-// document.getElementById("single-input").addEventListener("hide.bs.collapse", stub);
-// document.getElementById("single-input").addEventListener("show.bs.collapse", stub);
-// document.getElementById("batch-input").addEventListener("show.bs.collapse", stub);
-// document.getElementById("batch-input").addEventListener("hide.bs.collapse", stub);
+document.getElementById("template-file").addEventListener("click", test);
 document.getElementById("single-copy").addEventListener("click", () => { copyResult('single') });
 document.getElementById("triple-copy").addEventListener("click", () => { copyResult('triple') });
 document.getElementById("triple-paste").addEventListener("click", triplePaste);
+
+document.getElementById("settings").addEventListener("click", openSettings);
 
 const container = document.getElementById("main");
 
@@ -32,6 +31,11 @@ container.addEventListener('click', (event) => {
         console.log(icon);
     }
 })
+
+function openSettings() {
+    console.log("opening settings");
+    ipcRenderer.sendSync('openSettings');
+}
 
 function validBatch() {
     dialog.showOpenDialog([], {
@@ -64,10 +68,6 @@ function validBatch() {
 
 }
 
-function stub() {
-    console.log('stub function')
-    // ipcRenderer.invoke('updateManufacturer', 'some arg')
-}
 
 function triplePaste() {
     let paste = clipboard.readText();
@@ -134,6 +134,9 @@ function showResult(result) {
 
 async function test() {
     new Toast('toast message');
+    const synth = window.speechSynthesis;
+    let voices = synth.getVoices();
+    console.log(voices);
 }
 
 function copyResult(copy) {

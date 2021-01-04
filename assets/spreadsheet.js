@@ -21,6 +21,20 @@ class ExcelReader {
         return data
     }
 
+    getAbbreviations() {
+        let workbook = xlsx.readFile(this.filePath, {sheets:"Abbreviations",});
+        let worksheet = workbook.Sheets["Abbreviations"];
+        let range = worksheet['!ref'];
+        let lastrow = parseInt(range.split(':')[1].slice(1));
+        let data = []
+        for (let i=3;i<=lastrow;i++) {
+            if (worksheet[`A${i}`]) {
+                data.push([worksheet[`A${i}`].v, worksheet[`B${i}`].v])
+            }
+        }
+        return data
+    }
+
     getDescriptions() {
         let workbook = xlsx.readFile(this.filePath, {sheets:"Validate",});
         // open first worksheet if validate does not exist
