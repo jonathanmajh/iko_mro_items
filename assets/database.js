@@ -15,52 +15,59 @@ class Database {
 
     }
 
-    /* TODO rewright with better sqlite3
     createManufacturers() {
-        this.db.serialize(() => {
-            this.db.run(`CREATE TABLE manufacturers(
+        const createTable = this.db.prepare(`CREATE TABLE manufacturers(
                          full_name text NOT NULL UNIQUE,
                          short_name text NOT NULL UNIQUE,
-                         website text);`, (err) => {
-                if (err) {
-                    throw err;
-                }
-                console.log('created manufacturers table');
-            })
-                .run(`CREATE UNIQUE INDEX idx_manufact_full
-                         ON manufacturers(full_name);`, (err) => {
-                    if (err) {
-                        throw err;
-                    }
-                    console.log('created full name index');
-                })
-                .run(`CREATE UNIQUE INDEX idx_manufact_short
-                         ON manufacturers(short_name);`, (err) => {
-                    if (err) {
-                        throw err;
-                    }
-                    console.log('created short name index');
-                })
-        });
+                         website text);`);
 
+        const runQuery = this.db.transaction(() => {
+            createTable.run();
+            const createIndex1 = this.db.prepare(`CREATE UNIQUE INDEX idx_manufact_full
+                         ON manufacturers(full_name);`);
+            const createIndex2 = this.db.prepare(`CREATE UNIQUE INDEX idx_manufact_short
+                         ON manufacturers(short_name);`);
+            createIndex1.run();
+            createIndex2.run();
+        })
+        runQuery();
+    }
+
+    createAbbreviations() {
+        const createTable = this.db.prepare(`CREATE TABLE abbreviations(
+                         full_text text NOT NULL UNIQUE,
+                         short_text text NOT NULL UNIQUE);`);
+
+        const runQuery = this.db.transaction(() => {
+            createTable.run();
+            const createIndex1 = this.db.prepare(`CREATE UNIQUE INDEX idx_abbrev_full
+                         ON abbreviations(full_text);`);
+            createIndex1.run();
+        })
+        runQuery();
     }
 
     populateManufacturers(data) {
         // [[full_name, short_name, website], ... ]
-        let query = `INSERT OR REPLACE INTO manufacturers (full_name, short_name, website) VALUES (?, ?, ?)`
-        this.db.parallelize(() => {
+        const query = this.db.prepare(`INSERT OR REPLACE INTO manufacturers (full_name, short_name, website) VALUES (?, ?, ?);`)
+        const popManu = this.db.transaction((data) => {
             data.forEach(item => {
-                this.db.run(query, item, function (err) {
-                    if (err) {
-                        console.log(`Cannot insert manufacturer ${item}`);
-                    } else {
-                        console.log(`inserted manufacturer: ${this.lastID}, data: ${item}`)
-                    }
-                })
+                query.run(item);
             })
-
         })
-    } */
+        popManu(data);
+    }
+
+    populateAbbreviations(data) {
+        // [[full_name, short_name, website], ... ]
+        const query = this.db.prepare(`INSERT OR REPLACE INTO abbreviations (full_text, short_text) VALUES (?, ?);`)
+        const pop = this.db.transaction((data) => {
+            data.forEach(item => {
+                query.run(item);
+            })
+        })
+        pop(data);
+    }
 
     isManufacturer(name) {
         let query = this.db.prepare('SELECT short_name FROM manufacturers WHERE full_name = ?');
