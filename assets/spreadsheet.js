@@ -70,7 +70,16 @@ class ExcelReader {
             worksheet[`H${description.row}`] = {t: 's', v: description.result[2], w: undefined}; //ext2
             worksheet[`I${description.row}`] = {t: 's', v: description.messages, w: undefined}; //msg 
         });
-        xlsx.writeFile(workbook, savePath);
+        try {
+            xlsx.writeFile(workbook, savePath);
+        } catch (error) {
+            console.log(error);
+            const suffix = Date.now();
+            savePath = savePath.split('.');
+            savePath = `${savePath[0]}${suffix}.${savePath[1]}`;
+            xlsx.writeFile(workbook, savePath);
+        }
+        return savePath;
     }
 }
 

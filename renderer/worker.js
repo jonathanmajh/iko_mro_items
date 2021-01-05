@@ -9,7 +9,7 @@ onmessage = function (e) {
         console.log(e.data[1]);
         let valid = new Validate;
         let result = valid.validateSingle(e.data[1]);
-        console.log(result);
+        console.log(`result of valid.validateSingle: ${result}`);
         postMessage(['result', result]);
         postMessage('test message');
     } else if (e.data[0] === 'validTriple') {

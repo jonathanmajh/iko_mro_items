@@ -70,8 +70,14 @@ class Database {
     }
 
     isManufacturer(name) {
-        let query = this.db.prepare('SELECT short_name FROM manufacturers WHERE full_name = ?');
-        let result = query.get(name);
+        const query = this.db.prepare('SELECT short_name FROM manufacturers WHERE full_name = ?');
+        const result = query.get(name);
+        return result
+    }
+
+    isAbbreviation(phrase) {
+        const query = this.db.prepare('SELECT short_text FROM abbreviations WHERE full_text = ?');
+        const result = query.get(phrase);
         return result
     }
 }

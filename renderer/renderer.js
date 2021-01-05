@@ -5,7 +5,7 @@
 // selectively enable features needed in the rendering
 // process.
 
-const { clipboard, ipcRenderer } = require('electron')
+const { clipboard, ipcRenderer, shell } = require('electron')
 const { dialog } = require('electron').remote
 
 document.getElementById("valid-single").addEventListener("click", validSingle);
@@ -15,7 +15,7 @@ document.getElementById("template-file").addEventListener("click", test);
 document.getElementById("single-copy").addEventListener("click", () => { copyResult('single') });
 document.getElementById("triple-copy").addEventListener("click", () => { copyResult('triple') });
 document.getElementById("triple-paste").addEventListener("click", triplePaste);
-
+document.getElementById("valid-file").addEventListener("click", openFile);
 document.getElementById("settings").addEventListener("click", openSettings);
 
 const container = document.getElementById("main");
@@ -31,6 +31,14 @@ container.addEventListener('click', (event) => {
         console.log(icon);
     }
 })
+
+function openFile() {
+    const validFile = document.getElementById("valid-file");
+    const filePath = validFile.innerText;
+    if (filePath.length > 0) {
+        shell.openExternal(filePath);
+    }
+}
 
 function openSettings() {
     console.log("opening settings");
@@ -54,7 +62,9 @@ function validBatch() {
             worker.onmessage = function (e) {
                 console.log('message from worker');
                 if (e.data[0] === 'result') {
-                    // showResult(e.data[1]);
+                    new Toast(`Batch Validation Finished!`);
+                    const fileLink = document.getElementById('valid-file');
+                    fileLink.innerText = e.data[1];
                 } else {
                     console.log('unimplemented worker message');
                 }
@@ -64,8 +74,6 @@ function validBatch() {
             console.log('file picker cancelled');
         }
     })
-
-
 }
 
 
@@ -127,7 +135,7 @@ function showResult(result) {
     triDesc = document.getElementById('result-triple-ext2');
     triDesc.innerHTML = result[2];
     triDesc = document.getElementById('result-single');
-    triDesc.innerHTML = result.join();
+    triDesc.innerHTML = result[3];
     triDesc = new bootstrap.Collapse(document.getElementById('verified-table'), { toggle: false });
     triDesc.show()
 }

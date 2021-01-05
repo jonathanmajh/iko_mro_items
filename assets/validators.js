@@ -24,6 +24,35 @@ class ManufacturerValidator {
     }
 }
 
+class PhraseReplacer {
+    constructor() {
+        this.db = new Database;
+    }
+
+    replaceAbbreviated(split_desc) {
+        // TODO need to split by spaces, ie replace individual word by keep the way words are grouped with commas
+        let replacement = false;
+        for (let i=0; i<split_desc.length; i++) {
+            // look for replacements for phrases
+            replacement = this.db.isAbbreviation(split_desc[i]);
+            if(replacement) {
+                split_desc[i] = replacement.short_text;
+            }
+            // look for replacement for individual words
+            let word_split = split_desc[i].split(' ');
+            let word_replacement = false
+            for (let j=0; j<word_split.length; j++) {
+                word_replacement = this.db.isAbbreviation(word_split[j]);
+                if(word_replacement) {
+                    word_split[j] = word_replacement.short_text;
+                }
+            }
+            split_desc[i] = word_split.join(' ');
+        }
+        return split_desc
+    }
+}
+
 class Validate {
     validateSingle(raw_desc) {
         raw_desc = raw_desc.split(',');
@@ -39,7 +68,14 @@ class Validate {
         } else {
             split_desc = manu;
         }
-        let result = this.assembleDescription(split_desc)
+        let replace = new PhraseReplacer();
+        let replaced = replace.replaceAbbreviated(split_desc);
+        if (replaced) {
+            split_desc = replaced;
+        } else {
+            console.log('no replacement necessary');
+        }
+        let result = this.assembleDescription(split_desc);
         return result;
     }
 
@@ -66,8 +102,8 @@ class Validate {
         console.log(result);
         filePath = filePath.split('.');
         filePath = `${filePath[0]}_Validated.${filePath[1]}`;
-        excel.writeDescriptions(result, filePath);
-        return('wip')
+        filePath = excel.writeDescriptions(result, filePath);
+        return(filePath);
     }
 
     assembleDescription(split_desc) {
