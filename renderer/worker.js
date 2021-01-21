@@ -1,6 +1,9 @@
 const Validate = require('../assets/validators')
 const ExcelReader = require('../assets/spreadsheet')
 const Database = require('../assets/database')
+var parseString = require('xml2js').parseString;
+
+
 
 onmessage = function (e) {
     console.log('recieved message from boss:')
@@ -40,6 +43,12 @@ onmessage = function (e) {
         db.createAbbreviations();
         db.createManufacturers();
         postMessage(['result', 'done']);
+    } else if (e.data[0] === 'xmlParse') {
+        parseString(e.data[1], function (err, result) {
+            console.log('finished parsing');
+            const parse = result['ITEMMboSet']['ITEM'];
+            postMessage(['result', parse]);
+        })
     } else {
         console.log('unimplimented work');
     }

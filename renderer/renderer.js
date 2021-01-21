@@ -19,7 +19,6 @@ document.getElementById("valid-file").addEventListener("click", openFile);
 document.getElementById("settings").addEventListener("click", openSettings);
 
 const container = document.getElementById("main");
-
 container.addEventListener('click', (event) => {
     let icon = event.target.getElementsByClassName("material-icons");
     if (icon[0]?.innerHTML === "expand_less") {
@@ -140,13 +139,6 @@ function showResult(result) {
     triDesc.show()
 }
 
-async function test() {
-    new Toast('toast message');
-    const synth = window.speechSynthesis;
-    let voices = synth.getVoices();
-    console.log(voices);
-}
-
 function copyResult(copy) {
     if (copy === 'single') {
         let content = document.getElementById('result-single').innerText;
@@ -233,4 +225,23 @@ class Toast {
             e.target.remove();
         })
     }
+}
+
+function test() {
+    fetch('http://nscandacmaxapp1/maxrest/rest/mbo/item?DESCRIPTION=cutter&_maxItems=20&_lid=corcoop3&_lpwd=maximo')
+        .then(response => {
+            return (response.text());
+        })
+        .then(text => {
+            const worker = new Worker('./worker.js');
+            worker.postMessage(['xmlParse', text]);
+            worker.onmessage = function (e) {
+                console.log('message from worker');
+                if (e.data[0] === 'result') {
+                    console.log(e.data[1]);
+                } else {
+                    console.log('unimplemented worker message');
+                }
+            }
+        })
 }
