@@ -1,6 +1,3 @@
-const sqlite3 = require('better-sqlite3')
-
-
 class Database {
     constructor() {
         this.db = new sqlite3('./assets/db.db', { verbose: console.log });

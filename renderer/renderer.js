@@ -136,7 +136,25 @@ function showResult(result) {
     triDesc = document.getElementById('result-single');
     triDesc.innerHTML = result[3];
     triDesc = new bootstrap.Collapse(document.getElementById('verified-table'), { toggle: false });
-    triDesc.show()
+    triDesc.show();
+    findRelated(result);
+}
+
+function findRelated(result) {
+    const worker = new Worker('./worker.js');
+    worker.postMessage(['findRelated', result[3]]);
+    worker.onmessage = (e) => {
+        if (e.data[0] === 'result') {
+            showRelated(e.data[1]);
+        } else {
+            console.log('unimplemented worker message');
+        }
+        console.log(e);
+    }
+}
+
+function showRelated(result) {
+    console.log(result)
 }
 
 function copyResult(copy) {
@@ -162,6 +180,7 @@ function copyResult(copy) {
 }
 
 async function progress() {
+    // this was a test i believe
     let percent = document.getElementById("main-desc");
     let message = document.getElementById("ext-desc-1");
     worker.postMessage(['progress', percent.value, message.value]);
