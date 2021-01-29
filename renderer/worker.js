@@ -1,6 +1,6 @@
 const Validate = require('../assets/validators')
 const ExcelReader = require('../assets/spreadsheet')
-const Database = require('../assets/database')
+const Database = require('../assets/indexDB')
 const Maximo = require('../assets/maximo')
 
 onmessage = function (e) {
@@ -12,7 +12,6 @@ onmessage = function (e) {
         let result = valid.validateSingle(e.data[1]);
         console.log(`result of valid.validateSingle: ${result}`);
         postMessage(['result', result]);
-        postMessage('test message');
     } else if (e.data[0] === 'validTriple') {
         let valid = new Validate;
         let result = valid.validateTriple(e.data[1]);

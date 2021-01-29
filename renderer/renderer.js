@@ -7,6 +7,7 @@
 
 const { clipboard, ipcRenderer, shell } = require('electron')
 const { dialog } = require('electron').remote
+const Database = require('../assets/indexDB')
 
 document.getElementById("valid-single").addEventListener("click", validSingle);
 document.getElementById("valid-triple").addEventListener("click", validTriple);
@@ -247,20 +248,5 @@ class Toast {
 }
 
 function test() {
-    fetch('http://nscandacmaxapp1/maxrest/rest/mbo/item?DESCRIPTION=cutter&_maxItems=20&_lid=corcoop3&_lpwd=maximo')
-        .then(response => {
-            return (response.text());
-        })
-        .then(text => {
-            const worker = new Worker('./worker.js');
-            worker.postMessage(['xmlParse', text]);
-            worker.onmessage = function (e) {
-                console.log('message from worker');
-                if (e.data[0] === 'result') {
-                    console.log(e.data[1]);
-                } else {
-                    console.log('unimplemented worker message');
-                }
-            }
-        })
+    let db = new Database();
 }

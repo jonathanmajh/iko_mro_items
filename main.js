@@ -2,7 +2,6 @@
 const {app, BrowserWindow, ipcMain} = require('electron')
 const path = require('path')
 const ExcelReader = require('./assets/spreadsheet')
-const Database = require('./assets/database')
 
 // ipcMain.handle('updateManufacturer', (event, somearg) => {
 //   console.log(somearg);
