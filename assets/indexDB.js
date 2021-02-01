@@ -1,6 +1,7 @@
 const Dexie = require('dexie');
 const ExcelReader = require('./spreadsheet');
 const path = require('path');
+// const { app } = require('electron').remote;
 
 class Database {
     constructor() {
@@ -9,13 +10,11 @@ class Database {
             manufacturers: "++id, full_name, short_name",
             abbreviations: "++id, orig_text, replace_text"
         });
-        this.db.open();
         this.checkValidDB().then(
             (result) => {
                 if (result) {
                     console.log('db ready');
                 } else {
-                    const { app } = require('electron').remote;
                     let appPath = app.getAppPath();
                     appPath = path.join(appPath, 'assets', 'item_database.xlsm')
                     const excel = new ExcelReader(appPath);
@@ -58,17 +57,12 @@ class Database {
         this.db.manufacturers.bulkAdd(dataDB)
     }
 
-    isManufacturer(name) {
-        // let result = await this.db.manufacturers
-        //     .where(['full_name'])
-        //     .equalsIgnoreCase(name).first().then((manu) => {
-        //         return manu.short_name
-        //     })
-        
-        // let result2 = await this.db.manufacturers
-        //     .where(['short_name'])
-        //     .equalsIgnoreCase(name)
-        return {short_name: name}
+    async isManufacturer(name) {
+        let result = await this.db.manufacturers.where('full_name').startsWithIgnoreCase(name).toArray()
+        if (result.length==0) {
+            result = await this.db.manufacturers.where('short_name').startsWithIgnoreCase(name).toArray()
+        }
+        return {short_name: name, obj: result}
     }
 
     isAbbreviation(phase) {

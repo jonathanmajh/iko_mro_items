@@ -7,20 +7,20 @@ class ManufacturerValidator {
         this.db = new Database;
     }
 
-    validateSingle(split_desc) {
+    async validateSingle(split_desc) {
         let manufacturer = false;
         // look from end of string since manufacturer name is mostly likely in last description
         for (let i=split_desc.length-1; i>=0; i--) {
             console.log('looking for manufacturer named: ' + split_desc[i]);
-            manufacturer = this.db.isManufacturer(split_desc[i]);
-            if(manufacturer) {
+            manufacturer = await this.db.isManufacturer(split_desc[i]);
+            // !! This might require to be async
+            if (manufacturer) {
                 console.log(`found manufacturer: ${manufacturer.short_name}`)
                 split_desc.splice(i, 1); //remove the manufactuer and re-add the short version to the end
                 split_desc.push(manufacturer.short_name);
                 return split_desc
             }
         }
-        return
     }
 }
 
@@ -63,20 +63,23 @@ class Validate {
         console.log(split_desc);
         let manuValid = new ManufacturerValidator();
         let manu = manuValid.validateSingle(split_desc);
-        if (!manu) {
+        manu.then(manu => {
+            if (!manu) {
             console.log(`Warning: No Manufacturer Found for ${raw_desc}`);
-        } else {
-            split_desc = manu;
+            } else {
+                split_desc = manu;
+            }
+            let replace = new PhraseReplacer();
+            let replaced = replace.replaceAbbreviated(split_desc);
+            if (replaced) {
+                split_desc = replaced;
+            } else {
+                console.log('no replacement necessary');
+            }
+            let result = this.assembleDescription(split_desc);
+            return result;
         }
-        let replace = new PhraseReplacer();
-        let replaced = replace.replaceAbbreviated(split_desc);
-        if (replaced) {
-            split_desc = replaced;
-        } else {
-            console.log('no replacement necessary');
-        }
-        let result = this.assembleDescription(split_desc);
-        return result;
+        )
     }
 
     validateTriple(raw_desc) {
