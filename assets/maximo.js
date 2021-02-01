@@ -26,7 +26,7 @@ class Maximo {
             intersections.push([holder.length, intersection(...holder)])
         }
         console.log(intersections)
-        postMessage(['done', matchAndScore(intersections)]);
+        postMessage(['result', matchAndScore(intersections), itemDict]);
     }
 }
 
@@ -50,23 +50,27 @@ function matchAndScore(data) {
 }
 
 async function fetchAndObjectify(phrase) {
-
-    let response = await fetch(`http://nscandacmaxapp1/maxrest/rest/mbo/item?DESCRIPTION=${phrase}&_includecols=itemnum,description&_format=json&_compact=1&_lid=corcoop3&_lpwd=maximo`);
-
-    let content;
-
-    if (!response.ok) {
-        postMessage(['error', response.status]);
-    } else {
-        content = await response.json();
-        console.log(content);
-        let itemNums = [];
-        content['ITEMMboSet']['ITEM'].forEach(item => {
-            itemNums.push(item['ITEMNUM']);
-            itemDict[item['ITEMNUM']] = item['DESCRIPTION']
-        });
-        return itemNums;
+    let response;
+    try {
+        response = await fetch(`http://nscandacmaxapp1/maxrest/rest/mbo/item?DESCRIPTION=${phrase}&_includecols=itemnum,description&_format=json&_compact=1&_lid=corcoop3&_lpwd=maximo`);
+    } catch(err) {
+        postMessage(['error', err, 'Failed to fetch Data from Maximo, Please Check Network']);
+    } finally {
+        if (!response.ok) {
+            postMessage(['error', response.status, 'Failed to fetch Data from Maximo, Please Check Network']);
+            return false;
+        } else {
+            let content = await response.json();
+            console.log(content);
+            let itemNums = [];
+            content['ITEMMboSet']['ITEM'].forEach(item => {
+                itemNums.push(item['ITEMNUM']);
+                itemDict[item['ITEMNUM']] = item['DESCRIPTION']
+            });
+            return itemNums;
+        }
     }
+    
 }
 
 //https://stackoverflow.com/a/59942031

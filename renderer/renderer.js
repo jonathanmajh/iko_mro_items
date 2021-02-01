@@ -146,7 +146,14 @@ function findRelated(result) {
     worker.postMessage(['findRelated', result[3]]);
     worker.onmessage = (e) => {
         if (e.data[0] === 'result') {
-            showRelated(e.data[1]);
+            showRelated(e.data.slice(1,), result[3]);
+        } else if (e.data[0] === 'error') {
+            let msgs = e.data.slice(1,);
+            for (let i = 0; i < msgs.length; i++) {
+                new Toast(msgs[i]);
+            }
+            let bar = new ProgressBar;
+            bar.update(100, msgs[0]);
         } else {
             console.log('unimplemented worker message');
         }
@@ -154,8 +161,34 @@ function findRelated(result) {
     }
 }
 
-function showRelated(result) {
-    console.log(result)
+
+async function showRelated(result, searchWords) {
+    const scores = result[0];
+    const itemNames = result[1];
+    searchWords = searchWords.split(',');
+    let html = '';
+    let itemName;
+    const option = {
+        style: 'percent',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    };
+    const formatter = new Intl.NumberFormat("en-US", option);
+    for (let [key, value] of Object.entries(scores)) {
+        console.log(key, value);
+        for (let item of value) {
+            itemName = itemNames[item]
+            for (let word of searchWords) {
+                itemName = itemName.replace(new RegExp(`${word}`, 'i'), `<b>${word}</b>`)
+            }
+            html = `${html}\n<tr><td>${formatter.format(key)}</td>\n<td>${item}</td>\n<td>${itemName}</td></tr>`
+        }
+
+    }
+    const relatedTable = document.getElementById('related-items')
+    relatedTable.innerHTML = html;
+    html = new bootstrap.Collapse(document.getElementById('related-table'), { toggle: false });
+    html.show();
 }
 
 function copyResult(copy) {
@@ -180,20 +213,29 @@ function copyResult(copy) {
     }
 }
 
-async function progress() {
-    // this was a test i believe
-    let percent = document.getElementById("main-desc");
-    let message = document.getElementById("ext-desc-1");
-    worker.postMessage(['progress', percent.value, message.value]);
-    console.log('send message to worker');
-    worker.onmessage = function (e) {
-        console.log('message from worker')
-        let progressBar = new ProgressBar();
-        progressBar.update(e.data[0], e.data[1]);
-        console.log(e)
-    }
-}
 
+// class WorkerHandler {
+//     async work(params) {
+//         const worker = new Worker('./worker.js');
+//         worker.postMessage(params);
+//         worker.onmessage = (e) => {
+//             if (e.data[0] === 'result') {
+//                 return(e.data.slice(1,));
+//             } else if (e.data[0] === 'error') {
+//                 let msgs = e.data.slice(1,);
+//                 for (let i=0; i<msgs.length; i++) {
+//                     new Toast(msgs[i]);
+//                 }
+//                 let bar = new ProgressBar;
+//                 bar.update(100, msgs[0]);
+//                 return false;
+//             } else {
+//                 console.log('unimplemented worker message');
+//             }
+//             console.log(e);
+//         }
+//     }
+// }
 
 class ProgressBar {
     constructor() {
