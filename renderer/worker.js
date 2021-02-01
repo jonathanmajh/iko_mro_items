@@ -7,7 +7,6 @@ onmessage = function (e) {
     console.log('recieved message from boss:')
     console.log(e);
     if (e.data[0] === 'validSingle') {
-        console.log(e.data[1]);
         let valid = new Validate;
         valid.validateSingle(e.data[1]).then(
             result => {
@@ -37,11 +36,9 @@ onmessage = function (e) {
         const db = new Database();
         if (updateType === 'manufacturer') {
             let data = excel.getManufactures();
-            console.log(data);
             db.populateManufacturers(data);
         } else if (updateType === 'abbreviations') {
             let data = excel.getAbbreviations();
-            console.log(data);
             db.populateAbbreviations(data);
         }
     } else if (e.data[0] === 'createDatabase') {
@@ -56,6 +53,3 @@ onmessage = function (e) {
         console.log('unimplimented work');
     }
 }
-
-
-console.log('worker thread started')

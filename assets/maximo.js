@@ -10,13 +10,12 @@ class Maximo {
         const phrases = data.split(',');
         let maximoItems = []
         for (let i = 0; i < phrases.length; i++) {
+            postMessage(['progress', (i/phrases.length)*70, "Getting Item Descriptions From Maximo"])
             let result = await fetchAndObjectify(phrases[i])
             maximoItems.push(result);
         }
-        console.log(maximoItems)
         let arrayAsNum = [...Array(maximoItems.length).keys()] //create an array with only integers to find combinations
         arrayAsNum = getCombinations(arrayAsNum);
-        console.log(arrayAsNum);
         let intersections = []
         for (let i=arrayAsNum.length; i>0; i--) { //convert combination of integers to combination of arrays
             let holder = [];
@@ -25,12 +24,12 @@ class Maximo {
             });
             intersections.push([holder.length, intersection(...holder)])
         }
-        console.log(intersections)
         postMessage(['result', matchAndScore(intersections), itemDict, data]);
     }
 }
 
 function matchAndScore(data) {
+    postMessage(['progress', 80, "Processing Item Descriptions From Maximo"])
     const numPhases = data[0][0];
     let matchedScores = {};
     let saved = {};

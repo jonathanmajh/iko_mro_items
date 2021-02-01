@@ -86,6 +86,8 @@ function triplePaste() {
 }
 
 function validSingle() {
+    let bar = new ProgressBar;
+    bar.update(0, 'Starting Item Description Validation');
     let raw_desc = document.getElementById("maximo-desc").value;
     const worker = new WorkerHandler;
     worker.work(['validSingle', raw_desc], showResult);
@@ -130,6 +132,8 @@ async function showRelated(result) {
     const searchWords = result[2].split(',');
     let html = '';
     let itemName;
+    let bar = new ProgressBar;
+    bar.update(90, 'Generating table for showing related assets');
     const option = {
         style: 'percent',
         minimumFractionDigits: 0,
@@ -151,6 +155,7 @@ async function showRelated(result) {
     relatedTable.innerHTML = html;
     html = new bootstrap.Collapse(document.getElementById('related-table'), { toggle: false });
     html.show();
+    bar.update(100, 'Done!');
 }
 
 function copyResult(copy) {
@@ -193,7 +198,6 @@ class WorkerHandler {
                 bar.update(100, msgs[0]);
                 worker.terminate()
             } else if (e.data[0] === 'progress') {
-                new Toast(e.data[2]);
                 let bar = new ProgressBar;
                 bar.update(e.data[1], e.data[2]);
             } else {
