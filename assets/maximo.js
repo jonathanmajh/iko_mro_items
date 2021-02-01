@@ -26,7 +26,7 @@ class Maximo {
             intersections.push([holder.length, intersection(...holder)])
         }
         console.log(intersections)
-        postMessage(['result', matchAndScore(intersections), itemDict]);
+        postMessage(['result', matchAndScore(intersections), itemDict, data]);
     }
 }
 

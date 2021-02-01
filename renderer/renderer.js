@@ -56,24 +56,18 @@ function validBatch() {
         ]
     }).then(result => {
         if (!result.canceled) {
-            console.log(result.filePaths);
-            const worker = new Worker('./worker.js');
-            worker.postMessage(['validBatch', result.filePaths]);
-            worker.onmessage = function (e) {
-                console.log('message from worker');
-                if (e.data[0] === 'result') {
-                    new Toast(`Batch Validation Finished!`);
-                    const fileLink = document.getElementById('valid-file');
-                    fileLink.innerText = e.data[1];
-                } else {
-                    console.log('unimplemented worker message');
-                }
-                console.log(e);
-            }
+            const worker = new WorkerHandler;
+            worker.work(['validBatch', result.filePaths], validBatchCB);
         } else {
-            console.log('file picker cancelled');
+            new Toast('File Picker Cancelled');
         }
     })
+}
+
+function validBatchCB(data) {
+    new Toast(`Batch Validation Finished!`);
+    const fileLink = document.getElementById('valid-file');
+    fileLink.innerText = data[0];
 }
 
 
@@ -93,21 +87,11 @@ function triplePaste() {
 
 function validSingle() {
     let raw_desc = document.getElementById("maximo-desc").value;
-    const worker = new Worker('./worker.js');
-    worker.postMessage(['validSingle', raw_desc]);
-    worker.onmessage = function (e) {
-        console.log('message from worker');
-        if (e.data[0] === 'result') {
-            showResult(e.data[1]);
-        } else {
-            console.log('unimplemented worker message');
-        }
-        console.log(e);
-    }
+    const worker = new WorkerHandler;
+    worker.work(['validSingle', raw_desc], showResult);
 }
 
 function validTriple() {
-    const worker = new Worker('./worker.js');
     let desc = [];
     let content = '';
     content = document.getElementById('main-desc').value;
@@ -116,56 +100,34 @@ function validTriple() {
     desc.push(content);
     content = document.getElementById('ext-desc-2').value;
     desc.push(content);
-    worker.postMessage(['validTriple', desc]);
-    worker.onmessage = (e) => {
-        if (e.data[0] === 'result') {
-            showResult(e.data[1]);
-        } else {
-            console.log('unimplemented worker message');
-        }
-        console.log(e);
-    }
+    const worker = new WorkerHandler;
+    worker.work(['validTriple', desc], showResult);
 }
 
 function showResult(result) {
     let triDesc = document.getElementById('result-triple-main');
-    triDesc.innerHTML = result[0];
+    triDesc.innerHTML = result[0][0];
     triDesc = document.getElementById('result-triple-ext1');
-    triDesc.innerHTML = result[1];
+    triDesc.innerHTML = result[0][1];
     triDesc = document.getElementById('result-triple-ext2');
-    triDesc.innerHTML = result[2];
+    triDesc.innerHTML = result[0][2];
     triDesc = document.getElementById('result-single');
-    triDesc.innerHTML = result[3];
+    triDesc.innerHTML = result[0][3];
     triDesc = new bootstrap.Collapse(document.getElementById('verified-table'), { toggle: false });
     triDesc.show();
-    findRelated(result);
+    findRelated(result[0]);
 }
 
 function findRelated(result) {
-    const worker = new Worker('./worker.js');
-    worker.postMessage(['findRelated', result[3]]);
-    worker.onmessage = (e) => {
-        if (e.data[0] === 'result') {
-            showRelated(e.data.slice(1,), result[3]);
-        } else if (e.data[0] === 'error') {
-            let msgs = e.data.slice(1,);
-            for (let i = 0; i < msgs.length; i++) {
-                new Toast(msgs[i]);
-            }
-            let bar = new ProgressBar;
-            bar.update(100, msgs[0]);
-        } else {
-            console.log('unimplemented worker message');
-        }
-        console.log(e);
-    }
+    const worker = new WorkerHandler;
+    worker.work(['findRelated', result[3]], showRelated);
 }
 
 
-async function showRelated(result, searchWords) {
+async function showRelated(result) {
     const scores = result[0];
     const itemNames = result[1];
-    searchWords = searchWords.split(',');
+    const searchWords = result[2].split(',');
     let html = '';
     let itemName;
     const option = {
@@ -214,28 +176,33 @@ function copyResult(copy) {
 }
 
 
-// class WorkerHandler {
-//     async work(params) {
-//         const worker = new Worker('./worker.js');
-//         worker.postMessage(params);
-//         worker.onmessage = (e) => {
-//             if (e.data[0] === 'result') {
-//                 return(e.data.slice(1,));
-//             } else if (e.data[0] === 'error') {
-//                 let msgs = e.data.slice(1,);
-//                 for (let i=0; i<msgs.length; i++) {
-//                     new Toast(msgs[i]);
-//                 }
-//                 let bar = new ProgressBar;
-//                 bar.update(100, msgs[0]);
-//                 return false;
-//             } else {
-//                 console.log('unimplemented worker message');
-//             }
-//             console.log(e);
-//         }
-//     }
-// }
+class WorkerHandler {
+    async work(params, callback) {
+        const worker = new Worker('./worker.js');
+        worker.postMessage(params);
+        worker.onmessage = (e) => {
+            if (e.data[0] === 'result') {
+                worker.terminate()
+                callback(e.data.slice(1,));
+            } else if (e.data[0] === 'error') {
+                let msgs = e.data.slice(1,);
+                for (let i=0; i<msgs.length; i++) {
+                    new Toast(msgs[i]);
+                }
+                let bar = new ProgressBar;
+                bar.update(100, msgs[0]);
+                worker.terminate()
+            } else if (e.data[0] === 'progress') {
+                new Toast(e.data[2]);
+                let bar = new ProgressBar;
+                bar.update(e.data[1], e.data[2]);
+            } else {
+                console.log('unimplemented worker message');
+                console.log(e);
+            }
+        }
+    }
+}
 
 class ProgressBar {
     constructor() {
