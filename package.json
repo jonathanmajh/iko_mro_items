@@ -63,7 +63,7 @@
             "repository" : {
               "owner": "jonathanmajh",
               "name": "iko_mro_items",
-              "draft": false
+              "draft": true
             }
           }
         }
