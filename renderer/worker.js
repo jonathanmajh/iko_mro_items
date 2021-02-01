@@ -9,19 +9,28 @@ onmessage = function (e) {
     if (e.data[0] === 'validSingle') {
         console.log(e.data[1]);
         let valid = new Validate;
-        let result = valid.validateSingle(e.data[1]);
-        console.log(`result of valid.validateSingle: ${result}`);
-        postMessage(['result', result]);
+        valid.validateSingle(e.data[1]).then(
+            result => {
+                console.log(`result of valid.validateSingle: ${result}`);
+                postMessage(['result', result]);
+            }
+        );       
     } else if (e.data[0] === 'validTriple') {
         let valid = new Validate;
-        let result = valid.validateTriple(e.data[1]);
-        console.log(result);
-        postMessage(['result', result]);
+        valid.validateTriple(e.data[1]).then(
+            result => {
+                console.log(result);
+                postMessage(['result', result]);
+            }
+        );
     } else if (e.data[0] === 'validBatch') {
         let valid = new Validate;
-        let result = valid.validateBatch(e.data[1]);
-        console.log(result);
-        postMessage(['result', result]);
+        valid.validateBatch(e.data[1]).then(
+            result => {
+                console.log(result);
+                postMessage(['result', result]);
+            }
+        );
     } else if (e.data[0] === 'update') {
         const updateType = e.data[1];
         const excel = new ExcelReader(e.data[2]);

@@ -13,7 +13,6 @@ class ManufacturerValidator {
         for (let i=split_desc.length-1; i>=0; i--) {
             console.log('looking for manufacturer named: ' + split_desc[i]);
             manufacturer = await this.db.isManufacturer(split_desc[i]);
-            // !! This might require to be async
             if (manufacturer) {
                 console.log(`found manufacturer: ${manufacturer.short_name}`)
                 split_desc.splice(i, 1); //remove the manufactuer and re-add the short version to the end
@@ -54,7 +53,7 @@ class PhraseReplacer {
 }
 
 class Validate {
-    validateSingle(raw_desc) {
+    async validateSingle(raw_desc) {
         raw_desc = raw_desc.split(',');
         let split_desc = [];
         raw_desc.forEach(desc => {
@@ -62,27 +61,24 @@ class Validate {
         });
         console.log(split_desc);
         let manuValid = new ManufacturerValidator();
-        let manu = manuValid.validateSingle(split_desc);
-        manu.then(manu => {
-            if (!manu) {
+        let manu = await manuValid.validateSingle(split_desc);
+        if (!manu) {
             console.log(`Warning: No Manufacturer Found for ${raw_desc}`);
-            } else {
-                split_desc = manu;
-            }
-            let replace = new PhraseReplacer();
-            let replaced = replace.replaceAbbreviated(split_desc);
-            if (replaced) {
-                split_desc = replaced;
-            } else {
-                console.log('no replacement necessary');
-            }
-            let result = this.assembleDescription(split_desc);
-            return result;
+        } else {
+            split_desc = manu;
         }
-        )
+        let replace = new PhraseReplacer();
+        let replaced = replace.replaceAbbreviated(split_desc);
+        if (replaced) {
+            split_desc = replaced;
+        } else {
+            console.log('no replacement necessary');
+        }
+        let result = this.assembleDescription(split_desc);
+        return result;
     }
 
-    validateTriple(raw_desc) {
+    async validateTriple(raw_desc) {
         // ['a', 'b', 'c']
         let value = raw_desc[0]
         if (raw_desc[1]) {
@@ -91,16 +87,16 @@ class Validate {
         if (raw_desc[2]) {
             value = `${value},${raw_desc[2]}`;
         }
-        return this.validateSingle(value);
+        return await this.validateSingle(value);
     }
 
-    validateBatch(filePath) {
+    async validateBatch(filePath) {
         console.log(filePath);
         filePath = filePath[0]
         let excel = new ExcelReader(filePath);
         let result = excel.getDescriptions();
         for (let i=0; i<result.length; i++) {
-            result[i].result = this.validateSingle(result[i].value);
+            result[i].result = await this.validateSingle(result[i].value);
         }
         console.log(result);
         filePath = filePath.split('.');
