@@ -1,6 +1,6 @@
 const Dexie = require('dexie');
 const ExcelReader = require('./spreadsheet');
-const path = require('path');
+const { ipcRenderer } = require('electron');
 // const { app } = require('electron').remote;
 
 class Database {
@@ -15,8 +15,7 @@ class Database {
                 if (result) {
                     console.log('db ready');
                 } else {
-                    let appPath = app.getAppPath();
-                    appPath = path.join(appPath, 'assets', 'item_database.xlsm')
+                    const appPath = ipcRenderer.sendSync('getPath')
                     const excel = new ExcelReader(appPath);
                     let manu = excel.getManufactures();
                     let abbr = excel.getAbbreviations();
