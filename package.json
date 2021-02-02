@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "dexie": "^3.0.3",
+    "electron-is-dev": "^1.2.0",
     "electron-squirrel-startup": "^1.0.0",
     "lodash.intersection": "^4.4.0",
     "xlsx": "^0.16.9"
@@ -52,8 +53,7 @@
           "config": {
             "repository": {
               "owner": "jonathanmajh",
-              "name": "iko_mro_items",
-              "draft": true
+              "name": "iko_mro_items"
             }
           }
         }
