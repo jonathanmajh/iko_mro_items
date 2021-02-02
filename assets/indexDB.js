@@ -57,14 +57,15 @@ class Database {
     }
 
     async isManufacturer(name) {
-        let result = await this.db.manufacturers.where('full_name').startsWithIgnoreCase(name).toArray()
+        let result = await this.db.manufacturers.where('full_name').equalsIgnoreCase(name).toArray()
         if (result.length==0) {
-            result = await this.db.manufacturers.where('short_name').startsWithIgnoreCase(name).toArray()
+            result = await this.db.manufacturers.where('short_name').equalsIgnoreCase(name).toArray()
         }
-        return {short_name: name, obj: result}
+        return result[0]
     }
 
     isAbbreviation(phase) {
+        //TODO
         return {short_text: phase}
     }
 
