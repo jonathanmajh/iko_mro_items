@@ -1,7 +1,6 @@
 const Dexie = require('dexie');
 const ExcelReader = require('./spreadsheet');
-const { ipcRenderer } = require('electron');
-// const { app } = require('electron').remote;
+const path = require('path');
 
 class Database {
     constructor() {
@@ -12,11 +11,12 @@ class Database {
         });
         this.checkValidDB().then(
             (result) => {
+                
                 if (result) {
                     console.log('db ready');
                 } else {
-                    const appPath = ipcRenderer.sendSync('getPath')
-                    const excel = new ExcelReader(appPath);
+                    const filePath = path.join(require('path').resolve('./'), 'assets', 'item_database.xlsm');
+                    const excel = new ExcelReader(filePath);
                     let manu = excel.getManufactures();
                     let abbr = excel.getAbbreviations();
                     this.populateAbbr(abbr);
