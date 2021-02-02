@@ -23,11 +23,6 @@ ipcMain.on('openSettings', (event, arg) => {
   settingWindow.webContents.openDevTools()
 })
 
-ipcMain.on('getPath', (event, arg) => {
-  let appPath = app.getAppPath();
-  appPath = path.join(appPath, 'assets', 'item_database.xlsm');
-  event.returnValue = appPath;
-})
 
 ipcMain.on('getVersion', (event, arg) => {
   event.returnValue = app.getVersion();
