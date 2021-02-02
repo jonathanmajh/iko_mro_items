@@ -1,17 +1,12 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow, ipcMain} = require('electron')
-const path = require('path')
-const ExcelReader = require('./assets/spreadsheet')
+const { app, BrowserWindow, ipcMain } = require('electron')
+const { isDev } = require('electron-is-dev');
+const { path } = require('path');
+const { appUpdater } = require('./assets/autoupdater');
 
-// ipcMain.handle('updateManufacturer', (event, somearg) => {
-//   console.log(somearg);
-//   const excel = new ExcelReader();
-//   let data = excel.getManufactures();
-//   const db = new Database();
-//   // db.createManufacturers();
-//   db.populateManufacturers(data);
-//   db.close();
-// })
+if (require('electron-squirrel-startup')) {
+  app.quit();
+}
 
 ipcMain.on('openSettings', (event, somearg) => {
   console.log([somearg, event, 'opening settings']);
@@ -29,10 +24,10 @@ ipcMain.on('openSettings', (event, somearg) => {
   settingWindow.webContents.openDevTools()
 })
 
-function createWindow () {
+function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
+    width: 1100,
     height: 600,
     webPreferences: {
       preload: path.join(__dirname, 'renderer', 'preload.js'),
@@ -46,7 +41,14 @@ function createWindow () {
   mainWindow.loadFile(path.join('renderer', 'index.html'))
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools()
+  page.once('did-frame-finish-load', () => {
+    const checkOS = isWindowsOrmacOS();
+    if (checkOS && !isDev) {
+      // Initate auto-updates on macOs and windows
+      appUpdater();
+    }
+  });
 }
 
 // This method will be called when Electron has finished
@@ -54,7 +56,7 @@ function createWindow () {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   createWindow()
-  
+
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
@@ -68,3 +70,7 @@ app.whenReady().then(() => {
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
 })
+
+function isWindowsOrmacOS() {
+  return process.platform === 'darwin' || process.platform === 'win32';
+}
