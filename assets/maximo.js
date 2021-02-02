@@ -69,7 +69,6 @@ async function fetchAndObjectify(phrase) {
             return itemNums;
         }
     }
-    
 }
 
 //https://stackoverflow.com/a/59942031
