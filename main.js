@@ -8,8 +8,7 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-ipcMain.on('openSettings', (event, somearg) => {
-  console.log([somearg, event, 'opening settings']);
+ipcMain.on('openSettings', (event, arg) => {
   const settingWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -22,6 +21,12 @@ ipcMain.on('openSettings', (event, somearg) => {
 
   settingWindow.loadFile(path.join('renderer', 'setting.html'))
   settingWindow.webContents.openDevTools()
+})
+
+ipcMain.on('getPath', (event, arg) => {
+  let appPath = app.getAppPath();
+  appPath = path.join(appPath, 'assets', 'item_database.xlsm');
+  event.returnValue = appPath;
 })
 
 function createWindow() {
