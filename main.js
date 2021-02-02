@@ -47,11 +47,18 @@ function createWindow() {
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
+
+  const page = mainWindow.webContents;
+
   page.once('did-frame-finish-load', () => {
+    console.log('do we check for updates')
     const checkOS = isWindowsOrmacOS();
     if (checkOS && !isDev) {
       // Initate auto-updates on macOs and windows
+      console.log('yes check for update');
       appUpdater();
+    } else {
+      console.log('no dont check for update');
     }
   });
 }
