@@ -29,11 +29,16 @@ ipcMain.on('getPath', (event, arg) => {
   event.returnValue = appPath;
 })
 
+ipcMain.on('getVersion', (event, arg) => {
+  event.returnValue = app.getVersion();
+})
+
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 1100,
     height: 600,
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'renderer', 'preload.js'),
       nodeIntegration: true,
