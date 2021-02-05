@@ -9,11 +9,12 @@ class Maximo {
     async findRelated(data) {
         const phrases = data.split(',');
         let promises = []
+        postMessage(['progress', 25, "Getting Item Descriptions From Maximo"])
         for (let i = 0; i < phrases.length; i++) {
-            postMessage(['progress', (i/phrases.length)*70, "Getting Item Descriptions From Maximo"])
             promises.push(fetchAndObjectify(phrases[i]))
         }
         Promise.all(promises).then(maximoItems => {
+            postMessage(['progress', 75, "Processing Item Descriptions From Maximo"])
             let arrayAsNum = [...Array(maximoItems.length).keys()] //create an array with only integers to find combinations
             arrayAsNum = getCombinations(arrayAsNum);
             let intersections = []
