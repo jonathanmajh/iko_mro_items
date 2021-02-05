@@ -203,7 +203,7 @@ class WorkerHandler {
             } else if (e.data[0] === 'error') {
                 let msgs = e.data.slice(1,);
                 for (let i=0; i<msgs.length; i++) {
-                    new Toast(msgs[i]);
+                    new Toast(msgs[i], 'bg-danger');
                 }
                 let bar = new ProgressBar;
                 bar.update(100, msgs[0]);
@@ -263,16 +263,14 @@ class ProgressBar {
 }
 
 class Toast {
-    constructor(newMessage = null) {
+    constructor(newMessage, color='bg-primary') {
         this.toastContainer = document.getElementById('toastPlacement');
-        if (newMessage) {
-            this.newToast(newMessage);
-        }
+        this.newToast(newMessage, color);
     }
 
-    newToast(message) {
+    newToast(message, color) {
         let toast = document.createElement('div');
-        toast.setAttribute('class', "toast d-flex align-items-center border-0");
+        toast.setAttribute('class', `toast d-flex align-items-center border-0 text-white ${color}`);
         toast.innerHTML = `<div class="toast-body">${message}</div><button type="button" class="btn-close ms-auto me-2" data-bs-dismiss="toast"></button>`;
         let bsToast = new bootstrap.Toast(toast);
         this.toastContainer.appendChild(toast);
