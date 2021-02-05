@@ -142,15 +142,23 @@ async function showRelated(result) {
     const formatter = new Intl.NumberFormat("en-US", option);
     for (let [key, value] of Object.entries(scores)) {
         console.log(key, value);
+        let color = '';
         for (let item of value) {
             itemName = itemNames[item]
             if (itemName) {
                 for (let word of searchWords) {
                     itemName = itemName.replace(new RegExp(`${word}`, 'i'), `<b>${word}</b>`)
                 }
-                html = `${html}\n<tr><td>${formatter.format(key)}</td>\n<td>${item}</td>\n<td>${itemName}</td></tr>`
+                if (key>0.7) {
+                    color = 'table-success';
+                } else if (key>0.4) {
+                    color = 'table-warning';
+                } else {
+                    color = 'table-danger'
+                }
+                html = `${html}\n<tr class="${color}"><td>${formatter.format(key)}</td>\n<td>${item}</td>\n<td>${itemName}</td></tr>`
             } else {
-                html = `<tr><td>0</td>\n<td>xxxxxxx</td>\n<td>No Related Items Found</td></tr>`
+                html = `<tr class="table-danger"><td>0</td>\n<td>xxxxxxx</td>\n<td>No Related Items Found</td></tr>`
             }
         }
     }
