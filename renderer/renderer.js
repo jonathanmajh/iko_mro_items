@@ -144,12 +144,13 @@ async function showRelated(result) {
         console.log(key, value);
         for (let item of value) {
             itemName = itemNames[item]
-            for (let word of searchWords) {
-                itemName = itemName.replace(new RegExp(`${word}`, 'i'), `<b>${word}</b>`)
+            if (itemName) {
+                for (let word of searchWords) {
+                    itemName = itemName.replace(new RegExp(`${word}`, 'i'), `<b>${word}</b>`)
+                }
+                html = `${html}\n<tr><td>${formatter.format(key)}</td>\n<td>${item}</td>\n<td>${itemName}</td></tr>`
             }
-            html = `${html}\n<tr><td>${formatter.format(key)}</td>\n<td>${item}</td>\n<td>${itemName}</td></tr>`
         }
-
     }
     const relatedTable = document.getElementById('related-items')
     relatedTable.innerHTML = html;
