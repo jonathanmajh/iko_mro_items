@@ -8,23 +8,25 @@ class Maximo {
     constructor() { }
     async findRelated(data) {
         const phrases = data.split(',');
-        let maximoItems = []
+        let promises = []
         for (let i = 0; i < phrases.length; i++) {
             postMessage(['progress', (i/phrases.length)*70, "Getting Item Descriptions From Maximo"])
-            let result = await fetchAndObjectify(phrases[i])
-            maximoItems.push(result);
+            promises.push(fetchAndObjectify(phrases[i]))
         }
-        let arrayAsNum = [...Array(maximoItems.length).keys()] //create an array with only integers to find combinations
-        arrayAsNum = getCombinations(arrayAsNum);
-        let intersections = []
-        for (let i=arrayAsNum.length; i>0; i--) { //convert combination of integers to combination of arrays
-            let holder = [];
-            arrayAsNum[i-1].forEach(index => {
-                holder.push(maximoItems[index]);
-            });
-            intersections.push([holder.length, intersection(...holder)])
-        }
-        postMessage(['result', matchAndScore(intersections), itemDict, data]);
+        Promise.all(promises).then(maximoItems => {
+            let arrayAsNum = [...Array(maximoItems.length).keys()] //create an array with only integers to find combinations
+            arrayAsNum = getCombinations(arrayAsNum);
+            let intersections = []
+            for (let i=arrayAsNum.length; i>0; i--) { //convert combination of integers to combination of arrays
+                let holder = [];
+                arrayAsNum[i-1].forEach(index => {
+                    holder.push(maximoItems[index]);
+                });
+                intersections.push([holder.length, intersection(...holder)])
+            }
+            postMessage(['result', matchAndScore(intersections), itemDict, data]);
+        })
+
     }
 }
 
@@ -49,6 +51,7 @@ function matchAndScore(data) {
 }
 
 async function fetchAndObjectify(phrase) {
+    console.log(`sending request ${phrase}`)
     let response;
     try {
         response = await fetch(`http://nscandacmaxapp1/maxrest/rest/mbo/item?DESCRIPTION=${phrase}&_includecols=itemnum,description&_format=json&_compact=1&_lid=corcoop3&_lpwd=maximo`);
@@ -60,7 +63,6 @@ async function fetchAndObjectify(phrase) {
             return false;
         } else {
             let content = await response.json();
-            console.log(content);
             let itemNums = [];
             content['ITEMMboSet']['ITEM'].forEach(item => {
                 itemNums.push(item['ITEMNUM']);
