@@ -210,7 +210,7 @@ class WorkerHandler {
                 worker.terminate()
             } else if (e.data[0] === 'progress') {
                 let bar = new ProgressBar;
-                bar.update(e.data[1], e.data[2]);
+                bar.update(e.data[1], e.data[2], 'bg-danger');
             } else {
                 console.log('unimplemented worker message');
                 console.log(e);
@@ -231,11 +231,23 @@ class ProgressBar {
         this.progressBar.setAttribute('style', `width: ${percent}%;`);
     }
 
-    update(percent, message) {
+    update(percent, message, color='') {
         this.updateProgressBar(percent);
         if (message) {
             this.progressText.innerText = message;
         }
+        if (!color && percent == 0) {
+            this.updateColor('bg-success');
+        } else if (color) {
+            this.updateColor(color);
+        }
+        
+    }
+
+    updateColor(color) {
+        // let pbcolor = document.getElementById("progress-bar-color");
+        let regx = new RegExp('\\b' + 'bg-' + '[^ ]*[ ]?\\b', 'g');
+        this.progressBar.className = this.progressBar.className.replace(regx, color);
     }
 
     addProgressBar(percent, message = null) {
