@@ -64,11 +64,10 @@ class Database {
         return result[0]
     }
 
-    isAbbreviation(phase) {
-        //TODO
-        return {short_text: phase}
+    async isAbbreviation(phase) {
+        let result = await this.db.abbreviations.where('orig_text').equalsIgnoreCase(phase).toArray()
+        return result[0]
     }
-
 }
 
 module.exports = Database
