@@ -7,7 +7,7 @@
   <meta http-equiv="Content-Security-Policy" content="script-src 'self';" />
   <link rel="icon" type="image/png" href="iko_logo.png">
   <title>IKO Item Standardizer</title>
-  <link rel="stylesheet" href="bootstrap.min.css"/>
+  <link rel="stylesheet" href="bootstrap.min.css" />
   <link rel="stylesheet" href="style.css" />
   <script src="bootstrap.bundle.min.js"></script>
 </head>
@@ -26,7 +26,8 @@
       <div class="row bg-danger text-light" style="padding-top: 20px;">
         <div class="col-auto"><img src="IKO_Logo-nobg.png"></div>
         <h1 class="col">Item Standardizer</h1>
-        <div class="col" style="text-align: right;"><i id="settings" class="material-icons pointer md-size">settings</i></div>
+        <div class="col" style="text-align: right;"><i id="settings" class="material-icons pointer md-size">settings</i>
+        </div>
       </div>
       <div class="row">
         <a class="btn col" data-bs-toggle="collapse" href="#single-input">
@@ -72,53 +73,54 @@
             </div>
           </div>
         </div>
-        <div class="row">
-          <a class="btn row" data-bs-toggle="collapse" href="#verified-table">
-          <h5 class="col"><i class="material-icons pointer">expand_more</i> Verified Description</h5>
-          </a>
-          <table id="verified-table" class="table table-bordered collapse">
-            <thead>
-              <tr>
-                <th></th>
-                <th>Main Description</th>
-                <th>Extended Description 1</th>
-                <th>Extended Description 2</th>
-                <th>Copy</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr id="triple-copy">
-                <th>Triple Description</th>
-                <td id="result-triple-main"></td>
-                <td id="result-triple-ext1"></td>
-                <td id="result-triple-ext2"></td>
-                <td><i class="material-icons pointer">content_copy</i></td>
-              </tr>
-              <tr id="single-copy">
-                <th>Single Description</th>
-                <td id="result-single" colspan="3"></td>
-                <td><i class="material-icons pointer">content_copy</i></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
 
-        <div class="row">
-          <a class="btn row" data-bs-toggle="collapse" href="#related-table">
+        <a class="btn row" data-bs-toggle="collapse" href="#verified-table">
+          <h5 class="col"><i class="material-icons pointer">expand_more</i> Verified Description</h5>
+        </a>
+        <div id="verified-table" class="table-responsive row collapse">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Main Description</th>
+              <th>Extended Description 1</th>
+              <th>Extended Description 2</th>
+              <th>Copy</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="triple-copy">
+              <th>Triple Description</th>
+              <td id="result-triple-main"></td>
+              <td id="result-triple-ext1"></td>
+              <td id="result-triple-ext2"></td>
+              <td><i class="material-icons pointer">content_copy</i></td>
+            </tr>
+            <tr id="single-copy">
+              <th>Single Description</th>
+              <td id="result-single" colspan="3"></td>
+              <td><i class="material-icons pointer">content_copy</i></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+        <a class="btn row" data-bs-toggle="collapse" href="#related-table">
           <h5 class="col"><i class="material-icons pointer">expand_more</i> Related Assets</h5>
-          </a>
-          <table id="related-table" class="table table-bordered collapse">
-            <thead>
-              <tr>
-                <th>Percent Match</th>
-                <th>Item Number</th>
-                <th>Item Description</th>
-              </tr>
-            </thead>
-            <tbody id="related-items">
-            </tbody>
-          </table>
-        </div>
+        </a>
+        <div id="related-table" class="table-responsive row collapse">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Percent Match</th>
+              <th>Item Number</th>
+              <th>Item Description</th>
+            </tr>
+          </thead>
+          <tbody id="related-items">
+          </tbody>
+        </table></div>
+
       </div>
       <div class="row">
         <a class="btn col" data-bs-toggle="collapse" href="#batch-input">
@@ -126,7 +128,7 @@
         </a>
       </div>
       <div class="collapse" id="batch-input">
-        <div class="row" >
+        <div class="row">
           <div class="col">
             <button id="template-file">Download Excel Template</button>
           </div>
