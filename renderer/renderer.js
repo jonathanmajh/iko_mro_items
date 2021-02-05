@@ -149,6 +149,8 @@ async function showRelated(result) {
                     itemName = itemName.replace(new RegExp(`${word}`, 'i'), `<b>${word}</b>`)
                 }
                 html = `${html}\n<tr><td>${formatter.format(key)}</td>\n<td>${item}</td>\n<td>${itemName}</td></tr>`
+            } else {
+                html = `<tr><td>0</td>\n<td>xxxxxxx</td>\n<td>No Related Items Found</td></tr>`
             }
         }
     }
