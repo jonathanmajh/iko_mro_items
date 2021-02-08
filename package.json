@@ -1,6 +1,6 @@
 {
   "name": "iko_utility",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "description": "IKO tool for validating Maximo Item creation",
   "main": "main.js",
   "scripts": {
