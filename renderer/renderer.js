@@ -18,6 +18,8 @@ document.getElementById("triple-copy").addEventListener("click", () => { copyRes
 document.getElementById("triple-paste").addEventListener("click", triplePaste);
 document.getElementById("valid-file").addEventListener("click", openFile);
 document.getElementById("settings").addEventListener("click", openSettings);
+document.getElementById("topButton").addEventListener("click", toTop);
+document.getElementById("endButton").addEventListener("click", toEnd);
 
 const container = document.getElementById("main");
 container.addEventListener('click', (event) => {
@@ -148,9 +150,9 @@ async function showRelated(result) {
                 for (let word of searchWords) {
                     itemName = itemName.replace(new RegExp(`${word}`, 'i'), `<b>${word}</b>`)
                 }
-                if (key>0.7) {
+                if (key > 0.7) {
                     color = 'table-success';
-                } else if (key>0.4) {
+                } else if (key > 0.4) {
                     color = 'table-warning';
                 } else {
                     color = 'table-danger'
@@ -259,7 +261,7 @@ class ProgressBar {
         this.progressBar.setAttribute('style', `width: ${percent}%;`);
     }
 
-    update(percent, message, color='') {
+    update(percent, message, color = '') {
         this.updateProgressBar(percent);
         if (message) {
             this.progressText.innerText = message;
@@ -269,7 +271,7 @@ class ProgressBar {
         } else if (color) {
             this.updateColor(color);
         }
-        
+
     }
 
     updateColor(color) {
@@ -291,7 +293,7 @@ class ProgressBar {
 }
 
 class Toast {
-    constructor(newMessage, color='bg-primary') {
+    constructor(newMessage, color = 'bg-primary') {
         this.toastContainer = document.getElementById('toastPlacement');
         this.newToast(newMessage, color);
     }
@@ -309,6 +311,15 @@ class Toast {
     }
 }
 
+function toTop() {
+    let element = document.getElementsByClassName("flex-shrink-0")
+    element[0].scrollTop = 0; // For Chrome, Firefox, IE and Opera
+}
+
+function toEnd() {
+    let element = document.getElementsByClassName("flex-shrink-0")
+    element[0].scrollTop = element[0].scrollHeight; // For Chrome, Firefox, IE and Opera
+}
 function test() {
     let db = new Database();
 }
