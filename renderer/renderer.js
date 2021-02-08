@@ -209,7 +209,7 @@ class WorkerHandler {
             } else if (e.data[0] === 'progress') {
                 let bar = new ProgressBar;
                 log.info(e.data[2]);
-                bar.update(e.data[1], e.data[2], 'bg-info');
+                bar.update(e.data[1], e.data[2]);
             } else if (e.data[0] === 'warning') {
                 new Toast(e.data[1], 'bg-warning');
                 log.warning(e.data[1]);
