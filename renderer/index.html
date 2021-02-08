@@ -78,48 +78,49 @@
           <h5 class="col"><i class="material-icons pointer">expand_more</i> Verified Description</h5>
         </a>
         <div id="verified-table" class="table-responsive row collapse">
-        <table class="table table-bordered">
-          <thead>
-            <tr>
-              <th>Type</th>
-              <th>Main Description</th>
-              <th>Extended Description 1</th>
-              <th>Extended Description 2</th>
-              <th>Copy</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr id="triple-copy">
-              <th>Triple Description</th>
-              <td id="result-triple-main"></td>
-              <td id="result-triple-ext1"></td>
-              <td id="result-triple-ext2"></td>
-              <td><i class="material-icons pointer">content_copy</i></td>
-            </tr>
-            <tr id="single-copy">
-              <th>Single Description</th>
-              <td id="result-single" colspan="3"></td>
-              <td><i class="material-icons pointer">content_copy</i></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Main Description</th>
+                <th>Extended Description 1</th>
+                <th>Extended Description 2</th>
+                <th>Copy</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="triple-copy">
+                <th>Triple Description</th>
+                <td id="result-triple-main"></td>
+                <td id="result-triple-ext1"></td>
+                <td id="result-triple-ext2"></td>
+                <td><i class="material-icons pointer">content_copy</i></td>
+              </tr>
+              <tr id="single-copy">
+                <th>Single Description</th>
+                <td id="result-single" colspan="3"></td>
+                <td><i class="material-icons pointer">content_copy</i></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         <a class="btn row" data-bs-toggle="collapse" href="#related-table">
           <h5 class="col"><i class="material-icons pointer">expand_more</i> Related Assets</h5>
         </a>
         <div id="related-table" class="table-responsive row collapse">
-        <table class="table table-bordered">
-          <thead>
-            <tr class="table-info">
-              <th>Percent Match</th>
-              <th>Item Number</th>
-              <th>Item Description</th>
-            </tr>
-          </thead>
-          <tbody id="related-items">
-          </tbody>
-        </table></div>
+          <table class="table table-bordered">
+            <thead>
+              <tr class="table-info">
+                <th>Percent Match</th>
+                <th>Item Number</th>
+                <th>Item Description</th>
+              </tr>
+            </thead>
+            <tbody id="related-items">
+            </tbody>
+          </table>
+        </div>
 
       </div>
       <div class="row">
@@ -146,8 +147,19 @@
           <h3><i class="material-icons pointer md-size">expand_more</i> Logs</h3>
         </a>
       </div>
-      <pre class="row collapse border border-success border-3 bg-gray"
-        id="logs-container"><code class='col font-monospace text-light' id='logs'>Program Ready</code></pre>
+      <div class="row collapse table-responsive" id="logs-container">
+        <table class="table table-bordered">
+          <thead>
+            <tr class="table-primary">
+              <th>Level</th>
+              <!-- <th>Time</th> -->
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody id="logs-table">
+          </tbody>
+        </table>
+      </div>
     </div>
   </main>
 

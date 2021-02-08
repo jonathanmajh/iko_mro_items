@@ -1,6 +1,5 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain } = require('electron')
-const { isDev } = require('electron-is-dev');
+const { app, BrowserWindow, ipcMain, screen } = require('electron')
 const path = require('path');
 const { appUpdater } = require('./assets/autoupdater');
 
@@ -30,9 +29,12 @@ ipcMain.on('getVersion', (event, arg) => {
 
 function createWindow() {
   // Create the browser window.
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize
   const mainWindow = new BrowserWindow({
-    width: 1100,
-    height: 600,
+    width: width/2,
+    height: height,
+    x: 0,
+    y: 0,
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'renderer', 'preload.js'),
@@ -51,15 +53,8 @@ function createWindow() {
   const page = mainWindow.webContents;
 
   page.once('did-frame-finish-load', () => {
-    console.log('do we check for updates')
-    const checkOS = isWindowsOrmacOS();
-    if (checkOS && !isDev) {
-      // Initate auto-updates on macOs and windows
-      console.log('yes check for update');
-      appUpdater();
-    } else {
-      console.log('no dont check for update');
-    }
+    console.log("checking for updates")
+    appUpdater();
   });
 }
 
@@ -82,7 +77,3 @@ app.whenReady().then(() => {
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
 })
-
-function isWindowsOrmacOS() {
-  return process.platform === 'darwin' || process.platform === 'win32';
-}

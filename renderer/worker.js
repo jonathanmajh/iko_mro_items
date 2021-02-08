@@ -4,13 +4,12 @@ const Database = require('../assets/indexDB')
 const Maximo = require('../assets/maximo')
 
 onmessage = function (e) {
-    console.log('recieved message from boss:')
-    console.log(e);
+    console.log(`recieved message from boss: ${e}`)
     if (e.data[0] === 'validSingle') {
         let valid = new Validate;
         valid.validateSingle(e.data[1]).then(
             result => {
-                console.log(`result of valid.validateSingle: ${result}`);
+                console.log(`valid.validateSingle: ${result}`);
                 postMessage(['result', result]);
             }
         );       
@@ -18,7 +17,7 @@ onmessage = function (e) {
         let valid = new Validate;
         valid.validateTriple(e.data[1]).then(
             result => {
-                console.log(result);
+                console.log(`valid.validateTriple: ${result}`);
                 postMessage(['result', result]);
             }
         );
@@ -26,7 +25,7 @@ onmessage = function (e) {
         let valid = new Validate;
         valid.validateBatch(e.data[1]).then(
             result => {
-                console.log(result);
+                console.log(`valid.validateBatch: ${result}`);
                 postMessage(['result', result]);
             }
         );
