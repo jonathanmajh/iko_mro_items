@@ -26,10 +26,10 @@ container.addEventListener('click', (event) => {
         icon[0].innerHTML = "expand_more";
     } else if (icon[0]?.innerHTML === "expand_more") {
         icon[0].innerHTML = "expand_less";
-    } else {
+    } /* else {
         console.log('no icon found');
         console.log(icon);
-    }
+    } */
 })
 
 function openFile() {
@@ -41,7 +41,6 @@ function openFile() {
 }
 
 function openSettings() {
-    console.log("opening settings");
     ipcRenderer.sendSync('openSettings');
 }
 
@@ -73,13 +72,10 @@ function validBatchCB(data) {
 
 function triplePaste() {
     let paste = clipboard.readText();
-    console.log(clipboard.readHTML());
-    console.log(clipboard.readText());
     if (!paste) {
         new Toast('No content');
     }
     let descs = paste.split('	'); //excel uses that char for delimiting cells
-    console.log(descs);
     document.getElementById('main-desc').value = descs[0];
     document.getElementById('ext-desc-1').value = descs[1];
     document.getElementById('ext-desc-2').value = descs[2];
@@ -127,12 +123,16 @@ function findRelated(result) {
 
 
 async function showRelated(result) {
+    let bar = new ProgressBar;
+    if (!result[0]) {
+        bar.update(100, 'Done!');
+        return false;
+    }
     const scores = result[0];
     const itemNames = result[1];
     const searchWords = result[2].split(',');
     let html = '';
     let itemName;
-    let bar = new ProgressBar;
     bar.update(90, 'Generating table for showing related assets');
     const option = {
         style: 'percent',
@@ -141,7 +141,6 @@ async function showRelated(result) {
     };
     const formatter = new Intl.NumberFormat("en-US", option);
     for (let [key, value] of Object.entries(scores)) {
-        console.log(key, value);
         let color = '';
         for (let item of value) {
             itemName = itemNames[item]
@@ -197,25 +196,54 @@ class WorkerHandler {
         const worker = new Worker('./worker.js');
         worker.postMessage(params);
         worker.onmessage = (e) => {
+            let log = new Logging();
             if (e.data[0] === 'result') {
                 worker.terminate()
                 callback(e.data.slice(1,));
             } else if (e.data[0] === 'error') {
-                let msgs = e.data.slice(1,);
-                for (let i=0; i<msgs.length; i++) {
-                    new Toast(msgs[i], 'bg-danger');
-                }
+                new Toast(e.data[1], 'bg-danger');
                 let bar = new ProgressBar;
-                bar.update(100, msgs[0]);
+                bar.update(100, msgs[1]);
+                log.error(e.data[1]);
                 worker.terminate()
             } else if (e.data[0] === 'progress') {
                 let bar = new ProgressBar;
-                bar.update(e.data[1], e.data[2], 'bg-danger');
+                log.info(e.data[2]);
+                bar.update(e.data[1], e.data[2], 'bg-info');
+            } else if (e.data[0] === 'warning') {
+                new Toast(e.data[1], 'bg-warning');
+                log.warning(e.data[1]);
+            } else if (e.data[0] === 'info') {
+                log.info(e.data[1]);
             } else {
                 console.log('unimplemented worker message');
                 console.log(e);
             }
         }
+    }
+}
+
+class Logging {
+    constructor() {
+        this.logTable = document.getElementById("logs-table")
+    }
+
+    warning(msg) {
+        let row = this.logTable.insertRow();
+        row.innerHTML = `<td>WARNING</td><td>${msg}</td>`;
+        row.classList.add("table-warning");
+    }
+
+    error(msg) {
+        let row = this.logTable.insertRow();
+        row.innerHTML = `<td>ERROR</td><td>${msg}</td>`;
+        row.classList.add("table-danger");
+    }
+
+    info(msg) {
+        let row = this.logTable.insertRow();
+        row.innerHTML = `<td>INFO</td><td>${msg}</td>`;
+        row.classList.add("table-info");
     }
 }
 

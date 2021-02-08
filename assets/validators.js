@@ -11,10 +11,10 @@ class ManufacturerValidator {
         let manufacturer = false;
         // look from end of string since manufacturer name is mostly likely in last description
         for (let i=split_desc.length-1; i>=0; i--) {
-            console.log('looking for manufacturer named: ' + split_desc[i]);
+            postMessage(['info', `Looking for manufacturer named: "${split_desc[i]}"`]);
             manufacturer = await this.db.isManufacturer(split_desc[i]);
             if (manufacturer) {
-                console.log(`found manufacturer: ${manufacturer.short_name}`)
+                postMessage(['info', `Found manufacturer with short name: "${manufacturer.short_name}"`]);
                 split_desc.splice(i, 1); //remove the manufactuer and re-add the short version to the end
                 split_desc.push(manufacturer.short_name);
                 return split_desc
@@ -35,6 +35,7 @@ class PhraseReplacer {
             // look for replacements for phrases
             replacement = await this.db.isAbbreviation(split_desc[i]);
             if(replacement) {
+                postMessage(['info', `Replacing: "${split_desc[i]} with: ${replacement.replace_text}"`]);
                 split_desc[i] = replacement.replace_text;
             }
             // look for replacement for individual words
@@ -43,6 +44,7 @@ class PhraseReplacer {
             for (let j=0; j<word_split.length; j++) {
                 word_replacement = await this.db.isAbbreviation(word_split[j]);
                 if(word_replacement) {
+                    postMessage(['info', `Replacing: "${word_split[j]} with: ${replacement.replace_text}"`]);
                     word_split[j] = word_replacement.replace_text;
                 }
             }
@@ -59,11 +61,11 @@ class Validate {
         raw_desc.forEach(desc => {
             split_desc.push(desc.trim());
         });
-        console.log(split_desc);
+        postMessage(['info', `Validating: "${split_desc}"`]);
         let manuValid = new ManufacturerValidator();
         let manu = await manuValid.validateSingle(split_desc);
         if (!manu) {
-            console.log(`Warning: No Manufacturer Found for ${raw_desc}`);
+            postMessage(['info', `No manufacturer found in: "${raw_desc}"`]);
         } else {
             split_desc = manu;
         }
@@ -72,7 +74,7 @@ class Validate {
         if (replaced) {
             split_desc = replaced;
         } else {
-            console.log('no replacement necessary');
+            postMessage(['info', `No words need to be replaced`]);
         }
         let result = this.assembleDescription(split_desc);
         return result;
@@ -91,14 +93,13 @@ class Validate {
     }
 
     async validateBatch(filePath) {
-        console.log(filePath);
+        postMessage(['info', `Selected file path: "${filePath}"`]);
         filePath = filePath[0]
         let excel = new ExcelReader(filePath);
         let result = excel.getDescriptions();
         for (let i=0; i<result.length; i++) {
             result[i].result = await this.validateSingle(result[i].value);
         }
-        console.log(result);
         filePath = filePath.split('.');
         filePath = `${filePath[0]}_Validated.${filePath[1]}`;
         filePath = excel.writeDescriptions(result, filePath);
