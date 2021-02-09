@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
   <meta http-equiv="Content-Security-Policy" content="script-src 'self';" />
-  <link rel="icon" type="image/png" href="iko_logo.png">
+  <link rel="icon" type="image/png" href="iko_logo.png" />
   <title>IKO Item Standardizer</title>
   <link rel="stylesheet" href="bootstrap.min.css" />
   <link rel="stylesheet" href="style.css" />
@@ -23,22 +23,27 @@
   </nav>
   <main class="flex-shrink-0">
     <div class="container-fluid" id="main">
-      <div class="row bg-danger text-light" style="padding-top: 20px;">
-        <div class="col-auto"><img src="IKO_Logo-nobg.png"></div>
+      <div class="row bg-danger text-light" style="padding-top: 20px">
+        <div class="col-auto"><img src="IKO_Logo-nobg.png" /></div>
         <h1 class="col">Item Standardizer</h1>
-        <div class="col" style="text-align: right;"><i id="settings" class="material-icons pointer md-size">settings</i>
+        <div class="col" style="text-align: right">
+          <i id="settings" class="material-icons pointer md-size">settings</i>
         </div>
       </div>
       <div class="row">
         <a class="btn col" data-bs-toggle="collapse" href="#single-input">
-          <h3><i class="material-icons pointer md-size">expand_more</i> Single Asset Mode</h3>
+          <h3>
+            <i class="material-icons pointer md-size">expand_more</i> Single
+            Asset Mode
+          </h3>
         </a>
       </div>
 
       <div class="item-desc-input row collapse" id="single-input">
         <a class="btn row" data-bs-toggle="collapse" href="#single-field">
           <h5 class="col">
-            <i class="material-icons pointer">expand_more</i> Single Field Description
+            <i class="material-icons pointer">expand_more</i> Single Field
+            Description
           </h5>
         </a>
         <div class="input-fields row collapse" id="single-field">
@@ -51,14 +56,15 @@
 
         <a class="btn row" data-bs-toggle="collapse" href="#triple-field">
           <h5 class="col">
-            <i class="material-icons pointer">expand_more</i> Triple Field Description
+            <i class="material-icons pointer">expand_more</i> Triple Field
+            Description
           </h5>
         </a>
         <div class="input-fields row collapse" id="triple-field">
           <div class="row">
             <label class="col" for="main-desc">Description:</label>
             <input class="col" type="text" id="main-desc" name="main-desc" />
-            <i id='triple-paste' class="material-icons pointer col">content_paste</i>
+            <i id="triple-paste" class="material-icons pointer col">content_paste</i>
           </div>
           <div class="row">
             <label class="col" for="ext-desc-1">Extended Description 1:</label>
@@ -77,27 +83,74 @@
 
       <div class="row">
         <a class="btn col" data-bs-toggle="collapse" href="#batch-input">
-          <h3><i class="material-icons pointer md-size">expand_more</i> Batch Asset Mode</h3>
+          <h3>
+            <i class="material-icons pointer md-size">expand_more</i> Batch
+            Asset Mode
+          </h3>
         </a>
       </div>
       <div class="collapse" id="batch-input">
         <div class="row">
+          <h5>Settings:</h5>
+        </div>
+        <div class="row">
+          <!-- TODO tooltips for help text -->
+          <label class="col" for="ws-name">Worksheet Name:</label>
+          <input class="col" type="text" id="ws-name" name="ws-name" />
+        </div>
+        <div class="row">
+          <!-- TODO tooltips for help text -->
+          <label class="col" for="input-col">Columns For Input: (A,B,C)</label>
+          <input class="col" type="text" id="input-col" name="input-col" />
+        </div>
+        <div class="row">
+          <label class="col" for="start-row">Starting Row: (1)</label>
+          <input class="col" type="number" id="start-row" name="start-row" />
+        </div>
+        <div class="row">
+          <label class="col" for="output-col">Columns For Output: (D,E,F,G,H)</label>
+          <input class="col" type="text" id="output-col" name="output-col" />
+        </div>
+        <div class="row">
           <div class="col">
-            <button id="template-file">Download Excel Template</button>
+            <button id="interactive">Interactive Mode</button>
           </div>
           <div class="col">
-            <button id="batch-file">Select Excel File</button>
+            <button id="batch-file">Validation Mode</button>
           </div>
         </div>
         <div class="row">
-          <h5>Validated File:</h5>
-          <a href="#" id='valid-file'></a>
+          <h5>Processed File:</h5>
+          <a href="#" id="valid-file"></a>
+        </div>
+        <div class="row">
+          <div class="row">
+            <h5>Interactive Editor:</h5>
+            <p>
+              Current Position: Row: <span id="current-row">#</span> of
+              <span id="total-row">##</span>
+            </p>
+          </div>
+          <div class="row">
+            <input type="text" id="interact-desc" name="interact-desc" />
+          </div>
+          <div class="row">
+            <div class="col">
+              <button id="recheck-desc">Check Again</button>
+            </div>
+            <div class="col">
+              <button id="save-desc">Save Description</button>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="row">
         <a class="btn col" data-bs-toggle="collapse" href="#verified-table">
-          <h3 class="col"><i class="material-icons pointer md-size">expand_more</i> Verified Description</h3>
+          <h3 class="col">
+            <i class="material-icons pointer md-size">expand_more</i> Verified
+            Description
+          </h3>
         </a>
       </div>
       <div id="verified-table" class="table-responsive row collapse">
@@ -130,7 +183,10 @@
 
       <div class="row">
         <a class="btn col" data-bs-toggle="collapse" href="#related-table">
-          <h3 class="col"><i class="material-icons pointer md-size">expand_more</i> Related Assets</h3>
+          <h3 class="col">
+            <i class="material-icons pointer md-size">expand_more</i> Related
+            Assets
+          </h3>
         </a>
       </div>
       <div id="related-table" class="table-responsive row collapse">
@@ -142,14 +198,15 @@
               <th>Item Description</th>
             </tr>
           </thead>
-          <tbody id="related-items">
-          </tbody>
+          <tbody id="related-items"></tbody>
         </table>
       </div>
 
       <div class="row">
         <a class="btn col" data-bs-toggle="collapse" href="#logs-container">
-          <h3><i class="material-icons pointer md-size">expand_more</i> Logs</h3>
+          <h3>
+            <i class="material-icons pointer md-size">expand_more</i> Logs
+          </h3>
         </a>
       </div>
       <div class="row collapse table-responsive" id="logs-container">
@@ -161,15 +218,13 @@
               <th>Message</th>
             </tr>
           </thead>
-          <tbody id="logs-table">
-          </tbody>
+          <tbody id="logs-table"></tbody>
         </table>
       </div>
     </div>
   </main>
 
-  <div class="toast-container position-absolute p-3 top-0 end-0" id="toastPlacement">
-  </div>
+  <div class="toast-container position-absolute p-3 top-0 end-0" id="toastPlacement"></div>
   <button id="topButton" title="Go to top">Top</button>
   <button id="endButton" title="Go to end">End</button>
 

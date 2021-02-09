@@ -48,6 +48,12 @@ onmessage = function (e) {
     } else if (e.data[0] === 'findRelated') {
         const maximo = new Maximo();
         maximo.findRelated(e.data[1])
+    } else if (e.data[0] === 'interactive') {
+        const excel = new ExcelReader(e.data[1]);
+        const cols = e.data[2][2].split(',');
+        let data = excel.getDescriptions(e.data[2][1], cols, e.data[2][3])
+        const db = new Database();
+        data = db.saveDescription(data);
     } else {
         console.log('unimplimented work');
     }

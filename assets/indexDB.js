@@ -7,11 +7,11 @@ class Database {
         this.db = new Dexie('Phrases');
         this.db.version(1).stores({
             manufacturers: "++id, full_name, short_name",
-            abbreviations: "++id, orig_text, replace_text"
+            abbreviations: "++id, orig_text, replace_text",
+            workingDescription: "row, description",
         });
         this.checkValidDB().then(
             (result) => {
-                
                 if (result) {
                     console.log('db ready');
                 } else {
@@ -67,6 +67,11 @@ class Database {
     async isAbbreviation(phase) {
         let result = await this.db.abbreviations.where('orig_text').equalsIgnoreCase(phase).toArray()
         return result[0]
+    }
+
+    async saveDescription(data) {
+        // write this
+        return true;
     }
 }
 

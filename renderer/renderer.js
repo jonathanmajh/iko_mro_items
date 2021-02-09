@@ -20,6 +20,8 @@ document.getElementById("valid-file").addEventListener("click", openFile);
 document.getElementById("settings").addEventListener("click", openSettings);
 document.getElementById("topButton").addEventListener("click", toTop);
 document.getElementById("endButton").addEventListener("click", toEnd);
+document.getElementById("interactive").addEventListener("click", () => { openExcel(1) });
+
 
 const container = document.getElementById("main");
 container.addEventListener('click', (event) => {
@@ -44,6 +46,38 @@ function openFile() {
 
 function openSettings() {
     ipcRenderer.sendSync('openSettings');
+}
+
+function openExcel(mode) {
+    dialog.showOpenDialog([], {
+        title: "Select Spreadsheet with Names",
+        filters: [
+            { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb', 'csv'] },
+        ],
+        properties: [
+            'openFile'
+        ]
+    }).then(result => {
+        if (!result.canceled) {
+            const worker = new WorkerHandler;
+            const params = [
+                document.getElementById("ws-name").value,
+                document.getElementById("input-col").value,
+                document.getElementById("start-row").value,
+                document.getElementById("output-col").value,
+            ]
+            if (mode===1) {
+                worker.work(['interactive', result.filePaths, params], interactiveInitial);
+            }
+            
+        } else {
+            new Toast('File Picker Cancelled');
+        }
+    })
+}
+
+function interactiveInitial() {
+    // write this
 }
 
 function validBatch() {

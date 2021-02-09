@@ -35,33 +35,29 @@ class ExcelReader {
         return data
     }
 
-    getDescriptions() {
-        let workbook = xlsx.readFile(this.filePath, {sheets:"Validate",});
-        // open first worksheet if validate does not exist
-        let worksheet = workbook.Sheets["Validate"];
+    getDescriptions(wsName, columns, startRow) {
+        let workbook = xlsx.readFile(this.filePath);
+        // error if workbook does not exist
+        let worksheet = workbook.Sheets[wsName];
         let range = worksheet['!ref'];
         let lastrow = parseInt(range.split(':')[1].slice(1));
-        let data = []
-        for (let i=3;i<=lastrow;i++) {
-            if (worksheet[`A${i}`]) {
-                data.push({'value': worksheet[`A${i}`].v, 'messages': '', 'row': i, 'result': []});
-            } else if (worksheet[`B${i}`]) {
-                let value = worksheet[`B${i}`].v
-                if (worksheet[`C${i}`]) {
-                    value = `${value},${worksheet[`C${i}`].v}`;
+        let data = [];
+        let row = [];
+        for (let i=startRow;i<=lastrow;i++) {
+            row = [];
+            for (let j=0;j<columns.length;j++) {
+                if (worksheet[`${columns[j]}${i}`]) {
+                    row.push(worksheet[`${columns[j]}${i}`].v);
                 }
-                if (worksheet[`D${i}`]) {
-                    value = `${value},${worksheet[`D${i}`].v}`;
-                }
-                data.push({'value': value, 'messages': '', 'row': i, 'result': []});
             }
+            data.push(row);
         }
-        return data
+        return data;
     }
 
     writeDescriptions(descriptions, savePath) {
         let workbook = xlsx.readFile(this.filePath, {cellStyles: true, bookVBA: true});
-        // open first worksheet if validate does not exist
+        // rewrite to use custom columns
         let worksheet = workbook.Sheets["Validate"];
         descriptions.forEach(description => {
             worksheet[`E${description.row}`] = {t: 's', v: description.result[3], w: undefined}; //maximo description
