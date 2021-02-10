@@ -307,6 +307,9 @@ class WorkerHandler {
                 new Toast(e.data[1], 'bg-warning');
                 log.warning(e.data[1]);
             } else if (e.data[0] === 'info') {
+                new Toast(e.data[1], 'bg-info');
+                log.info(e.data[1]);
+            } else if (e.data[0] === 'debug') {
                 log.info(e.data[1]);
             } else {
                 console.log('unimplemented worker message');

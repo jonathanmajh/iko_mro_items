@@ -11,10 +11,10 @@ class ManufacturerValidator {
         let manufacturer = false;
         // look from end of string since manufacturer name is mostly likely in last description
         for (let i=split_desc.length-1; i>=0; i--) {
-            postMessage(['info', `Looking for manufacturer named: "${split_desc[i]}"`]);
+            postMessage(['debug', `Looking for manufacturer named: "${split_desc[i]}"`]);
             manufacturer = await this.db.isManufacturer(split_desc[i]);
             if (manufacturer) {
-                postMessage(['info', `Found manufacturer with short name: "${manufacturer.short_name}"`]);
+                postMessage(['debug', `Found manufacturer with short name: "${manufacturer.short_name}"`]);
                 split_desc.splice(i, 1); //remove the manufactuer and re-add the short version to the end
                 split_desc.push(manufacturer.short_name);
                 return split_desc
@@ -35,7 +35,7 @@ class PhraseReplacer {
             // look for replacements for phrases
             replacement = await this.db.isAbbreviation(split_desc[i]);
             if(replacement) {
-                postMessage(['info', `Replacing: "${split_desc[i]} with: ${replacement.replace_text}"`]);
+                postMessage(['debug', `Replacing: "${split_desc[i]} with: ${replacement.replace_text}"`]);
                 split_desc[i] = replacement.replace_text;
             }
             // look for replacement for individual words
@@ -44,7 +44,7 @@ class PhraseReplacer {
             for (let j=0; j<word_split.length; j++) {
                 word_replacement = await this.db.isAbbreviation(word_split[j]);
                 if(word_replacement) {
-                    postMessage(['info', `Replacing: "${word_split[j]} with: ${replacement.replace_text}"`]);
+                    postMessage(['debug', `Replacing: "${word_split[j]} with: ${replacement.replace_text}"`]);
                     word_split[j] = word_replacement.replace_text;
                 }
             }
@@ -61,11 +61,11 @@ class Validate {
         raw_desc.forEach(desc => {
             split_desc.push(desc.trim());
         });
-        postMessage(['info', `Validating: "${split_desc}"`]);
+        postMessage(['debug', `Validating: "${split_desc}"`]);
         let manuValid = new ManufacturerValidator();
         let manu = await manuValid.validateSingle(split_desc);
         if (!manu) {
-            postMessage(['info', `No manufacturer found in: "${raw_desc}"`]);
+            postMessage(['debug', `No manufacturer found in: "${raw_desc}"`]);
         } else {
             split_desc = manu;
         }
@@ -74,7 +74,7 @@ class Validate {
         if (replaced) {
             split_desc = replaced;
         } else {
-            postMessage(['info', `No words need to be replaced`]);
+            postMessage(['debug', `No words need to be replaced`]);
         }
         let result = this.assembleDescription(split_desc);
         return result;
@@ -93,7 +93,7 @@ class Validate {
     }
 
     async validateBatch(filePath) {
-        postMessage(['info', `Selected file path: "${filePath}"`]);
+        postMessage(['debug', `Selected file path: "${filePath}"`]);
         filePath = filePath[0]
         let excel = new ExcelReader(filePath);
         let result = excel.getDescriptions();

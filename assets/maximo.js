@@ -57,7 +57,7 @@ function matchAndScore(data) {
 }
 
 async function fetchAndObjectify(phrase) {
-    postMessage(['info', `Sending request to Maximo for: "${phrase}"`]);
+    postMessage(['debug', `Sending request to Maximo for: "${phrase}"`]);
     let response;
     try {
         response = await fetch(`http://nscandacmaxapp1/maxrest/rest/mbo/item?DESCRIPTION=${phrase}&_includecols=itemnum,description&_format=json&_compact=1&_lid=corcoop3&_lpwd=maximo`);

@@ -38,7 +38,8 @@ class ExcelReader {
 
     getDescriptions(wsName, columns, startRow) {
         let workbook = xlsx.readFile(this.filePath);
-        // error if workbook does not exist
+        fs.copyFileSync(this.filePath, `${this.filePath}.backup`);
+        postMessage(['info', `Backing up file as: "${this.filePath}.backup"`]);
         let worksheet = workbook.Sheets[wsName];
         // worksheet is case sensitive
         let range = worksheet['!ref'];
