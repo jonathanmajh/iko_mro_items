@@ -5,7 +5,7 @@ const path = require('path');
 class Database {
     constructor() {
         this.db = new Dexie('Phrases');
-        this.db.version(1).stores({
+        this.db.version(2).stores({
             manufacturers: "++id, full_name, short_name",
             abbreviations: "++id, orig_text, replace_text",
             workingDescription: "row, description",
@@ -45,7 +45,7 @@ class Database {
         for (let i=0;i<data.length;i++) {
             dataDB.push({orig_text: data[i][0], replace_text: data[i][1]});
         }
-        this.db.abbreviations.bulkAdd(dataDB)
+        this.db.abbreviations.bulkAdd(dataDB);
     }
 
     async populateManu(data) {
@@ -53,25 +53,35 @@ class Database {
         for (let i=0;i<data.length;i++) {
             dataDB.push({full_name: data[i][0], short_name: data[i][1], website: data[i][2]});
         }
-        this.db.manufacturers.bulkAdd(dataDB)
+        this.db.manufacturers.bulkAdd(dataDB);
     }
 
     async isManufacturer(name) {
-        let result = await this.db.manufacturers.where('full_name').equalsIgnoreCase(name).toArray()
+        let result = await this.db.manufacturers.where('full_name').equalsIgnoreCase(name).toArray();
         if (result.length==0) {
-            result = await this.db.manufacturers.where('short_name').equalsIgnoreCase(name).toArray()
+            result = await this.db.manufacturers.where('short_name').equalsIgnoreCase(name).toArray();
         }
-        return result[0]
+        return result[0];
     }
 
     async isAbbreviation(phase) {
-        let result = await this.db.abbreviations.where('orig_text').equalsIgnoreCase(phase).toArray()
-        return result[0]
+        let result = await this.db.abbreviations.where('orig_text').equalsIgnoreCase(phase).toArray();
+        return result[0];
     }
 
     async saveDescription(data) {
-        // write this
-        return true;
+        let dataDB = [];
+        await this.db.workingDescription.clear()
+        for (const [rowid, desc] of Object.entries(data)) {
+            dataDB.push({row: desc[0], description: desc[1]});
+        }
+        await this.db.workingDescription.bulkAdd(dataDB);
+        return true
+    }
+
+    async getDescription(row) {
+        let result = await this.db.workingDescription.where('row').equals(row).toArray();
+        return result[0]
     }
 }
 

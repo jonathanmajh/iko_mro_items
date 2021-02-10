@@ -1,4 +1,5 @@
 const xlsx = require('xlsx');
+const fs = require('fs');
 // TODO switch to using exceljs instead of sheetjs since sheetjs locks styles behind the pro version paywall
 
 class ExcelReader {
@@ -39,6 +40,7 @@ class ExcelReader {
         let workbook = xlsx.readFile(this.filePath);
         // error if workbook does not exist
         let worksheet = workbook.Sheets[wsName];
+        // worksheet is case sensitive
         let range = worksheet['!ref'];
         let lastrow = parseInt(range.split(':')[1].slice(1));
         let data = [];
@@ -50,14 +52,13 @@ class ExcelReader {
                     row.push(worksheet[`${columns[j]}${i}`].v);
                 }
             }
-            data.push(row);
+            data.push([i, row.join()]);
         }
         return data;
     }
 
     writeDescriptions(descriptions, savePath) {
         let workbook = xlsx.readFile(this.filePath, {cellStyles: true, bookVBA: true});
-        // rewrite to use custom columns
         let worksheet = workbook.Sheets["Validate"];
         descriptions.forEach(description => {
             worksheet[`E${description.row}`] = {t: 's', v: description.result[3], w: undefined}; //maximo description
@@ -74,6 +75,42 @@ class ExcelReader {
             savePath = savePath.split('.');
             savePath = `${savePath[0]}${suffix}.${savePath[1]}`;
             xlsx.writeFile(workbook, savePath);
+        }
+        return savePath;
+    }
+
+    async saveDescription(parmas) {
+        let workbook = xlsx.readFile(this.filePath, {cellStyles: true, bookVBA: true});
+        let worksheet = workbook.Sheets[parmas[1]];
+        worksheet[`${parmas[3][0]}${parmas[2]}`] = {t: 's', v: parmas[4][0], w: undefined};
+        worksheet[`${parmas[3][1]}${parmas[2]}`] = {t: 's', v: parmas[4][1], w: undefined};
+        worksheet[`${parmas[3][2]}${parmas[2]}`] = {t: 's', v: parmas[4][2], w: undefined};
+        worksheet[`${parmas[3][3]}${parmas[2]}`] = {t: 's', v: parmas[4][3], w: undefined};
+        let savePath = parmas[0]
+        return await this.saveWorkbook(workbook, savePath);
+    }
+
+    async saveNumber(parmas) {
+        let workbook = xlsx.readFile(this.filePath, {cellStyles: true, bookVBA: true});
+        let worksheet = workbook.Sheets[parmas[1]];
+        worksheet[`${parmas[3][4]}${parmas[2]}`] = {t: 's', v: parmas[4], w: undefined};
+        let savePath = parmas[0]
+        return await this.saveWorkbook(workbook, savePath);
+    }
+
+    async saveWorkbook(workbook, savePath) {
+        try {
+            xlsx.writeFile(workbook, savePath);
+        } catch (error) {
+            console.log(error);
+            fs.unlink(savePath, (err) => {
+                if (err) {
+                    console.log(err)
+                    postMessage(['error', 'Cannot edit old file make sure it is closed']);
+                } else {
+                    xlsx.writeFile(workbook, savePath);
+                }
+            });
         }
         return savePath;
     }

@@ -8,11 +8,12 @@
 const { clipboard, ipcRenderer, shell } = require('electron')
 const { dialog } = require('electron').remote
 const Database = require('../assets/indexDB')
+const Validate = require('../assets/validators')
 
 document.getElementById("valid-single").addEventListener("click", validSingle);
 document.getElementById("valid-triple").addEventListener("click", validTriple);
 document.getElementById("batch-file").addEventListener("click", validBatch);
-document.getElementById("template-file").addEventListener("click", test);
+// document.getElementById("template-file").addEventListener("click", test);
 document.getElementById("single-copy").addEventListener("click", () => { copyResult('single') });
 document.getElementById("triple-copy").addEventListener("click", () => { copyResult('triple') });
 document.getElementById("triple-paste").addEventListener("click", triplePaste);
@@ -21,6 +22,10 @@ document.getElementById("settings").addEventListener("click", openSettings);
 document.getElementById("topButton").addEventListener("click", toTop);
 document.getElementById("endButton").addEventListener("click", toEnd);
 document.getElementById("interactive").addEventListener("click", () => { openExcel(1) });
+
+document.getElementById("recheck-desc").addEventListener("click", checkAgain);
+document.getElementById("save-desc").addEventListener("click", writeDescription);
+document.getElementById("save-num").addEventListener("click", writeAssetNum);
 
 
 const container = document.getElementById("main");
@@ -35,6 +40,36 @@ container.addEventListener('click', (event) => {
         console.log(icon);
     } */
 })
+
+function writeDescription() {
+    const valid = new Validate;
+    let field = document.getElementById("interact-desc");
+    let desc = field.value.split(',');
+    let path = document.getElementById("worksheet-path").innerHTML;
+    let wsName = document.getElementById("ws-name").value;
+    let rowNum = document.getElementById("current-row").innerHTML;
+    let cols = document.getElementById("output-col").value.split(',');
+    desc = valid.assembleDescription(desc);
+    const worker = new WorkerHandler;
+    worker.work(['writeDesc', [path, wsName, rowNum, cols, desc]], writeComplete);
+}
+
+function writeAssetNum() {
+    let num = document.getElementById("interact-num").value;
+    let path = document.getElementById("worksheet-path").innerHTML;
+    let wsName = document.getElementById("ws-name").value;
+    let rowNum = document.getElementById("current-row").innerHTML;
+    let cols = document.getElementById("output-col").value.split(',');
+    const worker = new WorkerHandler;
+    worker.work(['writeNum', [path, wsName, rowNum, cols, num]], writeComplete);
+}
+
+function writeComplete() {
+    let rowNum = parseInt(document.getElementById("current-row").innerHTML);
+    new Toast(`Row ${rowNum} saved!`);
+    document.getElementById("interact-num").value = '';
+    interactiveGoNext(rowNum + 1);
+}
 
 function openFile() {
     const validFile = document.getElementById("valid-file");
@@ -67,7 +102,8 @@ function openExcel(mode) {
                 document.getElementById("output-col").value,
             ]
             if (mode===1) {
-                worker.work(['interactive', result.filePaths, params], interactiveInitial);
+                worker.work(['interactive', result.filePaths, params], interactiveGoNext);
+                document.getElementById("worksheet-path").innerHTML = result.filePaths[0];
             }
             
         } else {
@@ -76,8 +112,29 @@ function openExcel(mode) {
     })
 }
 
-function interactiveInitial() {
+function checkAgain() {
+    let field = document.getElementById("interact-desc");
+    const worker = new WorkerHandler;
+    worker.work(['validSingle', field.value], interactiveShow);
+}
+
+async function interactiveGoNext(row) {
+    if (!Number.isInteger(row)) {
+        row = row[0]
+    }
+    const db = new Database();
+    let description = await db.getDescription(row);
+    let rowNum = document.getElementById("current-row");
+    rowNum.innerHTML = row;
+    const worker = new WorkerHandler;
+    worker.work(['validSingle', description.description], interactiveShow);
     // write this
+}
+
+function interactiveShow(result) {
+    let field = document.getElementById("interact-desc");
+    field.value = result[0][3];
+    findRelated(result[0]);
 }
 
 function validBatch() {
@@ -352,7 +409,4 @@ function toTop() {
 function toEnd() {
     let element = document.getElementsByClassName("flex-shrink-0")
     element[0].scrollTop = element[0].scrollHeight; // For Chrome, Firefox, IE and Opera
-}
-function test() {
-    let db = new Database();
 }

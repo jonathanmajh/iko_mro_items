@@ -49,11 +49,27 @@ onmessage = function (e) {
         const maximo = new Maximo();
         maximo.findRelated(e.data[1])
     } else if (e.data[0] === 'interactive') {
-        const excel = new ExcelReader(e.data[1]);
-        const cols = e.data[2][2].split(',');
-        let data = excel.getDescriptions(e.data[2][1], cols, e.data[2][3])
+        const excel = new ExcelReader(e.data[1][0]);
+        let data = excel.getDescriptions(e.data[2][0], e.data[2][1].split(','), parseInt(e.data[2][2]));
         const db = new Database();
         data = db.saveDescription(data);
+        postMessage(['result', parseInt(e.data[2][2])]);
+    } else if (e.data[0] === 'writeDesc') {
+        const excel = new ExcelReader(e.data[1][0]);
+        let result = excel.saveDescription(e.data[1]);
+        result.then((result => {
+            if (result) {
+                postMessage(['result', result]);
+            }
+        }))
+    } else if (e.data[0] === 'writeNum') {
+        const excel = new ExcelReader(e.data[1][0]);
+        let result = excel.saveNumber(e.data[1]);
+        result.then((result => {
+            if (result) {
+                postMessage(['result', result]);
+            }
+        }))
     } else {
         console.log('unimplimented work');
     }

@@ -108,6 +108,7 @@ class Validate {
 
     assembleDescription(split_desc) {
         // TODO need to detect when strings are too long (ie over 90 chars)
+        // consolelog(split_desc)
         let descriptions = ['', '', '', ''];
         for (let i = 0; i < split_desc.length - 1; i++) {
             split_desc[i] = `${split_desc[i]},`
