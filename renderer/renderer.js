@@ -84,6 +84,10 @@ function openSettings() {
 }
 
 function openExcel(mode) {
+    // capitalize columns
+    document.getElementById("input-col").value = document.getElementById("input-col").value.toUpperCase();
+    document.getElementById("output-col").value = document.getElementById("output-col").value.toUpperCase();
+
     dialog.showOpenDialog([], {
         title: "Select Spreadsheet with Names",
         filters: [
@@ -128,7 +132,6 @@ async function interactiveGoNext(row) {
     rowNum.innerHTML = row;
     const worker = new WorkerHandler;
     worker.work(['validSingle', description.description], interactiveShow);
-    // write this
 }
 
 function interactiveShow(result) {

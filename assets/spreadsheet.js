@@ -1,11 +1,9 @@
 const xlsx = require('xlsx');
 const fs = require('fs');
-// TODO switch to using exceljs instead of sheetjs since sheetjs locks styles behind the pro version paywall
 
 class ExcelReader {
     constructor(filePath) {
         this.filePath = filePath
-        // much faster to only read one sheet
     }
 
     getManufactures() {
@@ -47,7 +45,6 @@ class ExcelReader {
             return false;
         }
         let worksheet = workbook.Sheets[wsName];
-        // worksheet is case sensitive
         let range = worksheet['!ref'];
         let lastrow = parseInt(range.split(':')[1].slice(1));
         let data = [];
