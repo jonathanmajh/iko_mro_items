@@ -40,6 +40,12 @@ class ExcelReader {
         let workbook = xlsx.readFile(this.filePath);
         fs.copyFileSync(this.filePath, `${this.filePath}.backup`);
         postMessage(['info', `Backing up file as: "${this.filePath}.backup"`]);
+        if (!(workbook.SheetNames.includes(wsName))) {
+            postMessage(['info', `Workbook has the following worksheets:`]);
+            postMessage(['info', `${workbook.SheetNames}`]);
+            postMessage(['error', `"${wsName} does not exist, Please check spelling & captitalization"`]);
+            return false;
+        }
         let worksheet = workbook.Sheets[wsName];
         // worksheet is case sensitive
         let range = worksheet['!ref'];

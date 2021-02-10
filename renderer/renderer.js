@@ -296,7 +296,7 @@ class WorkerHandler {
             } else if (e.data[0] === 'error') {
                 new Toast(e.data[1], 'bg-danger');
                 let bar = new ProgressBar;
-                bar.update(100, msgs[1]);
+                bar.update(100, e.data[1]);
                 log.error(e.data[1]);
                 worker.terminate()
             } else if (e.data[0] === 'progress') {
