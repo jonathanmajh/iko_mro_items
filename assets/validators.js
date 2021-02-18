@@ -29,7 +29,6 @@ class PhraseReplacer {
     }
 
     async replaceAbbreviated(split_desc) {
-        // TODO need to split by spaces, ie replace individual word by keep the way words are grouped with commas
         let replacement = false;
         for (let i=0; i<split_desc.length; i++) {
             // look for replacements for phrases
@@ -81,7 +80,6 @@ class Validate {
     }
 
     async validateTriple(raw_desc) {
-        // ['a', 'b', 'c']
         let value = raw_desc[0]
         if (raw_desc[1]) {
             value = `${value},${raw_desc[1]}`;
@@ -107,7 +105,6 @@ class Validate {
     }
 
     assembleDescription(split_desc) {
-        // TODO need to detect when strings are too long (ie over 90 chars)
         // consolelog(split_desc)
         let descriptions = ['', '', '', ''];
         for (let i = 0; i < split_desc.length - 1; i++) {
@@ -129,7 +126,14 @@ class Validate {
                 if (descriptions[2]) {
                     descriptions[3] = `${descriptions[3]},${descriptions[2]}`;
                 }
-                return descriptions
+                if (descriptions[0].length > 30 || descriptions[1].length > 30 || descriptions[2].length > 30 || descriptions[3] > 90) {
+                    postMessage(['info', `${descriptions[0]}, ${descriptions[1]}, ${descriptions[2]}, ${descriptions[3]}`])
+                    postMessage(['error', 'Description is too long'])
+                    return descriptions
+                } else {
+                    postMessage(['debug', 'Description length is in spec'])
+                    return descriptions
+                }
             }
             for (let i=position; i<3; i++) {
                 if ((descriptions[i].length - 1) + split_desc[j].length <= 30) { //minus one since the comma would be removed
