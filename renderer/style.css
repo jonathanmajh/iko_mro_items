@@ -5,6 +5,10 @@
   text-align: left;
 }
 
+input {
+  width: 100%;
+}
+
 #progress-text {
   position: absolute;
   top: 50%;
