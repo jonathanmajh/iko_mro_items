@@ -71,11 +71,14 @@ class Database {
 
     async saveDescription(data) {
         let dataDB = [];
-        await this.db.workingDescription.clear()
         for (const [rowid, desc] of Object.entries(data)) {
             dataDB.push({row: desc[0], description: desc[1]});
         }
-        await this.db.workingDescription.bulkAdd(dataDB);
+        var saveDesc = Dexie.async(function* (db) {
+            yield db.workingDescription.clear()
+            yield db.workingDescription.bulkAdd(dataDB);
+        })
+        await saveDesc(this.db);
         return true
     }
 

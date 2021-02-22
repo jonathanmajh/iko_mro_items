@@ -52,8 +52,9 @@ onmessage = function (e) {
         const excel = new ExcelReader(e.data[1][0]);
         let data = excel.getDescriptions(e.data[2][0], e.data[2][1].split(','), parseInt(e.data[2][2]));
         const db = new Database();
-        data = db.saveDescription(data);
-        postMessage(['result', parseInt(e.data[2][2])]);
+        data = db.saveDescription(data).then(() => {
+            postMessage(['result', parseInt(e.data[2][2])]);
+        });
     } else if (e.data[0] === 'writeDesc') {
         const excel = new ExcelReader(e.data[1][0]);
         let result = excel.saveDescription(e.data[1]);
