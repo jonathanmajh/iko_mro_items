@@ -15,7 +15,7 @@ class Database {
                 if (result) {
                     console.log('db ready');
                 } else {
-                    const filePath = path.join(require('path').resolve('./'), 'assets', 'item_database.xlsm');
+                    const filePath = path.join(require('path').resolve('assets'), 'item_database.xlsm');
                     const excel = new ExcelReader(filePath);
                     let manu = excel.getManufactures();
                     let abbr = excel.getAbbreviations();
