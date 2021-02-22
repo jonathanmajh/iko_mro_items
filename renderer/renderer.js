@@ -294,14 +294,14 @@ class WorkerHandler {
         worker.onmessage = (e) => {
             let log = new Logging();
             if (e.data[0] === 'result') {
-                worker.terminate()
+                // worker.terminate()
                 callback(e.data.slice(1,));
             } else if (e.data[0] === 'error') {
                 new Toast(e.data[1], 'bg-danger');
                 let bar = new ProgressBar;
                 bar.update(100, e.data[1]);
                 log.error(e.data[1]);
-                worker.terminate()
+                // worker.terminate()
             } else if (e.data[0] === 'progress') {
                 let bar = new ProgressBar;
                 log.info(e.data[2]);
@@ -316,7 +316,7 @@ class WorkerHandler {
                 log.info(e.data[1]);
             } else {
                 console.log('unimplemented worker message');
-                console.log(e);
+                console.log(e.data);
             }
         }
     }

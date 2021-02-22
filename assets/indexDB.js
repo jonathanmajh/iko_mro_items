@@ -5,7 +5,7 @@ const path = require('path');
 class Database {
     constructor() {
         this.db = new Dexie('Phrases');
-        this.db.version(2).stores({
+        this.db.version(3).stores({
             manufacturers: "++id, full_name, short_name",
             abbreviations: "++id, orig_text, replace_text",
             workingDescription: "row, description",

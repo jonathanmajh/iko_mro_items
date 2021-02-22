@@ -45,8 +45,8 @@ class ExcelReader {
             return false;
         }
         let worksheet = workbook.Sheets[wsName];
-        let range = worksheet['!ref'];
-        let lastrow = parseInt(range.split(':')[1].slice(1));
+        let range = xlsx.utils.decode_range(worksheet['!ref']);
+        let lastrow = range.e.r + 1;
         let data = [];
         let row = [];
         for (let i=startRow;i<=lastrow;i++) {
