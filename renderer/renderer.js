@@ -294,7 +294,7 @@ class WorkerHandler {
         worker.onmessage = (e) => {
             let log = new Logging();
             if (e.data[0] === 'result') {
-                // worker.terminate()
+                worker.terminate()
                 // it seems the save to db doesnt await properly, so just deal with the memory leak for now
                 callback(e.data.slice(1,));
             } else if (e.data[0] === 'error') {
