@@ -87,7 +87,7 @@ async function fetchAndObjectify(phrase) {
     let itemNums = [];
     result.forEach(item => {
         itemNums.push(item.itemnum);
-        itemDict[itemitemnum] = item.description
+        itemDict[item.itemnum] = item.description
     });
     return itemNums;
 }

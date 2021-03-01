@@ -31,12 +31,6 @@ class Database {
     }
 
     async saveItemCache(data) {
-        await this.db.itemCache.clear().then(function () {
-            console.log('finished clearing')
-        }).catch(function (err) {
-            console.log(err.stack);
-            console.log(err)
-        });
         let dataDB = [];
         let search = '';
         for (let i=0;i<data.length;i++) {

@@ -89,6 +89,12 @@ async function checkItemCache() {
     curVersion = curVersion[0]?.version;
     if (!(curVersion === xlVersion)) {
         postMessage(['debug', `10%: Loading item cache data from file`]);
+        await db.db.itemCache.clear().then(function () {
+            console.log('finished clearing')
+        }).catch(function (err) {
+            console.log(err.stack);
+            console.log(err)
+        });
         let data = excel.getItemCache();
         curVersion = data[1]
         postMessage(['debug', `25%: Saving data to item cache`]);
