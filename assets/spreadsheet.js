@@ -6,6 +6,33 @@ class ExcelReader {
         this.filePath = filePath
     }
 
+    getVersion() {
+        let workbook = xlsx.readFile(this.filePath);
+        let worksheet = workbook.Sheets['Sheet1'];
+        let version = worksheet['F2'].w
+        return version
+    }
+
+    getItemCache() {
+        let workbook = xlsx.readFile(this.filePath);
+        let worksheet = workbook.Sheets["Sheet1"];
+        let range = xlsx.utils.decode_range(worksheet['!ref']);
+        let lastrow = range.e.r + 1;
+        let data = []
+        for (let i=2;i<=lastrow;i++) {
+            if (worksheet[`A${i}`]) {
+                try {
+                    data.push([worksheet[`A${i}`].v, worksheet[`B${i}`].v, worksheet[`C${i}`].w])
+                } catch (error) {
+                    console.log(error);
+                    console.log(`row number: ${i}`);
+                }
+                
+            }
+        }
+        return [data, worksheet['F2'].w]
+    }
+
     getManufactures() {
         let workbook = xlsx.readFile(this.filePath, {sheets:"Manufacturers",});
         let worksheet = workbook.Sheets["Manufacturers"];

@@ -1,4 +1,5 @@
 const intersection = require('lodash.intersection');
+const Database = require('./indexDB');
 //https://lodash.com/docs/4.17.15#intersection
 // fast library for intersection of arrays
 
@@ -34,6 +35,29 @@ class Maximo {
             }
         })
     }
+
+    async getNewItems(date) {
+        date = date.replace(' ', 'T');
+        let response;
+        try {
+            response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/mxitem?oslc.where=in22>"${date}"&_lid=corcoop3&_lpwd=maximo&oslc.select=itemnum,in22,description`);
+        } catch (err) {
+            postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (1)', err]);
+            return false;
+        }
+        let content = await response.json();
+        let items = [];
+        let previousDate = [new Date("2000-01-01"), ''];
+        let newDate = '';
+        content["rdfs:member"].forEach(item => {
+            newDate = item["spi:in22"].replace("T", " ").slice(0,-6)
+            items.push([item["spi:itemnum"], item["spi:description"], newDate]);
+            if (previousDate[0] < new Date(newDate)) {
+                previousDate = [new Date(newDate), newDate]
+            }
+        });
+        return [items, previousDate[1]];
+    }
 }
 
 function matchAndScore(data) {
@@ -57,19 +81,13 @@ function matchAndScore(data) {
 }
 
 async function fetchAndObjectify(phrase) {
-    postMessage(['debug', `Sending request to Maximo for: "${phrase}"`]);
-    let response;
-    try {
-        response = await fetch(`http://nscandacmaxapp1/maxrest/rest/mbo/item?DESCRIPTION=${phrase}&_includecols=itemnum,description&_format=json&_compact=1&_lid=corcoop3&_lpwd=maximo`);
-    } catch (err) {
-        postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (1)', err]);
-        return false;
-    }
-    let content = await response.json();
+    postMessage(['debug', `Getting item from cache: "${phrase}"`]);
+    const db = new Database()
+    let result = await db.db.itemCache.where('search').equals(phrase).toArray()
     let itemNums = [];
-    content['ITEMMboSet']['ITEM'].forEach(item => {
-        itemNums.push(item['ITEMNUM']);
-        itemDict[item['ITEMNUM']] = item['DESCRIPTION']
+    result.forEach(item => {
+        itemNums.push(item.itemnum);
+        itemDict[itemitemnum] = item.description
     });
     return itemNums;
 }

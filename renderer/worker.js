@@ -1,7 +1,8 @@
-const Validate = require('../assets/validators')
-const ExcelReader = require('../assets/spreadsheet')
-const Database = require('../assets/indexDB')
-const Maximo = require('../assets/maximo')
+const Validate = require('../assets/validators');
+const ExcelReader = require('../assets/spreadsheet');
+const Database = require('../assets/indexDB');
+const Maximo = require('../assets/maximo');
+const path = require('path');
 
 onmessage = function (e) {
     console.log(`recieved message from boss: ${e}`)
@@ -12,7 +13,7 @@ onmessage = function (e) {
                 console.log(`valid.validateSingle: ${result}`);
                 postMessage(['result', result]);
             }
-        );       
+        );
     } else if (e.data[0] === 'validTriple') {
         let valid = new Validate;
         valid.validateTriple(e.data[1]).then(
@@ -71,7 +72,36 @@ onmessage = function (e) {
                 postMessage(['result', result]);
             }
         }))
+    } else if (e.data[0] === 'checkItemCache') {
+        checkItemCache()
     } else {
         console.log('unimplimented work');
     }
+}
+
+async function checkItemCache() {
+    postMessage(['debug', `0%: Checking item cache data`]);
+    const filePath = path.join(require('path').resolve(__dirname).replace('renderer', 'assets'), 'item_information.xlsx');
+    const excel = new ExcelReader(filePath);
+    const db = new Database();
+    let xlVersion = excel.getVersion();
+    let curVersion = await db.getVersion('itemCache');
+    curVersion = curVersion[0]?.version;
+    if (!(curVersion === xlVersion)) {
+        postMessage(['debug', `10%: Loading item cache data from file`]);
+        let data = excel.getItemCache();
+        curVersion = data[1]
+        postMessage(['debug', `25%: Saving data to item cache`]);
+        await db.saveItemCache(data[0]);
+        await db.saveVersion('itemCache', curVersion);
+    }
+    curVersion = await db.getVersion('maximoItemCache')
+    curVersion = curVersion[0]?.version ?? xlVersion;
+    postMessage(['debug', `50%: Getting items with changes after: ${curVersion} from Maximo`]);
+    const maximo = new Maximo()
+    let newItems = await maximo.getNewItems(curVersion)
+    postMessage(['debug', '75%: Saving maximo data to item cache']);
+    await db.saveItemCache(newItems[0]);
+    await db.saveVersion('maximoItemCache', newItems[1]);
+    postMessage(['result', 'done'])
 }

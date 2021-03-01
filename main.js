@@ -2,6 +2,7 @@
 const { app, BrowserWindow, ipcMain, screen } = require('electron')
 const path = require('path');
 const { appUpdater } = require('./assets/autoupdater');
+let mainWindow;
 
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -27,17 +28,20 @@ ipcMain.on('getVersion', (event, arg) => {
   event.returnValue = app.getVersion();
 })
 
+ipcMain.on('loading', (event, arg) => {
+  mainWindow.loadFile(path.join('renderer', 'index.html'))
+})
+
 function createWindow() {
   // Create the browser window.
   const { width, height } = screen.getPrimaryDisplay().workAreaSize
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: width/2,
     height: height,
     x: 0,
     y: 0,
     autoHideMenuBar: true,
     webPreferences: {
-      preload: path.join(__dirname, 'renderer', 'preload.js'),
       nodeIntegration: true,
       nodeIntegrationInWorker: true,
       enableRemoteModule: true,
@@ -46,10 +50,10 @@ function createWindow() {
   })
 
   // and load the index.html of the app.
-  mainWindow.loadFile(path.join('renderer', 'index.html'))
+  mainWindow.loadFile(path.join('renderer', 'loading.html'))
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
 
   const page = mainWindow.webContents;
 

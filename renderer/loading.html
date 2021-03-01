@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self';" />
+    <link rel="icon" type="image/png" href="iko_logo.png" />
+    <title>IKO Item Standardizer</title>
+    <link rel="stylesheet" href="bootstrap.min.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="bootstrap.bundle.min.js"></script>
+  </head>
+  <body>
+    <h1>Please wait while data from Maximo is being loaded</h1>
+    <h3>Logs</h3>
+    <div class="table-responsive" id="logs-container">
+      <table class="table table-bordered">
+        <thead>
+          <tr class="table-primary">
+            <th>Level</th>
+            <!-- <th>Time</th> -->
+            <th>Message</th>
+          </tr>
+        </thead>
+        <tbody id="logs-table"></tbody>
+      </table>
+    </div>
+    <script src="./loading.js"></script>
+  </body>
+</html>

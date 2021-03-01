@@ -5,26 +5,54 @@ const path = require('path');
 class Database {
     constructor() {
         this.db = new Dexie('Phrases');
-        this.db.version(3).stores({
+        this.db.version(5).stores({
             manufacturers: "++id, full_name, short_name",
             abbreviations: "++id, orig_text, replace_text",
             workingDescription: "row, description",
+            itemCache: "itemnum, description, changed_date, *search",
+            versions: "item, version",
         });
-        this.checkValidDB().then(
-            (result) => {
-                if (result) {
-                    console.log('db ready');
-                } else {
-                    const filePath = path.join(require('path').resolve(__dirname), 'assets', 'item_database.xlsm');
-                    const excel = new ExcelReader(filePath);
-                    let manu = excel.getManufactures();
-                    let abbr = excel.getAbbreviations();
-                    this.populateAbbr(abbr);
-                    this.populateManu(manu);
-                    console.log('db ready');
-                }
-            } 
-            );
+        // TODO move this to initiliazation page
+        // this.checkValidDB().then(
+        //     (result) => {
+        //         if (result) {
+        //             console.log('db ready');
+        //         } else {
+        //             const filePath = path.join(require('path').resolve(__dirname), 'assets', 'item_database.xlsm');
+        //             const excel = new ExcelReader(filePath);
+        //             let manu = excel.getManufactures();
+        //             let abbr = excel.getAbbreviations();
+        //             this.populateAbbr(abbr);
+        //             this.populateManu(manu);
+        //             console.log('db ready');
+        //         }
+        //     } 
+        //     );
+    }
+
+    async saveItemCache(data) {
+        await this.db.itemCache.clear().then(function () {
+            console.log('finished clearing')
+        }).catch(function (err) {
+            console.log(err.stack);
+            console.log(err)
+        });
+        let dataDB = [];
+        let search = '';
+        for (let i=0;i<data.length;i++) {
+            search = data[i][1].replace(" ", ",");
+            search = search.split(",")
+            dataDB.push({itemnum: data[i][0], description: data[i][1], changed_date: data[i][2], search: search});
+        }
+        await this.db.itemCache.bulkAdd(dataDB);
+    }
+
+    async getVersion(item) {
+        return await this.db.versions.where('item').equals(item).toArray();
+    }
+
+    async saveVersion(item, newVersion) {
+        return await this.db.versions.put({item: item, version: newVersion});
     }
 
     async checkValidDB() {
@@ -45,7 +73,7 @@ class Database {
         for (let i=0;i<data.length;i++) {
             dataDB.push({orig_text: data[i][0], replace_text: data[i][1]});
         }
-        this.db.abbreviations.bulkAdd(dataDB);
+        await this.db.abbreviations.bulkAdd(dataDB);
     }
 
     async populateManu(data) {
@@ -53,7 +81,7 @@ class Database {
         for (let i=0;i<data.length;i++) {
             dataDB.push({full_name: data[i][0], short_name: data[i][1], website: data[i][2]});
         }
-        this.db.manufacturers.bulkAdd(dataDB);
+        await this.db.manufacturers.bulkAdd(dataDB);
     }
 
     async isManufacturer(name) {
@@ -74,11 +102,18 @@ class Database {
         for (const [rowid, desc] of Object.entries(data)) {
             dataDB.push({row: desc[0], description: desc[1]});
         }
-        var saveDesc = Dexie.async(function* (db) {
-            yield db.workingDescription.clear()
-            yield db.workingDescription.bulkAdd(dataDB);
-        })
-        await saveDesc(this.db);
+        console.log('starting to clear')
+        await this.db.workingDescription.clear().then(function () {
+            console.log('finished clearing')
+        }).catch(function (err) {
+            console.log(err.stack);
+            console.log(err)
+        });
+        await this.db.workingDescription.bulkAdd(dataDB).catch(function (err) {
+            console.log(err.stack);
+            console.log(err)
+        });
+        console.log('finished adding');
         return true
     }
 
