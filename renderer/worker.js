@@ -80,15 +80,17 @@ onmessage = function (e) {
 }
 
 async function checkItemCache() {
-    postMessage(['debug', `0%: Checking item cache data`]);
+    postMessage(['debug', `0%: Checking list of Manufacturers & Abbrivations`]);
     const filePath = path.join(require('path').resolve(__dirname).replace('renderer', 'assets'), 'item_information.xlsx');
     const excel = new ExcelReader(filePath);
     const db = new Database();
+    await db.checkValidDB();
+    postMessage(['debug', `33%: Checking list of items in cache`]);
     let xlVersion = excel.getVersion();
     let curVersion = await db.getVersion('itemCache');
     curVersion = curVersion[0]?.version;
     if (!(curVersion === xlVersion)) {
-        postMessage(['debug', `10%: Loading item cache data from file`]);
+        postMessage(['debug', `40%: Loading item cache data from file`]);
         await db.db.itemCache.clear().then(function () {
             console.log('finished clearing')
         }).catch(function (err) {
@@ -97,16 +99,16 @@ async function checkItemCache() {
         });
         let data = excel.getItemCache();
         curVersion = data[1]
-        postMessage(['debug', `25%: Saving data to item cache`]);
+        postMessage(['debug', `60%: Saving data to item cache`]);
         await db.saveItemCache(data[0]);
         await db.saveVersion('itemCache', curVersion);
     }
     curVersion = await db.getVersion('maximoItemCache')
     curVersion = curVersion[0]?.version ?? xlVersion;
-    postMessage(['debug', `50%: Getting items with changes after: ${curVersion} from Maximo`]);
+    postMessage(['debug', `75%: Getting items with changes after: ${curVersion} from Maximo`]);
     const maximo = new Maximo()
     let newItems = await maximo.getNewItems(curVersion)
-    postMessage(['debug', '75%: Saving maximo data to item cache']);
+    postMessage(['debug', '85%: Saving maximo data to item cache']);
     await db.saveItemCache(newItems[0]);
     await db.saveVersion('maximoItemCache', newItems[1]);
     postMessage(['result', 'done'])

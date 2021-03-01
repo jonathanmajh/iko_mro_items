@@ -12,33 +12,17 @@ class Database {
             itemCache: "itemnum, description, changed_date, *search",
             versions: "item, version",
         });
-        // TODO move this to initiliazation page
-        // this.checkValidDB().then(
-        //     (result) => {
-        //         if (result) {
-        //             console.log('db ready');
-        //         } else {
-        //             const filePath = path.join(require('path').resolve(__dirname), 'assets', 'item_database.xlsm');
-        //             const excel = new ExcelReader(filePath);
-        //             let manu = excel.getManufactures();
-        //             let abbr = excel.getAbbreviations();
-        //             this.populateAbbr(abbr);
-        //             this.populateManu(manu);
-        //             console.log('db ready');
-        //         }
-        //     } 
-        //     );
     }
 
     async saveItemCache(data) {
         let dataDB = [];
         let search = '';
-        for (let i=0;i<data.length;i++) {
+        for (let i = 0; i < data.length; i++) {
             search = data[i][1].replace(" ", ",");
             search = search.split(",")
-            dataDB.push({itemnum: data[i][0], description: data[i][1], changed_date: data[i][2], search: search});
+            dataDB.push({ itemnum: data[i][0], description: data[i][1], changed_date: data[i][2], search: search });
         }
-        await this.db.itemCache.bulkAdd(dataDB);
+        await this.db.itemCache.bulkPut(dataDB);
     }
 
     async getVersion(item) {
@@ -46,7 +30,7 @@ class Database {
     }
 
     async saveVersion(item, newVersion) {
-        return await this.db.versions.put({item: item, version: newVersion});
+        return await this.db.versions.put({ item: item, version: newVersion });
     }
 
     async checkValidDB() {
@@ -56,31 +40,37 @@ class Database {
         ]);
         console.log(`manu: ${result[0]}, abbr: ${result[0]}`)
         if (result[0] > 0 && result[1] > 0) {
-            return true;
+            console.log('db ready');
         } else {
-            return false;
+            const filePath = path.join(require('path').resolve(__dirname), 'item_database.xlsx');
+            const excel = new ExcelReader(filePath);
+            let manu = excel.getManufactures();
+            let abbr = excel.getAbbreviations();
+            this.populateAbbr(abbr);
+            this.populateManu(manu);
+            console.log('db ready');
         }
     }
 
-    async populateAbbr(data){
+    async populateAbbr(data) {
         let dataDB = [];
-        for (let i=0;i<data.length;i++) {
-            dataDB.push({orig_text: data[i][0], replace_text: data[i][1]});
+        for (let i = 0; i < data.length; i++) {
+            dataDB.push({ orig_text: data[i][0], replace_text: data[i][1] });
         }
         await this.db.abbreviations.bulkAdd(dataDB);
     }
 
     async populateManu(data) {
         let dataDB = [];
-        for (let i=0;i<data.length;i++) {
-            dataDB.push({full_name: data[i][0], short_name: data[i][1], website: data[i][2]});
+        for (let i = 0; i < data.length; i++) {
+            dataDB.push({ full_name: data[i][0], short_name: data[i][1], website: data[i][2] });
         }
         await this.db.manufacturers.bulkAdd(dataDB);
     }
 
     async isManufacturer(name) {
         let result = await this.db.manufacturers.where('full_name').equalsIgnoreCase(name).toArray();
-        if (result.length==0) {
+        if (result.length == 0) {
             result = await this.db.manufacturers.where('short_name').equalsIgnoreCase(name).toArray();
         }
         return result[0];
@@ -94,7 +84,7 @@ class Database {
     async saveDescription(data) {
         let dataDB = [];
         for (const [rowid, desc] of Object.entries(data)) {
-            dataDB.push({row: desc[0], description: desc[1]});
+            dataDB.push({ row: desc[0], description: desc[1] });
         }
         console.log('starting to clear')
         await this.db.workingDescription.clear().then(function () {
