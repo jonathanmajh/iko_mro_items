@@ -81,6 +81,7 @@ function matchAndScore(data) {
 }
 
 async function fetchAndObjectify(phrase) {
+    phrase = phrase.toUpperCase()
     postMessage(['debug', `Getting item from cache: "${phrase}"`]);
     const db = new Database()
     let result = await db.db.itemCache.where('search').equals(phrase).toArray()

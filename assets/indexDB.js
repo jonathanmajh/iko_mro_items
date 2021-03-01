@@ -18,7 +18,7 @@ class Database {
         let dataDB = [];
         let search = '';
         for (let i = 0; i < data.length; i++) {
-            search = data[i][1].replace(" ", ",");
+            search = data[i][1].replace(" ", ",").toUpperCase();
             search = search.split(",")
             dataDB.push({ itemnum: data[i][0], description: data[i][1], changed_date: data[i][2], search: search });
         }
