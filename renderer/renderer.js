@@ -242,7 +242,13 @@ async function showRelated(result) {
             itemName = itemNames[item]
             if (itemName) {
                 for (let word of searchWords) {
-                    itemName = itemName.replace(new RegExp(`${word}`, 'i'), `<b>${word}</b>`)
+                    split = word.split(' ');
+                    for (let smallWord of split) {
+                        if (smallWord.length > 0) {
+                            itemName = itemName.replace(new RegExp(`${smallWord}`, 'i'), `<b>${smallWord}</b>`)
+                        }
+                    }
+                    
                 }
                 if (key > 0.7) {
                     color = 'table-success';
