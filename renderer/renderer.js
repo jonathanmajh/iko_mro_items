@@ -27,6 +27,10 @@ document.getElementById("recheck-desc").addEventListener("click", checkAgain);
 document.getElementById("save-desc").addEventListener("click", writeDescription);
 document.getElementById("save-num").addEventListener("click", writeAssetNum);
 
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl)
+})
 
 const container = document.getElementById("main");
 container.addEventListener('click', (event) => {
