@@ -8,7 +8,7 @@ itemDict = {};
 class Maximo {
     constructor() { }
     async findRelated(data) {
-        const phrases = data.split(',');
+        const phrases = data.replaceAll(' ', ',').split(',');
         let promises = []
         postMessage(['progress', 25, "Getting Item Descriptions From Maximo"])
         for (let i = 0; i < phrases.length; i++) {

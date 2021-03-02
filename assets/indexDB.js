@@ -18,22 +18,10 @@ class Database {
     async saveItemCache(data) {
         let dataDB = [];
         let search = '';
-        let newSearch = [];
-        let combinations;
         for (let i = 0; i < data.length; i++) {
-            search = data[i][1].toUpperCase().split(",");
-            newSearch = [];
-            for (let j = 0; j < search.length; j++) {
-                combinations = search[j].trim().split(' ');
-                if (combinations.length > 1) {
-                    combinations = utils.getCombinations(combinations);
-                    for (let k=0; k<combinations.length; k++) {
-                        combinations[k] = combinations[k].join(' ');
-                    }
-                }
-                newSearch.push(...combinations)
-            }
-            dataDB.push({ itemnum: data[i][0], description: data[i][1], changed_date: data[i][2], search: newSearch });
+            search = data[i][1].toUpperCase().replaceAll(' ', ',').split(",");
+            search = search.filter(item => item.length !== 0)
+            dataDB.push({ itemnum: data[i][0], description: data[i][1], changed_date: data[i][2], search: search });
         }
         await this.db.itemCache.bulkPut(dataDB);
     }
