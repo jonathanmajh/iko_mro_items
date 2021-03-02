@@ -39,16 +39,15 @@ class PhraseReplacer {
                 split_desc[i] = replacement.replace_text;
             }
             // look for replacement for individual words
-            let word_split = split_desc[i].split(' ');
-            let word_replacement = false
-            for (let j=0; j<word_split.length; j++) {
-                word_replacement = await this.db.isAbbreviation(word_split[j]);
-                if(word_replacement) {
-                    postMessage(['debug', `Replacing: "${word_split[j]} with: ${replacement.replace_text}"`]);
-                    word_split[j] = word_replacement.replace_text;
+            let word_split = utils.inOrderCombinations(split_desc[i].split(' '));
+            replacement = false
+            for (let j=word_split.length-1; j>0; j--) {
+                replacement = await this.db.isAbbreviation(word_split[j].join(' '));
+                if(replacement) {
+                    postMessage(['debug', `Replacing: "${word_split[j].join(' ')} with: ${replacement.replace_text}"`]);
+                    split_desc[i] = split_desc[i].replace(word_split[j].join(' '),  replacement.replace_text)
                 }
             }
-            split_desc[i] = word_split.join(' ');
         }
         return split_desc
     }

@@ -23,8 +23,8 @@ function getCombinations(valuesArray) {
 function inOrderCombinations(valuesArray) {
     let combi = [];
     for (let i = 0; i < valuesArray.length; i++) {
-        for (let j=i;j<valuesArray.length - i; j++) {
-            combi.push(valuesArray.slice(i,j))
+        for (let j = 0; j < valuesArray.length - i; j++) {
+            combi.push(valuesArray.slice(j, j + i + 1))
         }
     }
     return combi
