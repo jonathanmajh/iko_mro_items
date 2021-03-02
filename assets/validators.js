@@ -1,5 +1,6 @@
 const Database = require('./indexDB')
 const ExcelReader = require('./spreadsheet')
+const utils = require('./utils')
 
 class ManufacturerValidator {
     constructor() {

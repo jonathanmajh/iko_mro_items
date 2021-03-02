@@ -18,23 +18,15 @@ class WorkerHandler {
             let log = new Logging();
             if (e.data[0] === 'result') {
                 worker.terminate()
-                // it seems the save to db doesnt await properly, so just deal with the memory leak for now
                 callback(e.data.slice(1,));
             } else if (e.data[0] === 'error') {
-                new Toast(e.data[1], 'bg-danger');
-                let bar = new ProgressBar;
-                bar.update(100, e.data[1]);
                 log.error(e.data[1]);
                 worker.terminate()
             } else if (e.data[0] === 'progress') {
-                let bar = new ProgressBar;
                 log.info(e.data[2]);
-                bar.update(e.data[1], e.data[2]);
             } else if (e.data[0] === 'warning') {
-                new Toast(e.data[1], 'bg-warning');
                 log.warning(e.data[1]);
             } else if (e.data[0] === 'info') {
-                new Toast(e.data[1], 'bg-info');
                 log.info(e.data[1]);
             } else if (e.data[0] === 'debug') {
                 log.info(e.data[1]);

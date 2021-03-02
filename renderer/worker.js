@@ -108,8 +108,10 @@ async function checkItemCache() {
     postMessage(['debug', `75%: Getting items with changes after: ${curVersion} from Maximo`]);
     const maximo = new Maximo()
     let newItems = await maximo.getNewItems(curVersion)
-    postMessage(['debug', '85%: Saving maximo data to item cache']);
-    await db.saveItemCache(newItems[0]);
-    await db.saveVersion('maximoItemCache', newItems[1]);
+    if (newItems) {
+        postMessage(['debug', '85%: Saving maximo data to item cache']);
+        await db.saveItemCache(newItems[0]);
+        await db.saveVersion('maximoItemCache', newItems[1]);
+    }
     postMessage(['result', 'done'])
 }

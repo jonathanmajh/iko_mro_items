@@ -1,6 +1,7 @@
 const Dexie = require('dexie');
 const ExcelReader = require('./spreadsheet');
 const path = require('path');
+const utils = require('../assets/utils')
 
 class Database {
     constructor() {
@@ -17,10 +18,22 @@ class Database {
     async saveItemCache(data) {
         let dataDB = [];
         let search = '';
+        let newSearch = [];
+        let combinations;
         for (let i = 0; i < data.length; i++) {
-            search = data[i][1].replace(" ", ",").toUpperCase();
-            search = search.split(",")
-            dataDB.push({ itemnum: data[i][0], description: data[i][1], changed_date: data[i][2], search: search });
+            search = data[i][1].toUpperCase().split(",");
+            newSearch = [];
+            for (let j = 0; j < search.length; j++) {
+                combinations = search[j].trim().split(' ');
+                if (combinations.length > 1) {
+                    combinations = utils.getCombinations(combinations);
+                    for (let k=0; k<combinations.length; k++) {
+                        combinations[k] = combinations[k].join(' ');
+                    }
+                }
+                newSearch.push(...combinations)
+            }
+            dataDB.push({ itemnum: data[i][0], description: data[i][1], changed_date: data[i][2], search: newSearch });
         }
         await this.db.itemCache.bulkPut(dataDB);
     }
