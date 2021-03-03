@@ -21,7 +21,7 @@ class Database {
         for (let i = 0; i < data.length; i++) {
             search = data[i][1].toUpperCase().replaceAll(' ', ',').split(",");
             search = search.filter(item => item.length !== 0)
-            dataDB.push({ itemnum: data[i][0], description: data[i][1], changed_date: data[i][2], search: search });
+            dataDB.push({ itemnum: String(data[i][0]), description: data[i][1], changed_date: data[i][2], search: search });
         }
         await this.db.itemCache.bulkPut(dataDB);
     }

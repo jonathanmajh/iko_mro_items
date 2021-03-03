@@ -12,7 +12,7 @@ const Validate = require('../assets/validators')
 
 document.getElementById("valid-single").addEventListener("click", validSingle);
 document.getElementById("valid-triple").addEventListener("click", validTriple);
-document.getElementById("batch-file").addEventListener("click", validBatch);
+// document.getElementById("batch-file").addEventListener("click", validBatch);
 // document.getElementById("template-file").addEventListener("click", test);
 document.getElementById("single-copy").addEventListener("click", () => { copyResult('single') });
 document.getElementById("triple-copy").addEventListener("click", () => { copyResult('triple') });
@@ -26,11 +26,12 @@ document.getElementById("interactive").addEventListener("click", () => { openExc
 document.getElementById("recheck-desc").addEventListener("click", checkAgain);
 document.getElementById("save-desc").addEventListener("click", writeDescription);
 document.getElementById("save-num").addEventListener("click", writeAssetNum);
+document.getElementById("skip-row").addEventListener("click", skipRow);
 
-var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-  return new bootstrap.Tooltip(tooltipTriggerEl)
-})
+// var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+// var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+//   return new bootstrap.Tooltip(tooltipTriggerEl)
+// })
 
 const container = document.getElementById("main");
 container.addEventListener('click', (event) => {
@@ -48,24 +49,38 @@ container.addEventListener('click', (event) => {
 function writeDescription() {
     const valid = new Validate;
     let field = document.getElementById("interact-desc");
-    let desc = field.value.split(',');
-    let path = document.getElementById("worksheet-path").innerHTML;
-    let wsName = document.getElementById("ws-name").value;
-    let rowNum = document.getElementById("current-row").innerHTML;
-    let cols = document.getElementById("output-col").value.split(',');
-    desc = valid.assembleDescription(desc);
-    const worker = new WorkerHandler;
-    worker.work(['writeDesc', [path, wsName, rowNum, cols, desc]], writeComplete);
+    if (field.value.length > 0) {
+        let bar = new ProgressBar;
+        bar.update(0, 'Writing asset description to file');
+        let desc = field.value.split(',');
+        let path = document.getElementById("worksheet-path").innerHTML;
+        let wsName = document.getElementById("ws-name").value;
+        let rowNum = document.getElementById("current-row").innerHTML;
+        let cols = document.getElementById("output-col").value.split(',');
+        desc = valid.assembleDescription(desc);
+        const worker = new WorkerHandler;
+        worker.work(['writeDesc', [path, wsName, rowNum, cols, desc]], writeComplete);
+    } else {
+        new Toast('Please enter a valid description');
+    }
+
 }
 
 function writeAssetNum() {
     let num = document.getElementById("interact-num").value;
-    let path = document.getElementById("worksheet-path").innerHTML;
-    let wsName = document.getElementById("ws-name").value;
-    let rowNum = document.getElementById("current-row").innerHTML;
-    let cols = document.getElementById("output-col").value.split(',');
-    const worker = new WorkerHandler;
-    worker.work(['writeNum', [path, wsName, rowNum, cols, num]], writeComplete);
+    if (num.length > 0) {
+        let bar = new ProgressBar;
+        bar.update(0, 'Writing asset number to file');
+        let path = document.getElementById("worksheet-path").innerHTML;
+        let wsName = document.getElementById("ws-name").value;
+        let rowNum = document.getElementById("current-row").innerHTML;
+        let cols = document.getElementById("output-col").value.split(',');
+        const worker = new WorkerHandler;
+        worker.work(['writeNum', [path, wsName, rowNum, cols, num]], writeComplete);
+    } else {
+        new Toast('Please enter a valid item number');
+    }
+
 }
 
 function writeComplete() {
@@ -109,11 +124,11 @@ function openExcel(mode) {
                 document.getElementById("start-row").value,
                 document.getElementById("output-col").value,
             ]
-            if (mode===1) {
+            if (mode === 1) {
                 worker.work(['interactive', result.filePaths, params], interactiveGoNext);
                 document.getElementById("worksheet-path").innerHTML = result.filePaths[0];
             }
-            
+
         } else {
             new Toast('File Picker Cancelled');
         }
@@ -126,6 +141,11 @@ function checkAgain() {
     worker.work(['validSingle', field.value], interactiveShow);
 }
 
+function skipRow() {
+    let row = document.getElementById("current-row").innerHTML
+    interactiveGoNext(Number(row) + 1)
+}
+
 async function interactiveGoNext(row) {
     if (!Number.isInteger(row)) {
         row = row[0]
@@ -134,13 +154,22 @@ async function interactiveGoNext(row) {
     let description = await db.getDescription(row);
     let rowNum = document.getElementById("current-row");
     rowNum.innerHTML = row;
-    const worker = new WorkerHandler;
-    worker.work(['validSingle', description.description], interactiveShow);
+    if (description) {
+        const worker = new WorkerHandler;
+        worker.work(['validSingle', description.description], interactiveShow);
+    } else {
+        let field = document.getElementById("interact-desc");
+        field.placeholder = "Row is blank, press skip row to go next";
+        field.value = "";
+        let bar = new ProgressBar;
+        bar.update(100, 'Done');
+    }
 }
 
 function interactiveShow(result) {
     let field = document.getElementById("interact-desc");
     field.value = result[0][3];
+    field.placeholder = "";
     findRelated(result[0]);
 }
 
@@ -252,7 +281,7 @@ async function showRelated(result) {
                             itemName = itemName.replace(new RegExp(`${smallWord}`, 'i'), `<b>${smallWord}</b>`)
                         }
                     }
-                    
+
                 }
                 if (key > 0.7) {
                     color = 'table-success';

@@ -65,17 +65,27 @@ onmessage = function (e) {
             }
         }))
     } else if (e.data[0] === 'writeNum') {
-        const excel = new ExcelReader(e.data[1][0]);
-        let result = excel.saveNumber(e.data[1]);
-        result.then((result => {
-            if (result) {
-                postMessage(['result', result]);
-            }
-        }))
+        writeItemNum(e.data[1])
     } else if (e.data[0] === 'checkItemCache') {
         checkItemCache()
     } else {
         console.log('unimplimented work');
+    }
+}
+
+async function writeItemNum(data) {
+    const db = new Database;
+    let item = await db.db.itemCache.where('itemnum').equals(data[4]).toArray();
+    if (item[0]) {
+        data[4] = [item[0].description, item[0].itemnum]
+    } else {
+        data[4] = ['', data[4]]
+        postMessage(['warning', `${data[4][1]} cannot be found in item list and will be written to file with no description`]);
+    }
+    const excel = new ExcelReader(data[0]);
+    let result = await excel.saveNumber(data);
+    if (result) {
+        postMessage(['result', result]);
     }
 }
 

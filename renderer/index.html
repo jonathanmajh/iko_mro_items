@@ -151,7 +151,7 @@
           <!-- TODO tooltips for help text -->
           <div class="col"><label for="ws-name">Worksheet Name:</label></div>
           <div class="col">
-            <input type="text" id="ws-name" name="ws-name" data-bs-toggle="tooltip" data-bs-placement="top" title="Name of the Worksheet: Case Sensitive!"/>
+            <input type="text" id="ws-name" name="ws-name" title="Name of the Worksheet: Case Sensitive!" placeholder="Sheet3"/>
           </div>
         </div>
         <div class="row">
@@ -160,15 +160,15 @@
             <label for="input-col">Columns to Concatenate For Input:</label>
           </div>
           <div class="col">
-            <input type="text" id="input-col" name="input-col" data-bs-toggle="tooltip" data-bs-placement="top" title="These columns will be combined to form a description: 'a,b,c,d'" />
+            <input type="text" id="input-col" name="input-col" title="These columns will be combined to form a description" placeholder="a,b,c,d,e"/>
           </div>
         </div>
         <div class="row">
           <div class="col">
-            <label for="start-row">Starting Row: (1)</label>
+            <label for="start-row">Starting Row:</label>
           </div>
           <div class="col">
-            <input type="number" id="start-row" name="start-row" data-bs-toggle="tooltip" data-bs-placement="top" title="Which row to start processing from" />
+            <input type="number" id="start-row" name="start-row" title="Which row to start processing from" placeholder="20"/>
           </div>
         </div>
         <div class="row">
@@ -176,12 +176,12 @@
             <label for="output-col">Columns For Output:</label>
           </div>
           <div class="col">
-            <input type="text" id="output-col" name="output-col" data-bs-toggle="tooltip" data-bs-placement="top" title="These columns will be populated with data: Itemnum, Combined Description, Triple Description: v,w,x,y,z" />
+            <input type="text" id="output-col" name="output-col" title="These columns will be populated with data: Item Number, Combined Description, Triple Description" placeholder="v,w,x,y,z"/>
           </div>
         </div>
         <div class="row">
           <div class="col">
-            <button id="interactive">Interactive Mode</button>
+            <button id="interactive">Process Spreadsheet</button>
           </div>
           <!-- <div class="col">
             <button id="batch-file">Validation Mode</button>
@@ -202,30 +202,33 @@
             <div class="col">Current Row: <span id="current-row">#</span></div>
           </div>
           <div class="row">
-            <div class="col">
+            <div class="col-3">
               <label for="interact-desc">Item Description</label>
             </div>
-            <div class="col">
-              <input type="text" id="interact-desc" name="interact-desc" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit the verified descirption is needed"/>
+            <div class="col-9">
+              <input type="text" id="interact-desc" name="interact-desc" title="Edit the verified descirption is needed"/>
             </div>
           </div>
           <div class="row">
-            <div class="col">
+            <div class="col-3">
               <label for="interact-num">Item Number</label>
             </div>
-            <div class="col">
-              <input type="text" id="interact-num" name="interact-num" data-bs-toggle="tooltip" data-bs-placement="top" title="Copy Item Number here if item already exists"/>
+            <div class="col-9">
+              <input type="text" id="interact-num" name="interact-num" title="Copy Item Number here if item already exists"/>
             </div>
           </div>
           <div class="row">
             <div class="col">
-              <button id="recheck-desc" data-bs-toggle="tooltip" data-bs-placement="top" title="Verify the description again after editing">Check Again</button>
+              <button id="recheck-desc" title="Verify the description again after editing">Check Again</button>
             </div>
             <div class="col">
-              <button id="save-desc" data-bs-toggle="tooltip" data-bs-placement="top" title="Save the description as a new item">Save Description</button>
+              <button id="save-desc" title="Save the description as a new item">Save Description</button>
             </div>
             <div class="col">
-              <button id="save-num" data-bs-toggle="tooltip" data-bs-placement="top" title="Assign existing item number to this item" >Save Item Number</button>
+              <button id="save-num" title="Assign existing item number to this item" >Save Item Number</button>
+            </div>
+            <div class="col">
+              <button id="skip-row" title="Skip this row and read the next row">Skip Row</button>
             </div>
           </div>
         </div>

@@ -113,10 +113,10 @@ class ExcelReader {
     async saveDescription(parmas) {
         let workbook = xlsx.readFile(this.filePath, {cellStyles: true, bookVBA: true});
         let worksheet = workbook.Sheets[parmas[1]];
-        worksheet[`${parmas[3][0]}${parmas[2]}`] = {t: 's', v: parmas[4][0], w: undefined};
-        worksheet[`${parmas[3][1]}${parmas[2]}`] = {t: 's', v: parmas[4][1], w: undefined};
-        worksheet[`${parmas[3][2]}${parmas[2]}`] = {t: 's', v: parmas[4][2], w: undefined};
-        worksheet[`${parmas[3][3]}${parmas[2]}`] = {t: 's', v: parmas[4][3], w: undefined};
+        worksheet[`${parmas[3][2]}${parmas[2]}`] = {t: 's', v: parmas[4][0], w: undefined};
+        worksheet[`${parmas[3][3]}${parmas[2]}`] = {t: 's', v: parmas[4][1], w: undefined};
+        worksheet[`${parmas[3][4]}${parmas[2]}`] = {t: 's', v: parmas[4][2], w: undefined};
+        worksheet[`${parmas[3][1]}${parmas[2]}`] = {t: 's', v: parmas[4][3], w: undefined};
         let savePath = parmas[0]
         return await this.saveWorkbook(workbook, savePath);
     }
@@ -124,7 +124,8 @@ class ExcelReader {
     async saveNumber(parmas) {
         let workbook = xlsx.readFile(this.filePath, {cellStyles: true, bookVBA: true});
         let worksheet = workbook.Sheets[parmas[1]];
-        worksheet[`${parmas[3][4]}${parmas[2]}`] = {t: 's', v: parmas[4], w: undefined};
+        worksheet[`${parmas[3][0]}${parmas[2]}`] = {t: 's', v: parmas[4][1], w: undefined};
+        worksheet[`${parmas[3][1]}${parmas[2]}`] = {t: 's', v: parmas[4][0], w: undefined};
         let savePath = parmas[0]
         return await this.saveWorkbook(workbook, savePath);
     }
