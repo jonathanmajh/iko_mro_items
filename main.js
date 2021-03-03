@@ -20,7 +20,7 @@ ipcMain.on('openSettings', (event, arg) => {
   })
 
   settingWindow.loadFile(path.join('renderer', 'setting.html'))
-  settingWindow.webContents.openDevTools()
+  // settingWindow.webContents.openDevTools()
 })
 
 
@@ -53,7 +53,7 @@ function createWindow() {
   mainWindow.loadFile(path.join('renderer', 'loading.html'))
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools()
 
   const page = mainWindow.webContents;
 
