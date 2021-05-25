@@ -1,5 +1,6 @@
 const Validate = require('../assets/validators');
 const ExcelReader = require('../assets/spreadsheet');
+const Spreadsheet = require('../assets/exceljs');
 const Database = require('../assets/indexDB');
 const Maximo = require('../assets/maximo');
 const path = require('path');
@@ -68,9 +69,16 @@ onmessage = function (e) {
         writeItemNum(e.data[1])
     } else if (e.data[0] === 'checkItemCache') {
         checkItemCache()
+    } else if (e.data[0] === 'processObservationList') {
+        processObservList(e.data[1])
     } else {
         console.log('unimplimented work');
     }
+}
+
+function processObservList(info) {
+    const excel = new Spreadsheet(info[0]);
+    let temp = excel.readObservList(info[1]);
 }
 
 async function writeItemNum(data) {

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self';" />
+    <link rel="icon" type="image/png" href="iko_logo.png" />
+    <title>IKO Item Standardizer</title>
+    <link rel="stylesheet" href="bootstrap.min.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="bootstrap.bundle.min.js"></script>
+    <script src="../assets/common.js"></script>
+  </head>
+
+  <body class="d-flex flex-column h-100">
+    <nav class="navbar navbar-border" style="padding: 0px">
+      <div id="progress-text">Ready!</div>
+      <div class="progress bg-dark" style="height: 40px; width: 100%">
+        <!-- nicest fucking progress bar youve ever seen -->
+        <div
+          class="
+            progress-bar progress-bar-striped
+            bg-success
+            progress-bar-animated
+          "
+          role="progressbar"
+          style="width: 100%"
+          id="progress-bar"
+        ></div>
+      </div>
+    </nav>
+    <main class="flex-shrink-0">
+      <div class="container-fluid" id="main">
+        <div class="row bg-danger text-light" style="padding-top: 20px">
+          <div class="col-auto"><img src="IKO_Logo-nobg.png" /></div>
+          <h1 class="col">Observation List</h1>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <h1>Please Select Observation List File</h1>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <button id="select_file">Select</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <p>File Name:  <span id="selected_file">#</span></p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <label for="ws-name">Worksheet name: (Case Sensitive)</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <input type="text" id="ws-name" name="ws-name" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <h1>Please Select Output Folder</h1>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <button id="select_output">Select</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <p>Selected Folder: <span id="selected_output">#</span></p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <h1>Click Button to Process Changes</h1>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <button id="process">Process</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <a class="btn col" data-bs-toggle="collapse" href="#logs-container">
+            <h3>
+              <i class="material-icons pointer md-size">expand_more</i> Logs
+            </h3>
+          </a>
+        </div>
+        <div class="row collapse table-responsive" id="logs-container">
+          <table class="table table-bordered">
+            <thead>
+              <tr class="table-primary">
+                <th>Level</th>
+                <!-- <th>Time</th> -->
+                <th>Message</th>
+              </tr>
+            </thead>
+            <tbody id="logs-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <div
+      class="toast-container position-absolute p-3 top-0 end-0"
+      id="toastPlacement"
+    ></div>
+    <button id="topButton" title="Go to top">Top</button>
+    <button id="endButton" title="Go to end">End</button>
+
+    <script src="./observation_template.js"></script>
+  </body>
+</html>

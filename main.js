@@ -29,7 +29,15 @@ ipcMain.on('getVersion', (event, arg) => {
 })
 
 ipcMain.on('loading', (event, arg) => {
-  mainWindow.loadFile(path.join('renderer', 'index.html'))
+  mainWindow.loadFile(path.join('renderer', 'item_main.html'))
+})
+
+ipcMain.on('start_item_module', (event, arg) => {
+  mainWindow.loadFile(path.join('renderer', 'item_loading.html'))
+})
+
+ipcMain.on('start_observation_template', (event, arg) => {
+  mainWindow.loadFile(path.join('renderer', 'observation_template.html'))
 })
 
 function createWindow() {
@@ -50,7 +58,7 @@ function createWindow() {
   })
 
   // and load the index.html of the app.
-  mainWindow.loadFile(path.join('renderer', 'loading.html'))
+  mainWindow.loadFile(path.join('renderer', 'start_page.html'))
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()

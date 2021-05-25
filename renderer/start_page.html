@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self';" />
+    <link rel="icon" type="image/png" href="iko_logo.png" />
+    <title>IKO Reliability Tool</title>
+    <link rel="stylesheet" href="bootstrap.min.css" />
+    <link rel="stylesheet" href="start_page.css" />
+    <!-- <script src="bootstrap.bundle.min.js"></script> -->
+  </head>
+  <body>
+    <h1>Please Select Module</h1>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <p>Select a module to get started</p>
+            </div>
+            <div class="col">
+            </div>
+        </div> 
+        <div class="row">
+            <div class="col">
+                <button type="button" class="btn btn-danger" id="openItem">Item Creation</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-danger" id="openObserveTemp">Observation List Templates</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <ul>
+                    <li>Search for items</li>
+                    <li>Creating item descriptions</li>
+                </ul>
+            </div>
+            <div class="col">
+                <ul>
+                    <li>Create Templates for Updating Observation List</li>
+                    <li>Checks Maximo for existing records and updates as required</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script src="./start_page.js"></script>
+  </body>
+</html>
