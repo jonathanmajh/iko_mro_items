@@ -3,6 +3,7 @@ const ExcelReader = require('../assets/spreadsheet');
 const Spreadsheet = require('../assets/exceljs');
 const Database = require('../assets/indexDB');
 const Maximo = require('../assets/maximo');
+const ObservationDatabase = require('../assets/better-sqlite');
 const path = require('path');
 
 onmessage = function (e) {
@@ -70,15 +71,32 @@ onmessage = function (e) {
     } else if (e.data[0] === 'checkItemCache') {
         checkItemCache()
     } else if (e.data[0] === 'processObservationList') {
-        processObservList(e.data[1])
-    } else {
+        const excel = new Spreadsheet(e.data[1][0]);
+        excel.readObservList(e.data[1][1]);
+    } else if (e.data[0] === 'getMaximoObservation') {
+        const maximo = new Maximo();
+        maximo.getObservations();
+    } else if (e.data[0] === 'compareObservLists') {
+        compareObservLists(e.data[1])
+    }  else {
         console.log('unimplimented work');
     }
 }
 
-function processObservList(info) {
-    const excel = new Spreadsheet(info[0]);
-    let temp = excel.readObservList(info[1]);
+function compareObservLists (data) {
+    const sqlite = new ObservationDatabase();
+    // compare condition domain definition
+    let removeOldMeters = [];
+    for (const meter of data[0]) {
+        result = sqlite.compareDomainDefinition(meter.list_id, meter.inspect);
+        if (!result) {
+            removeOldMeters.push(meter.list_id);
+        }
+    }
+    const newMeters = sqlite.getNewDomainDefinitions();    
+    debugger;
+    const excel = new Spreadsheet('C:\\Users\\majona\\Documents\\observationList\\results.xlsx');
+    excel.saveObserListChanges({domain: {changes: newMeters, delete: removeOldMeters}})
 }
 
 async function writeItemNum(data) {

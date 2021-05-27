@@ -1,4 +1,5 @@
 const { dialog } = require('electron').remote
+const ObservationDatabase = require('../assets/better-sqlite');
 
 document.getElementById("select_file").addEventListener("click", selectFile);
 document.getElementById("select_output").addEventListener("click", selectFolder);
@@ -38,8 +39,27 @@ function selectFolder() {
 }
 
 function processFile() {
+    //getMaximoData();
     const worker = new WorkerHandler;
     const ws_name = document.getElementById("ws-name").value;
     const wb_path = document.getElementById("selected_file").innerHTML;
-    worker.work(['processObservationList', [wb_path, ws_name]]);
+    worker.work(['processObservationList', [wb_path, ws_name]], saveReadObserves);
+}
+
+function saveReadObserves(data) {
+    const sqlite = new ObservationDatabase();
+    sqlite.createTables();
+    sqlite.insertMeter(data[0][0]);
+    sqlite.insertObservation(data[0][1]);
+    getMaximoData();
+}
+
+function getMaximoData() {
+    const worker = new WorkerHandler;
+    worker.work(['getMaximoObservation'], compareObservLists);
+}
+
+function compareObservLists(data) {
+    const worker = new WorkerHandler;
+    worker.work(['compareObservLists', data[0]]);
 }

@@ -7,6 +7,50 @@ itemDict = {};
 
 class Maximo {
     constructor() { }
+
+    async getObservations() {
+        // return meters and observations
+        let response;
+        let nextpage = true;
+        let pageno = 1;
+        let meters = [];
+        let observations = [];
+        while (nextpage) {
+            try {
+                response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/iko_alndomain?pageno=${pageno}&oslc.where=domainid%3D%22M-%25%22&_lpwd=maximo&oslc.pageSize=100&_lid=corcoop3&oslc.select=alndomain%2Cdomainid%2Cdescription`);
+            } catch (err) {
+                postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network', err]);
+                return false;
+            }
+            let content = await response.json();
+            if (content["oslc:responseInfo"]["oslc:nextPage"]) {
+                pageno = pageno + 1;
+            } else {
+                nextpage = false;
+            }
+            content["rdfs:member"].forEach(meter => {
+                meters.push({
+                    list_id: meter["spi:domainid"],
+                    inspect: meter["spi:description"],
+                    search_str: `${meter["spi:domainid"]}~${meter["spi:description"]}`
+                });
+                if (meter["spi:alndomain"]) {
+                    meter["spi:alndomain"].forEach(observation => {
+                        observations.push({
+                            meter: meter["spi:domainid"].slice(2),
+                            id_value: observation["spi:value"],
+                            observation: observation["spi:description"],
+                            search_str: `${meter["spi:domainid"].slice(2)}~${observation["spi:value"]}~${observation["spi:description"]}`
+                        })
+                    });
+                } else {
+                    postMessage(['warning', `Meter: ${meter["spi:domainid"]} has no observation codes`]);
+                }
+            });
+        }
+        postMessage(['result', [meters, observations]]);
+    }
+
     async findRelated(data) {
         const phrases = data.replaceAll(' ', ',').split(',');
         let promises = []
@@ -50,7 +94,7 @@ class Maximo {
         let previousDate = [new Date("2000-01-01"), ''];
         let newDate = '';
         content["rdfs:member"].forEach(item => {
-            newDate = item["spi:in22"].replace("T", " ").slice(0,-6)
+            newDate = item["spi:in22"].replace("T", " ").slice(0, -6)
             items.push([item["spi:itemnum"], item["spi:description"], newDate]);
             if (previousDate[0] < new Date(newDate)) {
                 previousDate = [new Date(newDate), newDate]
