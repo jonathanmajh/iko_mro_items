@@ -24,14 +24,14 @@ function selectFile() {
 }
 
 function selectFolder() {
-    dialog.showOpenDialog([], {
-        title: "Select Folder to Save Templates to",
-        properties: [
-            'openDirectory'
+    dialog.showSaveDialog([], {
+        title: "Save as",
+        filters: [
+            { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb'] },
         ]
     }).then(result => {
         if (!result.canceled) {
-            document.getElementById("selected_output").innerHTML = result.filePaths[0];
+            document.getElementById("selected_output").innerHTML = result.filePath;
         } else {
             new Toast('File Picker Cancelled');
         }
@@ -61,5 +61,6 @@ function getMaximoData() {
 
 function compareObservLists(data) {
     const worker = new WorkerHandler;
-    worker.work(['compareObservLists', data[0]]);
+    const save_path = document.getElementById("selected_output").innerHTML;
+    worker.work(['compareObservLists', data[0], save_path], undefined);
 }

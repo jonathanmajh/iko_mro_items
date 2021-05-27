@@ -77,13 +77,13 @@ onmessage = function (e) {
         const maximo = new Maximo();
         maximo.getObservations();
     } else if (e.data[0] === 'compareObservLists') {
-        compareObservLists(e.data[1])
+        compareObservLists(e.data[1], e.data[2])
     }  else {
         console.log('unimplimented work');
     }
 }
 
-function compareObservLists (data) {
+function compareObservLists (data, savePath) {
     const sqlite = new ObservationDatabase();
     // compare condition domain definition
     let removeOldMeters = [];
@@ -95,7 +95,7 @@ function compareObservLists (data) {
     }
     const newMeters = sqlite.getNewDomainDefinitions();    
     debugger;
-    const excel = new Spreadsheet('C:\\Users\\majona\\Documents\\observationList\\results.xlsx');
+    const excel = new Spreadsheet(savePath);
     excel.saveObserListChanges({domain: {changes: newMeters, delete: removeOldMeters}})
 }
 

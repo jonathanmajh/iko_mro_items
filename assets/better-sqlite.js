@@ -4,7 +4,7 @@ const sql = require('better-sqlite3')
 class ObservationDatabase {
     constructor() {
         // TODO remove old db
-        this.db = new sql(':memory:', {verbose: console.log });
+        this.db = new sql('./assets/obserlist.db', {verbose: console.log });
         postMessage('better-SqliteError.js constructor');
     }
 
@@ -70,7 +70,7 @@ class ObservationDatabase {
         if (meter.length === 1) {
             if (meter[0].inspect == inspect) {
                 stmt = this.db.prepare('UPDATE meters SET in_maximo = 1 WHERE list_id = ?')
-                stmt.run(list_id);
+                stmt.run
                 return true
             } else {
                 postMessage(['info', `Update Meter: ${list_id} changed New: ${meter[0].inspect} Old: ${inspect}`]);
