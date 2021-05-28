@@ -62,22 +62,41 @@ class ObservationDatabase {
         insertMany(data);
     }
 
-    compareDomainDefinition(list_id, inspect) {
+    compareDomainDefinition(list_id, inspect, maximo_table) {
         // true means change will be taken care of when querying for in_maximo=0
+        // maximo_table: meters are kept in two places, meters + alndomain, since they are the same the same function can be used, just make sure to make it as such
         let stmt = this.db.prepare('SELECT list_id, inspect FROM meters WHERE list_id = ?');
         const meter = stmt.all(list_id);
-        debugger;
         if (meter.length === 1) {
             if (meter[0].inspect == inspect) {
-                stmt = this.db.prepare('UPDATE meters SET in_maximo = 1 WHERE list_id = ?')
-                stmt.run
+                stmt = this.db.prepare(`UPDATE meters SET in_maximo = ${maximo_table} WHERE list_id = ?`)
+                stmt.run(list_id)
                 return true
             } else {
-                postMessage(['info', `Update Meter: ${list_id} changed New: ${meter[0].inspect} Old: ${inspect}`]);
+                postMessage(['debug', `Update Meter: "${list_id}" changed New: "${meter[0].inspect}" Old: "${inspect}"`]);
                 return true
             }
         } else {
-            postMessage(['info', `Old Meter: ${list_id}: ${inspect} will be removed`]);
+            postMessage(['debug', `Old Meter: ${list_id}: ${inspect} will be removed`]);
+            return false
+        }
+    }
+
+
+    compareDomainValues(search, observation) {
+        let stmt = this.db.prepare('SELECT meter, id_value, observation FROM observations WHERE search_str = ?');
+        const observ = stmt.all(search);
+        if (observ.length === 1) {
+            if (observ[0].observation == observation) {
+                stmt = this.db.prepare('UPDATE observations SET in_maximo = 1 WHERE search_str = ?');
+                stmt.run(search)
+                return true
+            } else {
+                postMessage(['debug', `Update Observation: "${search}" changed New: "${observ[0].observation}" Old: "${observation}"`]);
+                return true
+            }
+        } else {
+            postMessage(['debug', `Old Observation: ${search}: ${observation} will be removed`]);
             return false
         }
     }
@@ -88,9 +107,18 @@ class ObservationDatabase {
         return meters
     }
 
-    searchObserve(search_str) {
-
+    getNewMaximoMeters() {
+        const stmt = this.db.prepare('SELECT list_id, inspect FROM meters WHERE in_maximo = 0 or in_maximo = 1');
+        const meters = stmt.all();
+        return meters
     }
+
+    getNewDomainValues() {
+        const stmt = this.db.prepare('SELECT meter, id_value, observation FROM observations WHERE in_maximo = 0');
+        const observs = stmt.all();
+        return observs
+    }
+    
 
 
 }

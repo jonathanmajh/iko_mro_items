@@ -10,25 +10,74 @@ class Spreadsheet {
         const wb = new Exceljs.Workbook();
         let ws;
         let row;
-        let rowCount = 3;
-        if (data.domain.changes) {
-            ws = wb.addWorksheet('ChangeConditionDomainDefinitions');
+        let rowCount;
+        if (data.domainDef.changes) {
+            rowCount = 3;
+            ws = wb.addWorksheet('ChangeCondDomDef');
             row = ws.getRow(1);
             row.values = ['IKO_Import','IKO_ALNDOMAIN','AddChange','EN'];
             row = ws.getRow(2);
             row.values = ['DOMAINID','DESCRIPTION','DOMAINTYPE','MAXTYPE','LENGTH'];
-            for (const change of data.domain.changes) {
+            for (const change of data.domainDef.changes) {
                 row = ws.getRow(rowCount);
                 row.values = [change.list_id, change.inspect, 'ALN', 'UPPER', '3'];
                 rowCount++;
             }
         }
-        if (data.domain.delete) {
-            ws = wb.addWorksheet('RemoveConditionDomainDefinitions');
+        if (data.domainDef.delete) {
+            ws = wb.addWorksheet('RemoveCondDomDef');
             row = ws.getRow(1);
             row.values = ['DOMAINID'];
             rowCount = 2;
-            for (const change of data.domain.delete) {
+            for (const change of data.domainDef.delete) {
+                row = ws.getRow(rowCount);
+                row.values = [change];
+                rowCount++;
+            }
+        }
+        if (data.domainVal.changes) {
+            let rowCount = 3;
+            ws = wb.addWorksheet('ChangeCondDomVal');
+            row = ws.getRow(1);
+            row.values = ['IKO_Import','IKO_ALNDOMAIN','AddChange','EN'];
+            row = ws.getRow(2);
+            row.values = ['DOMAINID','VALUE','AD_DESCRIPTION'];
+            for (const observ of data.domainVal.changes) {
+                row = ws.getRow(rowCount);
+                row.values = [observ.meter, observ.id_value, observ.observation];
+                rowCount++;
+            }
+        }
+        if (data.domainVal.delete) {
+            ws = wb.addWorksheet('RemoveCondDomVal');
+            row = ws.getRow(1);
+            row.values = ['DOMAINID:VALUE'];
+            rowCount = 2;
+            for (const change of data.domainVal.delete) {
+                row = ws.getRow(rowCount);
+                row.values = [change];
+                rowCount++;
+            }
+        }
+        if (data.meter.changes) {
+            let rowCount = 3;
+            ws = wb.addWorksheet('ChangeCondMeter');
+            row = ws.getRow(1);
+            row.values = ['IKO_Import','IKO_METER','AddChange','EN'];
+            row = ws.getRow(2);
+            row.values = ['METERNAME','DESCRIPTION','METERTYPE','DOMAINID'];
+            for (const observ of data.meter.changes) {
+                row = ws.getRow(rowCount);
+                row.values = [`${observ.list_id.slice(2)}01`, observ.inspect, 'CHARACTERISTIC', observ.list_id];
+                rowCount++;
+            }
+        }
+        if (data.meter.delete) {
+            ws = wb.addWorksheet('RemoveCondMeter');
+            row = ws.getRow(1);
+            row.values = ['DOMAINID'];
+            rowCount = 2;
+            for (const change of data.meter.delete) {
                 row = ws.getRow(rowCount);
                 row.values = [change];
                 rowCount++;
@@ -77,7 +126,7 @@ class Spreadsheet {
                         id_value: temp1,
                         observation: temp2,
                         action: temp3,
-                        search_str: `${meter}~${temp1}~${temp2}`
+                        search_str: `${meter}~${temp1}`
                     }
                     observations.push(observation);  
                 }
@@ -91,7 +140,7 @@ class Spreadsheet {
                     id_value: temp1,
                     observation: temp2,
                     action: temp3,
-                    search_str: `${meter}~${temp1}~${temp2}`
+                    search_str: `${meter}~${temp1}`
                 }
                 observations.push(observation);
             }

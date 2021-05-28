@@ -8,6 +8,35 @@ itemDict = {};
 class Maximo {
     constructor() { }
 
+    async getMeters() {
+        let response;
+        let nextpage = true;
+        let pageno = 1;
+        let meters = [];
+        while (nextpage) {
+            try {
+                response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/iko_meter?pageno=${pageno}&_lpwd=maximo&oslc.pageSize=100&_lid=corcoop3&oslc.select=*&oslc.where=domainid%3D%22M-%25%22`);
+            } catch (err) {
+                postMessage(['error', 'Failed to fetch Data from Maximo, Please Check Network', err]);
+                return false;
+            }
+            let content = await response.json();
+            if (content["oslc:responseInfo"]["oslc:nextPage"]) {
+                pageno = pageno + 1;
+            } else {
+                nextpage = false;
+            }
+            content["rdfs:member"].forEach(meter => {
+                meters.push({
+                    list_id: meter["spi:domainid"],
+                    inspect: meter["spi:description"].slice(0,meter["spi:description"].length-9),
+                    metername: meter["spi:metername"]
+                });
+            });
+        }
+        return meters
+    }
+
     async getObservations() {
         // return meters and observations
         let response;
@@ -19,7 +48,7 @@ class Maximo {
             try {
                 response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/iko_alndomain?pageno=${pageno}&oslc.where=domainid%3D%22M-%25%22&_lpwd=maximo&oslc.pageSize=100&_lid=corcoop3&oslc.select=alndomain%2Cdomainid%2Cdescription`);
             } catch (err) {
-                postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network', err]);
+                postMessage(['error', 'Failed to fetch Data from Maximo, Please Check Network', err]);
                 return false;
             }
             let content = await response.json();
@@ -40,7 +69,7 @@ class Maximo {
                             meter: meter["spi:domainid"].slice(2),
                             id_value: observation["spi:value"],
                             observation: observation["spi:description"],
-                            search_str: `${meter["spi:domainid"].slice(2)}~${observation["spi:value"]}~${observation["spi:description"]}`
+                            search_str: `${meter["spi:domainid"].slice(2)}~${observation["spi:value"]}`
                         })
                     });
                 } else {

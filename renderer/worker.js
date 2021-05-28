@@ -83,20 +83,45 @@ onmessage = function (e) {
     }
 }
 
-function compareObservLists (data, savePath) {
+async function compareObservLists (data, savePath) {
     const sqlite = new ObservationDatabase();
     // compare condition domain definition
     let removeOldMeters = [];
     for (const meter of data[0]) {
-        result = sqlite.compareDomainDefinition(meter.list_id, meter.inspect);
+        result = sqlite.compareDomainDefinition(meter.list_id, meter.inspect, 1);
         if (!result) {
             removeOldMeters.push(meter.list_id);
         }
     }
     const newMeters = sqlite.getNewDomainDefinitions();    
+    // compare condition domain values
+    let removeOldObservations = [];
+    for (const observation of data[1]) {
+        result = sqlite.compareDomainValues(observation.search_str, observation.observation);
+        if (!result) {
+            removeOldObservations.push(observation.search_str.replace('~', ':'));
+        }
+    }
+    const newObservations = sqlite.getNewDomainValues();
+    //compare data in meter table
+    const maximo = new Maximo();
+    data = await maximo.getMeters();
     debugger;
+    let removeOldMaximoMeters = [];
+    for (const meter of data) {
+        result = sqlite.compareDomainDefinition(meter.list_id, meter.inspect, 2);
+        if (!result) {
+            removeOldMaximoMeters.push(meter.list_id);
+        }
+    }
+    const newMaximoMeters = sqlite.getNewMaximoMeters();    
+
     const excel = new Spreadsheet(savePath);
-    excel.saveObserListChanges({domain: {changes: newMeters, delete: removeOldMeters}})
+    await excel.saveObserListChanges({
+        domainDef: {changes: newMeters, delete: removeOldMeters},
+        domainVal: {changes: newObservations, delete: removeOldObservations},
+        meter: {changes: newMaximoMeters, delete: removeOldMaximoMeters}
+    })
 }
 
 async function writeItemNum(data) {
