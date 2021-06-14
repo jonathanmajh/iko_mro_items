@@ -28,6 +28,10 @@ ipcMain.on('getVersion', (event, arg) => {
   event.returnValue = app.getVersion();
 })
 
+ipcMain.on('getPath', (event, arg) => {
+  event.returnValue = app.getPath('userData');
+})
+
 ipcMain.on('loading', (event, arg) => {
   mainWindow.loadFile(path.join('renderer', 'item_main.html'))
 })

@@ -3,8 +3,8 @@ const sql = require('better-sqlite3')
 
 class ObservationDatabase {
     constructor() {
-        // TODO remove old db
-        this.db = new sql('./assets/obserlist.db');//, { verbose: console.log });
+        console.log(process.env.APPDATA)
+        this.db = new sql(`${process.env.APPDATA}/iko_utility/obserlist.db`);//, { verbose: console.log });
         postMessage('better-SqliteError.js constructor');
     }
 
