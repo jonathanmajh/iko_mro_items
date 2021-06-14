@@ -128,3 +128,4 @@ function toEnd() {
     let element = document.getElementsByClassName("flex-shrink-0")
     element[0].scrollTop = element[0].scrollHeight; // For Chrome, Firefox, IE and Opera
 }
+

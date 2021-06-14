@@ -77,13 +77,13 @@ onmessage = function (e) {
         const maximo = new Maximo();
         maximo.getObservations();
     } else if (e.data[0] === 'compareObservLists') {
-        compareObservLists(e.data[1], e.data[2])
+        compareObservLists(e.data[1], e.data[2], e.data[3])
     }  else {
         console.log('unimplimented work');
     }
 }
 
-async function compareObservLists (data, savePath) {
+async function compareObservLists (data, savePath, jobTaskPath) {
     const sqlite = new ObservationDatabase();
     // compare condition domain definition
     let removeOldMeters = [];
@@ -106,7 +106,6 @@ async function compareObservLists (data, savePath) {
     //compare data in meter table
     const maximo = new Maximo();
     data = await maximo.getMeters();
-    debugger;
     let removeOldMaximoMeters = [];
     for (const meter of data) {
         result = sqlite.compareDomainDefinition(meter.list_id, meter.inspect, 2);
@@ -115,13 +114,22 @@ async function compareObservLists (data, savePath) {
         }
     }
     const newMaximoMeters = sqlite.getNewMaximoMeters();    
+    const excel = new Spreadsheet(jobTaskPath);
+    data = await excel.getJobTasks();
+    sqlite.saveJobTasks(data);
+    sqlite.compareJobTasks();
 
-    const excel = new Spreadsheet(savePath);
-    await excel.saveObserListChanges({
+    const newJobTasks = sqlite.getJobTasks(2);
+    const removeJobTasks = sqlite.getJobTasks(0);
+
+    const excelW = new Spreadsheet(savePath);
+    await excelW.saveObserListChanges({
         domainDef: {changes: newMeters, delete: removeOldMeters},
         domainVal: {changes: newObservations, delete: removeOldObservations},
-        meter: {changes: newMaximoMeters, delete: removeOldMaximoMeters}
+        meter: {changes: newMaximoMeters, delete: removeOldMaximoMeters},
+        jobTask: {changes: newJobTasks, delete: removeJobTasks}
     })
+
 }
 
 async function writeItemNum(data) {

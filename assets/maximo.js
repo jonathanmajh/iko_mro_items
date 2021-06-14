@@ -29,13 +29,51 @@ class Maximo {
             content["rdfs:member"].forEach(meter => {
                 meters.push({
                     list_id: meter["spi:domainid"],
-                    inspect: meter["spi:description"].slice(0,meter["spi:description"].length-9),
+                    inspect: meter["spi:description"].slice(0, meter["spi:description"].length - 9),
                     metername: meter["spi:metername"]
                 });
             });
         }
         return meters
     }
+
+    // async getJobTasks() {
+    //     let response;
+    //     let nextpage = true;
+    //     let pageno = 1;
+    //     let ext_descs = [];
+    //     while (nextpage) {
+    //         try {
+    //             response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/iko_jobtask?_lpwd=maximo&_lid=corcoop3&oslc.pageSize=200&oslc.select=*&pageno=${pageno}&oslc.where=jobtask.metername="*"`);
+    //         } catch (err) {
+    //             postMessage(['error', 'Failed to fetch Data from Maximo, Please Check Network', err]);
+    //             return false;
+    //         }
+    //         let content = await response.json();
+    //         if (content["oslc:responseInfo"]["oslc:nextPage"]) {
+    //             pageno = pageno + 1;
+    //             postMessage(['info', `Grabbed ${(pageno-1) * 200} Job Plans. Getting next page, this will take a while.`]);
+    //         } else {
+    //             nextpage = false;
+    //         }
+    //         content["rdfs:member"].forEach(ext_desc => {
+    //             ext_desc["spi:jobtask"].forEach(jobtask => {
+    //                 if (jobtask["spi:metername"]) {
+    //                     ext_descs.push({
+    //                         jpnum: ext_desc["spi:jpnum"],
+    //                         orgid: ext_desc['spi:orgid'],
+    //                         siteid: ext_desc['spi:siteid'],
+    //                         description_longdescription: jobtask['spi:description_longdescription'],
+    //                         metername: jobtask['spi:metername'],
+    //                         description: jobtask['spi:description'],
+    //                         jptask: jobtask['spi:jptask']
+    //                     });
+    //                 }
+    //             })
+    //         });
+    //     }
+    //     return ext_descs
+    // }
 
     async getObservations() {
         // return meters and observations

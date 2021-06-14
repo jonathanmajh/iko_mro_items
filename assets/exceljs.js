@@ -83,8 +83,80 @@ class Spreadsheet {
                 rowCount++;
             }
         }
+        if (data.jobTask.changes) {
+            let rowCount = 3;
+            ws = wb.addWorksheet('ChangeJobTask');
+            row = ws.getRow(1);
+            row.values = ['IKO_Import','IKO_JOBTASK','AddChange','EN'];
+            row = ws.getRow(2);
+            row.values = [
+                'ORGID','SITEID','JPNUM','PLUSCREVNUM', 'JPTASK',
+                'PLUSCJPREVNUM', 'METERNAME', 'DESCRIPTION',
+                'DESCRIPTION_LONGDESCRIPTION', '', 'OLD DESCRIPTION','OLD EXTENDED DESCRIPTION'
+            ];
+            for (const jobTask of data.jobTask.changes) {
+                row = ws.getRow(rowCount);
+                row.values = [
+                    jobTask.orgid, jobTask.siteid, jobTask.jpnum,
+                    0, jobTask.jptask, 0, jobTask.metername, jobTask.desc,
+                    jobTask.ext_desc, '', jobTask.old_desc, jobTask.old_ext_desc
+                ];
+                rowCount++;
+            }
+        }
+        if (data.jobTask.delete) {
+            ws = wb.addWorksheet('RemoveJobTask');
+            row = ws.getRow(1);
+            row.values = [
+                'ORGID','SITEID','JPNUM','PLUSCREVNUM', 'JPTASK',
+                'PLUSCJPREVNUM', 'METERNAME', 'DESCRIPTION',
+                'DESCRIPTION_LONGDESCRIPTION'
+            ];
+            rowCount = 2;
+            for (const jobTask of data.jobTask.delete) {
+                row = ws.getRow(rowCount);
+                row.values = [
+                    jobTask.orgid, jobTask.siteid, jobTask.jpnum,
+                    0, jobTask.jptask, 0, jobTask.metername, jobTask.desc,
+                    jobTask.ext_desc
+                ];
+                rowCount++;
+            }
+        }
         await wb.xlsx.writeFile(this.filePath);
         postMessage(['result', 'done'])
+    }
+
+    async getJobTasks() {
+// select jpnum, jptask, description, orgid, siteid, metername, ldtext from
+// (select jpnum, jptask, description, orgid, siteid, metername, jobtaskid from jobtask where metername is not null) as t1
+// left join 
+// (select ldtext, ldkey from longdescription where ldownertable = 'JOBTASK') as t2
+// on t1.jobtaskid = t2.ldkey
+        const wb = new Exceljs.Workbook();
+        await wb.xlsx.readFile(this.filePath);
+        const ws = wb.worksheets[0]; //assume there is only 1 worksheet and its the one we want
+        const lastRow = ws.lastRow.number;
+        let row = ws.getRow(1).values.slice(1);
+        let jobTasks = [];
+        if (row.equals(['jpnum','jptask','description','orgid','siteid','metername','ldtext'])) {
+            console.log('pass');
+        } else {
+            postMessage(['error', `Please Check Column Heading for JobTask Input expecting ${['jpnum','jptask','description','orgid','siteid','metername','ldtext']}`]);
+        }
+        for (let i = 2; i <= lastRow; i++) {
+            row = ws.getRow(i).values;
+            jobTasks.push({
+                jpnum: row[1],
+                metername: row[6],
+                orgid: row[4],
+                siteid: row[3],
+                jptask: row[2],
+                desc: row[3],
+                ext_desc: row[7]
+            })
+        }
+        return jobTasks
     }
 
     async readObservList(wsname) {
@@ -162,5 +234,36 @@ function removeRichText(value) {
         postMessage(['error', `Unknown cell type: ${typeof(value)}`]);
     }
 }
+
+//https://stackoverflow.com/a/14853974
+// Warn if overriding existing method
+if(Array.prototype.equals)
+    console.warn("Overriding existing Array.prototype.equals. Possible causes: New API defines the method, there's a framework conflict or you've got double inclusions in your code.");
+// attach the .equals method to Array's prototype to call it on any array
+Array.prototype.equals = function (array) {
+    // if the other array is a falsy value, return
+    if (!array)
+        return false;
+
+    // compare lengths - can save a lot of time 
+    if (this.length != array.length)
+        return false;
+
+    for (var i = 0, l=this.length; i < l; i++) {
+        // Check if we have nested arrays
+        if (this[i] instanceof Array && array[i] instanceof Array) {
+            // recurse into the nested arrays
+            if (!this[i].equals(array[i]))
+                return false;       
+        }           
+        else if (this[i] != array[i]) { 
+            // Warning - two different object instances will never be equal: {x:20} != {x:20}
+            return false;   
+        }           
+    }       
+    return true;
+}
+// Hide method from for-in loops
+Object.defineProperty(Array.prototype, "equals", {enumerable: false});
 
 module.exports = Spreadsheet
