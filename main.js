@@ -44,6 +44,10 @@ ipcMain.on('start_observation_template', (event, arg) => {
   mainWindow.loadFile(path.join('renderer', 'observation_template.html'))
 })
 
+ipcMain.on('start_item_translate', (event, arg) => {
+  mainWindow.loadFile(path.join('renderer', 'item_translation.html'))
+})
+
 function createWindow() {
   // Create the browser window.
   const { width, height } = screen.getPrimaryDisplay().workAreaSize

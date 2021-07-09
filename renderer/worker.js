@@ -4,6 +4,7 @@ const Spreadsheet = require('../assets/exceljs');
 const Database = require('../assets/indexDB');
 const Maximo = require('../assets/maximo');
 const ObservationDatabase = require('../assets/better-sqlite');
+const SqliteTranslations = require('../assets/translation-sqlite');
 const path = require('path');
 
 onmessage = function (e) {
@@ -78,9 +79,18 @@ onmessage = function (e) {
         maximo.getObservations();
     } else if (e.data[0] === 'compareObservLists') {
         compareObservLists(e.data[1], e.data[2], e.data[3])
-    }  else {
+    } else if (e.data[0] === 'refreshTranslations') {
+        refreshTranslations(e.data[1]);
+    } else {
         console.log('unimplimented work');
     }
+}
+
+async function refreshTranslations (filepath) {
+    const excel = new Spreadsheet(filepath);
+    const data = await excel.getTranslations();
+    const db = new SqliteTranslations();
+    postMessage(['result', db.refreshData(data)]);
 }
 
 async function compareObservLists (data, savePath, jobTaskPath) {

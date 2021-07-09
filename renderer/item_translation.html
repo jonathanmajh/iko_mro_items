@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+
+<head>
+    <meta charset="UTF-8" />
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self';" />
+    <link rel="icon" type="image/png" href="iko_logo.png" />
+    <title>IKO Item Translator</title>
+    <link rel="stylesheet" href="bootstrap.min.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="bootstrap.bundle.min.js"></script>
+    <script src="../assets/common.js"></script>
+</head>
+
+<body class="d-flex flex-column h-100">
+    <nav class="navbar navbar-border" style="padding: 0px">
+        <div id="progress-text">Ready!</div>
+        <div class="progress bg-dark" style="height: 40px; width: 100%">
+            <!-- nicest fucking progress bar youve ever seen -->
+            <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar"
+                style="width: 100%" id="progress-bar"></div>
+        </div>
+    </nav>
+    <main class="flex-shrink-0">
+        <div class="container-fluid" id="main">
+            <div class="row bg-danger text-light" style="padding-top: 20px">
+                <div class="col-auto"><img src="IKO_Logo-nobg.png" /></div>
+                <h1 class="col">Item Translator</h1>
+                <div class="col" style="text-align: right">
+                    <i id="settings" class="material-icons pointer md-size">settings</i>
+                </div>
+            </div>
+            <div class="row">
+                <a class="btn col" data-bs-toggle="collapse" href="#single-input">
+                    <h3>
+                        <i class="material-icons pointer md-size">expand_more</i> Single
+                        Item Mode
+                    </h3>
+                </a>
+            </div>
+
+            <div class="item-desc-input row collapse" id="single-input">
+
+                <div class="row">
+                    <div class="col-3"><label for="main-desc">Description:</label></div>
+                    <div class="col-8">
+                        <input type="text" id="main-desc" name="main-desc" />
+                    </div>
+                    <div class="col-1"></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-3">
+                        <label for="ext-desc-2">Manufacturer Name:</label>
+                    </div>
+                    <div class="col-8">
+                        <input type="text" id="ext-desc-2" name="ext-desc-2" />
+                    </div>
+                    <div class="col-1">
+                        <button id="translate-single">Translate</button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <a class="btn col" data-bs-toggle="collapse" href="#verified-table">
+                        <h5 class="col">
+                            <i class="material-icons pointer">expand_more</i> Translated
+                            Description
+                        </h5>
+                    </a>
+                </div>
+                <div id="verified-table" class="table-responsive row collapse">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Main Description</th>
+                                <th>Extended Description 1</th>
+                                <th>Extended Description 2</th>
+                                <th>Copy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="triple-copy">
+                                <th>Triple Description</th>
+                                <td id="result-triple-main"></td>
+                                <td id="result-triple-ext1"></td>
+                                <td id="result-triple-ext2"></td>
+                                <td><i class="material-icons pointer">content_copy</i></td>
+                            </tr>
+                            <tr id="single-copy">
+                                <th>Single Description</th>
+                                <td id="result-single" colspan="3"></td>
+                                <td><i class="material-icons pointer">content_copy</i></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        <div class="row">
+            <a class="btn col" data-bs-toggle="collapse" href="#batch-input">
+                <h3>
+                    <i class="material-icons pointer md-size">expand_more</i> Batch
+                    Item Mode
+                </h3>
+            </a>
+        </div>
+        <div class="collapse" id="batch-input">
+            <div class="row">
+                <h5>Settings:</h5>
+            </div>
+            <div class="row">
+                <!-- TODO tooltips for help text -->
+                <div class="col"><label for="ws-name">Worksheet Name:</label></div>
+                <div class="col">
+                    <input type="text" id="ws-name" name="ws-name" title="Name of the Worksheet: Case Sensitive!"
+                        placeholder="Sheet1" />
+                </div>
+            </div>
+            <div class="row">
+                <!-- TODO tooltips for help text -->
+                <div class="col">
+                    <label for="input-col">Item Description Columns:</label>
+                </div>
+                <div class="col">
+                    <input type="text" id="input-col" name="input-col"
+                        title="Column(s) for the description sans manufacturer" placeholder="b,c" />
+                </div>
+            </div>
+            <div class="row">
+                <!-- TODO tooltips for help text -->
+                <div class="col">
+                    <label for="input-manu-col">Manufacturer Description Column:</label>
+                </div>
+                <div class="col">
+                    <input type="text" id="input-manu-col" name="input-manu-col"
+                        title="Column for the manufacturer description" placeholder="d" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="start-row">Starting Row:</label>
+                </div>
+                <div class="col">
+                    <input type="number" id="start-row" name="start-row" title="Which row to start processing from"
+                        placeholder="2" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="output-col">Columns For Output:</label>
+                </div>
+                <div class="col">
+                    <input type="text" id="output-col" name="output-col"
+                        title="These columns will be populated with data: Combined Description, Triple Description"
+                        placeholder="f,g,h,i" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <button id="translate-batch">Process Spreadsheet</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <a class="btn col" data-bs-toggle="collapse" href="#logs-container">
+                    <h3>
+                        <i class="material-icons pointer md-size">expand_more</i> Logs
+                    </h3>
+                </a>
+            </div>
+            <div class="row collapse table-responsive" id="logs-container">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr class="table-primary">
+                            <th>Level</th>
+                            <!-- <th>Time</th> -->
+                            <th>Message</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logs-table"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast-container position-absolute p-3 top-0 end-0" id="toastPlacement"></div>
+    <button id="topButton" title="Go to top">Top</button>
+    <button id="endButton" title="Go to end">End</button>
+
+    <script src="./item_translation.js"></script>
+</body>
+
+</html>
