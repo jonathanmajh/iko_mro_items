@@ -18,7 +18,8 @@ class TranslationDatabase {
             translate_id INTEGER PRIMARY KEY,
             english TEXT NOT NULL,
             lang_code TEXT NOT NULL,
-            translation TEXT NOT NULL
+            translation TEXT NOT NULL,
+            UNIQUE(english, lang_code)
             );`);
         const runQuery = this.db.transaction(() => {
             createTranslationTable.run();

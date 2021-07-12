@@ -81,9 +81,17 @@ onmessage = function (e) {
         compareObservLists(e.data[1], e.data[2], e.data[3])
     } else if (e.data[0] === 'refreshTranslations') {
         refreshTranslations(e.data[1]);
+    }  else if (e.data[0] === 'batchTranslate') {
+        batchTranslate(e.data[1]);
     } else {
         console.log('unimplimented work');
     }
+}
+
+async function batchTranslate(params) {
+    const excel = new Spreadsheet(params.filepath);
+    const data = await excel.getDescriptions(params);
+    console.log(data)
 }
 
 async function refreshTranslations (filepath) {

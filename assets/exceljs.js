@@ -5,6 +5,28 @@ class Spreadsheet {
         this.filePath = filePath;
     }
 
+    async getDescriptions(params) {
+        // {wsname:string, maxNumCol:string, description:[string], manufacturerer: string, startingRow: int}
+        const wb = new Exceljs.Workbook();
+        await wb.xlsx.readFile(this.filePath);
+        const ws = wb.getWorksheet(params.wsname);
+        const lastRow = ws.lastRow.number;
+        let descriptions = [];
+        let description = "";
+        for (let i = params.startingRow; i <= lastRow; i++) {
+            for (const col of params.descriptions) {
+                description = `${description},${ws.getCell(`${col}${i}`).text}`
+            }
+            descriptions.push({
+                maxNum: ws.getCell(`${params.maxNumCol}${i}`).text,
+                description: description,
+                manufacturer: ws.getCell(`${params.manufacturerer}${i}`, ).text
+            })
+            description = "";
+        }
+        return descriptions
+    }
+
     async getTranslations() {
         const wb = new Exceljs.Workbook();
         await wb.xlsx.readFile(this.filePath);
