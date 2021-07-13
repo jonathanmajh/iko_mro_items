@@ -4,8 +4,9 @@ const Spreadsheet = require('../assets/exceljs');
 const Database = require('../assets/indexDB');
 const Maximo = require('../assets/maximo');
 const ObservationDatabase = require('../assets/better-sqlite');
-const SqliteTranslations = require('../assets/translation-sqlite');
+const TranslationDatabase = require('../assets/translation-sqlite');
 const path = require('path');
+const Translation = require('../assets/translation');
 
 onmessage = function (e) {
     console.log(`recieved message from boss: ${e}`)
@@ -90,14 +91,31 @@ onmessage = function (e) {
 
 async function batchTranslate(params) {
     const excel = new Spreadsheet(params.filepath);
-    const data = await excel.getDescriptions(params);
-    console.log(data)
+    const descs = await excel.getDescriptions(params);
+    const trans = new Translation();
+    const db = new TranslationDatabase();
+    const langs = db.getLanguages();
+    let translated;
+    let result;
+    let missing = [];
+    let allTranslated = [];
+    for (const desc of descs) {
+        translated = desc
+        for (const lang of langs) {
+            result = trans.translate({lang: lang, description: desc.description});
+            translated[lang] = result.description;
+            missing = missing.concat(result.missing);
+        }
+        allTranslated.push(translated);
+    }
+    console.log(allTranslated)
+    console.log(missing)
 }
 
 async function refreshTranslations (filepath) {
     const excel = new Spreadsheet(filepath);
     const data = await excel.getTranslations();
-    const db = new SqliteTranslations();
+    const db = new TranslationDatabase();
     postMessage(['result', db.refreshData(data)]);
 }
 

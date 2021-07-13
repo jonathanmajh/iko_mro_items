@@ -30,4 +30,12 @@ function inOrderCombinations(valuesArray) {
     return combi
 }
 
+function splitToTwo() {
+// [string] for english
+}
+
+function splitToThree() {
+    //{description: [string], manu: string}
+}
+
 module.exports = { getCombinations, inOrderCombinations };
