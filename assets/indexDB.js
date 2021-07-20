@@ -3,8 +3,11 @@ const ExcelReader = require('./spreadsheet');
 const path = require('path');
 const utils = require('../assets/utils')
 
+// Deprecated, will be converted to better-sqlite library
+
 class Database {
     constructor() {
+        // database definitions, required on object initiation
         this.db = new Dexie('Phrases');
         this.db.version(5).stores({
             manufacturers: "++id, full_name, short_name",
@@ -15,6 +18,7 @@ class Database {
         });
     }
 
+    // saves item descirption from maximo into the db
     async saveItemCache(data) {
         let dataDB = [];
         let search = '';
@@ -26,14 +30,17 @@ class Database {
         await this.db.itemCache.bulkPut(dataDB);
     }
 
+    // get the time stamp (version) of when the item cache was last updated
     async getVersion(item) {
         return await this.db.versions.where('item').equals(item).toArray();
     }
 
+    //update the time stamp of the item cache
     async saveVersion(item, newVersion) {
         return await this.db.versions.put({ item: item, version: newVersion });
     }
 
+    // check if the database is populated from a previous run of the program
     async checkValidDB() {
         let result = await Promise.all([
             this.db.manufacturers.count(),
@@ -53,6 +60,7 @@ class Database {
         }
     }
 
+    //populate the database with abbrivations
     async populateAbbr(data) {
         let dataDB = [];
         for (let i = 0; i < data.length; i++) {
@@ -61,6 +69,7 @@ class Database {
         await this.db.abbreviations.bulkAdd(dataDB);
     }
 
+    // populate the database with manufacturers
     async populateManu(data) {
         let dataDB = [];
         for (let i = 0; i < data.length; i++) {
@@ -69,6 +78,7 @@ class Database {
         await this.db.manufacturers.bulkAdd(dataDB);
     }
 
+    // checks if the name given is a manufacturer
     async isManufacturer(name) {
         let result = await this.db.manufacturers.where('full_name').equalsIgnoreCase(name).toArray();
         if (result.length == 0) {
@@ -77,11 +87,13 @@ class Database {
         return result[0];
     }
 
+    // check if the phrase given has a known abbrivation
     async isAbbreviation(phase) {
         let result = await this.db.abbreviations.where('orig_text').equalsIgnoreCase(phase).toArray();
         return result[0];
     }
 
+    // saves the current set of descriptions being worked on into the database
     async saveDescription(data) {
         let dataDB = [];
         for (const [rowid, desc] of Object.entries(data)) {

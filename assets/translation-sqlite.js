@@ -3,9 +3,11 @@ const sql = require('better-sqlite3')
 
 class TranslationDatabase {
     constructor() {
+        // save location is in user %appdata%
         this.db = new sql(`${process.env.APPDATA}/iko_utility/translist.db`);//, { verbose: console.log });
     }
 
+    // save updated translation information
     refreshData(data) {
         // {english:string, lang_code:string, translation:string}
         const dropTables = this.db.prepare('DROP TABLE IF EXISTS translations');
@@ -34,6 +36,7 @@ class TranslationDatabase {
         return insertMany(data);
     }
 
+    // get translation of a word in the requested language
     getTranslation(lang_code, word) {
         const sql = this.db.prepare('SELECT * FROM translations WHERE lang_code = @lang_code AND english = @word');
         const result = sql.all({lang_code: lang_code, word: word})
@@ -44,6 +47,7 @@ class TranslationDatabase {
         }
     }
 
+    //get list of languages currently in database
     getLanguages() {
         const sql = this.db.prepare('SELECT DISTINCT lang_code FROM translations');
         const result = sql.all()

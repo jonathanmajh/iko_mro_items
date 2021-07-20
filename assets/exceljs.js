@@ -6,6 +6,7 @@ class Spreadsheet {
     }
 
     async getDescriptions(params) {
+        // returns all the english descriptions on a workbook
         // {wsname:string, maxNumCol:string, description:[string], manufacturerer: string, startingRow: int}
         const wb = new Exceljs.Workbook();
         await wb.xlsx.readFile(this.filePath);
@@ -28,6 +29,7 @@ class Spreadsheet {
     }
 
     async getTranslations() {
+        // read all translation definitions from a workbook for import
         const wb = new Exceljs.Workbook();
         await wb.xlsx.readFile(this.filePath);
         const ws = wb.worksheets[0]; //assume there is only 1 worksheet and its the one we want
@@ -51,6 +53,8 @@ class Spreadsheet {
     }
 
     async saveTranslations(data) {
+        // save translated descriptions to excel file
+        // multiple worksheets one for each language, and one for missing words
         const wb = new Exceljs.Workbook();
         let ws;
         let row;
@@ -83,6 +87,7 @@ class Spreadsheet {
 
     async saveObserListChanges(data) {
         // expected attributes for data: domain.changes, domain.delete
+        // saves observation list changes data, expect data in object format
         const wb = new Exceljs.Workbook();
         let ws;
         let row;
@@ -204,6 +209,7 @@ class Spreadsheet {
     }
 
     async getJobTasks() {
+        // getting extended description from REST API takes way too long, so require a worksheet with information retrived from the DB
         // select jpnum, jptask, description, orgid, siteid, metername, ldtext from
         // (select jpnum, jptask, description, orgid, siteid, metername, jobtaskid from jobtask where metername is not null) as t1
         // left join 
@@ -298,6 +304,7 @@ class Spreadsheet {
 }
 
 function removeRichText(value) {
+    // when reading cells from a row object there is no option for removing richtext
     if (typeof (value) === "string") {
         return value;
     } else if (typeof (value) == "object") {
@@ -313,6 +320,7 @@ function removeRichText(value) {
 
 //https://stackoverflow.com/a/14853974
 // Warn if overriding existing method
+// Check if two arrays are equal
 if (Array.prototype.equals)
     console.warn("Overriding existing Array.prototype.equals. Possible causes: New API defines the method, there's a framework conflict or you've got double inclusions in your code.");
 // attach the .equals method to Array's prototype to call it on any array

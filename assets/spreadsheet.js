@@ -1,11 +1,14 @@
 const xlsx = require('xlsx');
 const fs = require('fs');
 
+// deprecated to be replaced with exceljs
+
 class ExcelReader {
     constructor(filePath) {
         this.filePath = filePath
     }
 
+    // the version number of the workbook is saved in a cell for tracking purposes
     getVersion() {
         let workbook = xlsx.readFile(this.filePath);
         let worksheet = workbook.Sheets['Sheet1'];
@@ -13,6 +16,8 @@ class ExcelReader {
         return version
     }
 
+    // read information about the item database (an initial file is included for 
+    // faster startup rather than fetching all 100k+ items from maximo directly)
     getItemCache() {
         let workbook = xlsx.readFile(this.filePath);
         let worksheet = workbook.Sheets["Sheet1"];
@@ -33,6 +38,7 @@ class ExcelReader {
         return [data, worksheet['F2'].w]
     }
 
+    // get inital list of manufacturers from the workbook
     getManufactures() {
         let workbook = xlsx.readFile(this.filePath, {sheets:"Manufacturers",});
         let worksheet = workbook.Sheets["Manufacturers"];
@@ -47,6 +53,7 @@ class ExcelReader {
         return data
     }
 
+    //get initial list of abbirvations from the workbook
     getAbbreviations() {
         let workbook = xlsx.readFile(this.filePath, {sheets:"Abbreviations",});
         let worksheet = workbook.Sheets["Abbreviations"];
@@ -61,6 +68,7 @@ class ExcelReader {
         return data
     }
 
+    // read item information from workbook being processed
     getDescriptions(wsName, columns, startRow) {
         let workbook = xlsx.readFile(this.filePath);
         fs.copyFileSync(this.filePath, `${this.filePath}.backup`);
@@ -88,6 +96,7 @@ class ExcelReader {
         return data;
     }
 
+    // write validated item information to the workbook
     writeDescriptions(descriptions, savePath) {
         let workbook = xlsx.readFile(this.filePath, {cellStyles: true, bookVBA: true});
         let worksheet = workbook.Sheets["Validate"];
