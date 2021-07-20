@@ -50,6 +50,37 @@ class Spreadsheet {
         return translations
     }
 
+    async saveTranslations(data) {
+        const wb = new Exceljs.Workbook();
+        let ws;
+        let row;
+        let rowCount;
+        debugger;
+        for (const lang of data.langs) {
+            rowCount = 2;
+            ws = wb.addWorksheet(lang);
+            row = ws.getRow(1);
+            row.values = ['Maximo Item Number', 'English Description', `${lang} Description`, 'Manufacturer Name']
+            for (const item of data.item) {
+                row = ws.getRow(rowCount);
+                row.values = [item.maxNum, item.description, item[lang], item.manufacturer || "-"];
+                rowCount++;
+            }
+        }
+        if (data.missing) {
+            ws = wb.addWorksheet('Missing Translations');
+            rowCount = 1;
+            for (const change of data.missing) {
+                row = ws.getRow(rowCount);
+                row.values = [change];
+                rowCount++;
+            }
+        }
+
+        await wb.xlsx.writeFile(this.filePath);
+        postMessage(['result', 'done'])
+    }
+
     async saveObserListChanges(data) {
         // expected attributes for data: domain.changes, domain.delete
         const wb = new Exceljs.Workbook();

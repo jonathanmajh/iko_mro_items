@@ -90,6 +90,7 @@ onmessage = function (e) {
 }
 
 async function batchTranslate(params) {
+    // translate description in file to all available languagues
     const excel = new Spreadsheet(params.filepath);
     const descs = await excel.getDescriptions(params);
     const trans = new Translation();
@@ -110,9 +111,12 @@ async function batchTranslate(params) {
     }
     console.log(allTranslated)
     console.log(missing)
+    const writeExcel = new Spreadsheet(params.filepath);
+    writeExcel.saveTranslations({langs : langs, item: allTranslated, missing: missing});
 }
 
 async function refreshTranslations (filepath) {
+    // load updated translation list from excel file
     const excel = new Spreadsheet(filepath);
     const data = await excel.getTranslations();
     const db = new TranslationDatabase();
@@ -185,6 +189,7 @@ async function writeItemNum(data) {
 }
 
 async function checkItemCache() {
+    // check internal cache of item information and update with new items in maximo
     postMessage(['debug', `0%: Checking list of Manufacturers & Abbrivations`]);
     const filePath = path.join(require('path').resolve(__dirname).replace('renderer', 'assets'), 'item_information.xlsx');
     const excel = new ExcelReader(filePath);
