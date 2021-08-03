@@ -11,9 +11,7 @@ class SpreadsheetUpdated {
         await wb.xlsx.readFile(this.filePath);
         const ws = wb.getWorksheet('Sheet1');
         const version = worksheet.getVersion('F2');
-        return version
-                //let version = worksheet['F2'].w
-        return version
+        return version;
     }
 
     // read information about the item database (an initial file is included for 
