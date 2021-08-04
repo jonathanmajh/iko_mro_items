@@ -10,18 +10,20 @@ class SpreadsheetUpdated {
         const wb = new Exceljs.workbook();
         await wb.xlsx.readFile(this.filePath);
         const ws = wb.getWorksheet('Sheet1');
-        const version = worksheet.getVersion('F2');
+        const version = worksheet.getCell('F2').value;
         return version;
     }
 
     // read information about the item database (an initial file is included for 
     // faster startup rather than fetching all 100k+ items from maximo directly)
     getItemCache() {
-        let workbook = xlsx.readFile(this.filePath);
-        let worksheet = workbook.Sheets["Sheet1"];
-        let range = xlsx.utils.decode_range(worksheet['!ref']);
-        let lastrow = range.e.r + 1;
-        let data = []
+        const wb = new Exceljs.workbook();
+        await wb.xlsx.readFile(this.filePath);
+        const ws = wb.getWorksheet('Sheet1');
+        const range = xlsx.utils.decode_range(ws['!ref']);
+        const lastRow = range.e.r + 1;
+        const data = []
+
         for (let i=2;i<=lastrow;i++) {
             if (worksheet[`A${i}`]) {
                 try {
