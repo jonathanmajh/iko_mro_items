@@ -10,7 +10,7 @@ class SpreadsheetUpdated {
         const wb = new Exceljs.workbook();
         await wb.xlsx.readFile(this.filePath);
         const ws = wb.getWorksheet('Sheet1');
-        const version = worksheet.getCell('F2').value;
+        const version = ws.getCell('F2').value;
         return version;
     }
 
@@ -26,10 +26,10 @@ class SpreadsheetUpdated {
         const lastRow = range.e.r + 1; //last cell row in range 
         const data = [] //empty list
 
-        for (let i=2; i<=lastrow; i++) {
-            if (worksheet[`A${i}`]) {
-                try {
-                    data.push([worksheet[`A${i}`].v, worksheet[`B${i}`].v, worksheet[`C${i}`].w])
+        for (let i=2; i<=lastrow; i++) { 
+            if (ws[`A${i}`]) {
+                try { 
+                    data.push([ws[`A${i}`].v, ws[`B${i}`].v, s[`C${i}`].w])
                 } catch (error) {
                     console.log(error);
                     console.log(`row number: ${i}`);
@@ -37,7 +37,7 @@ class SpreadsheetUpdated {
                 
             }
         }
-        return [data, worksheet['F2'].w]
+        return [data, ws['F2'].w]
     }
 
     // get inital list of manufacturers from the workbook
