@@ -19,12 +19,14 @@ class SpreadsheetUpdated {
     getItemCache() {
         const wb = new Exceljs.workbook();
         await wb.xlsx.readFile(this.filePath);
-        const ws = wb.getWorksheet('Sheet1');
-        const range = xlsx.utils.decode_range(ws['!ref']);
-        const lastRow = range.e.r + 1;
-        const data = []
+        const ws = wb.getWorksheet('Sheet1'); //alternatively (fetch by ID): getWorksheet(1); 
+        const range = xlsx.utils.decode_range(ws['!ref']); //files with content (no error)
+        //SheetJs notation - s = firstcell, e = lastcell, c = 0-indexed column, r = 0-indexed row
+        //Example: B5 -> c (col):1, r (row):4
+        const lastRow = range.e.r + 1; //last cell row in range 
+        const data = [] //empty list
 
-        for (let i=2;i<=lastrow;i++) {
+        for (let i=2; i<=lastrow; i++) {
             if (worksheet[`A${i}`]) {
                 try {
                     data.push([worksheet[`A${i}`].v, worksheet[`B${i}`].v, worksheet[`C${i}`].w])
