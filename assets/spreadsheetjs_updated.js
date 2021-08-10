@@ -27,12 +27,12 @@ class SpreadsheetUpdated {
         const data = [] //empty list
 
         for (let i=2; i<=lastrow; i++) { 
-            if (ws[`A${i}`]) {
+            if (ws['A${i}']) {
                 try { 
-                    data.push([ws[`A${i}`].v, ws[`B${i}`].v, s[`C${i}`].w])
+                    data.push([ws['A${i}'].v, ws['B${i}'].v, s['C${i}'].w])
                 } catch (error) {
                     console.log(error);
-                    console.log(`row number: ${i}`);
+                    console.log('row number: ${i}');
                 }
                 
             }
@@ -48,14 +48,14 @@ class SpreadsheetUpdated {
         let lastrow = parseInt(range.split(':')[1].slice(1));
         let data = []
         for (let i=2;i<=lastrow;i++) {
-            if (worksheet[`A${i}`]) {
-                data.push([worksheet[`A${i}`].v, worksheet[`C${i}`].v, worksheet[`E${i}`]?.v ?? null])
+            if (worksheet['A${i}']) {
+                data.push([worksheet['A${i}'].v, worksheet['C${i}'].v, worksheet['E${i}']?.v ?? null])
             }
         }
         return data
     }
 
-    //get initial list of abbirvations from the workbook
+    //get initial list of abbreviations from the workbook
     getAbbreviations() {
         let workbook = xlsx.readFile(this.filePath, {sheets:"Abbreviations",});
         let worksheet = workbook.Sheets["Abbreviations"];
@@ -63,8 +63,8 @@ class SpreadsheetUpdated {
         let lastrow = parseInt(range.split(':')[1].slice(1));
         let data = []
         for (let i=3;i<=lastrow;i++) {
-            if (worksheet[`A${i}`]) {
-                data.push([worksheet[`A${i}`].v, worksheet[`B${i}`].v])
+            if (worksheet['A${i}']) {
+                data.push([worksheet['A${i}'].v, worksheet['B${i}'].v])
             }
         }
         return data
@@ -73,12 +73,12 @@ class SpreadsheetUpdated {
     // read item information from workbook being processed
     getDescriptions(wsName, columns, startRow) {
         let workbook = xlsx.readFile(this.filePath);
-        fs.copyFileSync(this.filePath, `${this.filePath}.backup`);
-        postMessage(['info', `Backing up file as: "${this.filePath}.backup"`]);
+        fs.copyFileSync(this.filePath, '${this.filePath}.backup');
+        postMessage(['info', 'Backing up file as: "${this.filePath}.backup"']);
         if (!(workbook.SheetNames.includes(wsName))) {
-            postMessage(['info', `Workbook has the following worksheets:`]);
-            postMessage(['info', `${workbook.SheetNames}`]);
-            postMessage(['error', `"${wsName} does not exist, Please check spelling & captitalization"`]);
+            postMessage(['info', 'Workbook has the following worksheets:']);
+            postMessage(['info', '${workbook.SheetNames}']);
+            postMessage(['error', '"${wsName} does not exist, Please check spelling & captitalization"']);
             return false;
         }
         let worksheet = workbook.Sheets[wsName];
@@ -89,8 +89,8 @@ class SpreadsheetUpdated {
         for (let i=startRow;i<=lastrow;i++) {
             row = [];
             for (let j=0;j<columns.length;j++) {
-                if (worksheet[`${columns[j]}${i}`]) {
-                    row.push(worksheet[`${columns[j]}${i}`].v);
+                if (worksheet['${columns[j]}${i}']) {
+                    row.push(worksheet['${columns[j]}${i}'].v);
                 }
             }
             data.push([i, row.join()]);
@@ -103,11 +103,11 @@ class SpreadsheetUpdated {
         let workbook = xlsx.readFile(this.filePath, {cellStyles: true, bookVBA: true});
         let worksheet = workbook.Sheets["Validate"];
         descriptions.forEach(description => {
-            worksheet[`E${description.row}`] = {t: 's', v: description.result[3], w: undefined}; //maximo description
-            worksheet[`F${description.row}`] = {t: 's', v: description.result[0], w: undefined}; //main description
-            worksheet[`G${description.row}`] = {t: 's', v: description.result[1], w: undefined}; //ext1
-            worksheet[`H${description.row}`] = {t: 's', v: description.result[2], w: undefined}; //ext2
-            worksheet[`I${description.row}`] = {t: 's', v: description.messages, w: undefined}; //msg 
+            worksheet['E${description.row}'] = {t: 's', v: description.result[3], w: undefined}; //maximo description
+            worksheet['F${description.row}'] = {t: 's', v: description.result[0], w: undefined}; //main description
+            worksheet['G${description.row}'] = {t: 's', v: description.result[1], w: undefined}; //ext1
+            worksheet['H${description.row}'] = {t: 's', v: description.result[2], w: undefined}; //ext2
+            worksheet['I${description.row}'] = {t: 's', v: description.messages, w: undefined}; //msg 
         });
         try {
             xlsx.writeFile(workbook, savePath);
@@ -115,7 +115,7 @@ class SpreadsheetUpdated {
             console.log(error);
             const suffix = Date.now();
             savePath = savePath.split('.');
-            savePath = `${savePath[0]}${suffix}.${savePath[1]}`;
+            savePath = '${savePath[0]}${suffix}.${savePath[1]}';
             xlsx.writeFile(workbook, savePath);
         }
         return savePath;
@@ -124,10 +124,10 @@ class SpreadsheetUpdated {
     async saveDescription(parmas) {
         let workbook = xlsx.readFile(this.filePath, {cellStyles: true, bookVBA: true});
         let worksheet = workbook.Sheets[parmas[1]];
-        worksheet[`${parmas[3][2]}${parmas[2]}`] = {t: 's', v: parmas[4][0], w: undefined};
-        worksheet[`${parmas[3][3]}${parmas[2]}`] = {t: 's', v: parmas[4][1], w: undefined};
-        worksheet[`${parmas[3][4]}${parmas[2]}`] = {t: 's', v: parmas[4][2], w: undefined};
-        worksheet[`${parmas[3][1]}${parmas[2]}`] = {t: 's', v: parmas[4][3], w: undefined};
+        worksheet['${parmas[3][2]}${parmas[2]}'] = {t: 's', v: parmas[4][0], w: undefined};
+        worksheet['${parmas[3][3]}${parmas[2]}'] = {t: 's', v: parmas[4][1], w: undefined};
+        worksheet['${parmas[3][4]}${parmas[2]}'] = {t: 's', v: parmas[4][2], w: undefined};
+        worksheet['${parmas[3][1]}${parmas[2]}'] = {t: 's', v: parmas[4][3], w: undefined};
         let savePath = parmas[0]
         return await this.saveWorkbook(workbook, savePath);
     }
@@ -135,8 +135,8 @@ class SpreadsheetUpdated {
     async saveNumber(parmas) {
         let workbook = xlsx.readFile(this.filePath, {cellStyles: true, bookVBA: true});
         let worksheet = workbook.Sheets[parmas[1]];
-        worksheet[`${parmas[3][0]}${parmas[2]}`] = {t: 's', v: parmas[4][1], w: undefined};
-        worksheet[`${parmas[3][1]}${parmas[2]}`] = {t: 's', v: parmas[4][0], w: undefined};
+        worksheet['${parmas[3][0]}${parmas[2]}'] = {t: 's', v: parmas[4][1], w: undefined};
+        worksheet['${parmas[3][1]}${parmas[2]}'] = {t: 's', v: parmas[4][0], w: undefined};
         let savePath = parmas[0]
         return await this.saveWorkbook(workbook, savePath);
     }
