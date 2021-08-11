@@ -47,7 +47,7 @@ class ExcelReader {
         let data = []
         for (let i=2;i<=lastrow;i++) {
             if (worksheet[`A${i}`]) {
-                data.push([worksheet[`A${i}`].v, worksheet[`C${i}`].v, worksheet[`E${i}`]?.v ?? null])
+                data.push([worksheet[`A${i}`].v, worksheet[`C${i}`].v, worksheet[`E${i}`].v, null])
             }
         }
         return data
