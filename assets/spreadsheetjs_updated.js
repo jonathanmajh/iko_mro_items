@@ -16,7 +16,7 @@ class SpreadsheetUpdated {
 
     // read information about the item database (an initial file is included for 
     // faster startup rather than fetching all 100k+ items from maximo directly)
-    getItemCache() {
+    async getItemCache() {
         const wb = new Exceljs.workbook();
         await wb.xlsx.readFile(this.filePath);
         const ws = wb.getWorksheet('Sheet1'); //alternatively (fetch by ID): getWorksheet(1); 
@@ -41,7 +41,7 @@ class SpreadsheetUpdated {
     }
 
     // get inital list of manufacturers from the workbook
-    getManufactures() {
+    async getManufactures() {
         let workbook = xlsx.readFile(this.filePath, {sheets:"Manufacturers",});
         let worksheet = workbook.Sheets["Manufacturers"];
         let range = worksheet['!ref'];
@@ -49,14 +49,14 @@ class SpreadsheetUpdated {
         let data = []
         for (let i=2;i<=lastrow;i++) {
             if (worksheet['A${i}']) {
-                data.push([worksheet['A${i}'].v, worksheet['C${i}'].v, worksheet['E${i}']?.v ?? null])
+                data.push([worksheet['A${i}'].v, worksheet['C${i}'].v, worksheet['E${i}'].v,null])
             }
         }
         return data
     }
 
     //get initial list of abbreviations from the workbook
-    getAbbreviations() {
+    async getAbbreviations() {
         let workbook = xlsx.readFile(this.filePath, {sheets:"Abbreviations",});
         let worksheet = workbook.Sheets["Abbreviations"];
         let range = worksheet['!ref'];
@@ -71,7 +71,7 @@ class SpreadsheetUpdated {
     }
 
     // read item information from workbook being processed
-    getDescriptions(wsName, columns, startRow) {
+    async getDescriptions(wsName, columns, startRow) {
         let workbook = xlsx.readFile(this.filePath);
         fs.copyFileSync(this.filePath, '${this.filePath}.backup');
         postMessage(['info', 'Backing up file as: "${this.filePath}.backup"']);
@@ -99,7 +99,7 @@ class SpreadsheetUpdated {
     }
 
     // write validated item information to the workbook
-    writeDescriptions(descriptions, savePath) {
+    async writeDescriptions(descriptions, savePath) {
         let workbook = xlsx.readFile(this.filePath, {cellStyles: true, bookVBA: true});
         let worksheet = workbook.Sheets["Validate"];
         descriptions.forEach(description => {
@@ -160,3 +160,4 @@ class SpreadsheetUpdated {
 }
 
 module.exports = ExcelReader
+
