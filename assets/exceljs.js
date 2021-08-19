@@ -59,7 +59,6 @@ class Spreadsheet {
         let ws;
         let row;
         let rowCount;
-        debugger;
         for (const lang of data.langs) {
             rowCount = 2;
             ws = wb.addWorksheet(lang);

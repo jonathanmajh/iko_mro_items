@@ -35,16 +35,7 @@ onmessage = function (e) {
             }
         );
     } else if (e.data[0] === 'update') {
-        const updateType = e.data[1];
-        const excel = new ExcelReader(e.data[2]);
-        const db = new Database();
-        if (updateType === 'manufacturer') {
-            let data = excel.getManufactures();
-            db.populateManufacturers(data);
-        } else if (updateType === 'abbreviations') {
-            let data = excel.getAbbreviations();
-            db.populateAbbreviations(data);
-        }
+        update(e)
     } else if (e.data[0] === 'createDatabase') {
         const db = new Database();
         db.createAbbreviations();
@@ -54,20 +45,9 @@ onmessage = function (e) {
         const maximo = new Maximo();
         maximo.findRelated(e.data[1])
     } else if (e.data[0] === 'interactive') {
-        const excel = new ExcelReader(e.data[1][0]);
-        let data = excel.getDescriptions(e.data[2][0], e.data[2][1].split(','), parseInt(e.data[2][2]));
-        const db = new Database();
-        data = db.saveDescription(data).then(() => {
-            postMessage(['result', parseInt(e.data[2][2])]);
-        });
+        interactive(e);
     } else if (e.data[0] === 'writeDesc') {
-        const excel = new ExcelReader(e.data[1][0]);
-        let result = excel.saveDescription(e.data[1]);
-        result.then((result => {
-            if (result) {
-                postMessage(['result', result]);
-            }
-        }))
+        writeDesc(e);
     } else if (e.data[0] === 'writeNum') {
         writeItemNum(e.data[1])
     } else if (e.data[0] === 'checkItemCache') {
@@ -82,7 +62,7 @@ onmessage = function (e) {
         compareObservLists(e.data[1], e.data[2], e.data[3])
     } else if (e.data[0] === 'refreshTranslations') {
         refreshTranslations(e.data[1]);
-    }  else if (e.data[0] === 'batchTranslate') {
+    } else if (e.data[0] === 'batchTranslate') {
         batchTranslate(e.data[1]);
     } else {
         console.log('unimplimented work');
@@ -103,7 +83,7 @@ async function batchTranslate(params) {
     for (const desc of descs) {
         translated = desc
         for (const lang of langs) {
-            result = trans.translate({lang: lang, description: desc.description});
+            result = trans.translate({ lang: lang, description: desc.description });
             translated[lang] = result.description;
             missing = missing.concat(result.missing);
         }
@@ -112,10 +92,42 @@ async function batchTranslate(params) {
     console.log(allTranslated)
     console.log(missing)
     const writeExcel = new Spreadsheet(params.filepath);
-    writeExcel.saveTranslations({langs : langs, item: allTranslated, missing: missing});
+    writeExcel.saveTranslations({ langs: langs, item: allTranslated, missing: missing });
 }
 
-async function refreshTranslations (filepath) {
+async function interactive(e) {
+    const excel = new ExcelReader(e.data[1][0]);
+    let data = await excel.getDescriptions(e.data[2][0], e.data[2][1].split(','), parseInt(e.data[2][2]));
+    const db = new Database();
+    data = db.saveDescription(data).then(() => {
+        postMessage(['result', parseInt(e.data[2][2])]);
+    });
+}
+
+async function writeDesc(e) {
+    const excel = new ExcelReader(e.data[1][0]);
+    let result = await excel.saveDescription(e.data[1]);
+    result.then((result => {
+        if (result) {
+            postMessage(['result', result]);
+        }
+    }))
+}
+
+async function update(e) {
+    const updateType = e.data[1];
+    const excel = new ExcelReader(e.data[2]);
+    const db = new Database();
+    if (updateType === 'manufacturer') {
+        let data = await excel.getManufactures();
+        db.populateManufacturers(data);
+    } else if (updateType === 'abbreviations') {
+        let data = await excel.getAbbreviations();
+        db.populateAbbreviations(data);
+    }
+}
+
+async function refreshTranslations(filepath) {
     // load updated translation list from excel file
     const excel = new Spreadsheet(filepath);
     const data = await excel.getTranslations();
@@ -123,7 +135,7 @@ async function refreshTranslations (filepath) {
     postMessage(['result', db.refreshData(data)]);
 }
 
-async function compareObservLists (data, savePath, jobTaskPath) {
+async function compareObservLists(data, savePath, jobTaskPath) {
     const sqlite = new ObservationDatabase();
     // compare condition domain definition
     let removeOldMeters = [];
@@ -133,7 +145,7 @@ async function compareObservLists (data, savePath, jobTaskPath) {
             removeOldMeters.push(meter.list_id);
         }
     }
-    const newMeters = sqlite.getNewDomainDefinitions();    
+    const newMeters = sqlite.getNewDomainDefinitions();
     // compare condition domain values
     let removeOldObservations = [];
     for (const observation of data[1]) {
@@ -153,7 +165,7 @@ async function compareObservLists (data, savePath, jobTaskPath) {
             removeOldMaximoMeters.push(meter.list_id);
         }
     }
-    const newMaximoMeters = sqlite.getNewMaximoMeters();    
+    const newMaximoMeters = sqlite.getNewMaximoMeters();
     const excel = new Spreadsheet(jobTaskPath);
     data = await excel.getJobTasks();
     sqlite.saveJobTasks(data);
@@ -164,10 +176,10 @@ async function compareObservLists (data, savePath, jobTaskPath) {
 
     const excelW = new Spreadsheet(savePath);
     await excelW.saveObserListChanges({
-        domainDef: {changes: newMeters, delete: removeOldMeters},
-        domainVal: {changes: newObservations, delete: removeOldObservations},
-        meter: {changes: newMaximoMeters, delete: removeOldMaximoMeters},
-        jobTask: {changes: newJobTasks, delete: removeJobTasks}
+        domainDef: { changes: newMeters, delete: removeOldMeters },
+        domainVal: { changes: newObservations, delete: removeOldObservations },
+        meter: { changes: newMaximoMeters, delete: removeOldMaximoMeters },
+        jobTask: { changes: newJobTasks, delete: removeJobTasks }
     })
 
 }
@@ -196,7 +208,7 @@ async function checkItemCache() {
     const db = new Database();
     await db.checkValidDB();
     postMessage(['debug', `33%: Checking list of items in cache`]);
-    let xlVersion = excel.getVersion();
+    let xlVersion = await excel.getVersion();
     let curVersion = await db.getVersion('maximoItemCache');
     curVersion = curVersion[0]?.version;
     debugger;
@@ -208,7 +220,7 @@ async function checkItemCache() {
             console.log(err.stack);
             console.log(err)
         });
-        let data = excel.getItemCache();
+        let data = await excel.getItemCache();
         curVersion = data[1]
         postMessage(['debug', `60%: Saving data to item cache`]);
         await db.saveItemCache(data[0]);
@@ -228,3 +240,4 @@ async function checkItemCache() {
     }
     postMessage(['result', 'done'])
 }
+

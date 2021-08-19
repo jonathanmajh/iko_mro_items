@@ -29,6 +29,7 @@
     "electron-squirrel-startup": "^1.0.0",
     "exceljs": "^4.2.1",
     "lodash.intersection": "^4.4.0",
+    "luxon": "^2.0.2",
     "npm-check-updates": "^11.5.13",
     "xlsx": "^0.17.0"
   },

@@ -94,13 +94,13 @@ class Validate {
         postMessage(['debug', `Selected file path: "${filePath}"`]);
         filePath = filePath[0]
         let excel = new ExcelReader(filePath);
-        let result = excel.getDescriptions();
+        let result = await excel.getDescriptions();
         for (let i=0; i<result.length; i++) {
             result[i].result = await this.validateSingle(result[i].value);
         }
         filePath = filePath.split('.');
         filePath = `${filePath[0]}_Validated.${filePath[1]}`;
-        filePath = excel.writeDescriptions(result, filePath);
+        filePath = await excel.writeDescriptions(result, filePath);
         return(filePath);
     }
 

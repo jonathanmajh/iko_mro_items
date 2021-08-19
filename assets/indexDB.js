@@ -23,7 +23,11 @@ class Database {
         let dataDB = [];
         let search = '';
         for (let i = 0; i < data.length; i++) {
-            search = data[i][1].toUpperCase().replaceAll(' ', ',').split(",");
+            if (data[i][1]) {
+                search = data[i][1].toUpperCase().replaceAll(' ', ',').split(",");
+            } else {
+                search = "undefined"
+            }
             search = search.filter(item => item.length !== 0)
             dataDB.push({ itemnum: String(data[i][0]), description: data[i][1], changed_date: data[i][2], search: search });
         }
@@ -52,8 +56,8 @@ class Database {
         } else {
             const filePath = path.join(require('path').resolve(__dirname), 'item_database.xlsx');
             const excel = new ExcelReader(filePath);
-            let manu = excel.getManufactures();
-            let abbr = excel.getAbbreviations();
+            let manu = await excel.getManufactures();
+            let abbr = await excel.getAbbreviations();
             this.populateAbbr(abbr);
             this.populateManu(manu);
             console.log('db ready');
