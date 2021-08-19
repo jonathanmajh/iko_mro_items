@@ -16,7 +16,7 @@ class Maximo {
         let meters = [];
         while (nextpage) {
             try {
-                response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/iko_meter?pageno=${pageno}&_lpwd=maximo&oslc.pageSize=100&_lid=corcoop3&oslc.select=*&oslc.where=domainid%3D%22M-%25%22`);
+                response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/iko_meter?pageno=${pageno}&_lpwd=happy818&oslc.pageSize=100&_lid=corcoop3&oslc.select=*&oslc.where=domainid%3D%22M-%25%22`);
             } catch (err) {
                 postMessage(['error', 'Failed to fetch Data from Maximo, Please Check Network', err]);
                 return false;
@@ -47,7 +47,7 @@ class Maximo {
         let observations = [];
         while (nextpage) {
             try {
-                response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/iko_alndomain?pageno=${pageno}&oslc.where=domainid%3D%22M-%25%22&_lpwd=maximo&oslc.pageSize=100&_lid=corcoop3&oslc.select=alndomain%2Cdomainid%2Cdescription`);
+                response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/iko_alndomain?pageno=${pageno}&oslc.where=domainid%3D%22M-%25%22&_lpwd=happy818&oslc.pageSize=100&_lid=corcoop3&oslc.select=alndomain%2Cdomainid%2Cdescription`);
             } catch (err) {
                 postMessage(['error', 'Failed to fetch Data from Maximo, Please Check Network', err]);
                 return false;
@@ -114,7 +114,7 @@ class Maximo {
         date = date.replace(' ', 'T');
         let response;
         try {
-            response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/mxitem?oslc.where=in22>"${date}"&_lid=corcoop3&_lpwd=maximo&oslc.select=itemnum,in22,description`);
+            response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/mxitem?oslc.where=in22>"${date}"&_lid=corcoop3&_lpwd=happy818&oslc.select=itemnum,in22,description`);
         } catch (err) {
             postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (1)', err]);
             return false;

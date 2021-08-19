@@ -12,7 +12,7 @@ class ExcelReader {
     getVersion() {
         let workbook = xlsx.readFile(this.filePath);
         let worksheet = workbook.Sheets['Sheet1'];
-        let version = worksheet['F2'].w
+        let version = worksheet['K2'].w
         return version
     }
 
@@ -35,7 +35,7 @@ class ExcelReader {
                 
             }
         }
-        return [data, worksheet['F2'].w]
+        return [data, worksheet['K2'].w]
     }
 
     // get inital list of manufacturers from the workbook

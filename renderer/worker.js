@@ -197,9 +197,10 @@ async function checkItemCache() {
     await db.checkValidDB();
     postMessage(['debug', `33%: Checking list of items in cache`]);
     let xlVersion = excel.getVersion();
-    let curVersion = await db.getVersion('itemCache');
+    let curVersion = await db.getVersion('maximoItemCache');
     curVersion = curVersion[0]?.version;
-    if (!(curVersion === xlVersion)) {
+    debugger;
+    if (!(curVersion >= xlVersion)) {
         postMessage(['debug', `40%: Loading item cache data from file`]);
         await db.db.itemCache.clear().then(function () {
             console.log('finished clearing')
@@ -211,7 +212,7 @@ async function checkItemCache() {
         curVersion = data[1]
         postMessage(['debug', `60%: Saving data to item cache`]);
         await db.saveItemCache(data[0]);
-        await db.saveVersion('itemCache', curVersion);
+        await db.saveVersion('maximoItemCache', curVersion);
     }
     curVersion = await db.getVersion('maximoItemCache')
     curVersion = curVersion[0]?.version ?? xlVersion;
@@ -221,7 +222,9 @@ async function checkItemCache() {
     if (newItems) {
         postMessage(['debug', '85%: Saving maximo data to item cache']);
         await db.saveItemCache(newItems[0]);
-        await db.saveVersion('maximoItemCache', newItems[1]);
+        if (newItems[1] != "") { // dont update version if there are no new items
+            await db.saveVersion('maximoItemCache', newItems[1]);
+        }
     }
     postMessage(['result', 'done'])
 }
