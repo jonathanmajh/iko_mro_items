@@ -211,7 +211,6 @@ async function checkItemCache() {
     let xlVersion = await excel.getVersion();
     let curVersion = await db.getVersion('maximoItemCache');
     curVersion = curVersion[0]?.version;
-    debugger;
     if (!(curVersion >= xlVersion)) {
         postMessage(['debug', `40%: Loading item cache data from file`]);
         await db.db.itemCache.clear().then(function () {

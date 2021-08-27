@@ -13,7 +13,6 @@ class ExcelReader {
         await wb.xlsx.readFile(this.filePath);
         const ws = wb.getWorksheet('Sheet1');
         let version = dt.DateTime.fromSeconds((parseFloat(ws.getCell('K2').text)-25569)*86400+14400).toFormat('yyyy-LL-dd HH:mm:ss')
-        debugger
         return version;
     }
 
@@ -72,23 +71,22 @@ class ExcelReader {
         await workbook.xlsx.readFile(this.filePath);
         fs.copyFileSync(this.filePath, `${this.filePath}.backup`);
         postMessage(['info', `Backing up file as: "${this.filePath}.backup"`]);
-        debugger
-        if (!(workbook.SheetNames.includes(wsName))) {
+        const wsNames = workbook.worksheets.map(function (ele) {return ele.name;});
+        if (!(wsNames.includes(wsName))) {
             postMessage(['info', 'Workbook has the following worksheets:']);
-            postMessage(['info', `${workbook.SheetNames}`]);
+            postMessage(['info', `${wsNames}`]);
             postMessage(['error', `"${wsName} does not exist, Please check spelling & captitalization"`]);
             return false;
         }
-        let worksheet = workbook.Sheets[wsName];
-        let range = xlsx.utils.decode_range(worksheet[`!ref`]);
-        let lastrow = range.e.r + 1;
+        let worksheet = workbook.getWorksheet(wsName);
+        let lastrow = worksheet.lastRow.number;
         let data = [];
         let row = [];
         for (let i = startRow; i <= lastrow; i++) {
             row = [];
             for (let j = 0; j < columns.length; j++) {
-                if (worksheet[`${columns[j]}${i}`]) {
-                    row.push(worksheet[`${columns[j]}${i}`].v);
+                if (worksheet.getCell(`${columns[j]}${i}`).text) {
+                    row.push(worksheet.getCell(`${columns[j]}${i}`).text);
                 }
             }
             data.push([i, row.join()]);
