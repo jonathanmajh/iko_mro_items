@@ -23,13 +23,13 @@ class Database {
         let dataDB = [];
         let search = '';
         for (let i = 0; i < data.length; i++) {
-            if (data[i][1]) {
+            if (data[i][1]) { //test if description is blank
                 search = data[i][1].toUpperCase().replaceAll(' ', ',').split(",");
+                search = search.filter(item => item.length !== 0)
+                dataDB.push({ itemnum: String(data[i][0]), description: data[i][1], changed_date: data[i][2], search: search });
             } else {
                 search = "undefined"
             }
-            search = search.filter(item => item.length !== 0)
-            dataDB.push({ itemnum: String(data[i][0]), description: data[i][1], changed_date: data[i][2], search: search });
         }
         await this.db.itemCache.bulkPut(dataDB);
     }
