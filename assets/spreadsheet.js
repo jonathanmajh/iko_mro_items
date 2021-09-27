@@ -11,8 +11,8 @@ class ExcelReader {
     async getVersion() {
         const wb = new Exceljs.Workbook();
         await wb.xlsx.readFile(this.filePath);
-        const ws = wb.getWorksheet('Sheet1');
-        let version = dt.DateTime.fromSeconds((parseFloat(ws.getCell('K2').text)-25569)*86400+14400).toFormat('yyyy-LL-dd HH:mm:ss')
+        const ws = wb.getWorksheet('Sheet2');
+        let version = dt.DateTime.fromSeconds((parseFloat(ws.getCell('A2').text)-25569)*86400+14400).toFormat('yyyy-LL-dd HH:mm:ss')
         return version;
     }
 
@@ -32,7 +32,8 @@ class ExcelReader {
                 console.log(`row number: ${i}`);
             }
         }
-        return [data, dt.DateTime.fromSeconds((parseFloat(ws.getCell('K2').text)-25569)*86400+14400).toFormat('yyyy-LL-dd HH:mm:ss')]
+        const ws2 = wb.getWorksheet('Sheet2');
+        return [data, dt.DateTime.fromSeconds((parseFloat(ws2.getCell('A2').text)-25569)*86400+14400).toFormat('yyyy-LL-dd HH:mm:ss')]
     }
 
     // get inital list of manufacturers from the workbook

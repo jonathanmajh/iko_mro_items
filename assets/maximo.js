@@ -114,7 +114,7 @@ class Maximo {
         date = date.replace(' ', 'T');
         let response;
         try {
-            response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/mxitem?oslc.where=in22>"${date}"&_lid=corcoop3&_lpwd=happy818&oslc.select=itemnum,in22,description`);
+            response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/mxitem?oslc.where=in22>"${date}" and itemnum="9%25"&_lid=corcoop3&_lpwd=happy818&oslc.select=itemnum,in22,description`);
         } catch (err) {
             postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (1)', err]);
             return false;
@@ -123,14 +123,20 @@ class Maximo {
         let items = [];
         let previousDate = [new Date("2000-01-01"), ''];
         let newDate = '';
-        content["rdfs:member"].forEach(item => {
-            newDate = item["spi:in22"].replace("T", " ").slice(0, -6)
-            items.push([item["spi:itemnum"], item["spi:description"], newDate]);
-            if (previousDate[0] < new Date(newDate)) {
-                previousDate = [new Date(newDate), newDate]
-            }
-        });
-        return [items, previousDate[1]];
+        if (content["oslc:Error"]) {
+            postMessage(['warning', content["oslc:Error"]]);
+            postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (2)']);
+            await new Promise(resolve => setTimeout(resolve, 5000));
+        } else {
+            content["rdfs:member"].forEach(item => {
+                newDate = item["spi:in22"].replace("T", " ").slice(0, -6)
+                items.push([item["spi:itemnum"], item["spi:description"], newDate]);
+                if (previousDate[0] < new Date(newDate)) {
+                    previousDate = [new Date(newDate), newDate]
+                }
+            });
+            return [items, previousDate[1]];
+        }
     }
 }
 
