@@ -42,7 +42,7 @@ onmessage = function (e) {
         db.createManufacturers();
         postMessage(['result', 'done']);
     } else if (e.data[0] === 'findRelated') {
-        const maximo = new Maximo();
+        const maximo = new Database();
         maximo.findRelated(e.data[1])
     } else if (e.data[0] === 'interactive') {
         interactive(e);
@@ -210,32 +210,22 @@ async function checkItemCache() {
     postMessage(['debug', `33%: Checking list of items in cache`]);
     let xlVersion = await excel.getVersion();
     let curVersion = await db.getVersion('maximoItemCache');
-    curVersion = curVersion[0]?.version;
+    curVersion = curVersion[0]?.changed_date;
     if (!(curVersion >= xlVersion)) {
         postMessage(['debug', `40%: Loading item cache data from file`]);
-        await db.db.itemCache.clear().then(function () {
-            console.log('finished clearing')
-        }).catch(function (err) {
-            console.log(err.stack);
-            console.log(err)
-        });
+        db.clearItemCache();
         let data = await excel.getItemCache();
-        curVersion = data[1]
         postMessage(['debug', `60%: Saving data to item cache`]);
-        await db.saveItemCache(data[0]);
-        await db.saveVersion('maximoItemCache', curVersion);
+        db.saveItemCache(data[0]);
     }
-    curVersion = await db.getVersion('maximoItemCache')
-    curVersion = curVersion[0]?.version ?? xlVersion;
+    curVersion = db.getVersion('maximoItemCache')
+    curVersion = curVersion[0]?.changed_date ?? xlVersion;
     postMessage(['debug', `75%: Getting items with changes after: ${curVersion} from Maximo`]);
     const maximo = new Maximo()
     let newItems = await maximo.getNewItems(curVersion)
     if (newItems) {
         postMessage(['debug', '85%: Saving maximo data to item cache']);
-        await db.saveItemCache(newItems[0]);
-        if (newItems[1] != "") { // dont update version if there are no new items
-            await db.saveVersion('maximoItemCache', newItems[1]);
-        }
+        db.saveItemCache(newItems[0]);
     }
     postMessage(['result', 'done'])
 }

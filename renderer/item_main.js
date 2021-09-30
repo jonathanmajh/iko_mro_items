@@ -11,7 +11,7 @@ const Database = require('../assets/indexDB')
 const Validate = require('../assets/validators')
 
 document.getElementById("valid-single").addEventListener("click", validSingle);
-document.getElementById("valid-triple").addEventListener("click", validTriple);
+// document.getElementById("valid-triple").addEventListener("click", validTriple);
 // document.getElementById("batch-file").addEventListener("click", validBatch);
 // document.getElementById("template-file").addEventListener("click", test);
 document.getElementById("single-copy").addEventListener("click", () => { copyResult('single') });

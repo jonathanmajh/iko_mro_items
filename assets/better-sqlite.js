@@ -1,11 +1,8 @@
-const { SqliteError } = require('better-sqlite3');
 const sql = require('better-sqlite3')
 
 class ObservationDatabase {
     constructor() {
-        console.log(process.env.APPDATA)
         this.db = new sql(`${process.env.APPDATA}/iko_utility/obserlist.db`);//, { verbose: console.log });
-        postMessage('better-SqliteError.js constructor');
     }
 
     createTables() {

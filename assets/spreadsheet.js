@@ -26,7 +26,14 @@ class ExcelReader {
         const data = [] //empty list
         for (let i = 2; i <= lastRow; i++) {
             try {
-                data.push([ws.getCell(`A${i}`).text, ws.getCell(`B${i}`).text, ws.getCell(`C${i}`).text])
+                data.push([
+                    ws.getCell(`A${i}`).text,
+                    ws.getCell(`B${i}`).text, 
+                    dt.DateTime.fromSeconds((parseFloat(ws.getCell(`C${i}`).text)-25569)*86400+14400).toFormat('yyyy-LL-dd HH:mm:ss'),
+                    ws.getCell(`D${i}`).text,
+                    ws.getCell(`E${i}`).text,
+                    ws.getCell(`F${i}`).text
+                ])
             } catch (error) {
                 console.log(error);
                 console.log(`row number: ${i}`);
@@ -34,6 +41,7 @@ class ExcelReader {
         }
         const ws2 = wb.getWorksheet('Sheet2');
         return [data, dt.DateTime.fromSeconds((parseFloat(ws2.getCell('A2').text)-25569)*86400+14400).toFormat('yyyy-LL-dd HH:mm:ss')]
+        // to convert excel datetime in number format to string
     }
 
     // get inital list of manufacturers from the workbook
