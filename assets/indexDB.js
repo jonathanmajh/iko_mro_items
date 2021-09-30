@@ -4,7 +4,6 @@ const ExcelReader = require('./spreadsheet');
 const path = require('path');
 const utils = require('../assets/utils')
 const intersection = require('lodash.intersection');
-const { debug } = require('console');
 //https://lodash.com/docs/4.17.15#intersection
 // fast library for intersection of arrays
 
@@ -78,12 +77,13 @@ class Database {
                 }
                 dataDB.push({
                     itemnum: data[i][0],
-                    description: data[i][1], 
-                    changed_date: data[i][2], 
-                    gl_class: data[i][3], 
-                    uom: data[i][4], 
-                    commodity_group: data[i][5], 
-                    search_text: search });
+                    description: data[i][1],
+                    changed_date: data[i][2],
+                    gl_class: data[i][3],
+                    uom: data[i][4],
+                    commodity_group: data[i][5],
+                    search_text: search
+                });
             } else {
                 search = "undefined"
             }
@@ -176,7 +176,7 @@ class Database {
     // saves the current set of descriptions being worked on into the database
     saveDescription(data) {
         let dataDB = [];
-        for (const [rowid, desc] of Object.entries(data)) {
+        for (const [, desc] of Object.entries(data)) {
             dataDB.push({ row: desc[0], description: desc[1] });
         }
         console.log('starting to clear')
@@ -198,35 +198,41 @@ class Database {
         return result.get();
     }
 
-    
+
     findRelated(data) {
-        const phrases = data.replaceAll(' ', ',').split(',');
+        let itemDict = {}
+        for (const char of utils.STRINGCLEANUP) {
+            data = data.replaceAll(char, ',');
+        }
+        const phrases = data.split(',');
         let result = []
         postMessage(['progress', 25, "Getting Item Descriptions From Maximo"])
         for (let i = 0; i < phrases.length; i++) {
-            result = this.fetchAndObjectify(phrases[i])
-            postMessage(['progress', 75, "Processing Item Descriptions From Maximo"]) //change this to per phrase
-            result = result.filter(item => item !== false);
-            if (result.length) {
-                let arrayAsNum = [...Array(result.length).keys()] //create an array with only integers to find combinations
-                arrayAsNum = getCombinations(arrayAsNum);
-                let intersections = []
-                for (let i = arrayAsNum.length; i > 0; i--) { //convert combination of integers to combination of arrays
-                    let holder = [];
-                    arrayAsNum[i - 1].forEach(index => {
-                        holder.push(result[index]);
-                    });
-                    intersections.push([holder.length, intersection(...holder)])
-                }
-                postMessage(['result', matchAndScore(intersections), itemDict, data]);
-            } else {
-                postMessage(['warning', 'No related items returned from Maximo']);
-                postMessage(['result', false]);
+            if (phrases[i].length > 0) {
+                result.push(this.fetchAndObjectify(phrases[i], itemDict))
+                postMessage(['progress', 75, "Processing Item Descriptions From Maximo"]) //change this to per phrase
             }
+        }
+        result = result.filter(item => item !== false);
+        if (result.length) {
+            let arrayAsNum = [...Array(result.length).keys()] //create an array with only integers to find combinations
+            arrayAsNum = getCombinations(arrayAsNum);
+            let intersections = []
+            for (let i = arrayAsNum.length; i > 0; i--) { //convert combination of integers to combination of arrays
+                let holder = [];
+                arrayAsNum[i - 1].forEach(index => {
+                    holder.push(result[index]);
+                });
+                intersections.push([holder.length, intersection(...holder)])
+            }
+            postMessage(['result', matchAndScore(intersections), itemDict, data]);
+        } else {
+            postMessage(['warning', 'No related items returned from Maximo']);
+            postMessage(['result', false]);
         }
     }
 
-    fetchAndObjectify(phrase) {
+    fetchAndObjectify(phrase, itemDict) {
         phrase = phrase.toUpperCase()
         postMessage(['debug', `Getting item from cache: "${phrase}"`]);
         let stmt = this.db.prepare(`SELECT * from itemCache where search_text like '%${phrase}%'`);
@@ -234,8 +240,8 @@ class Database {
         let itemNums = [];
         result.forEach(item => {
             itemNums.push(item.itemnum);
+            itemDict[item.itemnum] = [item.description, item.gl_class, item.uom, item.commodity_group];
         });
-        debugger;
         return itemNums;
     }
 }

@@ -38,6 +38,6 @@ function splitToThree() {
     //{description: [string], manu: string}
 }
 
-const STRINGCLEANUP = [' ', ',', '-']
+const STRINGCLEANUP = [',', ' ', '-']
 
 module.exports = { getCombinations, inOrderCombinations, STRINGCLEANUP };

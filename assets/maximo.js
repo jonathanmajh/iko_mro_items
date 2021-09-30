@@ -88,7 +88,7 @@ class Maximo {
         let items = [];
         let previousDate = [new Date("2000-01-01"), ''];
         let newDate = '';
-        if (content["oslc:Error"]) {
+        if (content["oslc:Error"]) { //content["Error"]["message"]
             postMessage(['warning', content["oslc:Error"]]);
             postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (2)']);
             await new Promise(resolve => setTimeout(resolve, 5000));

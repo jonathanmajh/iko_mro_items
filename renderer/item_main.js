@@ -1,19 +1,9 @@
-// This file is required by the index.html file and will
-// be executed in the renderer process for that window.
-// No Node.js APIs are available in this process because
-// `nodeIntegration` is turned off. Use `preload.js` to
-// selectively enable features needed in the rendering
-// process.
-
 const { clipboard, ipcRenderer, shell } = require('electron')
 const { dialog } = require('electron').remote
 const Database = require('../assets/indexDB')
 const Validate = require('../assets/validators')
 
 document.getElementById("valid-single").addEventListener("click", validSingle);
-// document.getElementById("valid-triple").addEventListener("click", validTriple);
-// document.getElementById("batch-file").addEventListener("click", validBatch);
-// document.getElementById("template-file").addEventListener("click", test);
 document.getElementById("single-copy").addEventListener("click", () => { copyResult('single') });
 document.getElementById("triple-copy").addEventListener("click", () => { copyResult('triple') });
 document.getElementById("triple-paste").addEventListener("click", triplePaste);
@@ -28,22 +18,25 @@ document.getElementById("save-desc").addEventListener("click", writeDescription)
 document.getElementById("save-num").addEventListener("click", writeAssetNum);
 document.getElementById("skip-row").addEventListener("click", skipRow);
 
-// var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-// var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-//   return new bootstrap.Tooltip(tooltipTriggerEl)
-// })
 
-const container = document.getElementById("main");
-container.addEventListener('click', (event) => {
-    let icon = event.target.getElementsByClassName("material-icons");
-    if (icon[0]?.innerHTML === "expand_less") {
-        icon[0].innerHTML = "expand_more";
-    } else if (icon[0]?.innerHTML === "expand_more") {
-        icon[0].innerHTML = "expand_less";
-    } /* else {
+// listener for general click events on icons
+document.getElementById("main").addEventListener('click', (event) => {
+    let icon;
+    if (event.target.classList.contains("material-icons")) {
+        icon = [event.target];
+    } else {
+        icon = event.target.getElementsByClassName("material-icons");
+    }
+    if (icon[0]?.innerText === "expand_less") {
+        icon[0].innerText = "expand_more";
+    } else if (icon[0]?.innerText === "expand_more") {
+        icon[0].innerText = "expand_less";
+    } else if (icon[0]?.innerText === "add_task") {
+        console.log(icon)
+    } else {
         console.log('no icon found');
-        console.log(icon);
-    } */
+        //console.log(icon);
+    }
 })
 
 function writeDescription() {
@@ -118,12 +111,19 @@ function openExcel(mode) {
     }).then(result => {
         if (!result.canceled) {
             const worker = new WorkerHandler;
-            const params = [
-                document.getElementById("ws-name").value,
-                document.getElementById("input-col").value,
-                document.getElementById("start-row").value,
-                document.getElementById("output-col").value,
-            ]
+            const params = {
+                wsName: "Sheet1", //document.getElementById("ws-name").value, // name of ws
+                inDesc: "B,C,D", //document.getElementById("input-col").value, // description columns for input
+                startRow: "2", //document.getElementById("start-row").value, // starting row of ws
+                outDesc: "M,N,O,P", //document.getElementById("output-col").value, // output columns for description (3)
+                inComm: "E", // commodity group in
+                inGL :"F", //gl class in
+                inUOM: "G", // uom in
+                outComm: "R", // commodity group out
+                outGL: "S", // gl class out
+                outUOM: "T", // uom out
+                outQuestion: "U", // questions out
+            }
             if (mode === 1) {
                 worker.work(['interactive', result.filePaths, params], interactiveGoNext);
                 document.getElementById("worksheet-path").innerHTML = result.filePaths[0];
@@ -272,7 +272,7 @@ async function showRelated(result) {
     for (let [key, value] of Object.entries(scores)) {
         let color = '';
         for (let item of value) {
-            itemName = itemNames[item]
+            itemName = itemNames[item][0]
             if (itemName) {
                 for (let word of searchWords) {
                     split = word.split(' ');
@@ -290,7 +290,13 @@ async function showRelated(result) {
                 } else {
                     color = 'table-danger'
                 }
-                html = `${html}\n<tr class="${color}"><td>${formatter.format(key)}</td>\n<td>${item}</td>\n<td>${itemName}</td></tr>`
+                html = `${html}\n<tr class="${color}"><td>${formatter.format(key)}</td>
+                <td>${item}</td>
+                <td>${itemName}</td>
+                <td>${itemNames[item][2]}</td>
+                <td>${itemNames[item][3]}</td>
+                <td>${itemNames[item][1]}</td>
+                <td><i class="material-icons pointer sm-size"> add_task</i></td></tr>`
             } else {
                 html = `<tr class="table-danger"><td>0</td>\n<td>xxxxxxx</td>\n<td>No Related Items Found</td></tr>`
             }
