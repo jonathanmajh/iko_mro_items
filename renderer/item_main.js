@@ -41,22 +41,42 @@ document.getElementById("main").addEventListener('click', (event) => {
 
 function writeDescription() {
     const valid = new Validate;
-    let field = document.getElementById("interact-desc");
+    let field = document.getElementById("maximo-desc");
     if (field.value.length > 0) {
         let bar = new ProgressBar;
         bar.update(0, 'Writing asset description to file');
         let desc = field.value.split(',');
-        let path = document.getElementById("worksheet-path").innerHTML;
-        let wsName = document.getElementById("ws-name").value;
-        let rowNum = document.getElementById("current-row").innerHTML;
-        let cols = document.getElementById("output-col").value.split(',');
         desc = valid.assembleDescription(desc);
+        let params = worksheetParams();
+        params.outRow = document.getElementById("current-row").innerHTML;
         const worker = new WorkerHandler;
-        worker.work(['writeDesc', [path, wsName, rowNum, cols, desc]], writeComplete);
+        worker.work(['writeDesc', [params, desc]], writeComplete);
     } else {
         new Toast('Please enter a valid description');
     }
+}
 
+function worksheetParams(path = false) {
+    let params = {
+        wsName: "Sheet1", //document.getElementById("ws-name").value, // name of ws
+        inDesc: "B,C,D".split(','), //document.getElementById("input-col").value, // description columns for input
+        startRow: "10", //document.getElementById("start-row").value, // starting row of ws
+        outDesc: "M,N,O,P".split(','), //document.getElementById("output-col").value, // output columns for description (3)
+        inComm: "E", // commodity group in
+        inGL :"F", //gl class in
+        inUOM: "G", // uom in
+        outComm: "R", // commodity group out
+        outGL: "S", // gl class out
+        outUOM: "T", // uom out
+        outQuestion: "U", // questions out
+        outRow: 0,
+    }
+    if (path) {
+        params.filePath = path;
+    } else {
+        params.filePath = document.getElementById("worksheet-path").innerHTML
+    }
+    return params
 }
 
 function writeAssetNum() {
@@ -111,21 +131,9 @@ function openExcel(mode) {
     }).then(result => {
         if (!result.canceled) {
             const worker = new WorkerHandler;
-            const params = {
-                wsName: "Sheet1", //document.getElementById("ws-name").value, // name of ws
-                inDesc: "B,C,D", //document.getElementById("input-col").value, // description columns for input
-                startRow: "2", //document.getElementById("start-row").value, // starting row of ws
-                outDesc: "M,N,O,P", //document.getElementById("output-col").value, // output columns for description (3)
-                inComm: "E", // commodity group in
-                inGL :"F", //gl class in
-                inUOM: "G", // uom in
-                outComm: "R", // commodity group out
-                outGL: "S", // gl class out
-                outUOM: "T", // uom out
-                outQuestion: "U", // questions out
-            }
+            const params = worksheetParams(result.filePaths[0]);
             if (mode === 1) {
-                worker.work(['interactive', result.filePaths, params], interactiveGoNext);
+                worker.work(['interactive', params], interactiveGoNext);
                 document.getElementById("worksheet-path").innerHTML = result.filePaths[0];
             }
 
@@ -167,7 +175,7 @@ async function interactiveGoNext(row) {
 }
 
 function interactiveShow(result) {
-    let field = document.getElementById("interact-desc");
+    let field = document.getElementById("maximo-desc");
     field.value = result[0][3];
     field.placeholder = "";
     findRelated(result[0]);

@@ -182,9 +182,9 @@ class Database {
         console.log('starting to clear')
         let stmt = this.db.prepare(`DELETE FROM workingDescription`)
         stmt.run()
-        stmt = this.db.prepare(`INSERT INTO abbreviations (
-            row, description, orgid)
-            VALUES (@row, @description, @orgid)`)
+        stmt = this.db.prepare(`INSERT INTO workingDescription (
+            row, description)
+            VALUES (@row, @description)`)
         let insertMany = this.db.transaction((dataDB) => {
             for (const item of dataDB) stmt.run(item);
         })

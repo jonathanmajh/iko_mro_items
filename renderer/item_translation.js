@@ -2,15 +2,15 @@ document.getElementById("translate-single").addEventListener("click", testFuncti
 document.getElementById("translate-batch").addEventListener("click", batchTranslate);
 
 function testFunction() {
-    let filepath = 'C:\\Users\\majona\\Documents\\TestFileTranslation.xlsx'
+    let filePath = 'C:\\Users\\majona\\Documents\\TestFileTranslation.xlsx'
     const worker = new WorkerHandler;
-    worker.work(['refreshTranslations', filepath]);
+    worker.work(['refreshTranslations', filePath]);
 }
 
 function batchTranslate() {
-    let filepath = 'C:\\Users\\majona\\Documents\\TestFileTranslationDescription.xlsx'
+    let filePath = 'C:\\Users\\majona\\Documents\\TestFileTranslationDescription.xlsx'
     let params = {
-        filepath: filepath,
+        filePath: filePath,
         wsname: document.getElementById("ws-name").value || document.getElementById("ws-name").placeholder,
         maxNumCol: (document.getElementById("max-num").value || document.getElementById("max-num").placeholder).toUpperCase(),
         descriptions: (document.getElementById("input-col").value || document.getElementById("input-col").placeholder).replaceAll(" ", "").toUpperCase().split(","),

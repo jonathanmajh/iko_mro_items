@@ -75,27 +75,27 @@ class ExcelReader {
     }
 
     // read item information from workbook being processed
-    async getDescriptions(wsName, columns, startRow) {
+    async getDescriptions(params) {
         let workbook = new Exceljs.Workbook();
         await workbook.xlsx.readFile(this.filePath);
         fs.copyFileSync(this.filePath, `${this.filePath}.backup`);
         postMessage(['info', `Backing up file as: "${this.filePath}.backup"`]);
         const wsNames = workbook.worksheets.map(function (ele) {return ele.name;});
-        if (!(wsNames.includes(wsName))) {
+        if (!(wsNames.includes(params.wsName))) {
             postMessage(['info', 'Workbook has the following worksheets:']);
             postMessage(['info', `${wsNames}`]);
-            postMessage(['error', `"${wsName} does not exist, Please check spelling & captitalization"`]);
+            postMessage(['error', `"${params.wsName} does not exist, Please check spelling & captitalization"`]);
             return false;
         }
-        let worksheet = workbook.getWorksheet(wsName);
+        let worksheet = workbook.getWorksheet(params.wsName);
         let lastrow = worksheet.lastRow.number;
         let data = [];
         let row = [];
-        for (let i = startRow; i <= lastrow; i++) {
+        for (let i = params.startRow; i <= lastrow; i++) {
             row = [];
-            for (let j = 0; j < columns.length; j++) {
-                if (worksheet.getCell(`${columns[j]}${i}`).text) {
-                    row.push(worksheet.getCell(`${columns[j]}${i}`).text);
+            for (let j = 0; j < params.inDesc.length; j++) {
+                if (worksheet.getCell(`${params.inDesc[j]}${i}`).text) {
+                    row.push(worksheet.getCell(`${params.inDesc[j]}${i}`).text);
                 }
             }
             data.push([i, row.join()]);
@@ -104,6 +104,7 @@ class ExcelReader {
     }
 
     // write validated item information to the workbook
+    // not used
     async writeDescriptions(descriptions, savePath) {
         let workbook = xlsx.readFile(this.filePath, { cellStyles: true, bookVBA: true });
         let worksheet = workbook.Sheets["Validate"];
@@ -127,16 +128,17 @@ class ExcelReader {
     }
 
     async saveDescription(parmas) {
-        let workbook = xlsx.readFile(this.filePath, { cellStyles: true, bookVBA: true });
-        let worksheet = workbook.Sheets[parmas[1]];
-        worksheet[`${parmas[3][2]}${parmas[2]}`] = { t: `s`, v: parmas[4][0], w: undefined };
-        worksheet[`${parmas[3][3]}${parmas[2]}`] = { t: `s`, v: parmas[4][1], w: undefined };
-        worksheet[`${parmas[3][4]}${parmas[2]}`] = { t: `s`, v: parmas[4][2], w: undefined };
-        worksheet[`${parmas[3][1]}${parmas[2]}`] = { t: `s`, v: parmas[4][3], w: undefined };
-        let savePath = parmas[0]
-        return await this.saveWorkbook(workbook, savePath);
+        let workbook = new Exceljs.Workbook();
+        await workbook.xlsx.readFile(this.filePath);
+        let worksheet = workbook.getWorksheet(parmas[0].wsName);
+        worksheet.getCell(`${parmas[0].outDesc[1]}${parmas[0].outRow}`).value = parmas[1][0];
+        worksheet.getCell(`${parmas[0].outDesc[2]}${parmas[0].outRow}`).value = parmas[1][1];
+        worksheet.getCell(`${parmas[0].outDesc[3]}${parmas[0].outRow}`).value = parmas[1][2];
+        worksheet.getCell(`${parmas[0].outDesc[0]}${parmas[0].outRow}`).value = parmas[1][3];
+        return await this.saveWorkbook(workbook, this.filePath);
     }
 
+    // TODO
     async saveNumber(parmas) {
         let workbook = xlsx.readFile(this.filePath, { cellStyles: true, bookVBA: true });
         let worksheet = workbook.Sheets[parmas[1]];
@@ -148,7 +150,7 @@ class ExcelReader {
 
     async saveWorkbook(workbook, savePath) {
         try {
-            xlsx.writeFile(workbook, savePath);
+            workbook.xlsx.writeFile(savePath);
         } catch (error) {
             console.log(error);
             fs.unlink(savePath, (err) => {
@@ -156,7 +158,7 @@ class ExcelReader {
                     console.log(err)
                     postMessage([`error`, `Cannot edit old file make sure it is closed`]);
                 } else {
-                    xlsx.writeFile(workbook, savePath);
+                    workbook.xlsx.writeFile(savePath);
                 }
             });
         }

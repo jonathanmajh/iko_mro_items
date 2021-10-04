@@ -71,7 +71,7 @@ onmessage = function (e) {
 
 async function batchTranslate(params) {
     // translate description in file to all available languagues
-    const excel = new Spreadsheet(params.filepath);
+    const excel = new Spreadsheet(params.filePath);
     const descs = await excel.getDescriptions(params);
     const trans = new Translation();
     const db = new TranslationDatabase();
@@ -91,27 +91,26 @@ async function batchTranslate(params) {
     }
     console.log(allTranslated)
     console.log(missing)
-    const writeExcel = new Spreadsheet(params.filepath);
+    const writeExcel = new Spreadsheet(params.filePath);
     writeExcel.saveTranslations({ langs: langs, item: allTranslated, missing: missing });
 }
 
 async function interactive(e) {
-    const excel = new ExcelReader(e.data[1][0]);
-    let data = await excel.getDescriptions(e.data[2][0], e.data[2][1].split(','), parseInt(e.data[2][2]));
+    const excel = new ExcelReader(e.data[1].filePath);
+    let data = await excel.getDescriptions(e.data[1]);
     const db = new Database();
-    data = db.saveDescription(data).then(() => {
-        postMessage(['result', parseInt(e.data[2][2])]);
-    });
+    data = db.saveDescription(data)
+    postMessage(['result', parseInt(e.data[1].startRow)]);
 }
 
 async function writeDesc(e) {
-    const excel = new ExcelReader(e.data[1][0]);
+    const excel = new ExcelReader(e.data[1][0].filePath);
     let result = await excel.saveDescription(e.data[1]);
-    result.then((result => {
-        if (result) {
-            postMessage(['result', result]);
-        }
-    }))
+    if (result) {
+        postMessage(['result', result]);
+    } else {
+        //fail message
+    }
 }
 
 async function update(e) {
@@ -127,9 +126,9 @@ async function update(e) {
     }
 }
 
-async function refreshTranslations(filepath) {
+async function refreshTranslations(filePath) {
     // load updated translation list from excel file
-    const excel = new Spreadsheet(filepath);
+    const excel = new Spreadsheet(filePath);
     const data = await excel.getTranslations();
     const db = new TranslationDatabase();
     postMessage(['result', db.refreshData(data)]);
