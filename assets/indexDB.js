@@ -27,27 +27,27 @@ class Database {
         runQuery2();
         const createTable1 = this.db.prepare(`CREATE TABLE manufacturers(
             id INTEGER PRIMARY KEY,
-            full_name TEXT NOT NULL,
-            short_name TEXT NOT NULL
+            full_name TEXT NOT NULL collate nocase,
+            short_name TEXT NOT NULL collate nocase
             );`);
         const createTable2 = this.db.prepare(`CREATE TABLE abbreviations(
             id INTEGER PRIMARY KEY,
-            orig_text TEXT NOT NULL,
-            replace_text TEXT NOT NULL
+            orig_text TEXT NOT NULL collate nocase,
+            replace_text TEXT NOT NULL collate nocase
             )`);
         const createTable3 = this.db.prepare(`CREATE TABLE workingDescription (
             row INTEGER NOT NULL,
-            description TEXT NOT NULL,
-            orgid TEXT
+            description TEXT NOT NULL collate nocase,
+            orgid TEXT collate nocase
         )`);
         const createTable4 = this.db.prepare(`CREATE TABLE itemCache (
             itemnum TEXT PRIMARY KEY,
-            description TEXT NOT NULL,
-            changed_date TEXT,
-            search_text TEXT,
-            gl_class TEXT,
-            uom TEXT,
-            commodity_group TEXT
+            description TEXT NOT NULL collate nocase,
+            changed_date TEXT collate nocase,
+            search_text TEXT collate nocase,
+            gl_class TEXT collate nocase,
+            uom TEXT collate nocase,
+            commodity_group TEXT collate nocase
         )`)
         const runQuery = this.db.transaction(() => {
             createTable1.run();

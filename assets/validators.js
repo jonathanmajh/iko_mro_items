@@ -8,12 +8,12 @@ class ManufacturerValidator {
         this.db = new Database;
     }
 
-    async validateSingle(split_desc) {
+    validateSingle(split_desc) {
         let manufacturer = false;
         // look from end of string since manufacturer name is mostly likely in last description
         for (let i=split_desc.length-1; i>=0; i--) {
             postMessage(['debug', `Looking for manufacturer named: "${split_desc[i]}"`]);
-            manufacturer = await this.db.isManufacturer(split_desc[i]);
+            manufacturer = this.db.isManufacturer(split_desc[i]);
             if (manufacturer) {
                 postMessage(['debug', `Found manufacturer with short name: "${manufacturer.short_name}"`]);
                 split_desc.splice(i, 1); //remove the manufactuer and re-add the short version to the end
@@ -29,11 +29,11 @@ class PhraseReplacer {
         this.db = new Database;
     }
 
-    async replaceAbbreviated(split_desc) {
+    replaceAbbreviated(split_desc) {
         let replacement = false;
         for (let i=0; i<split_desc.length; i++) {
             // look for replacements for phrases
-            replacement = await this.db.isAbbreviation(split_desc[i]);
+            replacement = this.db.isAbbreviation(split_desc[i]);
             if(replacement) {
                 postMessage(['debug', `Replacing: "${split_desc[i]} with: ${replacement.replace_text}"`]);
                 split_desc[i] = replacement.replace_text;
@@ -42,7 +42,7 @@ class PhraseReplacer {
             let word_split = utils.inOrderCombinations(split_desc[i].split(' '));
             replacement = false
             for (let j=word_split.length-1; j>0; j--) {
-                replacement = await this.db.isAbbreviation(word_split[j].join(' '));
+                replacement = this.db.isAbbreviation(word_split[j].join(' '));
                 if(replacement) {
                     postMessage(['debug', `Replacing: "${word_split[j].join(' ')} with: ${replacement.replace_text}"`]);
                     split_desc[i] = split_desc[i].replace(word_split[j].join(' '),  replacement.replace_text)
