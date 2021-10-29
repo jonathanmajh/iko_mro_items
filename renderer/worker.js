@@ -3,6 +3,7 @@ const ExcelReader = require('../assets/spreadsheet');
 const Spreadsheet = require('../assets/exceljs');
 const Database = require('../assets/indexDB');
 const Maximo = require('../assets/maximo');
+const AssetTranslate = require('../assets/asset_translation/asset_translation_main.js');
 const ObservationDatabase = require('../assets/better-sqlite');
 const TranslationDatabase = require('../assets/translation-sqlite');
 const path = require('path');
@@ -64,6 +65,9 @@ onmessage = function (e) {
         refreshTranslations(e.data[1]);
     } else if (e.data[0] === 'batchTranslate') {
         batchTranslate(e.data[1]);
+    } else if (e.data[0] === 'translatepms') {
+        const translate = new AssetTranslate();
+        translate.translate(e.data[1])
     } else {
         console.log('unimplimented work');
     }

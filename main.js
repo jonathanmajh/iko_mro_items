@@ -48,6 +48,10 @@ ipcMain.on('start_item_translate', (event, arg) => {
   mainWindow.loadFile(path.join('renderer', 'item_translation.html'))
 })
 
+ipcMain.on('start_asset_translate', (event, arg) => {
+  mainWindow.loadFile(path.join('renderer', 'asset_translation.html'))
+})
+
 function createWindow() {
   // Create the browser window.
   const { width, height } = screen.getPrimaryDisplay().workAreaSize
@@ -69,7 +73,7 @@ function createWindow() {
   mainWindow.loadFile(path.join('renderer', 'start_page.html'))
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
 
   const page = mainWindow.webContents;
 
