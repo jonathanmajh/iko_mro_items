@@ -8,17 +8,16 @@ class AssetExcel {
     async getAssetDescription() {
         const wb = new Exceljs.Workbook();
         await wb.xlsx.readFile(this.filePath);
-        const ws = wb.getWorksheet('Assets'); //alternatively (fetch by ID): getWorksheet(1); 
+        const ws = wb.getWorksheet('FR'); //alternatively (fetch by ID): getWorksheet(1); 
         const lastRow = ws.lastRow.number; //last cell row in range 
         const data = {}
         for (let i = 2; i <= lastRow; i++) {
             try {
                 if (ws.getCell(`A${i}`).text) {
-                    data[`${ws.getCell(`C${i}`).text.toLowerCase()}${ws.getCell(`A${i}`).text.toLowerCase()}`] = {
+                    data[`fr${ws.getCell(`A${i}`).text.toLowerCase()}`] = {
                         translated: ws.getCell(`B${i}`).text,
                         siteid: ws.getCell(`C${i}`).text,
-                        langcode: ws.getCell(`D${i}`).text,
-                        assetid: ws.getCell(`E${i}`).text,
+                        assetid: ws.getCell(`D${i}`).text,
                         description: ws.getCell(`A${i}`).text
                     }
                 }
@@ -35,17 +34,25 @@ class AssetExcel {
         await wb.xlsx.readFile(this.filePath);
         const ws = wb.getWorksheet('Lookups'); //alternatively (fetch by ID): getWorksheet(1); 
         const lastRow = ws.lastRow.number; //last cell row in range 
-        const data = {'worktype' : {}, 'labortype': {}, 'frequency': {}}
+        const data = {'worktype' : {}, 'labortype': {}, 'frequency': {}, 'sites': {}}
         for (let i = 1; i <= lastRow; i++) {
             try {
-                if (ws.getCell(`A${i}`).text) {
-                    data['worktype'][ws.getCell(`B${i}`).text.toLowerCase()] = ws.getCell(`C${i}`).text
+                if (ws.getCell(`A${i}`).text) { //lang code, english desc - translated desc
+                    data['worktype'][`${ws.getCell(`C${i}`).text}${ws.getCell(`A${i}`).text}`.toLowerCase()] = ws.getCell(`B${i}`).text
                 }
-                if (ws.getCell(`E${i}`).text) {
-                    data['labortype'][ws.getCell(`F${i}`).text.toLowerCase()] = ws.getCell(`G${i}`).text
+                if (ws.getCell(`F${i}`).text) {
+                    data['labortype'][`${ws.getCell(`H${i}`).text}${ws.getCell(`F${i}`).text}`.toLowerCase()] = ws.getCell(`G${i}`).text
                 }
-                if (ws.getCell(`I${i}`).text) {
-                    data['frequency'][ws.getCell(`J${i}`).text.toLowerCase()] = ws.getCell(`K${i}`).text
+                if (ws.getCell(`K${i}`).text) {
+                    data['frequency'][`${ws.getCell(`M${i}`).text}${ws.getCell(`K${i}`).text}`.toLowerCase()] = ws.getCell(`L${i}`).text
+                }
+                if (ws.getCell(`P${i}`).text) { //sites
+                    data['sites'][ws.getCell(`P${i}`).text.toLowerCase().trim()] = {
+                        siteid: ws.getCell(`P${i}`).text.trim(),
+                        description: ws.getCell(`Q${i}`).text,
+                        orgid: ws.getCell(`R${i}`).text,
+                        langcode: ws.getCell(`S${i}`).text
+                    }
                 }
             } catch (error) {
                 console.log(error);
