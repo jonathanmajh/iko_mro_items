@@ -10,7 +10,9 @@ class AssetTranslateDescription {
         // outputs csv files to the same folder 4 sheets, Asset, location, pm, jobplan
         let excel = new TransDB(params.wb_translation);
         const lookups = await excel.getDescriptors();
-        const translations = await excel.getAssetDescription();
+        const lang_code = lookups.sites[params["siteid"]].langcode.toLowerCase();
+        const org_id = lookups.sites[params["siteid"]].orgid;
+        const translations = await excel.getAssetDescription(lang_code);
         let folder = path.dirname(params.wb_pms);
         let date = new Date();
         let i = 0;
@@ -33,23 +35,31 @@ class AssetTranslateDescription {
             }
         }
 
+        let logbook = new Exceljs.Workbook()
+        let logsheet = logbook.addWorksheet('log');
+
         // write locations sheet
         let wb = new Exceljs.Workbook()
         let ws = wb.addWorksheet('locations');
-        ws.addRow(['IKO_Import', 'IKO_LOCATION', 'AddChange', 'FR']);
+        ws.addRow(['IKO_Import', 'IKO_LOCATION', 'AddChange', lang_code.toUpperCase()]);
         ws.addRow(['SITEID', 'LOCATION', 'DESCRIPTION']);
         for (const asset in translations) {
-            ws.addRow([translations[asset].siteid, `L-${translations[asset].assetid}`, translations[asset].translated])
+            if (translations[asset].assetid) {
+                ws.addRow([translations[asset].siteid, `L-${translations[asset].assetid}`, translations[asset].translated])
+            }
+
         }
         await wb.csv.writeFile(path.join(new_folder, 'location.csv'), options)
 
         // write assets sheet
         wb = new Exceljs.Workbook()
         ws = wb.addWorksheet('assets');
-        ws.addRow(['IKO_Import', 'IKO_ASSET', 'AddChange', 'FR']);
+        ws.addRow(['IKO_Import', 'IKO_ASSET', 'AddChange', lang_code.toUpperCase()]);
         ws.addRow(['SITEID', 'ASSETNUM', 'DESCRIPTION']);
         for (const asset in translations) {
-            ws.addRow([translations[asset].siteid, `${translations[asset].assetid}`, translations[asset].translated])
+            if (translations[asset].assetid) {
+                ws.addRow([translations[asset].siteid, `${translations[asset].assetid}`, translations[asset].translated])
+            }
         }
         await wb.csv.writeFile(path.join(new_folder, 'asset.csv'), options)
 
@@ -58,69 +68,89 @@ class AssetTranslateDescription {
         const jps = await excel.ReadColumns(['jpnum', 'description', 'siteid'])
         wb = new Exceljs.Workbook()
         ws = wb.addWorksheet('jobplans');
-        ws.addRow(['IKO_Import', 'IKO_JOBPLAN', 'AddChange', 'FR']);
+        ws.addRow(['IKO_Import', 'IKO_JOBPLAN', 'AddChange', lang_code.toUpperCase()]);
         ws.addRow(['JPNUM', 'SITEID', 'DESCRIPTION', 'PLUSCREVNUM', 'ORGID']);
+        let thing;
         for (const jp in jps) {
-            jps[jp]['translated_description'] = this.translateDescription(jps[jp], lookups, translations)
-            ws.addRow([jps[jp]['jpnum'], jps[jp]['siteid'], jps[jp]['translated_description'], 0, 'IKO-EU'])
+            thing = this.NumParser(jps[jp], {}, lookups);
+            jps[jp]['translated_description'] = this.translateDescription(jps[jp], lookups, translations, logsheet, thing, lang_code)
+            if (thing.type === 'sjp') {
+                ws.addRow([jps[jp]['jpnum'], '', jps[jp]['translated_description'], 0, ''])
+            } else {
+                ws.addRow([jps[jp]['jpnum'], jps[jp]['siteid'], jps[jp]['translated_description'], 0, org_id])
+            }
+
         }
         await wb.csv.writeFile(path.join(new_folder, 'jobplans.csv'), options)
 
         const pms = await excel.ReadColumns(['pmnum', 'description', 'siteid'])
         wb = new Exceljs.Workbook()
         ws = wb.addWorksheet('pms');
-        ws.addRow(['IKO_Import', 'IKO_PM', 'AddChange', 'FR']);
+        ws.addRow(['IKO_Import', 'IKO_PM', 'AddChange', lang_code.toUpperCase()]);
         ws.addRow(['PMNUM', 'SITEID', 'DESCRIPTION']);
         for (const pm in pms) {
-            pms[pm]['translated_description'] = this.translateDescription(pms[pm], lookups, translations)
+            thing = this.NumParser(pms[pm], {}, lookups);
+            pms[pm]['translated_description'] = this.translateDescription(pms[pm], lookups, translations, logsheet, thing, lang_code)
             ws.addRow([pms[pm]['pmnum'], pms[pm]['siteid'], pms[pm]['translated_description']])
         }
         await wb.csv.writeFile(path.join(new_folder, 'pms.csv'), options)
+
+        await logbook.csv.writeFile(path.join(new_folder, 'logs.csv'))
+
+        postMessage(['result', 'done']);
     }
 
 
-    translateDescription(info, lookups, translations) {
-        let phrases = this.ReverseSplit(info.description.toLowerCase());
-        let thing = this.NumParser(info, {}, lookups);
-        debugger
-        phrases = phrases.map(function (x) { try { return x.trim().toLowerCase(); } catch (err) { undefined } });
-        if (phrases.length === 4) {
-            // translate asset name
-            let temp = translations[`${info.siteid.toLowerCase()}${phrases[0]}`]
+    translateDescription(info, lookups, translations, logsheet, thing, lang_code) {
+        // returns translated description
+        let translated = ''
+        if (thing.type === 'sjp') {
+            let temp = translations[`${lang_code}${thing.route_name.toLowerCase().replace(/\s/g, " ")}`]
+            //https://stackoverflow.com/questions/22036576/why-does-the-javascript-string-whitespace-character-nbsp-not-match
             if (temp) {
-                phrases[0] = temp.translated
+                translated = `${temp.translated.trim()} - `
             } else {
-                console.log(`no alternative found for ${phrases[0]}`)
+                logsheet.addRow(['Require Translation', thing.route_name, lang_code])
             }
-            // translate frequency
-            temp = phrases[1].split(' ');
-            let temp2 = lookups['frequency'][temp[1]]
-            if (temp2) {
-                temp[1] = temp2
-                phrases[1] = temp.join(' ')
-            } else {
-                console.log(`no alternative found for ${temp[1]}`)
-            }
-            // translate worktype
-            temp = lookups['worktype'][phrases[2]]
+            temp = lookups.worktype[`${lang_code}${thing.sjp}`]
             if (temp) {
-                phrases[2] = temp
+                translated = `${translated}${temp}`
             } else {
-                console.log(`no alternative found for ${phrases[2]}`)
+                logsheet.addRow(['Require Translation', thing.sjp, lang_code])
             }
-            // translate worktype
-            temp = lookups['labortype'][phrases[3]]
+
+        } else if (thing.type === 'pm' || thing.type === 'pmjp') {
+            let temp = translations[`${lang_code}${thing.route_name.toLowerCase().replace(/\s/g, " ")}`]
             if (temp) {
-                phrases[3] = temp
+                translated = `${temp.translated.trim()} - `
             } else {
-                console.log(`no alternative found for ${phrases[3]}`)
+                logsheet.addRow(['Require Translation', thing.route_name, lang_code, 'Route'])
             }
+            temp = `${lang_code}${thing.freq.slice(0, 1)}`
+            if (thing.freq.slice(1) > 1) {
+                temp = `${temp}s`
+            }
+            translated = `${translated}${thing.freq.slice(1)} ${lookups.frequency[temp]} - `
+            if (thing.worktype.indexOf('lc') != -1) {
+                temp = lookups.worktype[`${lang_code}${thing.worktype.slice(0, 2)}`]
+                temp = `${temp}${String.fromCharCode(64 + parseInt(thing.worktype.slice(2)))}`
+                translated = `${translated}${temp}`
+                temp = translations[`${lang_code}${thing.suffix?.replace(/\s/g, " ").toLowerCase()}`]
+                if (temp) {
+                    translated = `${translated} ${temp.translated}`
+                } else {
+                    logsheet.addRow(['Require Translation', thing.suffix, lang_code, 'Part'])
+                }
+            } else {
+                translated = `${translated}${lookups.worktype[`${lang_code}${thing.worktype}`]} - ${lookups.labortype[`${lang_code}${thing.labor}`]}`
+            }
+
         } else {
-            console.log(`Badly formated description ${info.description} will not be translated`)
+            logsheet.addRow(['Unknown Format', info.description, lang_code,])
         }
-        let translated = phrases.join(' - ')
+
         if (translated.length > 100) {
-            console.log(`Warning translated description is too long (>100) ${translated}`)
+            logsheet.addRow(['Description Length', info.description, lang_code, translated.length, translated])
         }
         return translated
     }
@@ -183,7 +213,6 @@ class AssetTranslateDescription {
                 specs['siteid'] = text.slice(0, 3)
                 specs['type'] = 'pmjp'
             } else {
-                console.log('not a pm jp')
                 specs['type'] = 'pm'
             }
 
@@ -204,10 +233,13 @@ class AssetTranslateDescription {
                 try {
                     specs['route_name'] = match[0].trim()
                 } catch (error) {
-                    console.log('number & description mismatch?')
+                    specs['route_name'] = 'number & description mismatch'
+                    console.log('number & description mismatch')
+                    console.log(info.description)
                 }
 
             } else {
+                // possibly standard site job plan
                 console.log('no frequency found')
             }
 
@@ -215,15 +247,7 @@ class AssetTranslateDescription {
             if (match != null) {
                 specs['worktype'] = match[0]
                 text = text.slice(specs['worktype'].length)
-            } else {
-                match = text.match(lc_regex);
-                if (match != null) {
-                    specs['worktype'] = match[0]
-                    text = text.slice(specs['worktype'].length)
-                    specs['suffix'] = info.description.match(lc_item)[0]
-                } else {
-                    console.log('no worktype found')
-                }
+                specs['suffix'] = info.description.match(lc_item)?.[0]
             }
 
             match = text.match(labor_regex);
