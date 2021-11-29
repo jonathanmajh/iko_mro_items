@@ -1,21 +1,19 @@
-const ipc = require('electron').ipcRenderer;
-const fs = require('fs')
-
+const {ipcRenderer} = require('electron');
 
 function openObserveTemp() {
-    ipc.send('start_observation_template', 'finished');
+    ipcRenderer.send('start_observation_template', 'finished');
 }
 
 function openItem() {
-    ipc.send('start_item_module', 'finished');
+    ipcRenderer.send('start_item_module', 'finished');
 }
 
 function openItemTranslation() {
-    ipc.send('start_item_translate', 'finished');
+    ipcRenderer.send('start_item_translate', 'finished');
 }
 
 function openAssetDescription() {
-    ipc.send('start_asset_translate', 'finished');
+    ipcRenderer.send('start_asset_translate', 'finished');
 }
 
 document.getElementById("openObserveTemp").addEventListener("click", openObserveTemp);

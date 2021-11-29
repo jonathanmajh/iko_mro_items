@@ -32,6 +32,7 @@ class AssetTranslateDescription {
             formatterOptions: {
                 delimiter: ',',
                 quote: '"',
+                writeBOM: true,
             }
         }
 
@@ -105,7 +106,7 @@ class AssetTranslateDescription {
         // returns translated description
         let translated = ''
         if (thing.type === 'sjp') {
-            let temp = translations[`${lang_code}${thing.route_name.toLowerCase().replace(/\s/g, " ")}`]
+            let temp = translations[`${lang_code}${thing.route_name.toLowerCase().replace(/\s/g, " ")}`] //Check for empty data
             //https://stackoverflow.com/questions/22036576/why-does-the-javascript-string-whitespace-character-nbsp-not-match
             if (temp) {
                 translated = `${temp.translated.trim()} - `

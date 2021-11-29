@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain, screen } = require('electron')
+const { app, BrowserWindow, ipcMain, screen, dialog } = require('electron')
 const path = require('path');
 const { appUpdater } = require('./assets/autoupdater');
 let mainWindow;
@@ -26,6 +26,32 @@ ipcMain.on('openSettings', (event, arg) => {
 
 ipcMain.on('getVersion', (event, arg) => {
   event.returnValue = app.getVersion();
+})
+
+ipcMain.handle('select-to-be-translated', async (event, arg) => {
+  let result = await dialog.showOpenDialog(mainWindow, {
+    title: "Select List of Job Plan & PMs Spreadsheet",
+    filters: [
+      { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb'] },
+    ],
+    properties: [
+      'openFile'
+    ]
+  })
+  return result
+})
+
+ipcMain.handle('select-translations', async (event, arg) => {
+  let result = await dialog.showOpenDialog(mainWindow, {
+    title: "Select Translation Definition Spreadsheet",
+    filters: [
+      { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb'] },
+    ],
+    properties: [
+      'openFile'
+    ]
+  })
+  return result
 })
 
 ipcMain.on('getPath', (event, arg) => {
@@ -56,7 +82,7 @@ function createWindow() {
   // Create the browser window.
   const { width, height } = screen.getPrimaryDisplay().workAreaSize
   mainWindow = new BrowserWindow({
-    width: width/2,
+    width: width / 2,
     height: height,
     x: 0,
     y: 0,
@@ -73,7 +99,7 @@ function createWindow() {
   mainWindow.loadFile(path.join('renderer', 'start_page.html'))
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools()
 
   const page = mainWindow.webContents;
 

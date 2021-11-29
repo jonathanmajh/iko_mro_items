@@ -17,11 +17,7 @@
       <div id="progress-text">Ready!</div>
       <div class="progress bg-dark" style="height: 40px; width: 100%">
         <div
-          class="
-            progress-bar progress-bar-striped
-            bg-success
-            progress-bar-animated
-          "
+          class="progress-bar progress-bar-striped bg-success progress-bar-animated"
           role="progressbar"
           style="width: 100%"
           id="progress-bar"
@@ -32,7 +28,19 @@
       <div class="container-fluid" id="main">
         <div class="row bg-danger text-light" style="padding-top: 20px">
           <div class="col-auto"><img src="IKO_Logo-nobg.png" /></div>
-          <h1 class="col">Observation List</h1>
+          <h1 class="col">Asset, Job Plan, PM Translations</h1>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <h1>Select Site & Language</h1>
+            <select class="form-control" id="siteSelect">
+              <option value="0">-- Select a Site --</option>
+              <option value="com">Combronde (French)</option>
+              <option value="ant">Antwerp (Dutch)</option>
+              <option value="klu">Klundert (Dutch)</option>
+            </select>
+          </div>
         </div>
 
         <div class="row">
@@ -48,7 +56,7 @@
         </div>
         <div class="row">
           <div class="col">
-            <p>File Name:  <span id="selected_file">#</span></p>
+            <p>File Name: <span id="selected_file">#</span></p>
           </div>
         </div>
 
@@ -84,9 +92,7 @@
 
         <div class="row">
           <a class="btn col" data-bs-toggle="collapse" href="#logs-container">
-            <h3>
-              <i class="material-icons pointer md-size">expand_more</i> Logs
-            </h3>
+            <h3><i class="material-icons pointer md-size">expand_more</i> Logs</h3>
           </a>
         </div>
         <div class="row collapse table-responsive" id="logs-container">
@@ -104,10 +110,7 @@
       </div>
     </main>
 
-    <div
-      class="toast-container position-absolute p-3 top-0 end-0"
-      id="toastPlacement"
-    ></div>
+    <div class="toast-container position-absolute p-3 top-0 end-0" id="toastPlacement"></div>
     <button id="topButton" title="Go to top">Top</button>
     <button id="endButton" title="Go to end">End</button>
 

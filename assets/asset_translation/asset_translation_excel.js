@@ -1,20 +1,21 @@
 const Exceljs = require('exceljs');
+const { isNull } = require('lodash');
 
 class AssetExcel {
     constructor(filePath) {
         this.filePath = filePath;
     }
 
-    async getAssetDescription() {
+    async getAssetDescription(lang_code) {
         const wb = new Exceljs.Workbook();
         await wb.xlsx.readFile(this.filePath);
-        const ws = wb.getWorksheet('FR'); //alternatively (fetch by ID): getWorksheet(1); 
+        const ws = wb.getWorksheet(lang_code.toUpperCase()); //alternatively (fetch by ID): getWorksheet(1); 
         const lastRow = ws.lastRow.number; //last cell row in range 
         const data = {}
         for (let i = 2; i <= lastRow; i++) {
             try {
                 if (ws.getCell(`A${i}`).text) {
-                    data[`fr${ws.getCell(`A${i}`).text.toLowerCase()}`] = {
+                    data[`${lang_code}${ws.getCell(`A${i}`).text.toLowerCase().replace(/\s/g, " ").trim()}`] = {
                         translated: ws.getCell(`B${i}`).text,
                         siteid: ws.getCell(`C${i}`).text,
                         assetid: ws.getCell(`D${i}`).text,
@@ -34,7 +35,7 @@ class AssetExcel {
         await wb.xlsx.readFile(this.filePath);
         const ws = wb.getWorksheet('Lookups'); //alternatively (fetch by ID): getWorksheet(1); 
         const lastRow = ws.lastRow.number; //last cell row in range 
-        const data = {'worktype' : {}, 'labortype': {}, 'frequency': {}, 'sites': {}}
+        const data = { 'worktype': {}, 'labortype': {}, 'frequency': {}, 'sites': {} }
         for (let i = 1; i <= lastRow; i++) {
             try {
                 if (ws.getCell(`A${i}`).text) { //lang code, english desc - translated desc
@@ -66,44 +67,54 @@ class AssetExcel {
         // returns specified columns as a array of objects
         const wb = new Exceljs.Workbook();
         await wb.xlsx.readFile(this.filePath);
-        let wsDetails = {name: '', columns: []};
+        let wsDetails = { name: '', columns: [] };
         let colnum = 0;
         let data = []
         let wsColumns;
         for (const ws in wb.worksheets) {
             wsDetails.name = wb.worksheets[ws].name
             for (const column in columns) {
-                wsColumns = wb.worksheets[ws].getRow(1).values.map(function(x) { try {return x.toLowerCase();} catch (err) {undefined} });
+                wsColumns = wb.worksheets[ws].getRow(1).values.map(function (x) { try { return x.toLowerCase(); } catch (err) { undefined } });
                 // convert ws columns to lower case
                 colnum = wsColumns.indexOf(columns[column])
-                if (colnum===-1) {
+                if (colnum === -1) {
                     wsDetails.columns = {};
                     // if missing one column then go to next worksheet
-                    break 
+                    break
                 } else {
                     wsDetails.columns[columns[column]] = colnum
                 }
             }
-            if (Object.keys(wsDetails.columns).length===columns.length) {
+            if (Object.keys(wsDetails.columns).length === columns.length) {
                 // if all columns are found then we can leave this loop
                 break
             }
         }
-        if (wsDetails.columns==={}) {
+        if (wsDetails.columns === {}) {
             console.log('error worksheet with specified columns does not exist')
         } else {
             const ws = wb.getWorksheet(wsDetails.name);
             const lastrow = ws.lastRow.number;
             let row;
+            let blanks;
             for (let i = 2; i <= lastrow; i++) {
                 try {
-                    row = {}
+                    row = {};
+                    blanks = 0;
                     for (const column in wsDetails.columns) {
+                        if (ws.getCell(i, wsDetails.columns[column]).value===null) {
+                            blanks++
+                        }
                         row[column] = ws.getCell(i, wsDetails.columns[column]).value
                     }
-                    data.push(
-                        row
-                    )
+                    if (blanks === columns.length) {
+                        console.log('blank row ignoring')
+                    } else {
+                        data.push(
+                            row
+                        )
+                    }
+
                 } catch (err) {
                     console.log(err);
                     console.log(`row number: ${i}`);
