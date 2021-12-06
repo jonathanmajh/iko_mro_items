@@ -54,6 +54,7 @@ class AssetTranslateDescription {
 
         // write assets sheet
         wb = new Exceljs.Workbook()
+        debugger
         ws = wb.addWorksheet('assets');
         ws.addRow(['IKO_Import', 'IKO_ASSET', 'AddChange', lang_code.toUpperCase()]);
         ws.addRow(['SITEID', 'ASSETNUM', 'DESCRIPTION']);

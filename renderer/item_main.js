@@ -18,6 +18,16 @@ document.getElementById("save-desc").addEventListener("click", writeDescription)
 document.getElementById("save-num").addEventListener("click", writeAssetNum);
 document.getElementById("skip-row").addEventListener("click", skipRow);
 
+// listener for enter key on search field
+document.getElementById("maximo-desc").addEventListener("keyup", function(event) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.key === "Enter") {
+      // Cancel the default action, if needed
+      event.preventDefault();
+      // Trigger the button element with a click
+      validSingle();
+    }
+  });
 
 // listener for general click events on icons
 document.getElementById("main").addEventListener('click', (event) => {
@@ -286,7 +296,10 @@ async function showRelated(result) {
                     split = word.split(' ');
                     for (let smallWord of split) {
                         if (smallWord.length > 0) {
-                            itemName = itemName.replace(new RegExp(`${smallWord}`, 'i'), `<b>${smallWord}</b>`)
+                            itemName = itemName.replace(
+                                new RegExp(`${smallWord}`, 'i'),
+                                `<b>${itemName.match(new RegExp(`${smallWord}`, 'i'))?.[0]}</b>`
+                                )
                         }
                     }
 
