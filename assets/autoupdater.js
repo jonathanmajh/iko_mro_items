@@ -20,7 +20,7 @@ function appUpdater() {
 			buttons: ['OK1', 'OK2'],
 			defaultId: 0,
 			message: 'A new version of ' + app.getName() + ' is available and currently being downloaded',
-			detail: message
+			detail: 'message'
 		}, response => {
 			if (response === 0) {
 				console.log('selected 0')
@@ -47,8 +47,7 @@ function appUpdater() {
 			message: 'A new version of ' + app.getName() + ' has been downloaded',
 			detail: message
 		}, response => {
-			if (response === 0) {
-				setTimeout(() => autoUpdater.quitAndInstall(), 1);
+			if (response === 0) autoUpdater.quitAndInstall()
 			}
 		});
 	});
