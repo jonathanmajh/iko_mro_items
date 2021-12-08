@@ -14,11 +14,11 @@ git clone https://github.com/jonathanmajh/iko_mro_items.git
 # Go into the repository
 cd iko_mro_items
 # Install dependencies
-Note: Better-sqlite3 does not include prebuilt binaries for windows, this will have to be complied see [Better-Sqlite](https://github.com/JoshuaWise/better-sqlite3/blob/master/docs/troubleshooting.md) and [Working with Electron](https://github.com/JoshuaWise/better-sqlite3/issues/126)
 npm install
 # Run the app
 npm start
 ```
+Note: Better-sqlite3 does not include prebuilt binaries for windows, this will have to be complied see [Better-Sqlite](https://github.com/JoshuaWise/better-sqlite3/blob/master/docs/troubleshooting.md) and [Working with Electron](https://github.com/JoshuaWise/better-sqlite3/issues/126)
 
 Using
 ```
@@ -28,3 +28,6 @@ better-sqlite3 v7.1.2
 electron-squirrel-startup v1.0.0
 xlsx v0.16.9
 ```
+
+Auto updating using Nuts
+https://github.com/GitbookIO/nuts

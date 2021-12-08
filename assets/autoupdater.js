@@ -4,7 +4,7 @@ const {app, autoUpdater, dialog} = require('electron');
 const version = app.getVersion();
 const platform = os.platform() + '_' + os.arch();  // usually returns darwin_64
 
-const updaterFeedURL = 'https://electron0autoupdate.herokuapp.com/update/' + platform + '/' + version;
+const updaterFeedURL = 'https://jonathanmajh-iko-tool.herokuapp.com/update/' + platform + '/' + version;
 // replace updaterFeedURL with http://yourappname.herokuapp.com
 
 function appUpdater() {
@@ -14,7 +14,19 @@ function appUpdater() {
 	You could alsoe use nslog or other logging to see what's happening */
 	autoUpdater.on('error', err => console.log(err));
 	autoUpdater.on('checking-for-update', () => console.log('checking-for-update'));
-	autoUpdater.on('update-available', () => console.log('update-available'));
+	autoUpdater.on('update-available', () => {
+		dialog.showMessageBox({
+			type: 'question',
+			buttons: ['OK1', 'OK2'],
+			defaultId: 0,
+			message: 'A new version of ' + app.getName() + ' is available and currently being downloaded',
+			detail: message
+		}, response => {
+			if (response === 0) {
+				console.log('selected 0')
+			}
+		});
+	});
 	autoUpdater.on('update-not-available', () => console.log('update-not-available'));
 
 	// Ask the user if update is available
