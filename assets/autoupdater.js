@@ -48,8 +48,7 @@ function appUpdater() {
 			detail: message
 		}, response => {
 			if (response === 0) autoUpdater.quitAndInstall()
-			}
-		});
+			});
 	});
 	// init for updates
 	autoUpdater.checkForUpdates();
