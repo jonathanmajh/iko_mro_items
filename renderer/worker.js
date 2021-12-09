@@ -8,6 +8,7 @@ const ObservationDatabase = require('../assets/better-sqlite');
 const TranslationDatabase = require('../assets/translation-sqlite');
 const path = require('path');
 const Translation = require('../assets/translation');
+const fs = require('fs');
 
 onmessage = function (e) {
     console.log(`recieved message from boss: ${e}`)
@@ -95,6 +96,7 @@ async function batchTranslate(params) {
     }
     console.log(allTranslated)
     console.log(missing)
+    fs.copyFileSync(params.filePath, `${params.filePath}.backup`);
     const writeExcel = new Spreadsheet(params.filePath);
     writeExcel.saveTranslations({ langs: langs, item: allTranslated, missing: missing });
 }
@@ -135,7 +137,8 @@ async function refreshTranslations(filePath) {
     const excel = new Spreadsheet(filePath);
     const data = await excel.getTranslations();
     const db = new TranslationDatabase();
-    postMessage(['result', db.refreshData(data)]);
+    const result = db.refreshData(data);
+    postMessage(['result', result]);
 }
 
 async function compareObservLists(data, savePath, jobTaskPath) {

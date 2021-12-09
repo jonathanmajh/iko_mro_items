@@ -1,7 +1,8 @@
 {
   "name": "iko_utility",
+  "productName": "IKO Reliability Tool",
   "version": "2.4.5",
-  "description": "IKO tool for validating Maximo Item creation",
+  "description": "Tool to help automate various Reliability Processes",
   "main": "main.js",
   "scripts": {
     "start": "electron-forge start",
@@ -29,8 +30,7 @@
     "exceljs": "^4.3.0",
     "lodash.intersection": "^4.4.0",
     "luxon": "^2.1.1",
-    "npm-check-updates": "^11.8.5",
-    "xlsx": "^0.17.4"
+    "npm-check-updates": "^11.8.5"
   },
   "config": {
     "forge": {

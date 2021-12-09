@@ -4,7 +4,7 @@ document.getElementById("translate-batch").addEventListener("click", batchTransl
 function testFunction() {
     let filePath = 'C:\\Users\\majona\\Documents\\TestFileTranslation.xlsx'
     const worker = new WorkerHandler;
-    worker.work(['refreshTranslations', filePath]);
+    worker.work(['refreshTranslations', filePath], finished);
 }
 
 function batchTranslate() {
@@ -18,5 +18,9 @@ function batchTranslate() {
         startingRow: parseInt(document.getElementById("start-row").value || document.getElementById("start-row").placeholder)
     }
     const worker = new WorkerHandler;
-    worker.work(['batchTranslate', params]);
+    worker.work(['batchTranslate', params], finished);
+}
+
+function finished(stuff) {
+    console.log('stuff')
 }
