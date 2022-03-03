@@ -37,96 +37,104 @@
           </div>
         </div>
 
-        <div class="item-desc-input row">
-          <h3 class="col">Item Information</h3>
-
-          <div class="row">
-            <div class="col-3">
-              <label for="interact-num">Item Number:</label>
-            </div>
-            <div class="col-7">
-              <input
-                type="text"
-                id="interact-num"
-                name="interact-num"
-                title="Copy Item Number here if item already exists"
-              />
-            </div>
-            <div class="col-1"></div>
-            <div class="col-1">
-              <button id="load-item">Load</button>
-            </div>
+        <div class="row" style="padding-top: 20px">
+          <div class="col-3">
+            <label for="interact-num">Item Number:</label>
           </div>
-
-          <div class="row">
-            <div class="col-3">
-              <label for="maximo-desc">Item Description:</label>
-            </div>
-            <div class="col-7">
-              <input type="text" id="maximo-desc" name="maximo-desc" />
-            </div>
-            <i id="triple-paste" class="material-icons pointer col-1">content_paste</i>
-            <div class="col-1">
-              <button id="valid-single">Check</button>
-            </div>
+          <div class="col-7">
+            <input
+              type="text"
+              id="interact-num"
+              name="interact-num"
+              title="Copy Item Number here if item already exists"
+            />
           </div>
-
-          <div class="row">
-            <div class="col-3">
-              <label for="uom-field">Unit of Measure:</label>
-            </div>
-            <div class="col-3">
-              <input type="text" id="uom-field" name="uom-field" />
-            </div>
-            <div class="col-3">
-              <label for="uom-field">Commodity Group:</label>
-            </div>
-            <div class="col-3">
-              <input type="text" id="com-group" name="com-group" />
-            </div>
+          <div class="col-1"></div>
+          <div class="col-1">
+            <button id="load-item">Load</button>
           </div>
+        </div>
 
-          <div class="row">
-            <div class="col-3">
-              <label for="gl-class">GL Class:</label>
-            </div>
-            <div class="col-3">
-              <input type="text" id="gl-class" name="gl-class" />
-            </div>
-            </div>
-
-          <div class="row">
-            <h3 class="col">Validated Description</h3>
+        <div class="row">
+          <div class="col-3">
+            <label for="maximo-desc">Item Description:</label>
           </div>
-
-          <div id="verified-table" class="table-responsive row">
-            <table class="table table-bordered">
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Main Description</th>
-                  <th>Extended Description</th>
-                  <th>Manufacturer</th>
-                  <!-- light up green if found in db -->
-                  <th>Copy</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr id="triple-copy">
-                  <th>Triple Description</th>
-                  <td id="result-triple-main"></td>
-                  <td id="result-triple-ext1"></td>
-                  <td id="result-triple-ext2"></td>
-                  <td><i class="material-icons pointer">content_copy</i></td>
-                </tr>
-                <tr id="single-copy">
-                  <th>Combined Description</th>
-                  <td id="result-single" colspan="3"></td>
-                  <td><i class="material-icons pointer">content_copy</i></td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="col-7">
+            <input type="text" id="maximo-desc" name="maximo-desc" />
           </div>
+          <i id="triple-paste" class="material-icons pointer col-1">content_paste</i>
+          <div class="col-1">
+            <button id="valid-single">Check</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-3">
+            <label for="uom-field">Unit of Measure:</label>
+          </div>
+          <div class="col-3">
+            <input type="text" id="uom-field" name="uom-field" />
+          </div>
+          <div class="col-3">
+            <label for="com-group">Commodity Group:</label>
+          </div>
+          <div class="col-3">
+            <input type="text" id="com-group" name="com-group" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-3">
+            <label for="gl-class">GL Class:</label>
+          </div>
+          <div class="col-3">
+            <input type="text" id="gl-class" name="gl-class" />
+          </div>
+          <div class="col-3">
+            <label for="com-code">Commodity Code:</label>
+          </div>
+          <div class="col-3">
+            <input type="text" id="com-code" name="com-code" />
+          </div>
+        </div>
+
+        <div class="row">
+          <a class="btn col" data-bs-toggle="collapse" href="#verified-table">
+            <h3>Validated Description<i class="material-icons pointer md-size"> expand_more</i></h3>
+          </a>
+        </div>
+
+        <div id="verified-table" class="table-responsive row collapse">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Main Description</th>
+                <th>Extended Description</th>
+                <th>Manufacturer</th>
+                <!-- light up green if found in db -->
+                <th>Copy</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="single-copy">
+                <th>Maximo Description</th>
+                <td id="result-single" colspan="3"></td>
+                <td><i class="material-icons pointer">content_copy</i></td>
+              </tr>
+              <tr id="triple-copy">
+                <th>JDE Description</th>
+                <td id="result-triple-main"></td>
+                <td id="result-triple-ext1"></td>
+                <td id="result-triple-ext2"></td>
+                <td><i class="material-icons pointer">content_copy</i></td>
+              </tr>
+              <tr id="valid-notes">
+                <th>Validation Notes</th>
+                <td id="valid-description" colspan="4"></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         <div class="row">

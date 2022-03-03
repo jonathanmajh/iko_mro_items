@@ -1,17 +1,18 @@
-const { clipboard, ipcRenderer, shell } = require('electron')
-const { dialog } = require('electron').remote
-const Database = require('../assets/indexDB')
-const Validate = require('../assets/validators')
+const { clipboard, ipcRenderer, shell } = require('electron');
+const { dialog } = require('electron').remote;
+const Database = require('../assets/indexDB');
+const Validate = require('../assets/validators');
 
+document.getElementById("load-item").addEventListener("click", loadItem);
 document.getElementById("valid-single").addEventListener("click", validSingle);
-document.getElementById("single-copy").addEventListener("click", () => { copyResult('single') });
-document.getElementById("triple-copy").addEventListener("click", () => { copyResult('triple') });
+document.getElementById("single-copy").addEventListener("click", () => { copyResult('single'); });
+document.getElementById("triple-copy").addEventListener("click", () => { copyResult('triple'); });
 document.getElementById("triple-paste").addEventListener("click", triplePaste);
 document.getElementById("valid-file").addEventListener("click", openFile);
 document.getElementById("settings").addEventListener("click", openSettings);
 document.getElementById("topButton").addEventListener("click", toTop);
 document.getElementById("endButton").addEventListener("click", toEnd);
-document.getElementById("interactive").addEventListener("click", () => { openExcel(1) });
+document.getElementById("interactive").addEventListener("click", () => { openExcel(1); });
 
 document.getElementById("recheck-desc").addEventListener("click", checkAgain);
 document.getElementById("save-desc").addEventListener("click", writeDescription);
@@ -19,15 +20,15 @@ document.getElementById("save-num").addEventListener("click", writeAssetNum);
 document.getElementById("skip-row").addEventListener("click", skipRow);
 
 // listener for enter key on search field
-document.getElementById("maximo-desc").addEventListener("keyup", function(event) {
+document.getElementById("maximo-desc").addEventListener("keyup", function (event) {
     // Number 13 is the "Enter" key on the keyboard
     if (event.key === "Enter") {
-      // Cancel the default action, if needed
-      event.preventDefault();
-      // Trigger the button element with a click
-      validSingle();
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Trigger the button element with a click
+        validSingle();
     }
-  });
+});
 
 // listener for general click events on icons
 document.getElementById("main").addEventListener('click', (event) => {
@@ -42,24 +43,36 @@ document.getElementById("main").addEventListener('click', (event) => {
     } else if (icon[0]?.innerText === "expand_more") {
         icon[0].innerText = "expand_less";
     } else if (icon[0]?.innerText === "add_task") {
-        console.log(icon)
+        console.log(icon);
     } else {
         console.log('no icon found');
         //console.log(icon);
     }
-})
+});
+
+function loadItem() {
+    const worker = new WorkerHandler();
+    worker.work(['loadItem', document.getElementById("interact-num").value], showItem);
+}
+
+function showItem(data) {
+    document.getElementById("maximo-desc").value = data[0].description;
+    document.getElementById("uom-field").value = data[0].uom;
+    document.getElementById("com-group").value = data[0].commodity_group;
+    document.getElementById("gl-class").value = data[0].gl_class;
+}
 
 function writeDescription() {
-    const valid = new Validate;
+    const valid = new Validate();
     let field = document.getElementById("maximo-desc");
     if (field.value.length > 0) {
-        let bar = new ProgressBar;
+        let bar = new ProgressBar();
         bar.update(0, 'Writing asset description to file');
         let desc = field.value.split(',');
         desc = valid.assembleDescription(desc);
         let params = worksheetParams();
         params.outRow = document.getElementById("current-row").innerHTML;
-        const worker = new WorkerHandler;
+        const worker = new WorkerHandler();
         worker.work(['writeDesc', [params, desc]], writeComplete);
     } else {
         new Toast('Please enter a valid description');
@@ -73,32 +86,32 @@ function worksheetParams(path = false) {
         startRow: "10", //document.getElementById("start-row").value, // starting row of ws
         outDesc: "M,N,O,P".split(','), //document.getElementById("output-col").value, // output columns for description (3)
         inComm: "E", // commodity group in
-        inGL :"F", //gl class in
+        inGL: "F", //gl class in
         inUOM: "G", // uom in
         outComm: "R", // commodity group out
         outGL: "S", // gl class out
         outUOM: "T", // uom out
         outQuestion: "U", // questions out
         outRow: 0,
-    }
+    };
     if (path) {
         params.filePath = path;
     } else {
-        params.filePath = document.getElementById("worksheet-path").innerHTML
+        params.filePath = document.getElementById("worksheet-path").innerHTML;
     }
-    return params
+    return params;
 }
 
 function writeAssetNum() {
     let num = document.getElementById("interact-num").value;
     if (num.length > 0) {
-        let bar = new ProgressBar;
+        let bar = new ProgressBar();
         bar.update(0, 'Writing asset number to file');
         let path = document.getElementById("worksheet-path").innerHTML;
         let wsName = document.getElementById("ws-name").value;
         let rowNum = document.getElementById("current-row").innerHTML;
         let cols = document.getElementById("output-col").value.split(',');
-        const worker = new WorkerHandler;
+        const worker = new WorkerHandler();
         worker.work(['writeNum', [path, wsName, rowNum, cols, num]], writeComplete);
     } else {
         new Toast('Please enter a valid item number');
@@ -140,7 +153,7 @@ function openExcel(mode) {
         ]
     }).then(result => {
         if (!result.canceled) {
-            const worker = new WorkerHandler;
+            const worker = new WorkerHandler();
             const params = worksheetParams(result.filePaths[0]);
             if (mode === 1) {
                 worker.work(['interactive', params], interactiveGoNext);
@@ -150,36 +163,36 @@ function openExcel(mode) {
         } else {
             new Toast('File Picker Cancelled');
         }
-    })
+    });
 }
 
 function checkAgain() {
     let field = document.getElementById("interact-desc");
-    const worker = new WorkerHandler;
+    const worker = new WorkerHandler();
     worker.work(['validSingle', field.value], interactiveShow);
 }
 
 function skipRow() {
-    let row = document.getElementById("current-row").innerHTML
-    interactiveGoNext(Number(row) + 1)
+    let row = document.getElementById("current-row").innerHTML;
+    interactiveGoNext(Number(row) + 1);
 }
 
 async function interactiveGoNext(row) {
     if (!Number.isInteger(row)) {
-        row = row[0]
+        row = row[0];
     }
     const db = new Database();
     let description = await db.getDescription(row);
     let rowNum = document.getElementById("current-row");
     rowNum.innerHTML = row;
     if (description) {
-        const worker = new WorkerHandler;
+        const worker = new WorkerHandler();
         worker.work(['validSingle', description.description], interactiveShow);
     } else {
         let field = document.getElementById("interact-desc");
         field.placeholder = "Row is blank, press skip row to go next";
         field.value = "";
-        let bar = new ProgressBar;
+        let bar = new ProgressBar();
         bar.update(100, 'Done');
     }
 }
@@ -202,12 +215,12 @@ function validBatch() {
         ]
     }).then(result => {
         if (!result.canceled) {
-            const worker = new WorkerHandler;
+            const worker = new WorkerHandler();
             worker.work(['validBatch', result.filePaths], validBatchCB);
         } else {
             new Toast('File Picker Cancelled');
         }
-    })
+    });
 }
 
 function validBatchCB(data) {
@@ -229,25 +242,13 @@ function triplePaste() {
 }
 
 function validSingle() {
-    let bar = new ProgressBar;
+    let bar = new ProgressBar();
     bar.update(0, 'Starting Item Description Validation');
     let raw_desc = document.getElementById("maximo-desc").value;
-    const worker = new WorkerHandler;
+    const worker = new WorkerHandler();
     worker.work(['validSingle', raw_desc], showResult);
 }
 
-function validTriple() {
-    let desc = [];
-    let content = '';
-    content = document.getElementById('main-desc').value;
-    desc.push(content);
-    content = document.getElementById('ext-desc-1').value;
-    desc.push(content);
-    content = document.getElementById('ext-desc-2').value;
-    desc.push(content);
-    const worker = new WorkerHandler;
-    worker.work(['validTriple', desc], showResult);
-}
 
 function showResult(result) {
     let triDesc = document.getElementById('result-triple-main');
@@ -260,17 +261,79 @@ function showResult(result) {
     triDesc.innerHTML = result[0][3];
     triDesc = new bootstrap.Collapse(document.getElementById('verified-table'), { toggle: false });
     triDesc.show();
+    calcConfidence(result[0][3]);
     findRelated(result[0]);
 }
 
 function findRelated(result) {
-    const worker = new WorkerHandler;
+    const worker = new WorkerHandler();
     worker.work(['findRelated', result[3]], showRelated);
+}
+
+function calcConfidence(data) {
+    let description;
+    let level = 0;
+    let tree = '';
+    let parent = 0;
+    const regex = /\d+/g;
+    const db = new Database();
+    let analysis;
+    let result = '';
+    const option = {
+        style: 'percent',
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1
+    };
+    const formatter = new Intl.NumberFormat("en-US", option);
+
+    if (data?.length > 0) { //test if description is blank
+        description = data.split(',');
+        for (let j = 0; j < description.length; j++) {
+            if (!(description[j].match(regex))) {
+                if (db.isManufacturer(description[j])) {
+                    result = `${result}\n${description[j]} is confirmed as a manufacturer`;
+                } else {
+                    level++;
+                    if (level == 1) {
+                        tree = description[j];
+                    } else {
+                        tree = tree + ',' + description[j];
+                    }
+                    analysis = db.getAnalysis(tree);
+                    if (analysis) {
+                        if (level == 1) {
+                            if (analysis.count >= 100) {
+                                result = `${description[j]}: is COMMONLY used as an Item Type.\n${analysis.count}: occurrences found`;
+                            } else if (analysis.count >= 20) {
+                                result = `${description[j]}: is SOMETIMES used as an Item Type.\n${analysis.count}: occurrences found`;
+                            } else {
+                                result = `WARNING: ${description[j]}: is an UNCOMMON Item Type.\nPlease double check.\n${analysis.count}: occurrences found`;
+                            }
+                        } else {
+                            if (analysis.count / parent >= 0.25) {
+                                result = `${result}\n${description[j]} is COMMONLY used as an item descriptor for ${tree}.\n${analysis.count} of ${parent} = ${formatter.format(analysis.count / parent)}`;
+                            } else if (analysis.count / parent >= 0.05) {
+                                result = `${result}\n${description[j]} is SOMETIMES used as an item descriptor for ${tree}.\n${analysis.count} of ${parent} = ${formatter.format(analysis.count / parent)}`;
+                            } else {
+                                result = `${result}\n${description[j]} is an UNCOMMON item descriptor for ${tree}.\nPlease double check.\n${analysis.count} of ${parent} = ${formatter.format(analysis.count / parent)}`;
+                            }
+                        }
+                        parent = analysis.count;
+                    } else {
+                        result = `${result}\n${description[j]}: Does not exist in Maximo as part of: ${tree}.\nPlease Check with Corporate`;
+                    }
+                }
+            }
+        }
+        document.getElementById('valid-description').innerText = result.trim();
+    } else {
+        new Toast('Blank Description');
+    }
 }
 
 
 async function showRelated(result) {
-    let bar = new ProgressBar;
+    let bar = new ProgressBar();
     if (!result[0]) {
         bar.update(100, 'Done!');
         return false;
@@ -290,7 +353,7 @@ async function showRelated(result) {
     for (let [key, value] of Object.entries(scores)) {
         let color = '';
         for (let item of value) {
-            itemName = itemNames[item][0]
+            itemName = itemNames[item][0];
             if (itemName) {
                 for (let word of searchWords) {
                     split = word.split(' ');
@@ -299,7 +362,7 @@ async function showRelated(result) {
                             itemName = itemName.replace(
                                 new RegExp(`${smallWord}`, 'i'),
                                 `<b>${itemName.match(new RegExp(`${smallWord}`, 'i'))?.[0]}</b>`
-                                )
+                            );
                         }
                     }
 
@@ -309,7 +372,7 @@ async function showRelated(result) {
                 } else if (key > 0.4) {
                     color = 'table-warning';
                 } else {
-                    color = 'table-danger'
+                    color = 'table-danger';
                 }
                 html = `${html}\n<tr class="${color}"><td>${formatter.format(key)}</td>
                 <td>${item}</td>
@@ -317,13 +380,13 @@ async function showRelated(result) {
                 <td>${itemNames[item][2]}</td>
                 <td>${itemNames[item][3]}</td>
                 <td>${itemNames[item][1]}</td>
-                <td><i class="material-icons pointer sm-size"> add_task</i></td></tr>`
+                <td><i class="material-icons pointer sm-size"> add_task</i></td></tr>`;
             } else {
-                html = `<tr class="table-danger"><td>0</td>\n<td>xxxxxxx</td>\n<td>No Related Items Found</td></tr>`
+                html = `<tr class="table-danger"><td>0</td>\n<td>xxxxxxx</td>\n<td>No Related Items Found</td></tr>`;
             }
         }
     }
-    const relatedTable = document.getElementById('related-items')
+    const relatedTable = document.getElementById('related-items');
     relatedTable.innerHTML = html;
     html = new bootstrap.Collapse(document.getElementById('related-table'), { toggle: false });
     html.show();

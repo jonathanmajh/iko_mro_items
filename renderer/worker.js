@@ -2,6 +2,7 @@ const Validate = require('../assets/validators');
 const ExcelReader = require('../assets/spreadsheet');
 const Spreadsheet = require('../assets/exceljs');
 const Database = require('../assets/indexDB');
+const SharedDatabase = require('../assets/sharedDB');
 const Maximo = require('../assets/maximo');
 const AssetTranslate = require('../assets/asset_translation/asset_translation_main.js');
 const ObservationDatabase = require('../assets/better-sqlite');
@@ -11,9 +12,9 @@ const Translation = require('../assets/translation');
 const fs = require('fs');
 
 onmessage = function (e) {
-    console.log(`recieved message from boss: ${e}`)
+    console.log(`recieved message from boss: ${e}`);
     if (e.data[0] === 'validSingle') {
-        let valid = new Validate;
+        let valid = new Validate();
         valid.validateSingle(e.data[1]).then(
             result => {
                 console.log(`valid.validateSingle: ${result}`);
@@ -21,7 +22,7 @@ onmessage = function (e) {
             }
         );
     } else if (e.data[0] === 'validTriple') {
-        let valid = new Validate;
+        let valid = new Validate();
         valid.validateTriple(e.data[1]).then(
             result => {
                 console.log(`valid.validateTriple: ${result}`);
@@ -29,7 +30,7 @@ onmessage = function (e) {
             }
         );
     } else if (e.data[0] === 'validBatch') {
-        let valid = new Validate;
+        let valid = new Validate();
         valid.validateBatch(e.data[1]).then(
             result => {
                 console.log(`valid.validateBatch: ${result}`);
@@ -37,7 +38,7 @@ onmessage = function (e) {
             }
         );
     } else if (e.data[0] === 'update') {
-        update(e)
+        update(e);
     } else if (e.data[0] === 'createDatabase') {
         const db = new Database();
         db.createAbbreviations();
@@ -45,15 +46,15 @@ onmessage = function (e) {
         postMessage(['result', 'done']);
     } else if (e.data[0] === 'findRelated') {
         const maximo = new Database();
-        maximo.findRelated(e.data[1])
+        maximo.findRelated(e.data[1]);
     } else if (e.data[0] === 'interactive') {
         interactive(e);
     } else if (e.data[0] === 'writeDesc') {
         writeDesc(e);
     } else if (e.data[0] === 'writeNum') {
-        writeItemNum(e.data[1])
+        writeItemNum(e.data[1]);
     } else if (e.data[0] === 'checkItemCache') {
-        checkItemCache()
+        checkItemCache(e.data[1]);
     } else if (e.data[0] === 'processObservationList') {
         const excel = new Spreadsheet(e.data[1][0]);
         excel.readObservList(e.data[1][1]);
@@ -61,18 +62,21 @@ onmessage = function (e) {
         const maximo = new Maximo();
         maximo.getObservations();
     } else if (e.data[0] === 'compareObservLists') {
-        compareObservLists(e.data[1], e.data[2], e.data[3])
+        compareObservLists(e.data[1], e.data[2], e.data[3]);
     } else if (e.data[0] === 'refreshTranslations') {
         refreshTranslations(e.data[1]);
     } else if (e.data[0] === 'batchTranslate') {
         batchTranslate(e.data[1]);
+    } else if (e.data[0] === 'loadItem') {
+        const maximo = new Database();
+        maximo.loadItem(e.data[1]);
     } else if (e.data[0] === 'translatepms') {
         const translate = new AssetTranslate();
-        translate.translate(e.data[1])
+        translate.translate(e.data[1]);
     } else {
         console.log('unimplimented work');
     }
-}
+};
 
 async function batchTranslate(params) {
     // translate description in file to all available languagues
@@ -86,7 +90,7 @@ async function batchTranslate(params) {
     let missing = [];
     let allTranslated = [];
     for (const desc of descs) {
-        translated = desc
+        translated = desc;
         for (const lang of langs) {
             result = trans.translate({ lang: lang, description: desc.description });
             translated[lang] = result.description;
@@ -94,8 +98,8 @@ async function batchTranslate(params) {
         }
         allTranslated.push(translated);
     }
-    console.log(allTranslated)
-    console.log(missing)
+    console.log(allTranslated);
+    console.log(missing);
     fs.copyFileSync(params.filePath, `${params.filePath}.backup`);
     const writeExcel = new Spreadsheet(params.filePath);
     writeExcel.saveTranslations({ langs: langs, item: allTranslated, missing: missing });
@@ -105,7 +109,7 @@ async function interactive(e) {
     const excel = new ExcelReader(e.data[1].filePath);
     let data = await excel.getDescriptions(e.data[1]);
     const db = new Database();
-    data = db.saveDescription(data)
+    data = db.saveDescription(data);
     postMessage(['result', parseInt(e.data[1].startRow)]);
 }
 
@@ -186,17 +190,17 @@ async function compareObservLists(data, savePath, jobTaskPath) {
         domainVal: { changes: newObservations, delete: removeOldObservations },
         meter: { changes: newMaximoMeters, delete: removeOldMaximoMeters },
         jobTask: { changes: newJobTasks, delete: removeJobTasks }
-    })
+    });
 
 }
 
 async function writeItemNum(data) {
-    const db = new Database;
+    const db = new Database();
     let item = await db.db.itemCache.where('itemnum').equals(data[4]).toArray();
     if (item[0]) {
-        data[4] = [item[0].description, item[0].itemnum]
+        data[4] = [item[0].description, item[0].itemnum];
     } else {
-        data[4] = ['', data[4]]
+        data[4] = ['', data[4]];
         postMessage(['warning', `${data[4][1]} cannot be found in item list and will be written to file with no description`]);
     }
     const excel = new ExcelReader(data[0]);
@@ -206,33 +210,38 @@ async function writeItemNum(data) {
     }
 }
 
-async function checkItemCache() {
+async function checkItemCache(version) {
     // check internal cache of item information and update with new items in maximo
     postMessage(['debug', `0%: Checking list of Manufacturers & Abbrivations`]);
     const filePath = path.join(require('path').resolve(__dirname).replace('renderer', 'assets'), 'item_information.xlsx');
     const excel = new ExcelReader(filePath);
     const db = new Database();
+    const shareDB = new SharedDatabase();
+    if(!(await shareDB.checkVersion(version))) {
+        db.createTables();
+    }
+    //TODO patch for wiping if version is not the same
     await db.checkValidDB();
     postMessage(['debug', `33%: Checking list of items in cache`]);
     let xlVersion = await excel.getVersion();
     let curVersion = await db.getVersion('maximoItemCache');
     curVersion = curVersion[0]?.changed_date;
-    if (!(curVersion >= xlVersion)) {
+    if (curVersion < xlVersion) {
         postMessage(['debug', `40%: Loading item cache data from file`]);
         db.clearItemCache();
         let data = await excel.getItemCache();
         postMessage(['debug', `60%: Saving data to item cache`]);
         db.saveItemCache(data[0]);
     }
-    curVersion = db.getVersion('maximoItemCache')
+    curVersion = db.getVersion('maximoItemCache');
     curVersion = curVersion[0]?.changed_date ?? xlVersion;
     postMessage(['debug', `75%: Getting items with changes after: ${curVersion} from Maximo`]);
-    const maximo = new Maximo()
-    let newItems = await maximo.getNewItems(curVersion)
+    const maximo = new Maximo();
+    let newItems = await maximo.getNewItems(curVersion);
     if (newItems) {
         postMessage(['debug', '85%: Saving maximo data to item cache']);
         db.saveItemCache(newItems[0]);
     }
-    postMessage(['result', 'done'])
+    postMessage(['result', 'done']);
 }
 

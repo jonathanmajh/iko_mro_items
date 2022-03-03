@@ -12,7 +12,7 @@ class ExcelReader {
         const wb = new Exceljs.Workbook();
         await wb.xlsx.readFile(this.filePath);
         const ws = wb.getWorksheet('Sheet2');
-        let version = dt.DateTime.fromSeconds((parseFloat(ws.getCell('A2').text)-25569)*86400+14400).toFormat('yyyy-LL-dd HH:mm:ss')
+        let version = dt.DateTime.fromSeconds((parseFloat(ws.getCell('A2').text)-25569)*86400+14400).toFormat('yyyy-LL-dd HH:mm:ss');
         return version;
     }
 
@@ -23,7 +23,7 @@ class ExcelReader {
         await wb.xlsx.readFile(this.filePath);
         const ws = wb.getWorksheet('Sheet1'); //alternatively (fetch by ID): getWorksheet(1); 
         const lastRow = ws.lastRow.number; //last cell row in range 
-        const data = [] //empty list
+        const data = []; //empty list
         for (let i = 2; i <= lastRow; i++) {
             try {
                 data.push([
@@ -33,14 +33,14 @@ class ExcelReader {
                     ws.getCell(`D${i}`).text,
                     ws.getCell(`E${i}`).text,
                     ws.getCell(`F${i}`).text
-                ])
+                ]);
             } catch (error) {
                 console.log(error);
                 console.log(`row number: ${i}`);
             }
         }
         const ws2 = wb.getWorksheet('Sheet2');
-        return [data, dt.DateTime.fromSeconds((parseFloat(ws2.getCell('A2').text)-25569)*86400+14400).toFormat('yyyy-LL-dd HH:mm:ss')]
+        return [data, dt.DateTime.fromSeconds((parseFloat(ws2.getCell('A2').text)-25569)*86400+14400).toFormat('yyyy-LL-dd HH:mm:ss')];
         // to convert excel datetime in number format to string
     }
 
@@ -50,28 +50,28 @@ class ExcelReader {
         await workbook.xlsx.readFile(this.filePath);
         let worksheet = workbook.getWorksheet("Manufacturers");
         let lastrow = worksheet.lastRow.number;
-        let data = []
+        let data = [];
         for (let i = 2; i <= lastrow; i++) {
             if (worksheet.getCell(`A${i}`).text) {
-                data.push([worksheet.getCell(`A${i}`).text, worksheet.getCell(`C${i}`).text, worksheet.getCell(`E${i}`).text, null])
+                data.push([worksheet.getCell(`A${i}`).text, worksheet.getCell(`C${i}`).text, null, null]);
             }
         }
-        return data
+        return data;
     }
 
     //get initial list of abbreviations from the workbook
     async getAbbreviations() {
         let workbook = new Exceljs.Workbook();
         await workbook.xlsx.readFile(this.filePath);
-        let worksheet = workbook.getWorksheet("Abbreviations");
+        let worksheet = workbook.getWorksheet("Replacements");
         let lastrow = worksheet.lastRow.number;
-        let data = []
+        let data = [];
         for (let i = 3; i <= lastrow; i++) {
-            if (worksheet.getCell(`A${i}`).text) {
-                data.push([worksheet.getCell(`A${i}`).text, worksheet.getCell(`B${i}`).text])
+            if (worksheet.getCell(`D${i}`).text) {
+                data.push([worksheet.getCell(`D${i}`).text, worksheet.getCell(`B${i}`).text]);
             }
         }
-        return data
+        return data;
     }
 
     // read item information from workbook being processed
@@ -144,7 +144,7 @@ class ExcelReader {
         let worksheet = workbook.Sheets[parmas[1]];
         worksheet[`${parmas[3][0]}${parmas[2]}`] = { t: `s`, v: parmas[4][1], w: undefined };
         worksheet[`${parmas[3][1]}${parmas[2]}`] = { t: `s`, v: parmas[4][0], w: undefined };
-        let savePath = parmas[0]
+        let savePath = parmas[0];
         return await this.saveWorkbook(workbook, savePath);
     }
 
@@ -155,7 +155,7 @@ class ExcelReader {
             console.log(error);
             fs.unlink(savePath, (err) => {
                 if (err) {
-                    console.log(err)
+                    console.log(err);
                     postMessage([`error`, `Cannot edit old file make sure it is closed`]);
                 } else {
                     workbook.xlsx.writeFile(savePath);
@@ -166,5 +166,5 @@ class ExcelReader {
     }
 }
 
-module.exports = ExcelReader
+module.exports = ExcelReader;
 

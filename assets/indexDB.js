@@ -2,7 +2,7 @@ const sql = require('better-sqlite3');
 const { SqliteError } = require('better-sqlite3');
 const ExcelReader = require('./spreadsheet');
 const path = require('path');
-const utils = require('../assets/utils')
+const utils = require('../assets/utils');
 const intersection = require('lodash.intersection');
 //https://lodash.com/docs/4.17.15#intersection
 // fast library for intersection of arrays
@@ -16,14 +16,16 @@ class Database {
     createTables() {
         const dropTables = this.db.prepare('DROP TABLE IF EXISTS manufacturers');
         const dropTables2 = this.db.prepare('DROP TABLE IF EXISTS abbreviations');
-        const dropTables3 = this.db.prepare('DROP TABLE IF EXISTS workingDescription')
-        const dropTables4 = this.db.prepare('DROP TABLE IF EXISTS itemCache')
+        const dropTables3 = this.db.prepare('DROP TABLE IF EXISTS workingDescription');
+        const dropTables4 = this.db.prepare('DROP TABLE IF EXISTS itemCache');
+        const dropTables5 = this.db.prepare('DROP TABLE IF EXISTS itemDescAnalysis');
         const runQuery2 = this.db.transaction(() => {
             dropTables.run();
             dropTables2.run();
             dropTables3.run();
             dropTables4.run();
-        })
+            dropTables5.run();
+        });
         runQuery2();
         const createTable1 = this.db.prepare(`CREATE TABLE manufacturers(
             id INTEGER PRIMARY KEY,
@@ -48,30 +50,36 @@ class Database {
             gl_class TEXT collate nocase,
             uom TEXT collate nocase,
             commodity_group TEXT collate nocase
-        )`)
+        )`);
+        const createTable5 = this.db.prepare(`CREATE TABLE itemDescAnalysis (
+            tree TEXT PRIMARY KEY,
+            descriptor TEXT NOT NULL,
+            parent TEXT,
+            count INTEGER,
+            level INTEGER
+        )`);
         const runQuery = this.db.transaction(() => {
             createTable1.run();
             createTable2.run();
             createTable3.run();
             createTable4.run();
-        })
+            createTable5.run();
+        });
         runQuery();
-        console.log('refreshed tables')
+        console.log('refreshed tables');
     }
 
-    // saves item descirption from maximo into the db
     clearItemCache() {
-        let stmt = this.db.prepare(`DELETE FROM itemCache`)
-        stmt.run()
+        let stmt = this.db.prepare(`DELETE FROM itemCache`);
+        stmt.run();
     }
 
     saveItemCache(data) {
-
         let dataDB = [];
         let search = '';
         for (let i = 0; i < data.length; i++) {
             if (data[i][1]) { //test if description is blank
-                search = data[i][1].toUpperCase()
+                search = data[i][1].toUpperCase();
                 for (const char of utils.STRINGCLEANUP) {
                     search = search.replaceAll(char, '');
                 }
@@ -84,8 +92,6 @@ class Database {
                     commodity_group: data[i][5],
                     search_text: search
                 });
-            } else {
-                search = "undefined"
             }
         }
         const insert = this.db.prepare(`INSERT OR REPLACE INTO itemCache (
@@ -93,8 +99,28 @@ class Database {
             VALUES (@itemnum, @description, @changed_date, @search_text, @gl_class, @uom, @commodity_group)`);
         const insertMany = this.db.transaction((dataDB) => {
             for (const item of dataDB) insert.run(item);
-        })
+        });
         insertMany(dataDB);
+
+        const manufs = this.getAllManufacturers();
+        const analysis = itemOccurrence(data, manufs);
+        const stmt = this.db.prepare(`INSERT INTO itemDescAnalysis (tree, descriptor, parent, count, level)
+            VALUES (@tree, @descriptor, @parent, @count, @level)
+            ON CONFLICT(tree)
+            DO UPDATE SET count = count + @count`);
+        const insertMany2 = this.db.transaction((analysis) => {
+            for (const [key, item] of analysis) {
+                stmt.run({tree: key, descriptor: item.phrase, parent: item.parent, count: item.count, level: item.level});
+            }
+        });
+        insertMany2(analysis);
+        console.log('finished adding analysis');
+    }
+
+    getAnalysis(tree) {
+        const stmt = this.db.prepare('SELECT tree, descriptor, parent, count, level FROM itemDescAnalysis where tree = @tree');
+        const result = stmt.get({tree: tree});
+        return result;
     }
 
     // get the time stamp (version) of when the item cache was last updated
@@ -102,6 +128,11 @@ class Database {
         const stmt = this.db.prepare('SELECT changed_date FROM itemCache ORDER BY changed_date DESC LIMIT 1');
         const version = stmt.all();
         return version;
+    }
+
+    getAllManufacturers() {
+        const stmt = this.db.prepare('SELECT short_name FROM manufacturers');
+        return stmt.all();
     }
 
     // check if the database is populated from a previous run of the program
@@ -112,12 +143,12 @@ class Database {
             stmt1 = this.db.prepare('SELECT COUNT(*) as c FROM manufacturers');
             stmt2 = this.db.prepare('SELECT COUNT(*) as c FROM abbreviations');
         } catch (SqliteError) {
-            this.createTables()
+            this.createTables();
             stmt1 = this.db.prepare('SELECT COUNT(*) as c FROM manufacturers');
             stmt2 = this.db.prepare('SELECT COUNT(*) as c FROM abbreviations');
         }
-        const result = [stmt1.get()['c'], stmt2.get()['c']];
-        console.log(`manu: ${result[0]}, abbr: ${result[1]}`)
+        const result = [stmt1.get().c, stmt2.get().c];
+        console.log(`manu: ${result[0]}, abbr: ${result[1]}`);
         if (result[0] > 0 && result[1] > 0) {
             console.log('db ready');
         } else {
@@ -142,7 +173,7 @@ class Database {
             VALUES (@orig_text, @replace_text)`);
         const insertMany = this.db.transaction((data) => {
             for (const item of data) insert.run(item);
-        })
+        });
         insertMany(dataDB);
     }
 
@@ -157,19 +188,19 @@ class Database {
             VALUES (@full_name, @short_name)`);
         const insertMany = this.db.transaction((data) => {
             for (const item of data) insert.run(item);
-        })
+        });
         insertMany(dataDB);
     }
 
     // checks if the name given is a manufacturer
     isManufacturer(name) {
-        let stmt = this.db.prepare(`SELECT short_name FROM manufacturers where full_name = '${name}' or short_name = '${name}'`)
+        let stmt = this.db.prepare(`SELECT short_name FROM manufacturers where full_name = '${name}' or short_name = '${name}'`);
         return stmt.get();
     }
 
     // check if the phrase given has a known abbrivation
     isAbbreviation(phase) {
-        let result = this.db.prepare(`SELECT replace_text from abbreviations where orig_text = '${phase}'`)
+        let result = this.db.prepare(`SELECT replace_text from abbreviations where orig_text = '${phase}'`);
         return result.get();
     }
 
@@ -179,51 +210,61 @@ class Database {
         for (const [, desc] of Object.entries(data)) {
             dataDB.push({ row: desc[0], description: desc[1] });
         }
-        console.log('starting to clear')
-        let stmt = this.db.prepare(`DELETE FROM workingDescription`)
-        stmt.run()
+        console.log('starting to clear');
+        let stmt = this.db.prepare(`DELETE FROM workingDescription`);
+        stmt.run();
         stmt = this.db.prepare(`INSERT INTO workingDescription (
             row, description)
-            VALUES (@row, @description)`)
+            VALUES (@row, @description)`);
         let insertMany = this.db.transaction((dataDB) => {
             for (const item of dataDB) stmt.run(item);
-        })
+        });
         insertMany(dataDB);
         console.log('finished adding');
-        return true
+        return true;
     }
 
     getDescription(row) {
-        let result = this.db.prepare(`SELECT * from workingDescription where row = '${row}'`)
+        let result = this.db.prepare(`SELECT * from workingDescription where row = '${row}'`);
         return result.get();
+    }
+
+    loadItem(itemnum) {
+        let result = this.db.prepare(`SELECT itemnum, description, gl_class, uom, commodity_group from itemCache where itemnum = '${itemnum}'`);
+        result = result.get();
+        if (result) {
+            postMessage(['result', result]);
+        } else {
+            postMessage(['error', `${itemnum} cannot be found in Maximo`]);
+        }
     }
 
 
     findRelated(data) {
-        let itemDict = {}
+        let itemDict = {};
         for (const char of utils.STRINGCLEANUP) {
             data = data.replaceAll(char, ',');
         }
         const phrases = data.split(',');
-        let result = []
-        postMessage(['progress', 25, "Getting Item Descriptions From Maximo"])
+        let result = [];
+        postMessage(['progress', 25, "Getting Item Descriptions From Maximo"]);
         for (let i = 0; i < phrases.length; i++) {
             if (phrases[i].length > 0) {
-                result.push(this.fetchAndObjectify(phrases[i], itemDict))
-                postMessage(['progress', 75, "Processing Item Descriptions From Maximo"]) //change this to per phrase
+                result.push(this.fetchAndObjectify(phrases[i], itemDict));
+                postMessage(['progress', 75, "Processing Item Descriptions From Maximo"]); //change this to per phrase
             }
         }
         result = result.filter(item => item !== false);
         if (result.length) {
-            let arrayAsNum = [...Array(result.length).keys()] //create an array with only integers to find combinations
+            let arrayAsNum = [...Array(result.length).keys()]; //create an array with only integers to find combinations
             arrayAsNum = getCombinations(arrayAsNum);
-            let intersections = []
+            let intersections = [];
             for (let i = arrayAsNum.length; i > 0; i--) { //convert combination of integers to combination of arrays
                 let holder = [];
                 arrayAsNum[i - 1].forEach(index => {
                     holder.push(result[index]);
                 });
-                intersections.push([holder.length, intersection(...holder)])
+                intersections.push([holder.length, intersection(...holder)]);
             }
             postMessage(['result', matchAndScore(intersections), itemDict, data]);
         } else {
@@ -233,10 +274,10 @@ class Database {
     }
 
     fetchAndObjectify(phrase, itemDict) {
-        phrase = phrase.toUpperCase()
+        phrase = phrase.toUpperCase();
         postMessage(['debug', `Getting item from cache: "${phrase}"`]);
         let stmt = this.db.prepare(`SELECT * from itemCache where search_text like '%${phrase}%'`);
-        let result = stmt.all()
+        let result = stmt.all();
         let itemNums = [];
         result.forEach(item => {
             itemNums.push(item.itemnum);
@@ -246,10 +287,10 @@ class Database {
     }
 }
 
-module.exports = Database
+module.exports = Database;
 
 function matchAndScore(data) {
-    postMessage(['progress', 80, "Processing Item Descriptions"])
+    postMessage(['progress', 80, "Processing Item Descriptions"]);
     const numPhases = data[0][0];
     let matchedScores = {};
     let saved = {};
@@ -292,3 +333,41 @@ function getCombinations(valuesArray) {
     return combi;
 }
 
+function itemOccurrence(data, manufs) {
+    let dataProcessed = new Map();
+    let description;
+    let level = 0;
+    let tree = '';
+    let parent = '';
+    const regex = /\d+/g;
+    for (let i = 0; i < data.length; i++) {
+        level = 0;
+        tree = '';
+        parent = '';
+        if (data[i][1]) { //test if description is blank
+            description = data[i][1].split(',');
+            for (let j = 0; j < description.length; j++) {
+                if (!(description[j].match(regex)) && !(manufs.includes(description[j]))) {
+                    level++;
+                    if (tree.length > 0) {
+                        tree = tree + ',' + description[j];
+                    } else {
+                        tree = description[j];
+                    }
+                    if (dataProcessed.has(tree)) {
+                        dataProcessed.get(tree).count++;
+                    } else {
+                        dataProcessed.set(tree, {
+                            phrase: description[j],
+                            parent: parent,
+                            count: 1,
+                            level: level
+                        });
+                    }
+                    parent = description[j];
+                }
+            }
+        }
+    }
+    return dataProcessed;
+}

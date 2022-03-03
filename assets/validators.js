@@ -33,7 +33,7 @@ class PhraseReplacer {
         let replacement = false;
         for (let i=0; i<split_desc.length; i++) {
             // look for replacements for phrases
-            replacement = this.db.isAbbreviation(split_desc[i]);
+            replacement = this.db.isAbbreviation(split_desc[i].replace('-', ' '));
             if(replacement) {
                 postMessage(['debug', `Replacing: "${split_desc[i]} with: ${replacement.replace_text}"`]);
                 split_desc[i] = replacement.replace_text;
@@ -42,7 +42,7 @@ class PhraseReplacer {
             let word_split = utils.inOrderCombinations(split_desc[i].split(' '));
             replacement = false
             for (let j=word_split.length-1; j>0; j--) {
-                replacement = this.db.isAbbreviation(word_split[j].join(' '));
+                replacement = this.db.isAbbreviation(word_split[j].join(' ').replace('-', ' '));
                 if(replacement) {
                     postMessage(['debug', `Replacing: "${word_split[j].join(' ')} with: ${replacement.replace_text}"`]);
                     split_desc[i] = split_desc[i].replace(word_split[j].join(' '),  replacement.replace_text)

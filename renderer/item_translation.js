@@ -1,8 +1,10 @@
+// TODO need to fix this...
+
 document.getElementById("translate-single").addEventListener("click", testFunction);
 document.getElementById("translate-batch").addEventListener("click", batchTranslate);
 
 function testFunction() {
-    let filePath = 'C:\\Users\\majona\\Documents\\TestFileTranslation.xlsx'
+    let filePath = 'C:\\Users\\majona\\Documents\\TranslationDefinitions.xlsx'
     const worker = new WorkerHandler;
     worker.work(['refreshTranslations', filePath], finished);
 }
@@ -22,5 +24,5 @@ function batchTranslate() {
 }
 
 function finished(stuff) {
-    console.log('stuff')
+    console.log('finished')
 }

@@ -2,7 +2,9 @@ const ipc = require('electron').ipcRenderer;
 
 document.addEventListener('DOMContentLoaded', function () {
     const worker = new WorkerHandler;
-    worker.work(['checkItemCache'], openMain);
+
+    version = ipc.sendSync('getVersion')
+    worker.work(['checkItemCache', version], openMain);
 
     function openMain() {
         ipc.send('loading', 'finished');
