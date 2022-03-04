@@ -84,6 +84,7 @@ class ProgressBar {
     }
 
     updateColor(color) {
+        color = color + ' ';
         let regx = new RegExp('\\b' + 'bg-' + '[^ ]*[ ]?\\b', 'g');
         this.progressBar.className = this.progressBar.className.replace(regx, color);
     }

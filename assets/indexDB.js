@@ -29,31 +29,31 @@ class Database {
         runQuery2();
         const createTable1 = this.db.prepare(`CREATE TABLE manufacturers(
             id INTEGER PRIMARY KEY,
-            full_name TEXT NOT NULL collate nocase,
-            short_name TEXT NOT NULL collate nocase
+            full_name TEXT NOT NULL COLLATE NOCASE,
+            short_name TEXT NOT NULL COLLATE NOCASE
             );`);
         const createTable2 = this.db.prepare(`CREATE TABLE abbreviations(
             id INTEGER PRIMARY KEY,
-            orig_text TEXT NOT NULL collate nocase,
-            replace_text TEXT NOT NULL collate nocase
+            orig_text TEXT NOT NULL COLLATE NOCASE,
+            replace_text TEXT NOT NULL COLLATE NOCASE
             )`);
         const createTable3 = this.db.prepare(`CREATE TABLE workingDescription (
             row INTEGER NOT NULL,
-            description TEXT NOT NULL collate nocase,
-            orgid TEXT collate nocase
+            description TEXT NOT NULL COLLATE NOCASE,
+            orgid TEXT COLLATE NOCASE
         )`);
         const createTable4 = this.db.prepare(`CREATE TABLE itemCache (
             itemnum TEXT PRIMARY KEY,
-            description TEXT NOT NULL collate nocase,
-            changed_date TEXT collate nocase,
-            search_text TEXT collate nocase,
-            gl_class TEXT collate nocase,
-            uom TEXT collate nocase,
-            commodity_group TEXT collate nocase
+            description TEXT NOT NULL COLLATE NOCASE,
+            changed_date TEXT COLLATE NOCASE,
+            search_text TEXT COLLATE NOCASE,
+            gl_class TEXT COLLATE NOCASE,
+            uom TEXT COLLATE NOCASE,
+            commodity_group TEXT COLLATE NOCASE
         )`);
         const createTable5 = this.db.prepare(`CREATE TABLE itemDescAnalysis (
-            tree TEXT PRIMARY KEY,
-            descriptor TEXT NOT NULL,
+            tree TEXT PRIMARY KEY COLLATE NOCASE,
+            descriptor TEXT NOT NULL COLLATE NOCASE,
             parent TEXT,
             count INTEGER,
             level INTEGER
@@ -126,7 +126,10 @@ class Database {
     // get the time stamp (version) of when the item cache was last updated
     getVersion() {
         const stmt = this.db.prepare('SELECT changed_date FROM itemCache ORDER BY changed_date DESC LIMIT 1');
-        const version = stmt.all();
+        let version = stmt.all();
+        if (version.length == 0) {
+            version = [{changed_date: '2000-01-01 00:00:00'}];
+        }
         return version;
     }
 
@@ -249,7 +252,7 @@ class Database {
         let result = [];
         postMessage(['progress', 25, "Getting Item Descriptions From Maximo"]);
         for (let i = 0; i < phrases.length; i++) {
-            if (phrases[i].length > 0) {
+            if (phrases[i].length > 1) { // ignore single characters searches since they add too much time
                 result.push(this.fetchAndObjectify(phrases[i], itemDict));
                 postMessage(['progress', 75, "Processing Item Descriptions From Maximo"]); //change this to per phrase
             }

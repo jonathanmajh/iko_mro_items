@@ -21,14 +21,6 @@ onmessage = function (e) {
                 postMessage(['result', result]);
             }
         );
-    } else if (e.data[0] === 'validTriple') {
-        let valid = new Validate();
-        valid.validateTriple(e.data[1]).then(
-            result => {
-                console.log(`valid.validateTriple: ${result}`);
-                postMessage(['result', result]);
-            }
-        );
     } else if (e.data[0] === 'validBatch') {
         let valid = new Validate();
         valid.validateBatch(e.data[1]).then(
@@ -73,6 +65,9 @@ onmessage = function (e) {
     } else if (e.data[0] === 'translatepms') {
         const translate = new AssetTranslate();
         translate.translate(e.data[1]);
+    } else if (e.data[0] === 'getNextItemNumber') {
+        const maximo = new Maximo();
+        maximo.getNextItemNumber();
     } else {
         console.log('unimplimented work');
     }

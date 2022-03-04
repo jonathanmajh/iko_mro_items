@@ -1,11 +1,11 @@
-const Database = require('./indexDB')
-const ExcelReader = require('./spreadsheet')
-const utils = require('./utils')
+const Database = require('./indexDB');
+const ExcelReader = require('./spreadsheet');
+const utils = require('./utils');
 
 class ManufacturerValidator {
     constructor() {
         this.CHAR_LIMIT = 30;
-        this.db = new Database;
+        this.db = new Database();
     }
 
     validateSingle(split_desc) {
@@ -18,7 +18,7 @@ class ManufacturerValidator {
                 postMessage(['debug', `Found manufacturer with short name: "${manufacturer.short_name}"`]);
                 split_desc.splice(i, 1); //remove the manufactuer and re-add the short version to the end
                 split_desc.push(manufacturer.short_name);
-                return split_desc
+                return split_desc;
             }
         }
     }
@@ -26,7 +26,7 @@ class ManufacturerValidator {
 
 class PhraseReplacer {
     constructor() {
-        this.db = new Database;
+        this.db = new Database();
     }
 
     replaceAbbreviated(split_desc) {
@@ -40,16 +40,16 @@ class PhraseReplacer {
             }
             // look for replacement for individual words
             let word_split = utils.inOrderCombinations(split_desc[i].split(' '));
-            replacement = false
+            replacement = false;
             for (let j=word_split.length-1; j>0; j--) {
                 replacement = this.db.isAbbreviation(word_split[j].join(' ').replace('-', ' '));
                 if(replacement) {
                     postMessage(['debug', `Replacing: "${word_split[j].join(' ')} with: ${replacement.replace_text}"`]);
-                    split_desc[i] = split_desc[i].replace(word_split[j].join(' '),  replacement.replace_text)
+                    split_desc[i] = split_desc[i].replace(word_split[j].join(' '),  replacement.replace_text);
                 }
             }
         }
-        return split_desc
+        return split_desc;
     }
 }
 
@@ -79,20 +79,9 @@ class Validate {
         return result;
     }
 
-    async validateTriple(raw_desc) {
-        let value = raw_desc[0]
-        if (raw_desc[1]) {
-            value = `${value},${raw_desc[1]}`;
-        }
-        if (raw_desc[2]) {
-            value = `${value},${raw_desc[2]}`;
-        }
-        return await this.validateSingle(value);
-    }
-
     async validateBatch(filePath) {
         postMessage(['debug', `Selected file path: "${filePath}"`]);
-        filePath = filePath[0]
+        filePath = filePath[0];
         let excel = new ExcelReader(filePath);
         let result = await excel.getDescriptions();
         for (let i=0; i<result.length; i++) {
@@ -105,46 +94,39 @@ class Validate {
     }
 
     assembleDescription(split_desc) {
-        // consolelog(split_desc)
-        let descriptions = ['', '', '', ''];
-        for (let i = 0; i < split_desc.length - 1; i++) {
-            split_desc[i] = `${split_desc[i]},`
-        }
-        let position = 0
-        for (let j=0; j<split_desc.length; j++) {
-            if (j + 1 === split_desc.length) {
-                for (let i=0;i<3;i++) {
-                    if (descriptions[i][descriptions[i].length-1]===',') {
-                        descriptions[i] = descriptions[i].slice(0,-1) //remove trailing comma
-                    }
-                }
-                descriptions[2] = `${descriptions[2]}${split_desc[j]}`;
-                descriptions[3] = descriptions[0]
-                if (descriptions[1]) {
-                    descriptions[3] = `${descriptions[3]},${descriptions[1]}`;
-                }
-                if (descriptions[2]) {
-                    descriptions[3] = `${descriptions[3]},${descriptions[2]}`;
-                }
-                if (descriptions[0].length > 30 || descriptions[1].length > 30 || descriptions[2].length > 30 || descriptions[3] > 90) {
-                    postMessage(['info', `${descriptions[0]}, ${descriptions[1]}, ${descriptions[2]}, ${descriptions[3]}`])
-                    postMessage(['error', 'Description is too long'])
-                    return descriptions
+        const db = new Database();
+        let descriptions = ['', '', '', '']; // jde1, jde2, jde3, maximo descriptions
+        let position = 0; //tracks which part of jde description is being added to
+        const regex = /\d+/g;
+        for (let i = 0; i < split_desc.length; i++) {
+            if (!(split_desc[i].match(regex))) { // if the phrase has no numbers
+                split_desc[i] = split_desc[i].toUpperCase();
+            }
+            // if we are at end of array & the phrase is a manufacturer
+            if (i + 1 == split_desc.length && db.isManufacturer(split_desc[i])) {
+                if (descriptions[2].length == 0) {
+                    descriptions[2] = split_desc[i];
                 } else {
-                    postMessage(['debug', 'Description length is in spec'])
-                    return descriptions
+                    descriptions[2] = `${descriptions[2]},${split_desc[i]}`;
                 }
             }
-            for (let i=position; i<3; i++) {
-                if ((descriptions[i].length - 1) + split_desc[j].length <= 30) { //minus one since the comma would be removed
-                    descriptions[i] = `${descriptions[i]}${split_desc[j]}`;
-                    break;
+            // two ifs to avoid trailing / leading commas
+            else if (descriptions[position].length == 0) {
+                descriptions[position] = split_desc[i];
+            } else if (`${descriptions[position]},${split_desc[i]}`.length <= 30) {
+                descriptions[position] = `${descriptions[position]},${split_desc[i]}`;
+            } else { // if too long put it into next word
+                position++;
+                if (position == 3) { // if jde is over flowing into Maximo
+                    postMessage(['warning', 'Description is too long']);
                 } else {
-                    position = i + 1 //prevents description getting rearranged due to a second string being shorter than the first
+                    descriptions[position] = split_desc[i];
                 }
             }
         }
+        descriptions[3] = descriptions.slice(0,3).filter(Boolean).join(',');
+        return descriptions;
     }
 }
 
-module.exports = Validate
+module.exports = Validate;

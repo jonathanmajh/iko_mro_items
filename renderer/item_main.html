@@ -13,12 +13,30 @@
     <script src="bootstrap.bundle.min.js"></script>
     <script src="../assets/common.js"></script>
   </head>
-
+    
   <body class="d-flex flex-column h-100">
+
+    <div class="modal fade" id="popupAlert" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="popupAlertTitle">Loading...</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body" id="popupAlertBody">
+            Loading...
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- nicest fucking progress bar youve ever seen -->
     <nav class="navbar navbar-border" style="padding: 0px">
       <div id="progress-text">Ready!</div>
       <div class="progress bg-dark" style="height: 40px; width: 100%">
-        <!-- nicest fucking progress bar youve ever seen -->
         <div
           class="progress-bar progress-bar-striped bg-success progress-bar-animated"
           role="progressbar"
@@ -131,7 +149,10 @@
               </tr>
               <tr id="valid-notes">
                 <th>Validation Notes</th>
-                <td id="valid-description" colspan="4"></td>
+                <td id="valid-description" colspan="3"></td>
+                <td>
+                  <i id="open-in-browser" class="material-icons pointer" data-bs-toggle="modal" data-bs-target="#popupAlert">ios_share</i>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -293,7 +314,10 @@
       </div>
     </main>
 
+    <!-- notification thingy thats pops up and auto disappears -->
     <div class="toast-container position-absolute p-3 top-0 end-0" id="toastPlacement"></div>
+    
+    <!-- goto top / bottom buttons -->
     <button id="topButton" title="Go to top">Top</button>
     <button id="endButton" title="Go to end">End</button>
 

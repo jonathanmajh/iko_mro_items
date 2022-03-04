@@ -1,9 +1,9 @@
 const ipc = require('electron').ipcRenderer;
 
 document.addEventListener('DOMContentLoaded', function () {
-    const worker = new WorkerHandler;
+    const worker = new WorkerHandler();
 
-    version = ipc.sendSync('getVersion')
+    version = ipc.sendSync('getVersion');
     worker.work(['checkItemCache', version], openMain);
 
     function openMain() {
@@ -19,11 +19,11 @@ class WorkerHandler {
         worker.onmessage = (e) => {
             let log = new Logging();
             if (e.data[0] === 'result') {
-                worker.terminate()
+                worker.terminate();
                 callback(e.data.slice(1,));
             } else if (e.data[0] === 'error') {
                 log.error(e.data[1]);
-                worker.terminate()
+                worker.terminate();
             } else if (e.data[0] === 'progress') {
                 log.info(e.data[2]);
             } else if (e.data[0] === 'warning') {
@@ -36,13 +36,13 @@ class WorkerHandler {
                 console.log('unimplemented worker message');
                 console.log(e.data);
             }
-        }
+        };
     }
 }
 
 class Logging {
     constructor() {
-        this.logTable = document.getElementById("logs-table")
+        this.logTable = document.getElementById("logs-table");
     }
 
     warning(msg) {

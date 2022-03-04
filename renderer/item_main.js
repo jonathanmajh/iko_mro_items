@@ -18,6 +18,7 @@ document.getElementById("recheck-desc").addEventListener("click", checkAgain);
 document.getElementById("save-desc").addEventListener("click", writeDescription);
 document.getElementById("save-num").addEventListener("click", writeAssetNum);
 document.getElementById("skip-row").addEventListener("click", skipRow);
+document.getElementById("open-in-browser").addEventListener("click", openBrowser);
 
 // listener for enter key on search field
 document.getElementById("maximo-desc").addEventListener("keyup", function (event) {
@@ -29,6 +30,7 @@ document.getElementById("maximo-desc").addEventListener("keyup", function (event
         validSingle();
     }
 });
+
 
 // listener for general click events on icons
 document.getElementById("main").addEventListener('click', (event) => {
@@ -53,6 +55,42 @@ document.getElementById("main").addEventListener('click', (event) => {
 function loadItem() {
     const worker = new WorkerHandler();
     worker.work(['loadItem', document.getElementById("interact-num").value], showItem);
+}
+
+function openBrowser() {
+    const worker = new WorkerHandler();
+    worker.work(['getNextItemNumber'], openBrowserLink);
+}
+
+function openBrowserLink(info) {
+    document.getElementById("popupAlertTitle").innerHTML = 'Generating Maximo Link...';
+    document.getElementById("popupAlertBody").innerHTML = '<p>Getting New Item Number...</p>';
+    let url = `http://nsmaxim1app1.na.iko/maximo/ui/maximo.jsp?event=loadapp&value=item&additionalevent=insert&additionaleventvalue=description=${document.getElementById('result-single').innerHTML}`;
+    if (info[0] === 0) {
+        let number = info[1] + 1;
+        document.getElementById("popupAlertBody").innerHTML = `<p>New Item Number is: ${number}</p>`;
+        url = `${url}|itemnum=${number}`;
+    } else {
+        document.getElementById("popupAlertBody").innerHTML = `<p>Cannot get new item number...</p>\n<p>${info[1]}</p>`;
+    }
+    if (document.getElementById("uom-field").value.length > 0) {
+        url = `${url}|ISSUEUNIT=${document.getElementById("uom-field").value}`;
+    }
+    if (document.getElementById("com-group").value.length > 0) {
+        url = `${url}|COMMODITYGROUP=${document.getElementById("com-group").value}`;
+    }
+    if (document.getElementById("gl-class").value.length > 0) {
+        url = `${url}|EXTERNALREFID=${document.getElementById("gl-class").value}`;
+    }
+    document.getElementById("popupAlertBody").innerHTML = 
+    `${document.getElementById("popupAlertBody").innerHTML}\n
+    <p>Link Ready: <a id="maximo-link" href="${url}">Create Item In Maximo</a></p>\n
+    <p>Remember to replace (&amp;quot;) in the description with (")</p>\n
+    <p>This is a limitation of the current method</p>`;
+    document.getElementById("maximo-link").addEventListener('click', function (e) {
+        e.preventDefault();
+        shell.openExternal(url);
+    });
 }
 
 function showItem(data) {

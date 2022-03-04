@@ -29,7 +29,7 @@ class Maximo {
                 });
             });
         }
-        return meters
+        return meters;
     }
 
     async getObservations() {
@@ -65,7 +65,7 @@ class Maximo {
                             id_value: observation["spi:value"],
                             observation: observation["spi:description"],
                             search_str: `${meter["spi:domainid"].slice(2)}~${observation["spi:value"]}`
-                        })
+                        });
                     });
                 } else {
                     postMessage(['warning', `Meter: ${meter["spi:domainid"]} has no observation codes`]);
@@ -94,7 +94,7 @@ class Maximo {
             await new Promise(resolve => setTimeout(resolve, 5000));
         } else {
             content["rdfs:member"].forEach(item => {
-                newDate = item["spi:in22"].replace("T", " ").slice(0, -6)
+                newDate = item["spi:in22"].replace("T", " ").slice(0, -6);
                 items.push([
                     item["spi:itemnum"], 
                     item["spi:description"], 
@@ -104,12 +104,31 @@ class Maximo {
                     item["spi:commoditygroup"], 
                 ]);
                 if (previousDate[0] < new Date(newDate)) {
-                    previousDate = [new Date(newDate), newDate]
+                    previousDate = [new Date(newDate), newDate];
                 }
             });
             return [items, previousDate[1]];
         }
     }
+
+    async getNextItemNumber() {
+        let response;
+        try {
+            // get latest 91* number (will need to be updated to 92 after 200k items have been created in Maximo)
+            response = await fetch('http://nscandacmaxapp1/maxrest/oslc/os/mxitem?oslc.where=itemnum="91%25"&_lid=corcoop3&_lpwd=happy818&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum');
+        } catch (err) {
+            postMessage(['result', 1,'Failed to fetch Data from Maximo, Please Check Network (1)']);
+            return false;
+        }
+        let content = await response.json();
+        if (content["oslc:Error"]) { //content["Error"]["message"]
+            postMessage(['result', 1, 'Failed to fetch Data from Maximo, Please Check Network (2)']);
+        } else {
+            let number = content["rdfs:member"][0]['spi:itemnum'];
+            number = parseInt(number);
+            postMessage(['result', 0, number]);
+        }
+    }
 }
 
-module.exports = Maximo
+module.exports = Maximo;
