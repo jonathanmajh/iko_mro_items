@@ -117,6 +117,19 @@
         </div>
 
         <div class="row">
+          <div class="col-3">
+            <label for="gl-class">Language:</label>
+          </div>
+          <div class="col-3">
+            <select name="language" id="selected-language">
+              <option value="en" selected>English</option>
+              <option value="fr">French</option>
+              <option value="nl">Dutch</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
           <a class="btn col" data-bs-toggle="collapse" href="#verified-table">
             <h3>Validated Description<i class="material-icons pointer md-size"> expand_more</i></h3>
           </a>
@@ -126,12 +139,11 @@
           <table class="table table-bordered">
             <thead>
               <tr>
-                <th>Type</th>
-                <th>Main Description</th>
-                <th>Extended Description</th>
-                <th>Manufacturer</th>
-                <!-- light up green if found in db -->
-                <th>Copy</th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -154,8 +166,18 @@
                   <i id="open-in-browser" class="material-icons pointer" data-bs-toggle="modal" data-bs-target="#popupAlert">ios_share</i>
                 </td>
               </tr>
+              <tr>
+                <th>Translated Description</th>
+                <td id="trans-desc" colspan="3"></td>
+                <td><i class="material-icons pointer">content_copy</i></td>
+              </tr>
+              <tr id="translation-notes">
+                <th>Translation Notes</th>
+                <td id="translation-description" colspan="3"></td>
+                <td></td>
+              </tr>
             </tbody>
-          </table>
+          </table> 
         </div>
 
         <div class="row">

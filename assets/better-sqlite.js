@@ -2,7 +2,7 @@ const sql = require('better-sqlite3')
 
 class ObservationDatabase {
     constructor() {
-        this.db = new sql(`${process.env.APPDATA}/iko_utility/obserlist.db`);//, { verbose: console.log });
+        this.db = new sql(`${process.env.APPDATA}/IKO Reliability Tool/obserlist.db`);//, { verbose: console.log });
     }
 
     createTables() {

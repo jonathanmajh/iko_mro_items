@@ -6,9 +6,9 @@ const SharedDatabase = require('../assets/sharedDB');
 const Maximo = require('../assets/maximo');
 const AssetTranslate = require('../assets/asset_translation/asset_translation_main.js');
 const ObservationDatabase = require('../assets/better-sqlite');
-const TranslationDatabase = require('../assets/translation-sqlite');
+const TranslationDatabase = require('../assets/item_translation/item-translation-sqlite');
 const path = require('path');
-const Translation = require('../assets/translation');
+const Translation = require('../assets/item_translation/item-translation');
 const fs = require('fs');
 
 onmessage = function (e) {
@@ -68,10 +68,14 @@ onmessage = function (e) {
     } else if (e.data[0] === 'getNextItemNumber') {
         const maximo = new Maximo();
         maximo.getNextItemNumber();
+    } else if (e.data[0] === 'translateItem') {
+        const trans = new Translation();
+        result = trans.contextTranslate(e.data[1], e.data[2]);
     } else {
         console.log('unimplimented work');
     }
 };
+
 
 async function batchTranslate(params) {
     // translate description in file to all available languagues
@@ -212,10 +216,10 @@ async function checkItemCache(version) {
     const excel = new ExcelReader(filePath);
     const db = new Database();
     const shareDB = new SharedDatabase();
+    debugger
     if(!(await shareDB.checkVersion(version))) {
         db.createTables();
     }
-    //TODO patch for wiping if version is not the same
     await db.checkValidDB();
     postMessage(['debug', `33%: Checking list of items in cache`]);
     let xlVersion = await excel.getVersion();

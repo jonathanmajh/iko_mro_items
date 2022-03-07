@@ -10,7 +10,7 @@ const intersection = require('lodash.intersection');
 
 class Database {
     constructor() {
-        this.db = new sql(`${process.env.APPDATA}/iko_utility/itemRelated.db`);//, { verbose: console.log });
+        this.db = new sql(`${process.env.APPDATA}/IKO Reliability Tool/itemRelated.db`);//, { verbose: console.log });
     }
 
     createTables() {

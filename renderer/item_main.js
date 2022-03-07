@@ -300,12 +300,36 @@ function showResult(result) {
     triDesc = new bootstrap.Collapse(document.getElementById('verified-table'), { toggle: false });
     triDesc.show();
     calcConfidence(result[0][3]);
+    translationDescription(result[0][3]);
     findRelated(result[0]);
 }
 
 function findRelated(result) {
     const worker = new WorkerHandler();
     worker.work(['findRelated', result[3]], showRelated);
+}
+
+function translationDescription(description) {
+    // for now do not translate if english is selected
+    if (document.getElementById("selected-language").value != 'en') {
+        // translate
+    }
+    const worker = new WorkerHandler();
+    if (document.getElementById('result-triple-ext1').innerHTML) {
+        let description = `${document.getElementById('result-triple-main').innerHTML},${document.getElementById('result-triple-ext1').innerHTML}`;
+    } else {
+        let description = document.getElementById('result-triple-main').innerHTML;
+    }
+
+    worker.work([
+        'translateItem',
+        description,
+        document.getElementById('selected-language').value
+    ], displayTranslation);
+}
+
+function displayTranslation(data) {
+    console.log(data)
 }
 
 function calcConfidence(data) {
