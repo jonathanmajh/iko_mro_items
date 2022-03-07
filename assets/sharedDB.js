@@ -11,12 +11,13 @@ class SharedDatabase {
         let stmt;
         let lastVersion = '0.0.0';
         try {
+            debugger
             stmt = this.db.prepare(`SELECT value FROM settings WHERE key = 'version'`);
             lastVersion = stmt.get()['value'];
-            stmt = this.db.prepare(`UPDATE settings SET value = ${curVersion} WHERE key = 'version'`);
+            stmt = this.db.prepare(`UPDATE settings SET value = '${curVersion}' WHERE key = 'version'`);
             stmt.run();
         } catch (SqliteError) {
-            stmt = this.db.prepare('CREATE TABLE settings(id INTEGER PRIMARY KEY, key TEXT NOT NULL, value TEXT NOT NULL)');
+            stmt = this.db.prepare('CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY, key TEXT NOT NULL, value TEXT NOT NULL)');
             stmt.run();
             stmt = this.db.prepare(`INSERT INTO settings(key, value) VALUES ('version', '${curVersion}')`);
             stmt.run();
