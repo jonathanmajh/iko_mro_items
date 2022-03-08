@@ -1,4 +1,4 @@
-const Exceljs = require('exceljs')
+const Exceljs = require('exceljs');
 
 class Spreadsheet {
     constructor(filePath) {
@@ -16,16 +16,16 @@ class Spreadsheet {
         let description = "";
         for (let i = params.startingRow; i <= lastRow; i++) {
             for (const col of params.descriptions) {
-                description = `${description},${ws.getCell(`${col}${i}`).text}`
+                description = `${description},${ws.getCell(`${col}${i}`).text}`;
             }
             descriptions.push({
                 maxNum: ws.getCell(`${params.maxNumCol}${i}`).text,
                 description: description,
                 manufacturer: ws.getCell(`${params.manufacturerer}${i}`, ).text
-            })
+            });
             description = "";
         }
-        return descriptions
+        return descriptions;
     }
 
     async getTranslations() {
@@ -35,9 +35,9 @@ class Spreadsheet {
         const ws = wb.worksheets[0]; //assume there is only 1 worksheet and its the one we want
         const lastRow = ws.lastRow.number;
         const languages = ws.getRow(1).cellCount;
-        let lang_codes = []
+        let lang_codes = [];
         for (let i = 2; i <= languages; i++) {
-            lang_codes.push(ws.getCell(1, i).text)
+            lang_codes.push(ws.getCell(1, i).text);
         }
         let translations = [];
         for (let i = 2; i <= lastRow; i++) {
@@ -46,10 +46,10 @@ class Spreadsheet {
                     english: ws.getCell(i, 1).text,
                     lang_code: lang_codes[j - 2],
                     translation: ws.getCell(i, j).text
-                })
+                });
             }
         }
-        return translations
+        return translations;
     }
 
     async saveTranslations(data) {
@@ -63,7 +63,7 @@ class Spreadsheet {
             rowCount = 2;
             ws = wb.addWorksheet(lang);
             row = ws.getRow(1);
-            row.values = ['Maximo Item Number', 'English Description', `${lang} Description`, 'Manufacturer Name']
+            row.values = ['Maximo Item Number', 'English Description', `${lang} Description`, 'Manufacturer Name'];
             for (const item of data.item) {
                 row = ws.getRow(rowCount);
                 row.values = [item.maxNum, item.description, item[lang], item.manufacturer || "-"];
@@ -81,7 +81,7 @@ class Spreadsheet {
         }
 
         await wb.xlsx.writeFile(this.filePath);
-        postMessage(['result', 'done'])
+        postMessage(['result', 'done']);
     }
 
     async saveObserListChanges(data) {
@@ -204,7 +204,7 @@ class Spreadsheet {
             }
         }
         await wb.xlsx.writeFile(this.filePath);
-        postMessage(['result', 'done'])
+        postMessage(['result', 'done']);
     }
 
     async getJobTasks() {
@@ -235,9 +235,9 @@ class Spreadsheet {
                 jptask: row[2],
                 desc: row[3],
                 ext_desc: row[7]
-            })
+            });
         }
-        return jobTasks
+        return jobTasks;
     }
 
     async readObservList(wsname) {
@@ -270,7 +270,7 @@ class Spreadsheet {
                         desc: `Inspect ${inspect}`,
                         ext_desc: desc,
                         search_str: `M-${meter}~${inspect}`
-                    })
+                    });
                     temp1 = removeRichText(row.values[6]);
                     temp2 = removeRichText(row.values[7]);
                     temp3 = removeRichText(row.values[8]);
@@ -280,7 +280,7 @@ class Spreadsheet {
                         observation: temp2,
                         action: temp3,
                         search_str: `${meter}~${temp1}`
-                    }
+                    };
                     observations.push(observation);
                 }
             } else if (row.values[6] !== undefined) {
@@ -294,10 +294,10 @@ class Spreadsheet {
                     observation: temp2,
                     action: temp3,
                     search_str: `${meter}~${temp1}`
-                }
+                };
                 observations.push(observation);
             }
-        })
+        });
         postMessage(['result', [meters.slice(1), observations.slice(1)]]);
     }
 }
@@ -308,10 +308,10 @@ function removeRichText(value) {
         return value;
     } else if (typeof (value) == "object") {
         let temp = "";
-        for (const part of value.richText) temp = `${temp}${part.text}`
-        return temp
+        for (const part of value.richText) temp = `${temp}${part.text}`;
+        return temp;
     } else if (typeof (value) == "undefined") {
-        return undefined
+        return undefined;
     } else {
         postMessage(['error', `Unknown cell type: ${typeof (value)}`]);
     }
@@ -345,8 +345,8 @@ Array.prototype.equals = function (array) {
         }
     }
     return true;
-}
+};
 // Hide method from for-in loops
 Object.defineProperty(Array.prototype, "equals", { enumerable: false });
 
-module.exports = Spreadsheet
+module.exports = Spreadsheet;

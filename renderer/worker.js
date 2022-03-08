@@ -144,6 +144,7 @@ async function refreshTranslations(filePath) {
     postMessage(['result', result]);
 }
 
+
 async function compareObservLists(data, savePath, jobTaskPath) {
     const sqlite = new ObservationDatabase();
     // compare condition domain definition
@@ -216,7 +217,6 @@ async function checkItemCache(version) {
     const excel = new ExcelReader(filePath);
     const db = new Database();
     const shareDB = new SharedDatabase();
-    debugger
     if(!(await shareDB.checkVersion(version))) {
         db.createTables();
     }

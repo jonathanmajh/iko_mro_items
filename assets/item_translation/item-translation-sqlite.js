@@ -33,7 +33,8 @@ class TranslationDatabase {
         const insertMany = this.db.transaction((data) => {
             for (const translation of data) insert.run(translation);
         });
-        return insertMany(data);
+        insertMany(data);
+        return 'complete';
     }
 
     // get translation of a word in the requested language
