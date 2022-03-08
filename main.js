@@ -16,6 +16,7 @@ ipcMain.on('openSettings', (event, arg) => {
       nodeIntegration: true,
       nodeIntegrationInWorker: true,
       enableRemoteModule: true,
+      contextIsolation: false
     }
   });
 

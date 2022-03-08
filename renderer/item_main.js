@@ -329,7 +329,8 @@ function translationDescription(description) {
 }
 
 function displayTranslation(data) {
-    console.log(data)
+    //TODO
+    console.log(data);
 }
 
 function calcConfidence(data) {

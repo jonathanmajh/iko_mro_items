@@ -44,7 +44,7 @@ class Spreadsheet {
             for (let j = 2; j <= languages; j++) {
                 translations.push({
                     english: ws.getCell(i, 1).text,
-                    lang_code: lang_codes[j - 2],
+                    lang_code: lang_codes[j - 2].toUpperCase(),
                     translation: ws.getCell(i, j).text
                 });
             }

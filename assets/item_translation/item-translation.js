@@ -15,6 +15,8 @@ class TranslateDescription {
         let replacement;
         let missing = [];
 
+        debugger
+
         for (let i = 0; i < descriptions.length; i++) {
             // 1. loop through all phrases (a phrase in this case is the string between commas)
             if (!hasNumber.test(descriptions[i])) {

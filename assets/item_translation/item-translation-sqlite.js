@@ -18,7 +18,7 @@ class TranslationDatabase {
         const createTranslationTable = this.db.prepare(
             `CREATE TABLE translations(
             translate_id INTEGER PRIMARY KEY,
-            english TEXT NOT NULL,
+            english TEXT NOT NULL COLLATE NOCASE,
             lang_code TEXT NOT NULL,
             translation TEXT NOT NULL,
             UNIQUE(english, lang_code)
@@ -34,13 +34,14 @@ class TranslationDatabase {
             for (const translation of data) insert.run(translation);
         });
         insertMany(data);
-        return 'complete';
+        postMessage(['result', 'complete']);
     }
 
     // get translation of a word in the requested language
     getTranslation(lang_code, word) {
+        debugger
         const sql = this.db.prepare('SELECT * FROM translations WHERE lang_code = @lang_code AND english = @word');
-        const result = sql.all({lang_code: lang_code, word: word});
+        const result = sql.all({lang_code: lang_code.toUpperCase(), word: word});
         if (result.length === 1) {
             return result[0].translation;
         } else {
