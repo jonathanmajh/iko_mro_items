@@ -30,7 +30,7 @@
     "exceljs": "^4.3.0",
     "lodash.intersection": "^4.4.0",
     "luxon": "^2.1.1",
-    "npm-check-updates": "^11.8.5"
+    "npm-check-updates": "^12.5.3"
   },
   "config": {
     "forge": {
