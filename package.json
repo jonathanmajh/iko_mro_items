@@ -18,19 +18,19 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@electron-forge/cli": "^6.0.0-beta.61",
-    "@electron-forge/maker-squirrel": "^6.0.0-beta.61",
-    "@electron-forge/maker-zip": "^6.0.0-beta.61",
-    "@electron-forge/publisher-github": "^6.0.0-beta.61",
+    "@electron-forge/cli": "^6.0.0-beta.63",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.63",
+    "@electron-forge/maker-zip": "^6.0.0-beta.63",
+    "@electron-forge/publisher-github": "^6.0.0-beta.63",
     "electron": "^13.6.3"
   },
   "dependencies": {
-    "better-sqlite3": "^7.4.5",
+    "better-sqlite3": "^7.5.0",
     "electron-squirrel-startup": "^1.0.0",
     "exceljs": "^4.3.0",
     "lodash.intersection": "^4.4.0",
-    "luxon": "^2.1.1",
-    "npm-check-updates": "^11.8.5"
+    "luxon": "^2.3.1",
+    "npm-check-updates": "^12.5.3"
   },
   "config": {
     "forge": {
