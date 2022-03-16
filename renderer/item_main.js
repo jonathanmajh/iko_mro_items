@@ -1,5 +1,5 @@
 const { clipboard, ipcRenderer, shell } = require('electron');
-const { dialog } = require('electron').remote;
+// const { dialog } = require('electron').remote;
 const Database = require('../assets/indexDB');
 const Validate = require('../assets/validators');
 
@@ -176,33 +176,34 @@ function openSettings() {
     ipcRenderer.sendSync('openSettings');
 }
 
-function openExcel(mode) {
-    // capitalize columns
-    document.getElementById("input-col").value = document.getElementById("input-col").value.toUpperCase();
-    document.getElementById("output-col").value = document.getElementById("output-col").value.toUpperCase();
+// function openExcel(mode) {
+    //fix
+//     // capitalize columns
+//     document.getElementById("input-col").value = document.getElementById("input-col").value.toUpperCase();
+//     document.getElementById("output-col").value = document.getElementById("output-col").value.toUpperCase();
 
-    dialog.showOpenDialog([], {
-        title: "Select Spreadsheet with Names",
-        filters: [
-            { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb', 'csv'] },
-        ],
-        properties: [
-            'openFile'
-        ]
-    }).then(result => {
-        if (!result.canceled) {
-            const worker = new WorkerHandler();
-            const params = worksheetParams(result.filePaths[0]);
-            if (mode === 1) {
-                worker.work(['interactive', params], interactiveGoNext);
-                document.getElementById("worksheet-path").innerHTML = result.filePaths[0];
-            }
+//     dialog.showOpenDialog([], {
+//         title: "Select Spreadsheet with Names",
+//         filters: [
+//             { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb', 'csv'] },
+//         ],
+//         properties: [
+//             'openFile'
+//         ]
+//     }).then(result => {
+//         if (!result.canceled) {
+//             const worker = new WorkerHandler();
+//             const params = worksheetParams(result.filePaths[0]);
+//             if (mode === 1) {
+//                 worker.work(['interactive', params], interactiveGoNext);
+//                 document.getElementById("worksheet-path").innerHTML = result.filePaths[0];
+//             }
 
-        } else {
-            new Toast('File Picker Cancelled');
-        }
-    });
-}
+//         } else {
+//             new Toast('File Picker Cancelled');
+//         }
+//     });
+// }
 
 function checkAgain() {
     let field = document.getElementById("interact-desc");
@@ -242,24 +243,25 @@ function interactiveShow(result) {
     findRelated(result[0]);
 }
 
-function validBatch() {
-    dialog.showOpenDialog([], {
-        title: "Select Spreadsheet with Names",
-        filters: [
-            { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb', 'csv'] },
-        ],
-        properties: [
-            'openFile'
-        ]
-    }).then(result => {
-        if (!result.canceled) {
-            const worker = new WorkerHandler();
-            worker.work(['validBatch', result.filePaths], validBatchCB);
-        } else {
-            new Toast('File Picker Cancelled');
-        }
-    });
-}
+// function validBatch() {
+    //fix
+//     dialog.showOpenDialog([], {
+//         title: "Select Spreadsheet with Names",
+//         filters: [
+//             { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb', 'csv'] },
+//         ],
+//         properties: [
+//             'openFile'
+//         ]
+//     }).then(result => {
+//         if (!result.canceled) {
+//             const worker = new WorkerHandler();
+//             worker.work(['validBatch', result.filePaths], validBatchCB);
+//         } else {
+//             new Toast('File Picker Cancelled');
+//         }
+//     });
+// }
 
 function validBatchCB(data) {
     new Toast(`Batch Validation Finished!`);
