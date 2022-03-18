@@ -28,7 +28,7 @@
     "better-sqlite3": "^7.5.0",
     "electron-squirrel-startup": "^1.0.0",
     "exceljs": "^4.3.0",
-    "lodash.intersection": "^4.4.0",
+    "lodash": "^4.17.0",
     "luxon": "^2.3.1"
   },
   "config": {

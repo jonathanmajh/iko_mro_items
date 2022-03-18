@@ -3,7 +3,7 @@ const { SqliteError } = require('better-sqlite3');
 const ExcelReader = require('./spreadsheet');
 const path = require('path');
 const utils = require('../assets/utils');
-const intersection = require('lodash.intersection');
+const intersection = require('lodash/intersection');
 //https://lodash.com/docs/4.17.15#intersection
 // fast library for intersection of arrays
 

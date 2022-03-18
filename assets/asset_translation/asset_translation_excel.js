@@ -1,5 +1,4 @@
 const Exceljs = require('exceljs');
-const { isNull } = require('lodash');
 
 class AssetExcel {
     constructor(filePath) {
@@ -11,7 +10,7 @@ class AssetExcel {
         await wb.xlsx.readFile(this.filePath);
         const ws = wb.getWorksheet(lang_code.toUpperCase()); //alternatively (fetch by ID): getWorksheet(1); 
         const lastRow = ws.lastRow.number; //last cell row in range 
-        const data = {}
+        const data = {};
         for (let i = 2; i <= lastRow; i++) {
             try {
                 if (ws.getCell(`A${i}`).text) {
@@ -20,14 +19,14 @@ class AssetExcel {
                         siteid: ws.getCell(`C${i}`).text,
                         assetid: ws.getCell(`D${i}`).text,
                         description: ws.getCell(`A${i}`).text
-                    }
+                    };
                 }
             } catch (error) {
                 console.log(error);
                 console.log(`row number: ${i}`);
             }
         }
-        return data
+        return data;
     }
 
     async getDescriptors() {
