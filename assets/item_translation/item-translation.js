@@ -1,8 +1,7 @@
 const TransDB = require('./item-translation-sqlite');
 
-//TODO consider doing a cache dictionary before hitting DB
 class TranslateDescription {
-    contextTranslate(description, lang_code) {
+    contextTranslate(description, lang_code, result) {
         // translations item description into requested language
         // accounts for context of parent words
         let descriptions = description.split(',');
@@ -15,22 +14,23 @@ class TranslateDescription {
         let replacement;
         let missing = [];
 
-        debugger
-
         for (let i = 0; i < descriptions.length; i++) {
             // 1. loop through all phrases (a phrase in this case is the string between commas)
             if (!hasNumber.test(descriptions[i])) {
                 // if the phrase does not have any numbers try to translate the whole phrase
-                for (let j = descriptions.length; j > i; i++) {
+                for (let j = descriptions.length; j > i; j--) {
                     replacement = db.getTranslation(lang_code, descriptions.slice(i,j).join(','));
                     if (replacement) {
+                        postMessage(['debug', `${descriptions.slice(i,j)} translated to ${replacement}`]);
                         transDesc.push(replacement);
-                        i = j;
+                        i = j - 1;
+                        break;
                     } else if (descriptions.slice(i,j).length > 1) {
-                        postMessage(['info', `${descriptions.slice(i,j).join(',')} has no translation to ${lang_code}`]);
+                        postMessage(['debug', `${descriptions.slice(i,j).join(',')} has no translation to ${lang_code}`]);
                     } else {
-                        postMessage(['warning', `${descriptions.slice(i,j)} has no translation to ${lang_code}`]);
+                        postMessage(['debug', `${descriptions.slice(i,j)} has no translation to ${lang_code}`]);
                         transDesc.push(descriptions.slice(i,j));
+                        missing.push(descriptions[i]);
                     }
                 }
                 
@@ -42,12 +42,13 @@ class TranslateDescription {
                     for (let j = 0; j < temp.length; j++) {
                         if (!hasNumber.test(temp[j])) {
                             // if the word has no numbers translate it
-                            replacement = db.getTranslation(params.lang, temp[j]);
+                            replacement = db.getTranslation(lang_code, temp[j]);
                             if (replacement) {
                                 tempNew.push(replacement);
                             } else if (temp[j].length > 0) {
                                 tempNew.push(temp[j]);
-                                postMessage(['warning', `${temp[j]} has no translation to ${lang_code}`]);
+                                missing.push(temp[j]);
+                                postMessage(['debug', `${temp[j]} has no translation to ${lang_code}`]);
                             }
                         } else {
                             // if it has numbers just leave it as it
@@ -62,7 +63,14 @@ class TranslateDescription {
             }
         }
         // join the phrases back into a description
-        postMessage(['result', transDesc.join(",")]);
+        if (result == 'post') {
+            postMessage(['result', transDesc.join(","), missing]);
+        } else if (result == 'return') {
+            return {description: transDesc.join(","), missing: missing};
+        } else {
+            console.log('no return specified')
+            postMessage(['error', 'no return specified']);
+        }
     }
 
     translate(params) {

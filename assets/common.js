@@ -6,16 +6,16 @@ class WorkerHandler {
         worker.onmessage = (e) => {
             let log = new Logging();
             if (e.data[0] === 'result') {
-                worker.terminate()
+                worker.terminate();
                 callback(e.data.slice(1,));
             } else if (e.data[0] === 'error') {
                 new Toast(e.data[1], 'bg-danger');
-                let bar = new ProgressBar;
+                let bar = new ProgressBar();
                 bar.update(100, e.data[1]);
                 log.error(e.data[1]);
-                worker.terminate()
+                worker.terminate();
             } else if (e.data[0] === 'progress') {
-                let bar = new ProgressBar;
+                let bar = new ProgressBar();
                 log.info(e.data[2]);
                 bar.update(e.data[1], e.data[2]);
             } else if (e.data[0] === 'warning') {
@@ -30,13 +30,13 @@ class WorkerHandler {
                 console.log('unimplemented worker message');
                 console.log(e.data);
             }
-        }
+        };
     }
 }
 
 class Logging {
     constructor() {
-        this.logTable = document.getElementById("logs-table")
+        this.logTable = document.getElementById("logs-table");
     }
 
     warning(msg) {
@@ -90,14 +90,14 @@ class ProgressBar {
     }
 
     addProgressBar(percent, message = null) {
-        this.update(percent + this.currentProgress, message)
+        this.update(percent + this.currentProgress, message);
     }
 
     getProgress() {
         return {
             'percent': this.currentProgress,
             'message': this.progressText.innerText
-        }
+        };
     }
 }
 
@@ -116,17 +116,17 @@ class Toast {
         bsToast.show();
         toast.addEventListener('hidden.bs.toast', (e) => {
             e.target.remove();
-        })
+        });
     }
 }
 
 function toTop() {
-    let element = document.getElementsByClassName("flex-shrink-0")
+    let element = document.getElementsByClassName("flex-shrink-0");
     element[0].scrollTop = 0; // For Chrome, Firefox, IE and Opera
 }
 
 function toEnd() {
-    let element = document.getElementsByClassName("flex-shrink-0")
+    let element = document.getElementsByClassName("flex-shrink-0");
     element[0].scrollTop = element[0].scrollHeight; // For Chrome, Firefox, IE and Opera
 }
 

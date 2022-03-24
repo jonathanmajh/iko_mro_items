@@ -10,6 +10,7 @@ class TranslationDatabase {
     // save updated translation information
     refreshData(data) {
         // {english:string, lang_code:string, translation:string}
+        // need to check for duplicate english since that is not allowed
         const dropTables = this.db.prepare('DROP TABLE IF EXISTS translations');
         const runQuery2 = this.db.transaction(() => {
             dropTables.run();
@@ -39,7 +40,6 @@ class TranslationDatabase {
 
     // get translation of a word in the requested language
     getTranslation(lang_code, word) {
-        debugger
         const sql = this.db.prepare('SELECT * FROM translations WHERE lang_code = @lang_code AND english = @word');
         const result = sql.all({lang_code: lang_code.toUpperCase(), word: word});
         if (result.length === 1) {

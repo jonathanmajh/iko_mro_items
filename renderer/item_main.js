@@ -12,7 +12,7 @@ document.getElementById("valid-file").addEventListener("click", openFile);
 document.getElementById("settings").addEventListener("click", openSettings);
 document.getElementById("topButton").addEventListener("click", toTop);
 document.getElementById("endButton").addEventListener("click", toEnd);
-document.getElementById("interactive").addEventListener("click", () => { openExcel(1); });
+document.getElementById("interactive").addEventListener("click", openExcel);
 
 document.getElementById("recheck-desc").addEventListener("click", checkAgain);
 document.getElementById("save-desc").addEventListener("click", writeDescription);
@@ -82,8 +82,8 @@ function openBrowserLink(info) {
     if (document.getElementById("gl-class").value.length > 0) {
         url = `${url}|EXTERNALREFID=${document.getElementById("gl-class").value}`;
     }
-    document.getElementById("popupAlertBody").innerHTML = 
-    `${document.getElementById("popupAlertBody").innerHTML}\n
+    document.getElementById("popupAlertBody").innerHTML =
+        `${document.getElementById("popupAlertBody").innerHTML}\n
     <p>Link Ready: <a id="maximo-link" href="${url}">Create Item In Maximo</a></p>\n
     <p>Remember to replace (&amp;quot;) in the description with (")</p>\n
     <p>This is a limitation of the current method</p>`;
@@ -131,6 +131,10 @@ function worksheetParams(path = false) {
         outUOM: "T", // uom out
         outQuestion: "U", // questions out
         outRow: 0,
+        outItemNum: "V",
+        outItemDesc: "W",
+        outTranslate: "Z",
+        outMissing: "AA",
     };
     if (path) {
         params.filePath = path;
@@ -144,7 +148,7 @@ function writeAssetNum() {
     let num = document.getElementById("interact-num").value;
     if (num.length > 0) {
         let bar = new ProgressBar();
-        bar.update(0, 'Writing asset number to file');
+        bar.update(0, 'Writing item number to file');
         let path = document.getElementById("worksheet-path").innerHTML;
         let wsName = document.getElementById("ws-name").value;
         let rowNum = document.getElementById("current-row").innerHTML;
@@ -154,7 +158,6 @@ function writeAssetNum() {
     } else {
         new Toast('Please enter a valid item number');
     }
-
 }
 
 function writeComplete() {
@@ -176,37 +179,24 @@ function openSettings() {
     ipcRenderer.sendSync('openSettings');
 }
 
-// function openExcel(mode) {
-    //fix
-//     // capitalize columns
-//     document.getElementById("input-col").value = document.getElementById("input-col").value.toUpperCase();
-//     document.getElementById("output-col").value = document.getElementById("output-col").value.toUpperCase();
+function openExcel() {
+    document.getElementById("input-col").value = document.getElementById("input-col").value.toUpperCase();
+    document.getElementById("output-col").value = document.getElementById("output-col").value.toUpperCase();
 
-//     dialog.showOpenDialog([], {
-//         title: "Select Spreadsheet with Names",
-//         filters: [
-//             { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb', 'csv'] },
-//         ],
-//         properties: [
-//             'openFile'
-//         ]
-//     }).then(result => {
-//         if (!result.canceled) {
-//             const worker = new WorkerHandler();
-//             const params = worksheetParams(result.filePaths[0]);
-//             if (mode === 1) {
-//                 worker.work(['interactive', params], interactiveGoNext);
-//                 document.getElementById("worksheet-path").innerHTML = result.filePaths[0];
-//             }
-
-//         } else {
-//             new Toast('File Picker Cancelled');
-//         }
-//     });
-// }
+    ipcRenderer.invoke('select-to-be-translated', 'finished').then((result) => {
+        if (!result.canceled) {
+            const worker = new WorkerHandler();
+            const params = worksheetParams(result.filePaths[0]);
+            worker.work(['interactive', params], interactiveGoNext);
+            document.getElementById("worksheet-path").innerHTML = result.filePaths[0];
+        } else {
+            new Toast('File Picker Cancelled');
+        }
+    });
+}
 
 function checkAgain() {
-    let field = document.getElementById("interact-desc");
+    let field = document.getElementById("maximo-desc");
     const worker = new WorkerHandler();
     worker.work(['validSingle', field.value], interactiveShow);
 }
@@ -216,19 +206,37 @@ function skipRow() {
     interactiveGoNext(Number(row) + 1);
 }
 
-async function interactiveGoNext(row) {
+function interactiveGoNext(row) {
     if (!Number.isInteger(row)) {
         row = row[0];
     }
     const db = new Database();
-    let description = await db.getDescription(row);
-    let rowNum = document.getElementById("current-row");
-    rowNum.innerHTML = row;
+    let description = db.getDescription(row);
+    document.getElementById("current-row").innerHTML = row;
+    const interactive = document.getElementById("modeSelect").checked;
     if (description) {
         const worker = new WorkerHandler();
-        worker.work(['validSingle', description.description], interactiveShow);
+        if (interactive) {
+            worker.work(['validSingle', description.description], interactiveShow);
+        } else {
+            const related = document.getElementById("relatedSelect").checked;
+            const translate = document.getElementById("translateSelect").checked;
+            const params = worksheetParams(document.getElementById("worksheet-path").innerHTML);
+            worker.work([
+                'nonInteractive',
+                [
+                    related, 
+                    translate, 
+                    description.description, 
+                    document.getElementById('selected-language').value,
+                    params,
+                    row
+                ]], 
+                interactiveGoNext);
+        }
+
     } else {
-        let field = document.getElementById("interact-desc");
+        let field = document.getElementById("maximo-desc");
         field.placeholder = "Row is blank, press skip row to go next";
         field.value = "";
         let bar = new ProgressBar();
@@ -240,33 +248,7 @@ function interactiveShow(result) {
     let field = document.getElementById("maximo-desc");
     field.value = result[0][3];
     field.placeholder = "";
-    findRelated(result[0]);
-}
-
-// function validBatch() {
-    //fix
-//     dialog.showOpenDialog([], {
-//         title: "Select Spreadsheet with Names",
-//         filters: [
-//             { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb', 'csv'] },
-//         ],
-//         properties: [
-//             'openFile'
-//         ]
-//     }).then(result => {
-//         if (!result.canceled) {
-//             const worker = new WorkerHandler();
-//             worker.work(['validBatch', result.filePaths], validBatchCB);
-//         } else {
-//             new Toast('File Picker Cancelled');
-//         }
-//     });
-// }
-
-function validBatchCB(data) {
-    new Toast(`Batch Validation Finished!`);
-    const fileLink = document.getElementById('valid-file');
-    fileLink.innerText = data[0];
+    calcConfidence(result[0][3]);
 }
 
 
@@ -318,21 +300,22 @@ function translationDescription(description) {
     }
     const worker = new WorkerHandler();
     if (document.getElementById('result-triple-ext1').innerHTML) {
-        let description = `${document.getElementById('result-triple-main').innerHTML},${document.getElementById('result-triple-ext1').innerHTML}`;
+        description = `${document.getElementById('result-triple-main').innerHTML},${document.getElementById('result-triple-ext1').innerHTML}`;
     } else {
-        let description = document.getElementById('result-triple-main').innerHTML;
+        description = document.getElementById('result-triple-main').innerHTML;
     }
 
     worker.work([
         'translateItem',
         description,
-        document.getElementById('selected-language').value
+        document.getElementById('selected-language').value,
+        'post'
     ], displayTranslation);
 }
 
 function displayTranslation(data) {
-    //TODO
-    console.log(data);
+    document.getElementById('trans-desc').innerText = data[0];
+    document.getElementById('translation-description').innerText = `The following words do not have a translation:\n${data[1]}\nPlease check logs at bottom of page for details`;
 }
 
 function calcConfidence(data) {
@@ -415,6 +398,8 @@ async function showRelated(result) {
         maximumFractionDigits: 0
     };
     const formatter = new Intl.NumberFormat("en-US", option);
+    // technically this is bad practise since object order might not be guarenteed 
+    // https://stackoverflow.com/questions/983267/how-to-access-the-first-property-of-a-javascript-object
     for (let [key, value] of Object.entries(scores)) {
         let color = '';
         for (let item of value) {

@@ -38,7 +38,7 @@ onmessage = function (e) {
         postMessage(['result', 'done']);
     } else if (e.data[0] === 'findRelated') {
         const maximo = new Database();
-        maximo.findRelated(e.data[1]);
+        maximo.findRelated(e.data[1], true);
     } else if (e.data[0] === 'interactive') {
         interactive(e);
     } else if (e.data[0] === 'writeDesc') {
@@ -59,6 +59,8 @@ onmessage = function (e) {
         refreshTranslations(e.data[1]);
     } else if (e.data[0] === 'batchTranslate') {
         batchTranslate(e.data[1]);
+    } else if (e.data[0] === 'nonInteractive') {
+        nonInteractiveSave(e.data[1]);
     } else if (e.data[0] === 'loadItem') {
         const maximo = new Database();
         maximo.loadItem(e.data[1]);
@@ -70,13 +72,35 @@ onmessage = function (e) {
         maximo.getNextItemNumber();
     } else if (e.data[0] === 'translateItem') {
         const trans = new Translation();
-        result = trans.contextTranslate(e.data[1], e.data[2]);
+        result = trans.contextTranslate(e.data[1], e.data[2], e.data[3]);
     } else {
         console.log('unimplimented work');
     }
 };
 
+async function nonInteractiveSave(params) {
+    if (params[0]) { // find related
+        const maximo = new Database();
+        let related = maximo.findRelated(params[2], false);
+        params[0] = related[0][Object.keys(related[0])[0]][0]; // gets first element in related object scores
+        // technically this is bad practise since object order might not be guarenteed 
+        // https://stackoverflow.com/questions/983267/how-to-access-the-first-property-of-a-javascript-object
+    }
+    if (params[1]) { // translate
+        const trans = new Translation();
+        params[1] = trans.contextTranslate(params[2], params[3], 'return');
+    }
+    const db = new Database();
+    db.saveDescriptionAnalysis({related: params[0], translate: params[1]}, params[5]);
+    // number of rows should be shown and that should be used to determine when to save / finsih
+    // also need stop / cancel button
+    // const excel = new ExcelReader(params[4].filePath);
+    // let result = await excel.saveNonInteractive(params);
+    postMessage(['result', params[5] + 1]);
 
+}
+
+//working
 async function batchTranslate(params) {
     // translate description in file to all available languagues
     const excel = new Spreadsheet(params.filePath);

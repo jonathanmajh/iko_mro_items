@@ -135,10 +135,10 @@ class ExcelReader {
         worksheet.getCell(`${parmas[0].outDesc[2]}${parmas[0].outRow}`).value = parmas[1][1];
         worksheet.getCell(`${parmas[0].outDesc[3]}${parmas[0].outRow}`).value = parmas[1][2];
         worksheet.getCell(`${parmas[0].outDesc[0]}${parmas[0].outRow}`).value = parmas[1][3];
-        return await this.saveWorkbook(workbook, this.filePath);
+        await this.saveWorkbook(workbook, this.filePath);
     }
 
-    // TODO
+    // TODO switch to new library
     async saveNumber(parmas) {
         let workbook = xlsx.readFile(this.filePath, { cellStyles: true, bookVBA: true });
         let worksheet = workbook.Sheets[parmas[1]];
@@ -148,19 +148,24 @@ class ExcelReader {
         return await this.saveWorkbook(workbook, savePath);
     }
 
+    async saveNonInteractive(parmas) {
+        // convert to batch mode, individually it is too slow
+        let workbook = new Exceljs.Workbook();
+        await workbook.xlsx.readFile(this.filePath);
+        let worksheet = workbook.getWorksheet(parmas[4].wsName);
+        worksheet.getCell(`${parmas[4].outItemNum}${parmas[5]}`).value = parmas[0]; // itemnum
+        worksheet.getCell(`${parmas[4].outItemDesc}${parmas[5]}`).value = parmas[2]; // en description
+        worksheet.getCell(`${parmas[4].outTranslate}${parmas[5]}`).value = parmas[1].description; // translated description
+        worksheet.getCell(`${parmas[4].outMissing}${parmas[5]}`).value = parmas[1].missing.join(`\r\n`); // missing translations windows wants \r\n instead of just \n
+        return await this.saveWorkbook(workbook, this.filePath);
+    }
+
     async saveWorkbook(workbook, savePath) {
         try {
-            workbook.xlsx.writeFile(savePath);
+            await workbook.xlsx.writeFile(savePath);
         } catch (error) {
             console.log(error);
-            fs.unlink(savePath, (err) => {
-                if (err) {
-                    console.log(err);
-                    postMessage([`error`, `Cannot edit old file make sure it is closed`]);
-                } else {
-                    workbook.xlsx.writeFile(savePath);
-                }
-            });
+            postMessage([`error`, `Cannot edit old file make sure it is closed`]);
         }
         return savePath;
     }

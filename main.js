@@ -9,7 +9,7 @@ if (require('electron-squirrel-startup')) {
 }
 
 ipcMain.on('openSettings', (event, arg) => {
-  const settingWindow = new BrowserWindow({
+  let settingWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
@@ -31,7 +31,7 @@ ipcMain.on('getVersion', (event, arg) => {
 
 ipcMain.handle('select-to-be-translated', async (event, arg) => {
   let result = await dialog.showOpenDialog(mainWindow, {
-    title: "Select List of Job Plan & PMs Spreadsheet",
+    title: "Select Spreadsheet",
     filters: [
       { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb'] },
     ],

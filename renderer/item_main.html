@@ -13,9 +13,8 @@
     <script src="bootstrap.bundle.min.js"></script>
     <script src="../assets/common.js"></script>
   </head>
-    
-  <body class="d-flex flex-column h-100">
 
+  <body class="d-flex flex-column h-100">
     <div class="modal fade" id="popupAlert" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -23,9 +22,7 @@
             <h5 class="modal-title" id="popupAlertTitle">Loading...</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
-          <div class="modal-body" id="popupAlertBody">
-            Loading...
-          </div>
+          <div class="modal-body" id="popupAlertBody">Loading...</div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           </div>
@@ -163,7 +160,13 @@
                 <th>Validation Notes</th>
                 <td id="valid-description" colspan="3"></td>
                 <td>
-                  <i id="open-in-browser" class="material-icons pointer" data-bs-toggle="modal" data-bs-target="#popupAlert">ios_share</i>
+                  <i
+                    id="open-in-browser"
+                    class="material-icons pointer"
+                    data-bs-toggle="modal"
+                    data-bs-target="#popupAlert"
+                    >ios_share</i
+                  >
                 </td>
               </tr>
               <tr>
@@ -172,12 +175,12 @@
                 <td><i class="material-icons pointer">content_copy</i></td>
               </tr>
               <tr id="translation-notes">
-                <th>Translation Notes</th>
+                <th></th>
                 <td id="translation-description" colspan="3"></td>
                 <td></td>
               </tr>
             </tbody>
-          </table> 
+          </table>
         </div>
 
         <div class="row">
@@ -207,16 +210,16 @@
               </div>
               <div class="col">
                 <button id="save-desc" title="Save the description as a new item">
-                  Save Description
+                  Save New Item
                 </button>
               </div>
               <div class="col">
                 <button id="save-num" title="Assign existing item number to this item">
-                  Save Item Number
+                  Assign Existing Number
                 </button>
               </div>
               <div class="col">
-                <button id="skip-row" title="Skip this row and read the next row">Skip Row</button>
+                <button id="skip-row" title="Skip this row and read the next row">Next Row</button>
               </div>
             </div>
           </div>
@@ -237,22 +240,19 @@
                   id="ws-name"
                   name="ws-name"
                   title="Name of the Worksheet: Case Sensitive!"
-                  placeholder="Sheet3"
+                  placeholder="Sheet1"
                 />
               </div>
-            </div>
-            <div class="row">
-              <!-- TODO tooltips for help text -->
               <div class="col">
-                <label for="input-col">Columns to Concatenate For Input:</label>
+                <label for="input-col">Columns For Input:</label>
               </div>
               <div class="col">
                 <input
                   type="text"
                   id="input-col"
                   name="input-col"
-                  title="These columns will be combined to form a description"
-                  placeholder="a,b,c,d,e"
+                  title="These columns will be combined to form a description / search text"
+                  placeholder="b,c"
                 />
               </div>
             </div>
@@ -266,26 +266,83 @@
                   id="start-row"
                   name="start-row"
                   title="Which row to start processing from"
-                  placeholder="20"
+                  placeholder="2"
                 />
+              </div>
+              <div class="col">
+                <!-- placeholder -->
+              </div>
+              <div class="col">
+                <!-- placeholder -->
               </div>
             </div>
             <div class="row">
               <div class="col">
-                <label for="output-col">Columns For Output:</label>
+                <label for="output-col">Output: Item Number:</label>
               </div>
               <div class="col">
                 <input
                   type="text"
                   id="output-col"
                   name="output-col"
-                  title="These columns will be populated with data: Item Number, Combined Description, Triple Description"
-                  placeholder="v,w,x,y,z"
+                  title="This column will be populated with: Item Number"
+                  placeholder="v"
+                />
+              </div>
+              <div class="col">
+                <label for="output-col-desc">Output: Item Description:</label>
+              </div>
+              <div class="col">
+                <input
+                  type="text"
+                  id="output-col-desc"
+                  name="output-col-desc"
+                  title="These columns will be populated with: Description1, Description2, Manufacturer"
+                  placeholder="w,x,y"
                 />
               </div>
             </div>
 
             <div class="row">
+              <div class="col">
+                <label for="output-col-translation">Output: Translated Description:</label>
+              </div>
+              <div class="col">
+                <input
+                  type="text"
+                  id="output-col-translation"
+                  name="output-col-translation"
+                  title="This column will be populated with Translated Description in Selected Language"
+                  placeholder="z"
+                />
+              </div>
+              <div class="col">
+                <label for="output-col-missing">Output: Missing Translation:</label>
+              </div>
+              <div class="col">
+                <input
+                  type="text"
+                  id="output-col-missing"
+                  name="output-col-missing"
+                  title="This columns will be populated with words missing from translation table"
+                  placeholder="aa"
+                />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="modeSelect" checked />
+                <label class="form-check-label" for="modeSelect">Interactive?</label>
+              </div>
+              <div class="col form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="translateSelect" checked />
+                <label class="form-check-label" for="translateSelect">Translate?</label>
+              </div>
+              <div class="col form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="relatedSelect" checked />
+                <label class="form-check-label" for="relatedSelect">Find Related?</label>
+              </div>
               <div class="col">
                 <button id="interactive">Load Spreadsheet</button>
               </div>
@@ -338,7 +395,7 @@
 
     <!-- notification thingy thats pops up and auto disappears -->
     <div class="toast-container position-absolute p-3 top-0 end-0" id="toastPlacement"></div>
-    
+
     <!-- goto top / bottom buttons -->
     <button id="topButton" title="Go to top">Top</button>
     <button id="endButton" title="Go to end">End</button>

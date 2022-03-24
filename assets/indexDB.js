@@ -40,6 +40,7 @@ class Database {
         const createTable3 = this.db.prepare(`CREATE TABLE workingDescription (
             row INTEGER NOT NULL,
             description TEXT NOT NULL COLLATE NOCASE,
+            analysis TEXT,
             orgid TEXT COLLATE NOCASE
         )`);
         const createTable4 = this.db.prepare(`CREATE TABLE itemCache (
@@ -227,6 +228,11 @@ class Database {
         return true;
     }
 
+    saveDescriptionAnalysis(data, row) {
+        let stmt = this.db.prepare('UPDATE workingDescription SET analysis = ? WHERE row = ?');
+        stmt.run(JSON.stringify(data), row);
+    }
+
     getDescription(row) {
         let result = this.db.prepare(`SELECT * from workingDescription where row = '${row}'`);
         return result.get();
@@ -242,8 +248,7 @@ class Database {
         }
     }
 
-
-    findRelated(data) {
+    findRelated(data, postmessage) {
         let itemDict = {};
         for (const char of utils.STRINGCLEANUP) {
             data = data.replaceAll(char, ',');
@@ -269,7 +274,11 @@ class Database {
                 });
                 intersections.push([holder.length, intersection(...holder)]);
             }
-            postMessage(['result', matchAndScore(intersections), itemDict, data]);
+            if (postmessage) {
+                postMessage(['result', matchAndScore(intersections), itemDict, data]);
+            } else {
+                return [matchAndScore(intersections), itemDict, data];
+            }
         } else {
             postMessage(['warning', 'No related items returned from Maximo']);
             postMessage(['result', false]);
