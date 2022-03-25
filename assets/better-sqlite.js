@@ -1,4 +1,4 @@
-const sql = require('better-sqlite3')
+const sql = require('better-sqlite3');
 
 class ObservationDatabase {
     constructor() {
@@ -8,12 +8,12 @@ class ObservationDatabase {
     createTables() {
         const dropTables = this.db.prepare('DROP TABLE IF EXISTS meters');
         const dropTables2 = this.db.prepare('DROP TABLE IF EXISTS observations');
-        const dropTables3 = this.db.prepare('DROP TABLE IF EXISTS jobtasks')
+        const dropTables3 = this.db.prepare('DROP TABLE IF EXISTS jobtasks');
         const runQuery2 = this.db.transaction(() => {
             dropTables.run();
             dropTables2.run();
             dropTables3.run();
-        })
+        });
         runQuery2();
         const createMeterTable = this.db.prepare(`CREATE TABLE meters(
             meter_id INTEGER PRIMARY KEY,
@@ -43,17 +43,17 @@ class ObservationDatabase {
             desc TEXT,
             ext_desc TEXT,
             status INT DEFAULT 0
-        )`) // 0 = no longer defined, 1 = no change, 2 = need to update
+        )`); // 0 = no longer defined, 1 = no change, 2 = need to update
         const runQuery = this.db.transaction(() => {
             createMeterTable.run();
             createObservationTable.run();
             createJobTaskTable.run();
-        })
+        });
         runQuery();
     }
 
     close() {
-        this.db.close()
+        this.db.close();
     }
 
     saveJobTasks(data) {
@@ -62,7 +62,7 @@ class ObservationDatabase {
             VALUES (@jpnum, @metername, @orgid, @siteid, @jptask, @desc, @ext_desc)`);
         const insertMany = this.db.transaction((data) => {
             for (const jobtask of data) insert.run(jobtask);
-        })
+        });
 
         insertMany(data);
     }
@@ -74,10 +74,10 @@ class ObservationDatabase {
 
         const insertMany = this.db.transaction((data) => {
             for (const meter of data) {
-                meter.ext_desc = `<div>${meter.ext_desc.replaceAll('\n', '</div>\n<div>')}</div>`
-                insert.run(meter)
+                meter.ext_desc = `<div>${meter.ext_desc.replaceAll('\n', '</div>\n<div>')}</div>`;
+                insert.run(meter);
             }
-        })
+        });
 
         insertMany(data);
     }
@@ -89,7 +89,7 @@ class ObservationDatabase {
 
         const insertMany = this.db.transaction((data) => {
             for (const meter of data) insert.run(meter);
-        })
+        });
 
         insertMany(data);
     }
@@ -101,16 +101,16 @@ class ObservationDatabase {
         const meter = stmt.all(list_id);
         if (meter.length === 1) {
             if (meter[0].inspect == inspect) {
-                stmt = this.db.prepare(`UPDATE meters SET in_maximo = ${maximo_table} WHERE list_id = ?`)
-                stmt.run(list_id)
-                return true
+                stmt = this.db.prepare(`UPDATE meters SET in_maximo = ${maximo_table} WHERE list_id = ?`);
+                stmt.run(list_id);
+                return true;
             } else {
                 postMessage(['debug', `Update Meter: "${list_id}" changed New: "${meter[0].inspect}" Old: "${inspect}"`]);
-                return true
+                return true;
             }
         } else {
             postMessage(['debug', `Old Meter: ${list_id}: ${inspect} can be removed`]);
-            return false
+            return false;
         }
     }
 
@@ -124,11 +124,11 @@ class ObservationDatabase {
             if (oldJobTasks.length != 0) {
                 for (const oldJobTask of oldJobTasks) {
                     if (oldJobTask.desc == newJobTask.desc && oldJobTask.ext_desc == newJobTask.ext_desc) {
-                        updatestmt = this.db.prepare(`UPDATE jobtasks SET status = 1 WHERE row_id = ?`)
-                        updatestmt.run(oldJobTask.row_id)
+                        updatestmt = this.db.prepare(`UPDATE jobtasks SET status = 1 WHERE row_id = ?`);
+                        updatestmt.run(oldJobTask.row_id);
                     } else {
-                        updatestmt = this.db.prepare(`UPDATE jobtasks SET status = 2 WHERE row_id = ?`)
-                        updatestmt.run(oldJobTask.row_id)
+                        updatestmt = this.db.prepare(`UPDATE jobtasks SET status = 2 WHERE row_id = ?`);
+                        updatestmt.run(oldJobTask.row_id);
                     }
                 }
             } else {
@@ -144,34 +144,34 @@ class ObservationDatabase {
         if (observ.length === 1) {
             if (observ[0].observation == observation) {
                 stmt = this.db.prepare('UPDATE observations SET in_maximo = 1 WHERE search_str = ?');
-                stmt.run(search)
-                return true
+                stmt.run(search);
+                return true;
             } else {
                 postMessage(['debug', `Update Observation: "${search}" changed New: "${observ[0].observation}" Old: "${observation}"`]);
-                return true
+                return true;
             }
         } else {
             postMessage(['debug', `Old Observation: ${search}: ${observation} can be removed`]);
-            return false
+            return false;
         }
     }
 
     getNewDomainDefinitions() {
         const stmt = this.db.prepare('SELECT list_id, inspect FROM meters WHERE in_maximo = 0');
         const meters = stmt.all();
-        return meters
+        return meters;
     }
 
     getNewMaximoMeters() {
         const stmt = this.db.prepare('SELECT list_id, inspect FROM meters WHERE in_maximo = 0 or in_maximo = 1');
         const meters = stmt.all();
-        return meters
+        return meters;
     }
 
     getNewDomainValues() {
         const stmt = this.db.prepare('SELECT meter, id_value, observation FROM observations WHERE in_maximo = 0');
         const observs = stmt.all();
-        return observs
+        return observs;
     }
 
     getJobTasks(status) {
@@ -182,9 +182,9 @@ class ObservationDatabase {
             (select name, desc, ext_desc from meters) as t2
             on substr(t1.metername, 1, length(t1.metername) - 2)=t2.name`);
         const things = stmt.all(status);
-        return things
+        return things;
     }
 
 }
 
-module.exports = ObservationDatabase
+module.exports = ObservationDatabase;

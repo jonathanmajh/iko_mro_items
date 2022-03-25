@@ -68,7 +68,7 @@ class TranslateDescription {
         } else if (result == 'return') {
             return {description: transDesc.join(","), missing: missing};
         } else {
-            console.log('no return specified')
+            console.log('no return specified');
             postMessage(['error', 'no return specified']);
         }
     }

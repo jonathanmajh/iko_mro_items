@@ -12,7 +12,7 @@ const Translation = require('../assets/item_translation/item-translation');
 const fs = require('fs');
 
 onmessage = function (e) {
-    console.log(`recieved message from boss: ${e}`);
+    console.log(`recieved message from boss: ${Date.now()}`);
     if (e.data[0] === 'validSingle') {
         let valid = new Validate();
         valid.validateSingle(e.data[1]).then(
@@ -79,6 +79,8 @@ onmessage = function (e) {
 };
 
 async function nonInteractiveSave(params) {
+    console.log(`nonInteractiveSave start: ${Date.now()}`);
+    let start = Date.now();
     if (params[0]) { // find related
         const maximo = new Database();
         let related = maximo.findRelated(params[2], false);
@@ -86,21 +88,25 @@ async function nonInteractiveSave(params) {
         // technically this is bad practise since object order might not be guarenteed 
         // https://stackoverflow.com/questions/983267/how-to-access-the-first-property-of-a-javascript-object
     }
+    console.log(`related took ${Date.now() - start} ms`);
     if (params[1]) { // translate
         const trans = new Translation();
         params[1] = trans.contextTranslate(params[2], params[3], 'return');
     }
+    console.log(`translation took ${Date.now() - start} ms`);
     const db = new Database();
     db.saveDescriptionAnalysis({related: params[0], translate: params[1]}, params[5]);
     // number of rows should be shown and that should be used to determine when to save / finsih
     // also need stop / cancel button
-    // const excel = new ExcelReader(params[4].filePath);
-    // let result = await excel.saveNonInteractive(params);
-    postMessage(['result', params[5] + 1]);
-
+    console.log(`save to db took ${Date.now() - start} ms`);
+    const excel = new ExcelReader(params[4].filePath);
+    let result = await excel.saveNonInteractive(params);
+    console.log(`loop took ${Date.now() - start} ms`);
+    console.log(`nonInteractiveSave end: ${Date.now()}`);
+    postMessage(['result', Number(params[5]) + 1]);
 }
 
-//working
+//depre
 async function batchTranslate(params) {
     // translate description in file to all available languagues
     const excel = new Spreadsheet(params.filePath);
@@ -132,8 +138,8 @@ async function interactive(e) {
     const excel = new ExcelReader(e.data[1].filePath);
     let data = await excel.getDescriptions(e.data[1]);
     const db = new Database();
-    data = db.saveDescription(data);
-    postMessage(['result', parseInt(e.data[1].startRow)]);
+    let dataSaved = db.saveDescription(data);
+    postMessage(['result', parseInt(e.data[1].startRow), dataSaved, data.length]);
 }
 
 async function writeDesc(e) {

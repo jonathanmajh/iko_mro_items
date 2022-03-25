@@ -1,7 +1,9 @@
 
 class WorkerHandler {
     async work(params, callback) {
+        console.log(`creating worker thread: ${Date.now()}`);
         const worker = new Worker('./worker.js');
+        console.log(`sending data to worker thread: ${Date.now()}`);
         worker.postMessage(params);
         worker.onmessage = (e) => {
             let log = new Logging();

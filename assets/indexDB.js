@@ -220,12 +220,18 @@ class Database {
         stmt = this.db.prepare(`INSERT INTO workingDescription (
             row, description)
             VALUES (@row, @description)`);
+        let count = 0;
         let insertMany = this.db.transaction((dataDB) => {
-            for (const item of dataDB) stmt.run(item);
+            for (const item of dataDB) {
+                if (item.description.length > 0) {
+                    stmt.run(item);
+                    count++;
+                }               
+            }
         });
         insertMany(dataDB);
         console.log('finished adding');
-        return true;
+        return count;
     }
 
     saveDescriptionAnalysis(data, row) {
@@ -234,7 +240,7 @@ class Database {
     }
 
     getDescription(row) {
-        let result = this.db.prepare(`SELECT * from workingDescription where row = '${row}'`);
+        let result = this.db.prepare(`SELECT * FROM workingDescription WHERE row >= '${row}' ORDER BY row ASC LIMIT 1`);
         return result.get();
     }
 

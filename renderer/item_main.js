@@ -19,6 +19,8 @@ document.getElementById("save-desc").addEventListener("click", writeDescription)
 document.getElementById("save-num").addEventListener("click", writeAssetNum);
 document.getElementById("skip-row").addEventListener("click", skipRow);
 document.getElementById("open-in-browser").addEventListener("click", openBrowser);
+document.getElementById("continueAuto").addEventListener("click", continueAuto);
+
 
 // listener for enter key on search field
 document.getElementById("maximo-desc").addEventListener("keyup", function (event) {
@@ -119,22 +121,25 @@ function writeDescription() {
 
 function worksheetParams(path = false) {
     let params = {
-        wsName: "Sheet1", //document.getElementById("ws-name").value, // name of ws
-        inDesc: "B,C,D".split(','), //document.getElementById("input-col").value, // description columns for input
-        startRow: "10", //document.getElementById("start-row").value, // starting row of ws
-        outDesc: "M,N,O,P".split(','), //document.getElementById("output-col").value, // output columns for description (3)
-        inComm: "E", // commodity group in
-        inGL: "F", //gl class in
-        inUOM: "G", // uom in
-        outComm: "R", // commodity group out
-        outGL: "S", // gl class out
-        outUOM: "T", // uom out
-        outQuestion: "U", // questions out
-        outRow: 0,
-        outItemNum: "V",
-        outItemDesc: "W",
-        outTranslate: "Z",
-        outMissing: "AA",
+        // input parameters
+        wsName: document.getElementById("ws-name").value || "Sheet1", // name of ws
+        inDesc: document.getElementById("input-col").value || "B,C".split(','), // description columns for input
+        startRow: document.getElementById("start-row").value || "2",  // starting row of ws
+        // output parameters
+        outComm: document.getElementById("interact-num").value || "G", // commodity group out
+        outGL: document.getElementById("interact-num").value || "H", // gl class out
+        outUOM: document.getElementById("interact-num").value || "I", // uom out
+        outQuestion: document.getElementById("interact-num").value || "L", // questions out
+        outItemNum: document.getElementById("output-col").value || "E",
+        outItemDesc: document.getElementById("output-col-desc").value || "F",
+        outTranslate: document.getElementById("output-col-translation").value || "J",
+        outMissing: document.getElementById("output-col-missing").value || "K",
+        // output data
+        itemNum: document.getElementById("interact-num").value || '999TEST',
+        itemDesc: document.getElementById("maximo-desc").value || "TEST,ITEM,DESCRIPTION",
+        commGroup: document.getElementById("com-group").value || "401", // commodity group in
+        glClass: document.getElementById("gl-class").value || "6200000000000", //gl class in
+        uom: document.getElementById("uom-field").value || "EA", // uom in
     };
     if (path) {
         params.filePath = path;
@@ -164,7 +169,7 @@ function writeComplete() {
     let rowNum = parseInt(document.getElementById("current-row").innerHTML);
     new Toast(`Row ${rowNum} saved!`);
     document.getElementById("interact-num").value = '';
-    interactiveGoNext(rowNum + 1);
+    interactiveGoNext(Number(rowNum) + 1);
 }
 
 function openFile() {
@@ -187,7 +192,7 @@ function openExcel() {
         if (!result.canceled) {
             const worker = new WorkerHandler();
             const params = worksheetParams(result.filePaths[0]);
-            worker.work(['interactive', params], interactiveGoNext);
+            worker.work(['interactive', params], finishLoadingBatch);
             document.getElementById("worksheet-path").innerHTML = result.filePaths[0];
         } else {
             new Toast('File Picker Cancelled');
@@ -206,13 +211,23 @@ function skipRow() {
     interactiveGoNext(Number(row) + 1);
 }
 
+function finishLoadingBatch(params) {
+    document.getElementById("valid-row").innerHTML = params[1];
+    document.getElementById("total-row").innerHTML = params[2];
+    interactiveGoNext(Number(params[0]));
+}
+
+function continueAuto() {
+    document.getElementById("modeSelect").checked = false;
+    interactiveGoNext(Number(document.getElementById("current-row").innerHTML));
+}
+
 function interactiveGoNext(row) {
-    if (!Number.isInteger(row)) {
-        row = row[0];
-    }
+    let start = Date.now();
+    console.log(`interactiveGoNext start: ${Date.now()}`);
     const db = new Database();
     let description = db.getDescription(row);
-    document.getElementById("current-row").innerHTML = row;
+    document.getElementById("current-row").innerHTML = description.row;
     const interactive = document.getElementById("modeSelect").checked;
     if (description) {
         const worker = new WorkerHandler();
@@ -242,6 +257,8 @@ function interactiveGoNext(row) {
         let bar = new ProgressBar();
         bar.update(100, 'Done');
     }
+    console.log(`interactiveGoNext took ${Date.now() - start} ms`);
+    console.log(`interactiveGoNext end: ${Date.now()}`);
 }
 
 function interactiveShow(result) {
