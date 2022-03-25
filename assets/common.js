@@ -1,9 +1,7 @@
 
 class WorkerHandler {
     async work(params, callback) {
-        console.log(`creating worker thread: ${Date.now()}`);
         const worker = new Worker('./worker.js');
-        console.log(`sending data to worker thread: ${Date.now()}`);
         worker.postMessage(params);
         worker.onmessage = (e) => {
             let log = new Logging();
@@ -29,8 +27,7 @@ class WorkerHandler {
             } else if (e.data[0] === 'debug') {
                 log.info(e.data[1]);
             } else {
-                console.log('unimplemented worker message');
-                console.log(e.data);
+                console.log(`Unimplemented worker message ${e.data}`);
             }
         };
     }

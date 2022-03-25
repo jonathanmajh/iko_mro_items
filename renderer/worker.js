@@ -12,12 +12,10 @@ const Translation = require('../assets/item_translation/item-translation');
 const fs = require('fs');
 
 onmessage = function (e) {
-    console.log(`recieved message from boss: ${Date.now()}`);
     if (e.data[0] === 'validSingle') {
         let valid = new Validate();
         valid.validateSingle(e.data[1]).then(
             result => {
-                console.log(`valid.validateSingle: ${result}`);
                 postMessage(['result', result]);
             }
         );
@@ -25,7 +23,6 @@ onmessage = function (e) {
         let valid = new Validate();
         valid.validateBatch(e.data[1]).then(
             result => {
-                console.log(`valid.validateBatch: ${result}`);
                 postMessage(['result', result]);
             }
         );
@@ -74,13 +71,11 @@ onmessage = function (e) {
         const trans = new Translation();
         result = trans.contextTranslate(e.data[1], e.data[2], e.data[3]);
     } else {
-        console.log('unimplimented work');
+        console.log(`Unimplimented work ${e.data[0]}`);
     }
 };
 
 async function nonInteractiveSave(params) {
-    console.log(`nonInteractiveSave start: ${Date.now()}`);
-    let start = Date.now();
     if (params[0]) { // find related
         const maximo = new Database();
         let related = maximo.findRelated(params[2], false);
@@ -88,22 +83,17 @@ async function nonInteractiveSave(params) {
         // technically this is bad practise since object order might not be guarenteed 
         // https://stackoverflow.com/questions/983267/how-to-access-the-first-property-of-a-javascript-object
     }
-    console.log(`related took ${Date.now() - start} ms`);
     if (params[1]) { // translate
         const trans = new Translation();
         params[1] = trans.contextTranslate(params[2], params[3], 'return');
     }
-    console.log(`translation took ${Date.now() - start} ms`);
     const db = new Database();
     db.saveDescriptionAnalysis({related: params[0], translate: params[1]}, params[5]);
     // number of rows should be shown and that should be used to determine when to save / finsih
     // also need stop / cancel button
-    console.log(`save to db took ${Date.now() - start} ms`);
     const excel = new ExcelReader(params[4].filePath);
     let result = await excel.saveNonInteractive(params);
-    console.log(`loop took ${Date.now() - start} ms`);
-    console.log(`nonInteractiveSave end: ${Date.now()}`);
-    postMessage(['result', Number(params[5]) + 1]);
+    postMessage(['nextrow', Number(params[5]) + 1]);
 }
 
 //depre

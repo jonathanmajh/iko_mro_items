@@ -203,7 +203,7 @@ function openExcel() {
 function checkAgain() {
     let field = document.getElementById("maximo-desc");
     const worker = new WorkerHandler();
-    worker.work(['validSingle', field.value], interactiveShow);
+    worker.work(['validSingle', field.value], showResult);
 }
 
 function skipRow() {
@@ -212,48 +212,76 @@ function skipRow() {
 }
 
 function finishLoadingBatch(params) {
+    // this has a special work thread since initializing a worker thread takes ~700 ms which is too long
     document.getElementById("valid-row").innerHTML = params[1];
     document.getElementById("total-row").innerHTML = params[2];
-    interactiveGoNext(Number(params[0]));
+    const worker = new Worker('./worker.js');
+    const db = new Database();
+    let description = db.getDescription(params[0]);
+    if (description === undefined) {
+        new Toast('Finished Batch Processing');
+        return false;
+    } 
+    processBatch(worker, params[0], description);
+    worker.onmessage = (msg) => {
+        if (msg.data[0] === 'nextrow') {
+            description = db.getDescription(msg.data[1]);
+            document.getElementById("current-row").innerHTML = description.row;
+            if (description === undefined) {
+                new Toast('Finished Batch Processing');
+                return false;
+            } 
+            processBatch(worker, msg.data[1], description);
+        } else {
+            console.log(`IDK: ${msg.data}`);
+        }
+    };
+}
+
+function processBatch(worker, row, description) {
+    const interactive = document.getElementById("modeSelect").checked;
+    const related = document.getElementById("relatedSelect").checked;
+    const translate = document.getElementById("translateSelect").checked;
+    const params = worksheetParams(document.getElementById("worksheet-path").innerHTML);
+    if (interactive) {
+        interactiveGoNext(row);
+    } else {
+            worker.postMessage([
+        'nonInteractive',
+        [
+            related, 
+            translate, 
+            description.description, 
+            document.getElementById('selected-language').value,
+            params,
+            row
+        ]
+    ]);
+    }
+
 }
 
 function continueAuto() {
     document.getElementById("modeSelect").checked = false;
-    interactiveGoNext(Number(document.getElementById("current-row").innerHTML));
+    finishLoadingBatch([
+        Number(document.getElementById("current-row").innerHTML),
+        document.getElementById("valid-row").innerHTML,
+        document.getElementById("total-row").innerHTML,
+    ]);
 }
 
 function interactiveGoNext(row) {
-    let start = Date.now();
-    console.log(`interactiveGoNext start: ${Date.now()}`);
     const db = new Database();
     let description = db.getDescription(row);
     if (description === undefined) {
-        new Toast('Finished Batch Processing');
+        new Toast('End of File Reached');
         return false;
     } 
     document.getElementById("current-row").innerHTML = description.row;
     const interactive = document.getElementById("modeSelect").checked;
     if (description) {
         const worker = new WorkerHandler();
-        if (interactive) {
-            worker.work(['validSingle', description.description], interactiveShow);
-        } else {
-            const related = document.getElementById("relatedSelect").checked;
-            const translate = document.getElementById("translateSelect").checked;
-            const params = worksheetParams(document.getElementById("worksheet-path").innerHTML);
-            worker.work([
-                'nonInteractive',
-                [
-                    related, 
-                    translate, 
-                    description.description, 
-                    document.getElementById('selected-language').value,
-                    params,
-                    row
-                ]], 
-                interactiveGoNext);
-        }
-
+        worker.work(['validSingle', description.description], showResult);
     } else {
         let field = document.getElementById("maximo-desc");
         field.placeholder = "Row is blank, press skip row to go next";
@@ -261,8 +289,6 @@ function interactiveGoNext(row) {
         let bar = new ProgressBar();
         bar.update(100, 'Done');
     }
-    console.log(`interactiveGoNext took ${Date.now() - start} ms`);
-    console.log(`interactiveGoNext end: ${Date.now()}`);
 }
 
 function interactiveShow(result) {
@@ -270,6 +296,7 @@ function interactiveShow(result) {
     field.value = result[0][3];
     field.placeholder = "";
     calcConfidence(result[0][3]);
+    findRelated(result[0]);
 }
 
 
