@@ -227,6 +227,10 @@ function interactiveGoNext(row) {
     console.log(`interactiveGoNext start: ${Date.now()}`);
     const db = new Database();
     let description = db.getDescription(row);
+    if (description === undefined) {
+        new Toast('Finished Batch Processing');
+        return false;
+    } 
     document.getElementById("current-row").innerHTML = description.row;
     const interactive = document.getElementById("modeSelect").checked;
     if (description) {
