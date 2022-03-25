@@ -21,7 +21,6 @@ document.getElementById("skip-row").addEventListener("click", skipRow);
 document.getElementById("open-in-browser").addEventListener("click", openBrowser);
 document.getElementById("continueAuto").addEventListener("click", continueAuto);
 
-
 // listener for enter key on search field
 document.getElementById("maximo-desc").addEventListener("keyup", function (event) {
     // Number 13 is the "Enter" key on the keyboard
@@ -201,9 +200,8 @@ function openExcel() {
 }
 
 function checkAgain() {
-    let field = document.getElementById("maximo-desc");
     const worker = new WorkerHandler();
-    worker.work(['validSingle', field.value], showResult);
+    worker.work(['validSingle', document.getElementById("maximo-desc").value], showResult);
 }
 
 function skipRow() {
@@ -212,6 +210,7 @@ function skipRow() {
 }
 
 function finishLoadingBatch(params) {
+    let bar = new ProgressBar();
     // this has a special work thread since initializing a worker thread takes ~700 ms which is too long
     document.getElementById("valid-row").innerHTML = params[1];
     document.getElementById("total-row").innerHTML = params[2];
@@ -219,9 +218,12 @@ function finishLoadingBatch(params) {
     const db = new Database();
     let description = db.getDescription(params[0]);
     if (description === undefined) {
+        bar.update(100, 'Done!');
+        worker.terminate();
         new Toast('Finished Batch Processing');
         return false;
-    } 
+    }
+    bar.update(0, 'Processing Descriptions');
     processBatch(worker, params[0], description);
     worker.onmessage = (msg) => {
         if (msg.data[0] === 'nextrow') {
@@ -230,7 +232,8 @@ function finishLoadingBatch(params) {
             if (description === undefined) {
                 new Toast('Finished Batch Processing');
                 return false;
-            } 
+            }
+            bar.update(msg.data[1] / params[2] * 100, `Processing Description. Row: ${msg.data[1]} of ${params[2]}`);
             processBatch(worker, msg.data[1], description);
         } else {
             console.log(`IDK: ${msg.data}`);
@@ -244,19 +247,21 @@ function processBatch(worker, row, description) {
     const translate = document.getElementById("translateSelect").checked;
     const params = worksheetParams(document.getElementById("worksheet-path").innerHTML);
     if (interactive) {
+        // switch to interactive mode
+        worker.terminate();
         interactiveGoNext(row);
     } else {
-            worker.postMessage([
-        'nonInteractive',
-        [
-            related, 
-            translate, 
-            description.description, 
-            document.getElementById('selected-language').value,
-            params,
-            row
-        ]
-    ]);
+        worker.postMessage([
+            'nonInteractive',
+            [
+                related,
+                translate,
+                description.description,
+                document.getElementById('selected-language').value,
+                params,
+                row
+            ]
+        ]);
     }
 
 }
@@ -271,16 +276,18 @@ function continueAuto() {
 }
 
 function interactiveGoNext(row) {
+    let bar = new ProgressBar();
     const db = new Database();
     let description = db.getDescription(row);
     if (description === undefined) {
+        bar.update(100, 'Done!');
         new Toast('End of File Reached');
         return false;
-    } 
+    }
     document.getElementById("current-row").innerHTML = description.row;
-    const interactive = document.getElementById("modeSelect").checked;
     if (description) {
         const worker = new WorkerHandler();
+        document.getElementById("maximo-desc").value = description.description;
         worker.work(['validSingle', description.description], showResult);
     } else {
         let field = document.getElementById("maximo-desc");
@@ -290,15 +297,6 @@ function interactiveGoNext(row) {
         bar.update(100, 'Done');
     }
 }
-
-function interactiveShow(result) {
-    let field = document.getElementById("maximo-desc");
-    field.value = result[0][3];
-    field.placeholder = "";
-    calcConfidence(result[0][3]);
-    findRelated(result[0]);
-}
-
 
 function triplePaste() {
     let paste = clipboard.readText();
@@ -319,7 +317,6 @@ function validSingle() {
     worker.work(['validSingle', raw_desc], showResult);
 }
 
-
 function showResult(result) {
     let triDesc = document.getElementById('result-triple-main');
     triDesc.innerHTML = result[0][0];
@@ -331,9 +328,16 @@ function showResult(result) {
     triDesc.innerHTML = result[0][3];
     triDesc = new bootstrap.Collapse(document.getElementById('verified-table'), { toggle: false });
     triDesc.show();
+    const related = document.getElementById("relatedSelect").checked;
+    const translate = document.getElementById("translateSelect").checked;
     calcConfidence(result[0][3]);
-    translationDescription(result[0][3]);
-    findRelated(result[0]);
+    if (translate) {
+        translationDescription(result[0][3]);
+    }
+    if (related) {
+        findRelated(result[0]);
+    }
+
 }
 
 function findRelated(result) {

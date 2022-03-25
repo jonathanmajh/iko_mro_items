@@ -79,7 +79,13 @@ async function nonInteractiveSave(params) {
     if (params[0]) { // find related
         const maximo = new Database();
         let related = maximo.findRelated(params[2], false);
-        params[0] = related[0][Object.keys(related[0])[0]][0]; // gets first element in related object scores
+        for (let value of Object.entries(related[0])) {
+            if (value[1][0]) {
+                params[0] = value[1][0];
+                break;
+            }
+        }
+        // gets first element in related object scores
         // technically this is bad practise since object order might not be guarenteed 
         // https://stackoverflow.com/questions/983267/how-to-access-the-first-property-of-a-javascript-object
     }
