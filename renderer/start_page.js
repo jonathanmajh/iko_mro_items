@@ -5,7 +5,14 @@ function openObserveTemp() {
 }
 
 function openItem() {
-    ipcRenderer.send('start_item_module', 'finished');
+    const worker = new WorkerHandler();
+
+    version = ipc.sendSync('getVersion');
+    worker.work(['checkItemCache', version], openMain);
+
+    function openMain() {
+        ipcRenderer.send('loading', 'finished');
+    }
 }
 
 function openItemTranslation() {
@@ -19,4 +26,4 @@ function openAssetDescription() {
 document.getElementById("openObserveTemp").addEventListener("click", openObserveTemp);
 document.getElementById("openItem").addEventListener("click", openItem);
 document.getElementById("openItemTranslation").addEventListener("click", openItemTranslation);
-document.getElementById("openAssetDescription").addEventListener("click", openAssetDescription);
+document.getElementById("openAssetDescription").addEventListener("click", openAssetDescription); 
