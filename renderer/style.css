@@ -54,9 +54,8 @@ input {
   font-size: 36px;
 }
 
-.flex-shrink-0 {
+.flex-shrink-1 {
   overflow-y: scroll;
-  height: 90%;
 }
 
 div img {
@@ -100,4 +99,8 @@ div img {
 
 #endButton:hover {
   background-color: #555; /* Add a dark-grey background on hover */
+}
+
+.input-group-text {
+  background-color: white;
 }

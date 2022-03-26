@@ -39,7 +39,7 @@
         style="width: 100%" id="progress-bar"></div>
     </div>
   </nav>
-  <main class="flex-shrink-0">
+  <main class="flex-shrink-1">
     <div class="container-fluid" id="main">
       <div class="row bg-danger text-light" style="padding-top: 20px">
         <div class="col-auto"><img src="IKO_Logo-nobg.png" /></div>
@@ -48,7 +48,6 @@
           <i id="settings" class="material-icons pointer md-size">settings</i>
         </div>
       </div>
-
 
       <div class="row" style="padding-top: 20px">
         <div class="accordion">
@@ -124,7 +123,6 @@
                       <label for="com-code">Commodity Code</label>
                     </div>
                   </div>
-
                 </div>
 
                 <div class="row">
@@ -148,47 +146,71 @@
             <h2 class="accordion-header">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                 data-bs-target="#accordion-validDescription">
-                Validated Description
+                Validate
               </button>
             </h2>
             <div id="accordion-validDescription" class="accordion-collapse collapse">
               <div class="accordion-body">
-                <div id="verified-table" class="table-responsive row">
-                  <table class="table table-bordered">
-                    <tbody>
-                      <tr id="single-copy">
-                        <th>Maximo Description</th>
-                        <td id="result-single" colspan="3"></td>
-                        <td><i class="material-icons pointer">content_copy</i></td>
-                      </tr>
-                      <tr id="triple-copy">
-                        <th>JDE Description</th>
-                        <td id="result-triple-main"></td>
-                        <td id="result-triple-ext1"></td>
-                        <td id="result-triple-ext2"></td>
-                        <td><i class="material-icons pointer">content_copy</i></td>
-                      </tr>
-                      <tr id="valid-notes">
-                        <th>Validation Notes</th>
-                        <td id="valid-description" colspan="3"></td>
-                        <td>
-                          <i id="open-in-browser" class="material-icons pointer" data-bs-toggle="modal"
-                            data-bs-target="#popupAlert">ios_share</i>
-                        </td>
-                      </tr>
-                      <tr>
-                        <th>Translated Description</th>
-                        <td id="trans-desc" colspan="3"></td>
-                        <td><i class="material-icons pointer">content_copy</i></td>
-                      </tr>
-
-                      <tr id="translation-notes">
-                        <th></th>
-                        <td id="translation-description" colspan="3"></td>
-                        <td></td>
-                      </tr>
-                    </tbody>
-                  </table>
+                <div class="row">
+                  <div class="col-md">
+                    <div class="form-floating input-group">
+                      <input type="text" class="form-control" id="result-single" placeholder="Maximo Description"
+                        disabled readonly>
+                      <label for="result-single">Maximo Description</label>
+                      <button class="btn btn-danger" type="button" id="single-copy"><i
+                          class="material-icons pointer">content_copy</i></button>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md">
+                    <div class="input-group form-floating">
+                      <input type="text" class="form-control" id="result-triple-main" placeholder="JDE Description1"
+                        disabled readonly>
+                      <label for="result-triple-main">JDE Description1</label>
+                      <input type="text" class="form-control" id="result-triple-ext1" placeholder="JDE Description2"
+                        disabled readonly>
+                      <input type="text" class="form-control" id="result-triple-ext2" placeholder="JDE Manufacturer"
+                        disabled readonly>
+                      <button class="btn btn-danger" type="button" id="triple-copy"><i
+                          class="material-icons pointer">content_copy</i></button>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md">
+                    <div class="form-floating input-group">
+                      <input type="text" class="form-control" id="valid-description" placeholder="Analysis" disabled
+                        readonly>
+                      <label for="valid-description">Analysis</label>
+                      <button class="btn btn-danger" type="button" id="valid-notes"><i id="open-in-browser"
+                          class="material-icons pointer" data-bs-toggle="modal"
+                          data-bs-target="#popupAlert">ios_share</i></button>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md">
+                    <div class="form-floating input-group">
+                      <input type="text" class="form-control" id="trans-desc" placeholder="Translated Description"
+                        disabled readonly>
+                      <label for="trans-desc">Translated Description</label>
+                      <button class="btn btn-danger" type="button" id="trans-desc2"><i
+                          class="material-icons pointer">content_copy</i></button>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md">
+                    <div class="form-floating input-group">
+                      <input type="text" class="form-control" id="translation-description"
+                        placeholder="Translation Notes" disabled readonly>
+                      <label for="translation-description">Translation Notes</label>
+                      <button class="btn btn-danger" type="button" id="trans-notes"><i id="export-translation"
+                          class="material-icons pointer" data-bs-toggle="modal"
+                          data-bs-target="#popupAlert">ios_share</i></button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -202,55 +224,192 @@
             </h2>
             <div id="accordion-batchMode" class="accordion-collapse collapse">
               <div class="accordion-body">
-                <div class="accordion" id="batchAccordion">
-                  <div class="accordion-item">
-                    <h2 class="accordion-header">
-                      <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#accordion-batchInfo">
-                        Batch Information
-                      </button>
-                    </h2>
-                    <div id="accordion-batchInfo" class="accordion-collapse collapse show">
-                      <div class="accordion-body">
-                        <div class="row">
-                          <div class="input-group">
-                            <input type="file" class="form-control" id="interactive">
-                            <!-- probably need some kind of handler to override default action id="valid-file"-->
-                            <!-- might possibly also need to just emulate it with another button on the left -->
-                            <button class="btn btn-outline-secondary" type="button" id="pauseAuto">Pause</button>
-                            <!-- this needs a binding / function (just toggle the interactive switch) -->
-                            <button class="btn btn-outline-secondary" type="button" id="continueAuto">Resume</button>
-                            <button class="btn btn-outline-secondary" type="button" id="openBatchFile">Open</button>
-							                          <!-- this needs a binding / function  -->
+                <div class="input-group mb-3">
+                  <input type="text" class="form-control btn-outline-danger text-danger" value="Toggles" disabled />
+                  <div class="input-group-text btn-outline-danger">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="modeSelect" checked />
+                      <label class="form-check-label" for="modeSelect">&nbsp;Interactive?</label>
+                    </div>
+                  </div>
+                  <div class="input-group-text btn-outline-danger">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="translateSelect" checked />
+                      <label class="form-check-label" for="translateSelect">&nbsp;Translate?</label>
+                    </div>
+                  </div>
+                  <div class="input-group-text btn-outline-danger">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="relatedSelect" checked />
+                      <label class="form-check-label" for="relatedSelect">&nbsp;Find Related?</label>
+                    </div>
+                  </div>
+
+                  <button class="btn btn-outline-danger" type="button" id="pauseAuto">Pause</button>
+                  <!-- this needs a binding / function (just toggle the interactive switch) -->
+                  <button class="btn btn-outline-danger" type="button" id="continueAuto">Resume</button>
+
+                  <button class="btn btn-outline-danger" type="button" id="save-desc"
+                    title="Save the description as a new item">
+                    Save as New Item
+                  </button>
+                  <button class="btn btn-outline-danger" type="button" id="save-num"
+                    title="Assign existing item number to this item">
+                    Assign Existing Number
+                  </button>
+                  <button class="btn btn-outline-danger" type="button" id="skip-row"
+                    title="Skip this row and read the next row">Next Row</button>
+                </div>
+                <div class="row">
+                  <div class="accordion col-md" id="batchAccordion">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                          data-bs-target="#accordion-batchInfo">
+                          Batch Information
+                        </button>
+                      </h2>
+                      <div id="accordion-batchInfo" class="accordion-collapse collapse show">
+                        <div class="accordion-body">
+                          <div class="row">
+                            <div class="input-group">
+                              <input type="file" class="form-control" id="interactive">
+                              <!-- probably need some kind of handler to override default action id="valid-file"-->
+                              <!-- might possibly also need to just emulate it with another button on the left -->
+                              <button class="btn btn-outline-secondary" type="button" id="openBatchFile">Open in
+                                Excel</button>
+                              <!-- this needs a binding / function  -->
+                            </div>
                           </div>
                           <div class="row">
-                            <div class="row">
-                              <div class="col">Active Worksheet: <span id="worksheet-path">#</span></div>
-                            </div>
-                            <div class="row">
-                              <div class="col">Current Row: <span id="current-row">#</span></div>
-                              <div class="col">Valid Rows: <span id="valid-row">#</span></div>
-                              <div class="col">Total Rows: <span id="total-row">#</span></div>
-                            </div>
+                            <div class="col">Current Row:</div><span class="col text-end" id="current-row">#</span>
+                          </div>
+                          <div class="row">
+                            <div class="col">Valid Rows:</div> <span class="col text-end" id="valid-row">#</span>
+                          </div>
+                          <div class="row">
+                            <div class="col">Total Rows:</div><span class="col text-end" id="total-row">#</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="accordion col-md" id="settingAccordion">
 
-                            <div class="row">
-                              <div class="col">
-                                <button id="recheck-desc" title="Verify the description again after editing">
-                                  Check Again
-                                </button>
+                    <div class="accordion-item">
+                      <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                          data-bs-target="#accordion-batchSettings2">
+                          Settings
+                        </button>
+                      </h2>
+                      <div id="accordion-batchSettings2" class="accordion-collapse collapse show">
+                        <div class="accordion-body">
+                          <div class="card">
+                            <div class="card-header">Input Settings</div>
+                            <div class="card-body">
+                              <div class="row">
+                                <div class="col-md">
+
+                                  <div class="form-floating">
+                                    <input type="text" class="form-control" id="ws-name"
+                                      placeholder="Worksheet Name (Case Sensitive)"
+                                      title="Name of the Worksheet: Case Sensitive!">
+                                    <label for="ws-name">Worksheet Name</label>
+                                  </div>
+                                </div>
+                                <div class="col-md">
+                                  <div class="form-floating">
+                                    <input type="text" class="form-control" id="input-col"
+                                      placeholder="Columns For Input"
+                                      title="These columns will be combined to form a description / search text">
+                                    <label for="input-col">Columns For Input</label>
+                                  </div>
+                                </div>
                               </div>
-                              <div class="col">
-                                <button id="save-desc" title="Save the description as a new item">
-                                  Save New Item
-                                </button>
+                              <div class="row">
+                                <div class="col-md">
+                                  <div class="form-floating">
+                                    <input type="text" class="form-control" id="start-row" placeholder="Starting Row">
+                                    <label for="start-row">Starting Row</label>
+                                  </div>
+                                </div>
+                                <div class="col-md">
+                                </div>
                               </div>
-                              <div class="col">
-                                <button id="save-num" title="Assign existing item number to this item">
-                                  Assign Existing Number
-                                </button>
+                            </div>
+                          </div>
+                          <div class="card">
+                            <div class="card-header">Output Columns</div>
+                            <div class="card-body">
+                              <div class="row">
+                                <div class="col-md">
+                                  <div class="form-floating">
+                                    <input type="text" class="form-control" id="output-col" placeholder="Item Number">
+                                    <label for="output-col">Item Number</label>
+                                  </div>
+                                </div>
+                                <div class="col-md">
+                                  <div class="form-floating">
+                                    <input type="text" class="form-control" id="output-col-desc"
+                                      placeholder="Item Description"
+                                      title="These columns will be populated with: Description1, Description2, Manufacturer">
+                                    <label for="output-col-desc">Item Description</label>
+                                  </div>
+                                </div>
                               </div>
-                              <div class="col">
-                                <button id="skip-row" title="Skip this row and read the next row">Next Row</button>
+
+                              <div class="row">
+                                <div class="col-md">
+                                  <div class="form-floating">
+                                    <input type="text" class="form-control" id="output-col-translation"
+                                      placeholder="Translated Description"
+                                      title="This column will be populated with Translated Description in Selected Language">
+                                    <label for="output-col-translation">Translated Description</label>
+                                  </div>
+                                </div>
+                                <div class="col-md">
+                                  <div class="form-floating">
+                                    <input type="text" class="form-control" id="output-col-missing"
+                                      placeholder="Missing Translation"
+                                      title="This columns will be populated with words missing from translation table">
+                                    <label for="output-col-missing">Missing Translation</label>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-md">
+                                  <div class="form-floating">
+                                    <!-- consider doing a drop down select with filter -->
+                                    <input type="text" class="form-control" id="output-col-uom"
+                                      placeholder="Unit of Measure">
+                                    <label for="output-col-uom">Unit of Measure</label>
+                                  </div>
+                                </div>
+                                <div class="col-md">
+                                  <div class="form-floating">
+                                    <input type="text" class="form-control" id="output-col-com-group"
+                                      placeholder="Commodity Group">
+                                    <label for="output-col-com-group">Commodity Group</label>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="row">
+                                <div class="col-md">
+                                  <div class="form-floating">
+                                    <input type="text" class="form-control" id="output-col-gl-class"
+                                      placeholder="GL Class">
+                                    <label for="output-col-gl-class">GL Class</label>
+                                  </div>
+                                </div>
+                                <div class="col-md">
+                                  <div class="form-floating">
+                                    <input type="text" class="form-control" id="output-col-com-code"
+                                      placeholder="Commodity Code">
+                                    <label for="output-col-com-code">Commodity Code</label>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -258,109 +417,6 @@
                       </div>
                     </div>
                   </div>
-                  <div class="accordion-item">
-                    <h2 class="accordion-header">
-                      <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#accordion-batchSettings">
-                        Settings
-                      </button>
-                    </h2>
-                    <div id="accordion-batchSettings" class="accordion-collapse collapse show">
-                      <div class="accordion-body">
-                        <div class="row">
-                          <!-- TODO tooltips for help text -->
-                          <div class="col">
-                            <label for="ws-name">Worksheet Name:</label>
-                          </div>
-                          <div class="col">
-                            <input type="text" id="ws-name" name="ws-name"
-                              title="Name of the Worksheet: Case Sensitive!" placeholder="Sheet1" />
-                          </div>
-                          <div class="col">
-                            <label for="input-col">Columns For Input:</label>
-                          </div>
-                          <div class="col">
-                            <input type="text" id="input-col" name="input-col"
-                              title="These columns will be combined to form a description / search text"
-                              placeholder="b,c" />
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="col">
-                            <label for="start-row">Starting Row:</label>
-                          </div>
-                          <div class="col">
-                            <input type="number" id="start-row" name="start-row"
-                              title="Which row to start processing from" placeholder="2" />
-                          </div>
-                          <div class="col">
-                            <!-- placeholder -->
-                          </div>
-                          <div class="col">
-                            <!-- placeholder -->
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="col">
-                            <label for="output-col">Output: Item Number:</label>
-                          </div>
-                          <div class="col">
-                            <input type="text" id="output-col" name="output-col"
-                              title="This column will be populated with: Item Number" placeholder="v" />
-                          </div>
-                          <div class="col">
-                            <label for="output-col-desc">Output: Item Description:</label>
-                          </div>
-                          <div class="col">
-                            <input type="text" id="output-col-desc" name="output-col-desc"
-                              title="These columns will be populated with: Description1, Description2, Manufacturer"
-                              placeholder="w,x,y" />
-                          </div>
-                        </div>
-
-                        <div class="row">
-                          <div class="col">
-                            <label for="output-col-translation">Output: Translated Description:</label>
-                          </div>
-                          <div class="col">
-                            <input type="text" id="output-col-translation" name="output-col-translation"
-                              title="This column will be populated with Translated Description in Selected Language"
-                              placeholder="z" />
-                          </div>
-                          <div class="col">
-                            <label for="output-col-missing">Output: Missing Translation:</label>
-                          </div>
-                          <div class="col">
-                            <input type="text" id="output-col-missing" name="output-col-missing"
-                              title="This columns will be populated with words missing from translation table"
-                              placeholder="aa" />
-                          </div>
-                        </div>
-
-                        <div class="row">
-                          <div class="col form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="modeSelect" checked />
-                            <label class="form-check-label" for="modeSelect">Interactive?</label>
-                          </div>
-                          <div class="col form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="translateSelect" checked />
-                            <label class="form-check-label" for="translateSelect">Translate?</label>
-                          </div>
-                          <div class="col form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="relatedSelect" checked />
-                            <label class="form-check-label" for="relatedSelect">Find Related?</label>
-                          </div>
-                          <div class="col">
-                            <button id="interactive">Load Spreadsheet</button>
-                          </div>
-                          <div class="col">
-                            <button id="continueAuto" title="Resumes from Current Row in Auto Mode">Resume</button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
                 </div>
               </div>
             </div>
