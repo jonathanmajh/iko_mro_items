@@ -3,27 +3,33 @@ const { app, BrowserWindow, ipcMain, screen, dialog } = require('electron');
 const path = require('path');
 const { appUpdater } = require('./assets/autoupdater');
 let mainWindow;
+let settingWindow;
 
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
 ipcMain.on('openSettings', (event, arg) => {
-  let settingWindow = new BrowserWindow({
+  settingWindow = new BrowserWindow({
+    parent: mainWindow,
     width: 800,
     height: 600,
+    autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: true,
       nodeIntegrationInWorker: true,
-      enableRemoteModule: true,
       contextIsolation: false
     }
   });
 
   settingWindow.loadFile(path.join('renderer', 'setting.html'));
+  settingWindow.show();
+  settingWindow.on('closed', () => {
+    mainWindow.show();
+    settingWindow = null;
+  });
   // settingWindow.webContents.openDevTools()
 });
-
 
 ipcMain.on('getVersion', (event, arg) => {
   event.returnValue = app.getVersion();
@@ -104,7 +110,6 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       nodeIntegrationInWorker: true,
-      enableRemoteModule: true,
       contextIsolation: false
     }
   });
@@ -121,6 +126,7 @@ function createWindow() {
     console.log("checking for updates");
     appUpdater();
   });
+  mainWindow.show();
 }
 
 // This method will be called when Electron has finished
@@ -141,8 +147,4 @@ app.whenReady().then(() => {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit();
-});
-
-app.on("open-file", function(event, path) {
-  event.preventDefault();
 });

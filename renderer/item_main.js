@@ -186,7 +186,9 @@ function openFile() {
 }
 
 function openSettings() {
-    ipcRenderer.sendSync('openSettings');
+    ipcRenderer.send('openSettings');
+    //sendsync blocks parent window...
+    //https://github.com/electron/electron/issues/10426
 }
 
 function openExcel() {
