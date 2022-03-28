@@ -146,7 +146,7 @@
             <h2 class="accordion-header">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                 data-bs-target="#accordion-validDescription">
-                Validate
+                Item Creation Validation <span class="badge bg-secondary" id="validate-badge"></span>
               </button>
             </h2>
             <div id="accordion-validDescription" class="accordion-collapse collapse">
@@ -180,8 +180,8 @@
                 <div class="row">
                   <div class="col-md">
                     <div class="form-floating input-group">
-                      <input type="text" class="form-control" id="valid-description" placeholder="Analysis" disabled
-                        readonly>
+                      <textarea class="form-control" id="valid-description" placeholder="Analysis" disabled
+                        readonly></textarea>
                       <label for="valid-description">Analysis</label>
                       <button class="btn btn-danger" type="button" id="valid-notes"><i id="open-in-browser"
                           class="material-icons pointer" data-bs-toggle="modal"
@@ -203,8 +203,8 @@
                 <div class="row">
                   <div class="col-md">
                     <div class="form-floating input-group">
-                      <input type="text" class="form-control" id="translation-description"
-                        placeholder="Translation Notes" disabled readonly>
+                      <textarea  class="form-control" id="translation-description"
+                        placeholder="Translation Notes" disabled readonly></textarea>
                       <label for="translation-description">Translation Notes</label>
                       <button class="btn btn-danger" type="button" id="trans-notes"><i id="export-translation"
                           class="material-icons pointer" data-bs-toggle="modal"
@@ -273,7 +273,8 @@
                         <div class="accordion-body">
                           <div class="row">
                             <div class="input-group">
-                              <input type="file" class="form-control" id="interactive">
+                              <button class="btn btn-outline-secondary" type="button" id="interactive">Choose File</button>
+                              <input type="text" class="form-control btn-outline-secondary pointer" id="worksheet-path" value="No file chosen" disabled>
                               <!-- probably need some kind of handler to override default action id="valid-file"-->
                               <!-- might possibly also need to just emulate it with another button on the left -->
                               <button class="btn btn-outline-secondary" type="button" id="openBatchFile">Open in
@@ -424,11 +425,11 @@
           <div class="accordion-item">
             <h2 class="accordion-header">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                data-bs-target="#accordion-relatedAsset">
-                Related Assets
+                data-bs-target="#accordion-relatedItem">
+                Related items
               </button>
             </h2>
-            <div id="accordion-relatedAsset" class="accordion-collapse collapse">
+            <div id="accordion-relatedItem" class="accordion-collapse collapse">
               <div class="accordion-body">
                 <div id="related-table" class="table-responsive row">
                   <table class="table table-bordered">

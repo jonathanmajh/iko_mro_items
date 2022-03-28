@@ -9,6 +9,11 @@ input {
   width: 100%;
 }
 
+textarea {
+  resize: none;
+  overflow: hidden;
+}
+
 #progress-text {
   position: absolute;
   top: 50%;

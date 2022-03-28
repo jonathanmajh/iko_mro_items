@@ -7,14 +7,12 @@ document.getElementById("load-item").addEventListener("click", loadItem);
 document.getElementById("valid-single").addEventListener("click", validSingle);
 document.getElementById("single-copy").addEventListener("click", () => { copyResult('single'); });
 document.getElementById("triple-copy").addEventListener("click", () => { copyResult('triple'); });
-document.getElementById("triple-paste").addEventListener("click", triplePaste);
-document.getElementById("valid-file").addEventListener("click", openFile);
 document.getElementById("settings").addEventListener("click", openSettings);
 document.getElementById("topButton").addEventListener("click", toTop);
 document.getElementById("endButton").addEventListener("click", toEnd);
 document.getElementById("interactive").addEventListener("click", openExcel);
+document.getElementById("worksheet-path").addEventListener("click", openExcel);
 
-document.getElementById("recheck-desc").addEventListener("click", checkAgain);
 document.getElementById("save-desc").addEventListener("click", writeDescription);
 document.getElementById("save-num").addEventListener("click", writeAssetNum);
 document.getElementById("skip-row").addEventListener("click", skipRow);
@@ -32,30 +30,33 @@ document.getElementById("maximo-desc").addEventListener("keyup", function (event
     }
 });
 
-
-// listener for general click events on icons
-document.getElementById("main").addEventListener('click', (event) => {
-    let icon;
-    if (event.target.classList.contains("material-icons")) {
-        icon = [event.target];
-    } else {
-        icon = event.target.getElementsByClassName("material-icons");
-    }
-    if (icon[0]?.innerText === "expand_less") {
-        icon[0].innerText = "expand_more";
-    } else if (icon[0]?.innerText === "expand_more") {
-        icon[0].innerText = "expand_less";
-    } else if (icon[0]?.innerText === "add_task") {
-        console.log(icon);
-    } else {
-        console.log('no icon found');
-        //console.log(icon);
+document.getElementById("interact-num").addEventListener("keyup", function (event) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.key === "Enter") {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Trigger the button element with a click
+        loadItem();
     }
 });
 
+// listener for general click events on icons
+document.getElementById("accordion-validDescription").addEventListener('shown.bs.collapse', (event) => {
+    document.getElementById("validate-badge").innerHTML = "";
+    auto_grow('valid-description');
+    auto_grow('translation-description');
+});
+
 function loadItem() {
+    new Toast(`Loading Item: ${document.getElementById("interact-num").value}`);
     const worker = new WorkerHandler();
     worker.work(['loadItem', document.getElementById("interact-num").value], showItem);
+}
+
+function auto_grow(elementID) {
+    const element = document.getElementById(elementID);
+    element.style.height = "5px";
+    element.style.height = (element.scrollHeight)+"px";
 }
 
 function openBrowser() {
@@ -319,18 +320,20 @@ function validSingle() {
 
 function showResult(result) {
     let triDesc = document.getElementById('result-triple-main');
-    triDesc.innerHTML = result[0][0];
+    triDesc.value = result[0][0];
     triDesc = document.getElementById('result-triple-ext1');
-    triDesc.innerHTML = result[0][1];
+    triDesc.value = result[0][1];
     triDesc = document.getElementById('result-triple-ext2');
-    triDesc.innerHTML = result[0][2];
+    triDesc.value = result[0][2];
     triDesc = document.getElementById('result-single');
-    triDesc.innerHTML = result[0][3];
-    triDesc = new bootstrap.Collapse(document.getElementById('verified-table'), { toggle: false });
-    triDesc.show();
+    triDesc.value = result[0][3];
+    // triDesc = new bootstrap.Collapse(document.getElementById('accordion-validDescription'), { toggle: false });
+    // triDesc.show();
+    // showing badge instead of auto opening
     const related = document.getElementById("relatedSelect").checked;
     const translate = document.getElementById("translateSelect").checked;
     calcConfidence(result[0][3]);
+    document.getElementById("validate-badge").innerHTML = "New";
     if (translate) {
         translationDescription(result[0][3]);
     }
@@ -348,26 +351,29 @@ function findRelated(result) {
 function translationDescription(description) {
     // for now do not translate if english is selected
     if (document.getElementById("selected-language").value != 'en') {
-        // translate
-    }
-    const worker = new WorkerHandler();
-    if (document.getElementById('result-triple-ext1').innerHTML) {
-        description = `${document.getElementById('result-triple-main').innerHTML},${document.getElementById('result-triple-ext1').innerHTML}`;
+        const worker = new WorkerHandler();
+        if (document.getElementById('result-triple-ext1').value) {
+            description = `${document.getElementById('result-triple-main').value},${document.getElementById('result-triple-ext1').value}`;
+        } else {
+            description = document.getElementById('result-triple-main').value;
+        }
+    
+        worker.work([
+            'translateItem',
+            description,
+            document.getElementById('selected-language').value,
+            'post'
+        ], displayTranslation);
     } else {
-        description = document.getElementById('result-triple-main').innerHTML;
+        new Toast('Currently translation into English is not supported');
     }
 
-    worker.work([
-        'translateItem',
-        description,
-        document.getElementById('selected-language').value,
-        'post'
-    ], displayTranslation);
 }
 
 function displayTranslation(data) {
-    document.getElementById('trans-desc').innerText = data[0];
-    document.getElementById('translation-description').innerText = `The following words do not have a translation:\n${data[1]}\nPlease check logs at bottom of page for details`;
+    document.getElementById('trans-desc').value = data[0];
+    document.getElementById('translation-description').value = `The following words do not have a translation:\n${data[1]}\nPlease check logs at bottom of page for details`;
+    auto_grow('translation-description');
 }
 
 function calcConfidence(data) {
@@ -425,7 +431,8 @@ function calcConfidence(data) {
                 }
             }
         }
-        document.getElementById('valid-description').innerText = result.trim();
+        document.getElementById('valid-description').value = result.trim();
+        auto_grow('valid-description');
     } else {
         new Toast('Blank Description');
     }
@@ -490,7 +497,7 @@ async function showRelated(result) {
     }
     const relatedTable = document.getElementById('related-items');
     relatedTable.innerHTML = html;
-    html = new bootstrap.Collapse(document.getElementById('related-table'), { toggle: false });
+    html = new bootstrap.Collapse(document.getElementById('accordion-relatedItem'), { toggle: false });
     html.show();
     bar.update(100, 'Done!');
 }

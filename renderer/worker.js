@@ -238,6 +238,7 @@ async function writeItemNum(data) {
 
 async function checkItemCache(version) {
     // check internal cache of item information and update with new items in maximo
+    postMessage(['debug', `Loading Item Module`]);
     postMessage(['debug', `0%: Checking list of Manufacturers & Abbrivations`]);
     const filePath = path.join(require('path').resolve(__dirname).replace('renderer', 'assets'), 'item_information.xlsx');
     const excel = new ExcelReader(filePath);
