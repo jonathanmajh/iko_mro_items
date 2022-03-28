@@ -247,11 +247,7 @@ class Database {
     loadItem(itemnum) {
         let result = this.db.prepare(`SELECT itemnum, description, gl_class, uom, commodity_group from itemCache where itemnum = '${itemnum}'`);
         result = result.get();
-        if (result) {
-            postMessage(['result', result]);
-        } else {
-            postMessage(['error', `${itemnum} cannot be found in Maximo`]);
-        }
+        return result;
     }
 
     findRelated(data, postmessage) {

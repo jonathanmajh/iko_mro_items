@@ -60,7 +60,12 @@ onmessage = function (e) {
         nonInteractiveSave(e.data[1]);
     } else if (e.data[0] === 'loadItem') {
         const maximo = new Database();
-        maximo.loadItem(e.data[1]);
+        let result = maximo.loadItem(e.data[1]);
+        if (result) {
+            postMessage(['result', result]);
+        } else {
+            postMessage(['error', `${itemnum} cannot be found in Maximo`]);
+        }
     } else if (e.data[0] === 'translatepms') {
         const translate = new AssetTranslate();
         translate.translate(e.data[1]);
@@ -221,18 +226,16 @@ async function compareObservLists(data, savePath, jobTaskPath) {
 }
 
 async function writeItemNum(data) {
-    const db = new Database();
-    let item = await db.db.itemCache.where('itemnum').equals(data[4]).toArray();
-    if (item[0]) {
-        data[4] = [item[0].description, item[0].itemnum];
+    const maximo = new Database();
+    let item = maximo.loadItem(data[4]);
+    if (item) {
+        const excel = new ExcelReader(data[0]);
+        let result = await excel.saveNumber(data);
+        if (result) {
+            postMessage(['result', result]);
+        }
     } else {
-        data[4] = ['', data[4]];
-        postMessage(['warning', `${data[4][1]} cannot be found in item list and will be written to file with no description`]);
-    }
-    const excel = new ExcelReader(data[0]);
-    let result = await excel.saveNumber(data);
-    if (result) {
-        postMessage(['result', result]);
+        postMessage(['warning', `${data[4]} cannot be found in Maximo`]);
     }
 }
 

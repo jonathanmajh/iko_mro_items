@@ -12,9 +12,10 @@ document.getElementById("topButton").addEventListener("click", toTop);
 document.getElementById("endButton").addEventListener("click", toEnd);
 document.getElementById("interactive").addEventListener("click", openExcel);
 document.getElementById("worksheet-path").addEventListener("click", openExcel);
+document.getElementById("pauseAuto").addEventListener("click", pauseAuto);
 
 document.getElementById("save-desc").addEventListener("click", writeDescription);
-document.getElementById("save-num").addEventListener("click", writeAssetNum);
+document.getElementById("save-num").addEventListener("click", writeItemNum);
 document.getElementById("skip-row").addEventListener("click", skipRow);
 document.getElementById("open-in-browser").addEventListener("click", openBrowser);
 document.getElementById("continueAuto").addEventListener("click", continueAuto);
@@ -46,6 +47,10 @@ document.getElementById("accordion-validDescription").addEventListener('shown.bs
     auto_grow('valid-description');
     auto_grow('translation-description');
 });
+
+function pauseAuto() {
+    document.getElementById("modeSelect").checked = true;
+}
 
 function loadItem() {
     new Toast(`Loading Item: ${document.getElementById("interact-num").value}`);
@@ -123,17 +128,17 @@ function worksheetParams(path = false) {
     let params = {
         // input parameters
         wsName: document.getElementById("ws-name").value || "Sheet1", // name of ws
-        inDesc: document.getElementById("input-col").value || "B,C".split(','), // description columns for input
+        inDesc: (document.getElementById("input-col").value || "B,C").split(','), // description columns for input
         startRow: document.getElementById("start-row").value || "2",  // starting row of ws
         // output parameters
-        outComm: document.getElementById("interact-num").value || "G", // commodity group out
-        outGL: document.getElementById("interact-num").value || "H", // gl class out
-        outUOM: document.getElementById("interact-num").value || "I", // uom out
-        outQuestion: document.getElementById("interact-num").value || "L", // questions out
         outItemNum: document.getElementById("output-col").value || "E",
-        outItemDesc: document.getElementById("output-col-desc").value || "F",
-        outTranslate: document.getElementById("output-col-translation").value || "J",
-        outMissing: document.getElementById("output-col-missing").value || "K",
+        outItemDesc: (document.getElementById("output-col-desc").value || "F,G,H").split(','),
+        outComm: document.getElementById("interact-num").value || "I", // commodity group out
+        outGL: document.getElementById("interact-num").value || "J", // gl class out
+        outUOM: document.getElementById("interact-num").value || "K", // uom out
+        outQuestion: document.getElementById("interact-num").value || "L", // questions out
+        outTranslate: document.getElementById("output-col-translation").value || "M",
+        outMissing: document.getElementById("output-col-missing").value || "N",
         // output data
         itemNum: document.getElementById("interact-num").value || '999TEST',
         itemDesc: document.getElementById("maximo-desc").value || "TEST,ITEM,DESCRIPTION",
@@ -144,20 +149,20 @@ function worksheetParams(path = false) {
     if (path) {
         params.filePath = path;
     } else {
-        params.filePath = document.getElementById("worksheet-path").innerHTML;
+        params.filePath = document.getElementById("worksheet-path").value;
     }
     return params;
 }
 
-function writeAssetNum() {
+function writeItemNum() {
     let num = document.getElementById("interact-num").value;
     if (num.length > 0) {
         let bar = new ProgressBar();
         bar.update(0, 'Writing item number to file');
-        let path = document.getElementById("worksheet-path").innerHTML;
+        let path = document.getElementById("worksheet-path").value;
         let wsName = document.getElementById("ws-name").value;
         let rowNum = document.getElementById("current-row").innerHTML;
-        let cols = document.getElementById("output-col").value.split(',');
+        let cols = document.getElementById("output-col").value;
         const worker = new WorkerHandler();
         worker.work(['writeNum', [path, wsName, rowNum, cols, num]], writeComplete);
     } else {
@@ -193,7 +198,7 @@ function openExcel() {
             const worker = new WorkerHandler();
             const params = worksheetParams(result.filePaths[0]);
             worker.work(['interactive', params], finishLoadingBatch);
-            document.getElementById("worksheet-path").innerHTML = result.filePaths[0];
+            document.getElementById("worksheet-path").value = result.filePaths[0];
         } else {
             new Toast('File Picker Cancelled');
         }
@@ -246,7 +251,7 @@ function processBatch(worker, row, description) {
     const interactive = document.getElementById("modeSelect").checked;
     const related = document.getElementById("relatedSelect").checked;
     const translate = document.getElementById("translateSelect").checked;
-    const params = worksheetParams(document.getElementById("worksheet-path").innerHTML);
+    const params = worksheetParams(document.getElementById("worksheet-path").value);
     if (interactive) {
         // switch to interactive mode
         worker.terminate();

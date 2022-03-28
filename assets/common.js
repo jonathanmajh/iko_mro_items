@@ -120,12 +120,12 @@ class Toast {
 }
 
 function toTop() {
-    let element = document.getElementsByClassName("flex-shrink-0");
+    let element = document.getElementsByTagName("main");
     element[0].scrollTop = 0; // For Chrome, Firefox, IE and Opera
 }
 
 function toEnd() {
-    let element = document.getElementsByClassName("flex-shrink-0");
+    let element = document.getElementsByTagName("main");
     element[0].scrollTop = element[0].scrollHeight; // For Chrome, Firefox, IE and Opera
 }
 

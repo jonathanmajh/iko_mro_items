@@ -131,21 +131,25 @@ class ExcelReader {
         let workbook = new Exceljs.Workbook();
         await workbook.xlsx.readFile(this.filePath);
         let worksheet = workbook.getWorksheet(parmas[0].wsName);
-        worksheet.getCell(`${parmas[0].outDesc[1]}${parmas[0].outRow}`).value = parmas[1][0];
-        worksheet.getCell(`${parmas[0].outDesc[2]}${parmas[0].outRow}`).value = parmas[1][1];
-        worksheet.getCell(`${parmas[0].outDesc[3]}${parmas[0].outRow}`).value = parmas[1][2];
-        worksheet.getCell(`${parmas[0].outDesc[0]}${parmas[0].outRow}`).value = parmas[1][3];
+        worksheet.getCell(`${parmas[0].outItemDesc[0]}${parmas[0].outRow}`).value = parmas[1][0]; //description1
+        worksheet.getCell(`${parmas[0].outItemDesc[1]}${parmas[0].outRow}`).value = parmas[1][1]; //description2
+        worksheet.getCell(`${parmas[0].outItemDesc[2]}${parmas[0].outRow}`).value = parmas[1][2]; //manufacturer
+        worksheet.getCell(`${parmas[0].outUOM}${parmas[0].outRow}`).value = parmas[0].uom; //uom
+        worksheet.getCell(`${parmas[0].outComm}${parmas[0].outRow}`).value = parmas[0].commGroup; //c-group
+        // worksheet.getCell(`${parmas[0].outItemDesc[2]}${parmas[0].outRow}`).value = parmas[1][2]; //c-code
+        worksheet.getCell(`${parmas[0].outGL}${parmas[0].outRow}`).value = parmas[0].glClass; //gl-class
+        worksheet.getCell(`${parmas[0].outTranslate}${parmas[0].outRow}`).value = 'placeholder-translated'; //translated
+        worksheet.getCell(`${parmas[0].outMissing}${parmas[0].outRow}`).value = 'placeholder-missing'; //missing
+        // worksheet.getCell(`${parmas[0].outItemDesc[2]}${parmas[0].outRow}`).value = parmas[1][2]; //question
         await this.saveWorkbook(workbook, this.filePath);
     }
 
-    // TODO switch to new library
     async saveNumber(parmas) {
-        let workbook = xlsx.readFile(this.filePath, { cellStyles: true, bookVBA: true });
-        let worksheet = workbook.Sheets[parmas[1]];
-        worksheet[`${parmas[3][0]}${parmas[2]}`] = { t: `s`, v: parmas[4][1], w: undefined };
-        worksheet[`${parmas[3][1]}${parmas[2]}`] = { t: `s`, v: parmas[4][0], w: undefined };
-        let savePath = parmas[0];
-        return await this.saveWorkbook(workbook, savePath);
+        let workbook = new Exceljs.Workbook();
+        await workbook.xlsx.readFile(this.filePath);
+        let worksheet = workbook.getWorksheet(parmas[1]);
+        worksheet.getCell(`${parmas[3]}${parmas[2]}`).value = parmas[4];
+        return await this.saveWorkbook(workbook, this.filePath);
     }
 
     async saveNonInteractive(parmas) {
