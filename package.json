@@ -33,12 +33,15 @@
   },
   "config": {
     "forge": {
-      "packagerConfig": {},
+      "packagerConfig": {
+        "icon": "renderer/iko_logo.ico"
+      },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "iko_utility"
+            "name": "iko_utility",
+            "setupIcon": "renderer/iko_logo.ico"
           }
         },
         {

@@ -7,7 +7,7 @@ function openObserveTemp() {
 function openItem() {
     const worker = new WorkerHandler();
 
-    version = ipc.sendSync('getVersion');
+    version = ipcRenderer.sendSync('getVersion');
     worker.work(['checkItemCache', version], openMain);
 
     function openMain() {
@@ -25,5 +25,5 @@ function openAssetDescription() {
 
 document.getElementById("openObserveTemp").addEventListener("click", openObserveTemp);
 document.getElementById("openItem").addEventListener("click", openItem);
-document.getElementById("openItemTranslation").addEventListener("click", openItemTranslation);
+// document.getElementById("openItemTranslation").addEventListener("click", openItemTranslation);
 document.getElementById("openAssetDescription").addEventListener("click", openAssetDescription); 
