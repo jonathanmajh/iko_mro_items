@@ -128,17 +128,17 @@ function worksheetParams(path = false) {
     let params = {
         // input parameters
         wsName: document.getElementById("ws-name").value || "Sheet1", // name of ws
-        inDesc: (document.getElementById("input-col").value || "B,C").split(','), // description columns for input
+        inDesc: (document.getElementById("input-col").value || "B,C").toUpperCase().split(','), // description columns for input
         startRow: document.getElementById("start-row").value || "2",  // starting row of ws
         // output parameters
-        outItemNum: document.getElementById("output-col").value || "E",
-        outItemDesc: (document.getElementById("output-col-desc").value || "F,G,H").split(','),
-        outComm: document.getElementById("interact-num").value || "I", // commodity group out
-        outGL: document.getElementById("interact-num").value || "J", // gl class out
-        outUOM: document.getElementById("interact-num").value || "K", // uom out
-        outQuestion: document.getElementById("interact-num").value || "L", // questions out
-        outTranslate: document.getElementById("output-col-translation").value || "M",
-        outMissing: document.getElementById("output-col-missing").value || "N",
+        outItemNum: document.getElementById("output-col").value.toUpperCase() || "E",
+        outItemDesc: (document.getElementById("output-col-desc").value || "F,G,H").toUpperCase().split(','),
+        outComm: document.getElementById("interact-num").value.toUpperCase() || "I", // commodity group out
+        outGL: document.getElementById("interact-num").value.toUpperCase() || "J", // gl class out
+        outUOM: document.getElementById("interact-num").value.toUpperCase() || "K", // uom out
+        outQuestion: document.getElementById("interact-num").value.toUpperCase() || "L", // questions out
+        outTranslate: document.getElementById("output-col-translation").value.toUpperCase() || "M",
+        outMissing: document.getElementById("output-col-missing").value.toUpperCase() || "N",
         // output data
         itemNum: document.getElementById("interact-num").value || '999TEST',
         itemDesc: document.getElementById("maximo-desc").value || "TEST,ITEM,DESCRIPTION",

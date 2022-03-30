@@ -1,4 +1,5 @@
 const TransDB = require('./item-translation-sqlite');
+const Database = require('../indexDB');
 
 class TranslateDescription {
     contextTranslate(description, lang_code, result) {
@@ -6,6 +7,7 @@ class TranslateDescription {
         // accounts for context of parent words
         let descriptions = description.split(',');
         const db = new TransDB();
+        const db2 = new Database();
         const hasNumber = /\d/; //regex to check for numbers [0-9]
 
         let temp;
@@ -19,21 +21,23 @@ class TranslateDescription {
             if (!hasNumber.test(descriptions[i])) {
                 // if the phrase does not have any numbers try to translate the whole phrase
                 for (let j = descriptions.length; j > i; j--) {
-                    replacement = db.getTranslation(lang_code, descriptions.slice(i,j).join(','));
+                    replacement = db.getTranslation(lang_code, descriptions.slice(i, j).join(','));
                     if (replacement) {
-                        postMessage(['debug', `${descriptions.slice(i,j)} translated to ${replacement}`]);
+                        postMessage(['debug', `${descriptions.slice(i, j)} translated to ${replacement}`]);
                         transDesc.push(replacement);
                         i = j - 1;
                         break;
-                    } else if (descriptions.slice(i,j).length > 1) {
-                        postMessage(['debug', `${descriptions.slice(i,j).join(',')} has no translation to ${lang_code}`]);
+                    } else if (descriptions.slice(i, j).length > 1) {
+                        postMessage(['debug', `${descriptions.slice(i, j).join(',')} has no translation to ${lang_code}`]);
                     } else {
-                        postMessage(['debug', `${descriptions.slice(i,j)} has no translation to ${lang_code}`]);
-                        transDesc.push(descriptions.slice(i,j));
-                        missing.push(descriptions[i]);
+                        if (!(db2.isManufacturer(descriptions.slice(i, j)))) {
+                            postMessage(['debug', `${descriptions.slice(i, j)} has no translation to ${lang_code}`]);
+                            missing.push(descriptions[i]);
+                        }
+                        transDesc.push(descriptions.slice(i, j));
                     }
                 }
-                
+
             } else {
                 // if the phrase has numbers then split it by spaces and check each word
                 temp = descriptions[i].split(" ");
@@ -66,7 +70,7 @@ class TranslateDescription {
         if (result == 'post') {
             postMessage(['result', transDesc.join(","), missing]);
         } else if (result == 'return') {
-            return {description: transDesc.join(","), missing: missing};
+            return { description: transDesc.join(","), missing: missing };
         } else {
             console.log('no return specified');
             postMessage(['error', 'no return specified']);
@@ -125,7 +129,7 @@ class TranslateDescription {
             }
         }
         // join the phrases back into a description
-        return {description: transDesc.join(","), missing: missing};
+        return { description: transDesc.join(","), missing: missing };
     }
 }
 

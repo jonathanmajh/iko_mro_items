@@ -32,7 +32,17 @@ class TranslationDatabase {
             english, lang_code, translation)
             VALUES (@english, @lang_code, @translation)`);
         const insertMany = this.db.transaction((data) => {
-            for (const translation of data) insert.run(translation);
+            for (const translation of data) {
+                try {
+                    insert.run(translation);
+                } catch (SqliteError) {
+                    postMessage(['debug', SqliteError.message]);
+                    console.log(SqliteError.message);
+                    if (SqliteError.code == "SQLITE_CONSTRAINT_UNIQUE") {
+                        postMessage(['error', 'Duplicate Value in English']);
+                    }
+                }
+            }
         });
         insertMany(data);
         postMessage(['result', 'complete']);
