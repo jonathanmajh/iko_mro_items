@@ -19,6 +19,8 @@ document.getElementById("save-num").addEventListener("click", writeItemNum);
 document.getElementById("skip-row").addEventListener("click", skipRow);
 document.getElementById("open-in-browser").addEventListener("click", openBrowser);
 document.getElementById("continueAuto").addEventListener("click", continueAuto);
+document.getElementById("openBatchFile").addEventListener("click", openFile);
+
 
 // listener for enter key on search field
 document.getElementById("maximo-desc").addEventListener("keyup", function (event) {
@@ -178,9 +180,10 @@ function writeComplete() {
 }
 
 function openFile() {
-    const validFile = document.getElementById("valid-file");
-    const filePath = validFile.innerText;
-    if (filePath.length > 0) {
+    const validFile = document.getElementById("worksheet-path");
+    const filePath = validFile.value;
+    if (filePath !== 'No file chosen') {
+        new Toast('Opening File in Excel!');
         shell.openExternal(filePath);
     }
 }
@@ -205,11 +208,6 @@ function openExcel() {
             new Toast('File Picker Cancelled');
         }
     });
-}
-
-function checkAgain() {
-    const worker = new WorkerHandler();
-    worker.work(['validSingle', document.getElementById("maximo-desc").value], showResult);
 }
 
 function skipRow() {
@@ -252,7 +250,6 @@ function finishLoadingBatch(params) {
         } else if (msg.data[0] === 'saveComplete') {
             interactiveGoNext(msg.data[1]);
             new Toast('File Saved');
-            debugger
             worker.terminate();
         } else {
             console.log(`IDK: ${msg.data}`);
@@ -317,17 +314,6 @@ function interactiveGoNext(row) {
         let bar = new ProgressBar();
         bar.update(100, 'Done');
     }
-}
-
-function triplePaste() {
-    let paste = clipboard.readText();
-    if (!paste) {
-        new Toast('No content');
-    }
-    let descs = paste.split('	'); //excel uses that char for delimiting cells
-    document.getElementById('main-desc').value = descs[0];
-    document.getElementById('ext-desc-1').value = descs[1];
-    document.getElementById('ext-desc-2').value = descs[2];
 }
 
 function validSingle() {
