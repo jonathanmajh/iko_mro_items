@@ -12,76 +12,107 @@ const Translation = require('../assets/item_translation/item-translation');
 const fs = require('fs');
 
 onmessage = function (e) {
-    if (e.data[0] === 'validSingle') {
-        let valid = new Validate();
-        valid.validateSingle(e.data[1]).then(
-            result => {
+    let valid;
+    let maximo;
+    switch (e.data[0]) {
+        case 'validSingle':
+            valid = new Validate();
+            valid.validateSingle(e.data[1]).then((result) => {
                 postMessage(['result', result]);
-            }
-        );
-    } else if (e.data[0] === 'validBatch') {
-        let valid = new Validate();
-        valid.validateBatch(e.data[1]).then(
-            result => {
+            });
+            break;
+        case 'validBatch':
+            valid = new Validate();
+            valid.validateBatch(e.data[1]).then((result) => {
                 postMessage(['result', result]);
+            });
+            break;
+        case 'update':
+            update(e);
+            break;
+        case 'createDatabase':
+            const db = new Database();
+            db.createAbbreviations();
+            db.createManufacturers();
+            postMessage(['result', 'done']);
+            break;
+        case 'findRelated':
+            maximo = new Database();
+            maximo.findRelated(e.data[1], true);
+            break;
+        case 'interactive':
+            interactive(e);
+            break;
+        case 'writeDesc':
+            writeDesc(e);
+            break;
+        case 'writeNum':
+            writeItemNum(e.data[1]);
+            break;
+        case 'checkItemCache':
+            checkItemCache(e.data[1]);
+            break;
+        case 'processObservationList':
+            const excel = new Spreadsheet(e.data[1][0]);
+            excel.readObservList(e.data[1][1]);
+            break;
+        case 'getMaximoObservation':
+            maximo = new Maximo();
+            maximo.getObservations();
+            break;
+        case 'compareObservLists':
+            compareObservLists(e.data[1], e.data[2], e.data[3]);
+            break;
+        case 'refreshTranslations':
+            refreshTranslations(e.data[1]);
+            break;
+        case 'batchTranslate':
+            batchTranslate(e.data[1]);
+            break;
+        case 'nonInteractive':
+            nonInteractiveSave(e.data[1]);
+            break;
+        case 'loadItem':
+            maximo = new Database();
+            let result = maximo.loadItem(e.data[1]);
+            if (result) {
+                postMessage(['result', result]);
+            } else {
+                postMessage(['error', `${itemnum} cannot be found in Maximo`]);
             }
-        );
-    } else if (e.data[0] === 'update') {
-        update(e);
-    } else if (e.data[0] === 'createDatabase') {
-        const db = new Database();
-        db.createAbbreviations();
-        db.createManufacturers();
-        postMessage(['result', 'done']);
-    } else if (e.data[0] === 'findRelated') {
-        const maximo = new Database();
-        maximo.findRelated(e.data[1], true);
-    } else if (e.data[0] === 'interactive') {
-        interactive(e);
-    } else if (e.data[0] === 'writeDesc') {
-        writeDesc(e);
-    } else if (e.data[0] === 'writeNum') {
-        writeItemNum(e.data[1]);
-    } else if (e.data[0] === 'checkItemCache') {
-        checkItemCache(e.data[1]);
-    } else if (e.data[0] === 'processObservationList') {
-        const excel = new Spreadsheet(e.data[1][0]);
-        excel.readObservList(e.data[1][1]);
-    } else if (e.data[0] === 'getMaximoObservation') {
-        const maximo = new Maximo();
-        maximo.getObservations();
-    } else if (e.data[0] === 'compareObservLists') {
-        compareObservLists(e.data[1], e.data[2], e.data[3]);
-    } else if (e.data[0] === 'refreshTranslations') {
-        refreshTranslations(e.data[1]);
-    } else if (e.data[0] === 'batchTranslate') {
-        batchTranslate(e.data[1]);
-    } else if (e.data[0] === 'nonInteractive') {
-        nonInteractiveSave(e.data[1]);
-    } else if (e.data[0] === 'loadItem') {
-        const maximo = new Database();
-        let result = maximo.loadItem(e.data[1]);
-        if (result) {
-            postMessage(['result', result]);
-        } else {
-            postMessage(['error', `${itemnum} cannot be found in Maximo`]);
-        }
-    } else if (e.data[0] === 'translatepms') {
-        const translate = new AssetTranslate();
-        translate.translate(e.data[1]);
-    } else if (e.data[0] === 'getNextItemNumber') {
-        const maximo = new Maximo();
-        maximo.getNextItemNumber();
-    } else if (e.data[0] === 'translateItem') {
-        const trans = new Translation();
-        result = trans.contextTranslate(e.data[1], e.data[2], e.data[3]);
-    } else {
-        console.log(`Unimplimented work ${e.data[0]}`);
+            break;
+        case 'translatepms':
+            const translate = new AssetTranslate();
+            translate.translate(e.data[1]);
+            break;
+        case 'getNextItemNumber':
+            maximo = new Maximo();
+            maximo.getNextItemNumber();
+            break;
+        case 'translateItem':
+            const trans = new Translation();
+            result = trans.contextTranslate(e.data[1], e.data[2], e.data[3]);
+            break;
+        case 'saveProcessed':
+            saveProgress(e.data[1]);
+            break;
+        default:
+            console.log(`Unimplimented work ${e.data[0]}`);
     }
 };
 
-async function nonInteractiveSave(params) {
-    if (params[0]) { // find related
+async function saveProgress(params) {
+    const db = new Database();
+    const data = db.getAllWorkingDesc();
+    const excel = new ExcelReader(params[0].filePath);
+    let result = await excel.saveNonInteractive(params, data);
+    console.log(result);
+    postMessage(['saveComplete', Number(params[1]) + 1]);
+}
+
+function nonInteractiveSave(params) {
+    if (params[0]) {
+        // find related
         const maximo = new Database();
         let related = maximo.findRelated(params[2], false);
         for (let value of Object.entries(related[0])) {
@@ -91,19 +122,18 @@ async function nonInteractiveSave(params) {
             }
         }
         // gets first element in related object scores
-        // technically this is bad practise since object order might not be guarenteed 
+        // technically this is bad practise since object order might not be guarenteed
         // https://stackoverflow.com/questions/983267/how-to-access-the-first-property-of-a-javascript-object
     }
-    if (params[1]) { // translate
+    if (params[1]) {
+        // translate
         const trans = new Translation();
         params[1] = trans.contextTranslate(params[2], params[3], 'return');
     }
     const db = new Database();
-    db.saveDescriptionAnalysis({related: params[0], translate: params[1]}, params[5]);
+    db.saveDescriptionAnalysis({ related: params[0], translate: params[1] }, params[5]);
     // number of rows should be shown and that should be used to determine when to save / finsih
     // also need stop / cancel button
-    const excel = new ExcelReader(params[4].filePath);
-    let result = await excel.saveNonInteractive(params);
     postMessage(['nextrow', Number(params[5]) + 1]);
 }
 
@@ -175,7 +205,6 @@ async function refreshTranslations(filePath) {
     postMessage(['result', result]);
 }
 
-
 async function compareObservLists(data, savePath, jobTaskPath) {
     const sqlite = new ObservationDatabase();
     // compare condition domain definition
@@ -220,9 +249,8 @@ async function compareObservLists(data, savePath, jobTaskPath) {
         domainDef: { changes: newMeters, delete: removeOldMeters },
         domainVal: { changes: newObservations, delete: removeOldObservations },
         meter: { changes: newMaximoMeters, delete: removeOldMaximoMeters },
-        jobTask: { changes: newJobTasks, delete: removeJobTasks }
+        jobTask: { changes: newJobTasks, delete: removeJobTasks },
     });
-
 }
 
 async function writeItemNum(data) {
@@ -243,11 +271,14 @@ async function checkItemCache(version) {
     // check internal cache of item information and update with new items in maximo
     postMessage(['debug', `Loading Item Module`]);
     postMessage(['debug', `0%: Checking list of Manufacturers & Abbrivations`]);
-    const filePath = path.join(require('path').resolve(__dirname).replace('renderer', 'assets'), 'item_information.xlsx');
+    const filePath = path.join(
+        require('path').resolve(__dirname).replace('renderer', 'assets'),
+        'item_information.xlsx'
+    );
     const excel = new ExcelReader(filePath);
     const db = new Database();
     const shareDB = new SharedDatabase();
-    if(!(await shareDB.checkVersion(version))) {
+    if (!(await shareDB.checkVersion(version))) {
         db.createTables();
     }
     await db.checkValidDB();
@@ -273,4 +304,3 @@ async function checkItemCache(version) {
     }
     postMessage(['result', 'done']);
 }
-

@@ -127,8 +127,8 @@ function writeDescription() {
 function worksheetParams(path = false) {
     let params = {
         // input parameters
-        wsName: document.getElementById("ws-name").value || "Sheet1", // name of ws
-        inDesc: (document.getElementById("input-col").value || "B,C").toUpperCase().split(','), // description columns for input
+        wsName: document.getElementById("ws-name").value || "Sheet2", // name of ws
+        inDesc: (document.getElementById("input-col").value || "F").toUpperCase().split(','), // description columns for input
         startRow: document.getElementById("start-row").value || "2",  // starting row of ws
         // output parameters
         outItemNum: document.getElementById("output-col").value.toUpperCase() || "E",
@@ -137,8 +137,8 @@ function worksheetParams(path = false) {
         outGL: document.getElementById("interact-num").value.toUpperCase() || "J", // gl class out
         outUOM: document.getElementById("interact-num").value.toUpperCase() || "K", // uom out
         outQuestion: document.getElementById("interact-num").value.toUpperCase() || "L", // questions out
-        outTranslate: document.getElementById("output-col-translation").value.toUpperCase() || "M",
-        outMissing: document.getElementById("output-col-missing").value.toUpperCase() || "N",
+        outTranslate: document.getElementById("output-col-translation").value.toUpperCase() || "L",
+        outMissing: document.getElementById("output-col-missing").value.toUpperCase() || "M",
         // output data
         itemNum: document.getElementById("interact-num").value || '999TEST',
         itemDesc: document.getElementById("maximo-desc").value || "TEST,ITEM,DESCRIPTION",
@@ -236,13 +236,24 @@ function finishLoadingBatch(params) {
     worker.onmessage = (msg) => {
         if (msg.data[0] === 'nextrow') {
             description = db.getDescription(msg.data[1]);
-            document.getElementById("current-row").innerHTML = description.row;
             if (description === undefined) {
+                params = worksheetParams(document.getElementById("worksheet-path").value);
+                worker.postMessage([
+                    'saveProcessed',
+                    [params, msg.data[1]]
+                ]);
                 new Toast('Finished Batch Processing');
+                new Toast('Please wait for file to finish saving...');
                 return false;
             }
+            document.getElementById("current-row").innerHTML = description.row;
             bar.update(msg.data[1] / params[2] * 100, `Processing Description. Row: ${msg.data[1]} of ${params[2]}`);
             processBatch(worker, msg.data[1], description);
+        } else if (msg.data[0] === 'saveComplete') {
+            interactiveGoNext(msg.data[1]);
+            new Toast('File Saved');
+            debugger
+            worker.terminate();
         } else {
             console.log(`IDK: ${msg.data}`);
         }
@@ -255,9 +266,11 @@ function processBatch(worker, row, description) {
     const translate = document.getElementById("translateSelect").checked;
     const params = worksheetParams(document.getElementById("worksheet-path").value);
     if (interactive) {
-        // switch to interactive mode
-        worker.terminate();
-        interactiveGoNext(row);
+        new Toast('Pausing / Switching to Interactive Mode');
+        worker.postMessage([
+            'saveProcessed',
+            [params, row]
+        ]);
     } else {
         worker.postMessage([
             'nonInteractive',

@@ -124,6 +124,12 @@ class Database {
         return result;
     }
 
+    getAllWorkingDesc() {
+        const stmt = this.db.prepare('SELECT * FROM workingDescription WHERE analysis IS NOT NULL');
+        const result = stmt.all();
+        return result;
+    }
+
     // get the time stamp (version) of when the item cache was last updated
     getVersion() {
         const stmt = this.db.prepare('SELECT changed_date FROM itemCache ORDER BY changed_date DESC LIMIT 1');
