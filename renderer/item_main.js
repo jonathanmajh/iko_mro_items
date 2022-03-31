@@ -74,7 +74,7 @@ function openBrowser() {
 function openBrowserLink(info) {
     document.getElementById("popupAlertTitle").innerHTML = 'Generating Maximo Link...';
     document.getElementById("popupAlertBody").innerHTML = '<p>Getting New Item Number...</p>';
-    let url = `http://nscandacmaxapp1.na.iko/maximo/ui/maximo.jsp?event=loadapp&value=item&additionalevent=insert&additionaleventvalue=description=${document.getElementById('result-single').innerHTML}`;
+    let url = `http://nscandacmaxapp1.na.iko/maximo/ui/maximo.jsp?event=loadapp&value=item&additionalevent=insert&additionaleventvalue=description=${document.getElementById('maximo-desc').value}`;
     if (info[0] === 0) {
         let number = info[1] + 1;
         document.getElementById("popupAlertBody").innerHTML = `<p>New Item Number is: ${number}</p>`;
