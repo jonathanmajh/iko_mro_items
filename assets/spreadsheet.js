@@ -188,7 +188,7 @@ class ExcelReader {
                 worksheet.getCell(`${parmas[0].outTranslate}${item.row}`).value =
                     item.analysis.translate.description; // translated description
                 worksheet.getCell(`${parmas[0].outMissing}${item.row}`).value =
-                    item.analysis.translate.missing.join(`\r\n`); // missing translations windows wants \r\n instead of just \n
+                    item.analysis.translate.missing.join('|'); // missing translations windows wants \r\n instead of just \n
             }
             // worksheet.getCell(`${parmas[0].outItemDesc}${item.row}`).value = parmas[2]; // en description
         }

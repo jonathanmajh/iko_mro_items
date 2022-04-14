@@ -37,15 +37,15 @@ class Spreadsheet {
         const languages = ws.getRow(1).cellCount;
         let lang_codes = [];
         for (let i = 2; i <= languages; i++) {
-            lang_codes.push(ws.getCell(1, i).text);
+            lang_codes.push(ws.getCell(1, i).text.toUpperCase());
         }
         let translations = [];
         for (let i = 2; i <= lastRow; i++) {
             for (let j = 2; j <= languages; j++) {
                 translations.push({
-                    english: ws.getCell(i, 1).text,
-                    lang_code: lang_codes[j - 2].toUpperCase(),
-                    translation: ws.getCell(i, j).text
+                    english: ws.getCell(i, 1).text.toUpperCase().trim(),
+                    lang_code: lang_codes[j - 2],
+                    translation: ws.getCell(i, j).text.toUpperCase().trim()
                 });
             }
         }

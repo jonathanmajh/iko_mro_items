@@ -18,52 +18,49 @@ class TranslateDescription {
 
         for (let i = 0; i < descriptions.length; i++) {
             // 1. loop through all phrases (a phrase in this case is the string between commas)
-            if (!hasNumber.test(descriptions[i])) {
-                // if the phrase does not have any numbers try to translate the whole phrase
-                for (let j = descriptions.length; j > i; j--) {
-                    replacement = db.getTranslation(lang_code, descriptions.slice(i, j).join(','));
-                    if (replacement) {
-                        postMessage(['debug', `${descriptions.slice(i, j)} translated to ${replacement}`]);
-                        transDesc.push(replacement);
-                        i = j - 1;
-                        break;
-                    } else if (descriptions.slice(i, j).length > 1) {
-                        postMessage(['debug', `${descriptions.slice(i, j).join(',')} has no translation to ${lang_code}`]);
-                    } else {
-                        if (!(db2.isManufacturer(descriptions.slice(i, j)))) {
-                            postMessage(['debug', `${descriptions.slice(i, j)} has no translation to ${lang_code}`]);
-                            missing.push(descriptions[i]);
-                        }
-                        transDesc.push(descriptions.slice(i, j));
-                    }
-                }
 
-            } else {
-                // if the phrase has numbers then split it by spaces and check each word
-                temp = descriptions[i].split(" ");
-                if (temp.length > 1) {
-                    tempNew = [];
-                    for (let j = 0; j < temp.length; j++) {
-                        if (!hasNumber.test(temp[j])) {
-                            // if the word has no numbers translate it
-                            replacement = db.getTranslation(lang_code, temp[j]);
-                            if (replacement) {
-                                tempNew.push(replacement);
-                            } else if (temp[j].length > 0) {
-                                tempNew.push(temp[j]);
-                                missing.push(temp[j]);
-                                postMessage(['debug', `${temp[j]} has no translation to ${lang_code}`]);
-                            }
-                        } else {
-                            // if it has numbers just leave it as it
-                            tempNew.push(temp[j]);
-                        }
-                    }
+            // if the phrase does not have any numbers try to translate the whole phrase
+            for (let j = descriptions.length; j > i; j--) {
+                replacement = db.getTranslation(lang_code, descriptions.slice(i, j).join(','));
+                if (replacement) {
+                    postMessage(['debug', `${descriptions.slice(i, j)} translated to ${replacement}`]);
+                    transDesc.push(replacement);
+                    i = j - 1;
+                    break;
+                } else if (descriptions.slice(i, j).length > 1) {
+                    postMessage(['debug', `${descriptions.slice(i, j).join(',')} has no translation to ${lang_code}`]);
                 } else {
-                    tempNew = temp;
+                    debugger
+                    if (!(db2.isManufacturer(descriptions.slice(i, j)))) {
+                        postMessage(['debug', `${descriptions.slice(i, j)} has no translation to ${lang_code}`]);
+                        temp = descriptions[i].split(" ");
+                        if (hasNumber.test(descriptions[i])) {
+                            transDesc.push(descriptions[i]);
+                            
+                        } else if (temp.length == 1){
+                            transDesc.push(descriptions[i]);
+                            missing.push(descriptions[i]);
+                        
+                        } else {
+                            // if the phrase has numbers then split it by spaces and check each word
+                                tempNew = [];
+                                for (let k = 0; k < temp.length; k++) {
+                                    replacement = db.getTranslation(lang_code, temp[k]);
+                                    if (replacement) {
+                                        tempNew.push(replacement);
+                                    } else if (temp[k].length > 0) {
+                                        tempNew.push(temp[k]);
+                                        missing.push(temp[k]);
+                                        postMessage(['debug', `${temp[k]} has no translation to ${lang_code}`]);
+                                    }
+                                }
+                            // join the individual words back into a phrase
+                            transDesc.push(tempNew.join(" "));
+                        }
+                    } else { // if it is manufacturer
+                        transDesc.push(descriptions[i]);
+                    }
                 }
-                // join the individual words back into a phrase
-                transDesc.push(tempNew.join(" "));
             }
         }
         // join the phrases back into a description

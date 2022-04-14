@@ -140,7 +140,7 @@ function worksheetParams(path = false) {
         outUOM: document.getElementById("interact-num").value.toUpperCase() || "K", // uom out
         outQuestion: document.getElementById("interact-num").value.toUpperCase() || "L", // questions out
         outTranslate: document.getElementById("output-col-translation").value.toUpperCase() || "L",
-        outMissing: document.getElementById("output-col-missing").value.toUpperCase() || "M",
+        outMissing: document.getElementById("output-col-missing").value.toUpperCase() || "K",
         // output data
         itemNum: document.getElementById("interact-num").value || '999TEST',
         itemDesc: document.getElementById("maximo-desc").value || "TEST,ITEM,DESCRIPTION",
