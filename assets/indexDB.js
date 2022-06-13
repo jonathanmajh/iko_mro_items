@@ -204,14 +204,15 @@ class Database {
 
     // checks if the name given is a manufacturer
     isManufacturer(name) {
-        let stmt = this.db.prepare(`SELECT short_name FROM manufacturers where full_name = '${name}' or short_name = '${name}'`);
-        return stmt.get();
+        name = name[0];
+        let stmt = this.db.prepare(`SELECT short_name FROM manufacturers where full_name = ? or short_name = ?`);
+        return stmt.get([name, name]);
     }
 
     // check if the phrase given has a known abbrivation
     isAbbreviation(phase) {
-        let result = this.db.prepare(`SELECT replace_text from abbreviations where orig_text = '${phase}'`);
-        return result.get();
+        let result = this.db.prepare(`SELECT replace_text from abbreviations where orig_text = ?`);
+        return result.get([phase]);
     }
 
     // saves the current set of descriptions being worked on into the database

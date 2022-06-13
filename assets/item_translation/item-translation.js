@@ -30,7 +30,6 @@ class TranslateDescription {
                 } else if (descriptions.slice(i, j).length > 1) {
                     postMessage(['debug', `${descriptions.slice(i, j).join(',')} has no translation to ${lang_code}`]);
                 } else {
-                    debugger
                     if (!(db2.isManufacturer(descriptions.slice(i, j)))) {
                         postMessage(['debug', `${descriptions.slice(i, j)} has no translation to ${lang_code}`]);
                         temp = descriptions[i].split(" ");
