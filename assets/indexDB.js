@@ -135,7 +135,7 @@ class Database {
         const stmt = this.db.prepare('SELECT changed_date FROM itemCache ORDER BY changed_date DESC LIMIT 1');
         let version = stmt.all();
         if (version.length == 0) {
-            version = [{changed_date: '2000-01-01 00:00:00'}];
+            version = [{changed_date: '2022-01-01 00:00:00'}];
         }
         return version;
     }
