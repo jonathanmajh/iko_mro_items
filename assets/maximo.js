@@ -115,11 +115,45 @@ class Maximo {
         }
     }
 
+    async getNewManufacturers(date) {
+        date = date.replace(' ', 'T');
+        let response;
+        try {
+            response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/IKO_COMPMASTER?oslc.where=type="M" and changedate>"${date}"&oslc.select=company,name,homepage,changedate&_lid=${this.login.userid}&_lpwd=${this.login.password}`);
+        } catch (err) {
+            postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (1)', err]);
+            return false;
+        }
+        let content = await response.json();
+        let items = [];
+        let previousDate = [new Date("2000-01-01"), ''];
+        let newDate = '';
+        if (content["oslc:Error"]) { //content["Error"]["message"]
+            postMessage(['warning', content["oslc:Error"]]);
+            postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (2)']);
+            await new Promise(resolve => setTimeout(resolve, 5000));
+        } else {
+            content["rdfs:member"].forEach(item => {
+                newDate = item["spi:changedate"].replace("T", " ").slice(0, -6);
+                items.push([
+                    item["spi:company"],
+                    newDate, 
+                    item["spi:name"], 
+                    item["spi:homepage"], 
+                ]);
+                if (previousDate[0] < new Date(newDate)) {
+                    previousDate = [new Date(newDate), newDate];
+                }
+            });
+            return [items, previousDate[1]];
+        }
+    }
+
     async getNextItemNumber() {
         let response;
         try {
             // get latest 91* number (will need to be updated to 92 after 200k items have been created in Maximo)
-            response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/mxitem?oslc.where=itemnum="912%25"&_lid=${this.login.userid}&_lpwd=${this.login.password}&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum`);
+            response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/mxitem?oslc.where=itemnum="91%"&_lid=${this.login.userid}&_lpwd=${this.login.password}&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum`);
         } catch (err) {
             postMessage(['result', 1,'Failed to fetch Data from Maximo, Please Check Network (1)']);
             return false;
@@ -151,7 +185,7 @@ class Maximo {
             this.shareDB.savePassword(userid, password);
             this.login.password = password;
             this.login.userid = userid;
-            postMessage(['debug', `Successfully logged in to Maximo as: ${content.loginUserName}`]);
+            postMessage(['debug', `Successfully logged in to Maximo as: ${content.displayName}`]);
             postMessage(['result', 0, 'Successfully logged in to Maximo']);
             return true;
         }

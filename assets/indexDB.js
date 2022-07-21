@@ -10,7 +10,7 @@ const intersection = require('lodash/intersection');
 
 class Database {
     constructor() {
-        this.db = new sql(`${process.env.APPDATA}/IKO Reliability Tool/itemRelated.db`);//, { verbose: console.log });
+        this.db = new sql(`${process.env.APPDATA}/IKO Reliability Tool/program.db`);//, { verbose: console.log });
     }
 
     createTables() {
@@ -30,7 +30,9 @@ class Database {
         const createTable1 = this.db.prepare(`CREATE TABLE manufacturers(
             id INTEGER PRIMARY KEY,
             full_name TEXT NOT NULL COLLATE NOCASE,
-            short_name TEXT NOT NULL COLLATE NOCASE
+            short_name TEXT NOT NULL UNIQUE COLLATE NOCASE,
+            homepage TEXT,
+            changed_date TEXT COLLATE NOCASE
             );`);
         const createTable2 = this.db.prepare(`CREATE TABLE abbreviations(
             id INTEGER PRIMARY KEY,
@@ -131,8 +133,13 @@ class Database {
     }
 
     // get the time stamp (version) of when the item cache was last updated
-    getVersion() {
-        const stmt = this.db.prepare('SELECT changed_date FROM itemCache ORDER BY changed_date DESC LIMIT 1');
+    getVersion(type) {
+        let stmt;
+        if (type === 'maximo') {
+            stmt = this.db.prepare('SELECT changed_date FROM itemCache ORDER BY changed_date DESC LIMIT 1');
+        } else if (type === 'manufacturer') {
+            stmt = this.db.prepare('SELECT changed_date FROM manufacturers ORDER BY changed_date DESC LIMIT 1');
+        }
         let version = stmt.all();
         if (version.length == 0) {
             version = [{changed_date: '2022-01-01 00:00:00'}];
@@ -143,33 +150,6 @@ class Database {
     getAllManufacturers() {
         const stmt = this.db.prepare('SELECT short_name FROM manufacturers');
         return stmt.all();
-    }
-
-    // check if the database is populated from a previous run of the program
-    async checkValidDB() {
-        let stmt1;
-        let stmt2;
-        try {
-            stmt1 = this.db.prepare('SELECT COUNT(*) as c FROM manufacturers');
-            stmt2 = this.db.prepare('SELECT COUNT(*) as c FROM abbreviations');
-        } catch (SqliteError) {
-            this.createTables();
-            stmt1 = this.db.prepare('SELECT COUNT(*) as c FROM manufacturers');
-            stmt2 = this.db.prepare('SELECT COUNT(*) as c FROM abbreviations');
-        }
-        const result = [stmt1.get().c, stmt2.get().c];
-        console.log(`manu: ${result[0]}, abbr: ${result[1]}`);
-        if (result[0] > 0 && result[1] > 0) {
-            console.log('db ready');
-        } else {
-            const filePath = path.join(require('path').resolve(__dirname), 'item_database.xlsx');
-            const excel = new ExcelReader(filePath);
-            let manu = await excel.getManufactures();
-            let abbr = await excel.getAbbreviations();
-            this.populateAbbr(abbr);
-            this.populateManu(manu);
-            console.log('db ready');
-        }
     }
 
     //populate the database with abbrivations
@@ -188,14 +168,14 @@ class Database {
     }
 
     // populate the database with manufacturers
-    populateManu(data) {
+    saveManufacturers(data) {
         let dataDB = [];
         for (let i = 0; i < data.length; i++) {
-            dataDB.push({ full_name: data[i][0], short_name: data[i][1], website: data[i][2] });
+            dataDB.push({ full_name: data[i][2], short_name: data[i][0], homepage: data[i][3], changed_date: data[i][1] });
         }
-        const insert = this.db.prepare(`INSERT INTO manufacturers (
-            full_name, short_name)
-            VALUES (@full_name, @short_name)`);
+        const insert = this.db.prepare(`INSERT OR REPLACE INTO manufacturers (
+            full_name, short_name, homepage, changed_date)
+            VALUES (@full_name, @short_name, @homepage, @changed_date)`);
         const insertMany = this.db.transaction((data) => {
             for (const item of data) insert.run(item);
         });

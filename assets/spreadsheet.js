@@ -64,9 +64,10 @@ class ExcelReader {
             if (worksheet.getCell(`A${i}`).text) {
                 data.push([
                     worksheet.getCell(`A${i}`).text,
+                    dt.DateTime.fromSeconds(
+                        (parseFloat(worksheet.getCell(`B${i}`).text) - 25569) * 86400 + 14400).toFormat('yyyy-LL-dd HH:mm:ss'),
                     worksheet.getCell(`C${i}`).text,
-                    null,
-                    null,
+                    worksheet.getCell(`D${i}`).text,
                 ]);
             }
         }

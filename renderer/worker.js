@@ -285,37 +285,48 @@ async function checkItemCache(version) {
     // check internal cache of item information and update with new items in maximo
     postMessage(['debug', `Loading Item Module`]);
     const maximo = new Maximo();
-    postMessage(['debug', `0%: Checking list of Manufacturers & Abbrivations`]);
-    const filePath = path.join(
-        require('path').resolve(__dirname).replace('renderer', 'assets'),
-        'item_information.xlsx'
-    );
-    const excel = new ExcelReader(filePath);
+    postMessage(['debug', `0%: Checking Program Version`]);
+
     const db = new Database();
     const shareDB = new SharedDatabase();
     if (!(await shareDB.checkVersion(version))) {
         db.createTables();
-    }
-    await db.checkValidDB();
-    postMessage(['debug', `33%: Checking list of items in cache`]);
-    let xlVersion = await excel.getVersion();
-    let curVersion = await db.getVersion('maximoItemCache');
-    curVersion = curVersion[0]?.changed_date;
-    if (curVersion < xlVersion) {
-        postMessage(['debug', `40%: Loading item cache data from file`]);
+        const filePath = path.join(
+            require('path').resolve(__dirname).replace('renderer', 'assets'),
+            'item_information.xlsx'
+        );
+        const excel = new ExcelReader(filePath);
+        postMessage(['debug', `10%: Loading Item cache data from file`]);
         db.clearItemCache();
         let data = await excel.getItemCache();
-        postMessage(['debug', `60%: Saving data to item cache`]);
+        postMessage(['debug', `20%: Saving data to Item cache`]);
         db.saveItemCache(data[0]);
+        postMessage(['debug', `30%: Loading Manufacturer cache data from file`]);
+        let manu = await excel.getManufactures();
+        let abbr = await excel.getAbbreviations();
+        postMessage(['debug', `40%: Saving data to Manufacturer cache`]);
+        db.populateAbbr(abbr);
+        db.saveManufacturers(manu);
     }
-    curVersion = db.getVersion('maximoItemCache');
-    curVersion = curVersion[0]?.changed_date ?? xlVersion;
-    postMessage(['debug', `75%: Getting items with changes after: ${curVersion} from Maximo`]);
+    curVersion = db.getVersion('maximo');
+    curVersion = curVersion[0].changed_date;
+    postMessage(['debug', `50%: Getting items with changes after: ${curVersion} from Maximo`]);
 
     let newItems = await maximo.getNewItems(curVersion);
     if (newItems) {
-        postMessage(['debug', '85%: Saving maximo data to item cache']);
+        postMessage(['debug', '65%: Saving maximo data to item cache']);
         db.saveItemCache(newItems[0]);
     }
+
+    curVersion = db.getVersion('manufacturer');
+    curVersion = curVersion[0].changed_date;
+    postMessage(['debug', `80%: Getting Manufacturer with changes after: ${curVersion} from Maximo`]);
+    newItems = await maximo.getNewManufacturers(curVersion);
+    debugger;
+    if (newItems) {
+        postMessage(['debug', '90%: Saving maximo data to Manufacturer cache']);
+        db.saveManufacturers(newItems[0]);
+    }
+
     postMessage(['result', 'done']);
 }

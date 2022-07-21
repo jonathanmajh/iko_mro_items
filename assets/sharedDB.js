@@ -12,7 +12,7 @@ class SharedDatabase {
         let lastVersion = '0.0.0';
         try {
             stmt = this.db.prepare(`SELECT value FROM settings WHERE key = 'version'`);
-            lastVersion = stmt.get()['value'];
+            lastVersion = stmt.get().value;
             stmt = this.db.prepare(`UPDATE settings SET value = '${curVersion}' WHERE key = 'version'`);
             stmt.run();
         } catch (SqliteError) {

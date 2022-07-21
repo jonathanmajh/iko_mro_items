@@ -35,7 +35,7 @@ function checkLogin(status) {
     document.getElementById('spinner').classList.remove("d-flex");
     document.getElementById('spinner').classList.add("d-none");
     if (status[0] === 0) {
-        html.hide();
+        popupAlert.hide();
         postMessage(['debug', `Successfully logged in to Maximo`]);
         switch (selected) {
             case 'openItem':
@@ -64,6 +64,7 @@ function tryLoginAgain() {
 }
 
 function noMaximo() {
+    popupAlert.hide();
     switch (selected) {
         case 'openItem':
             openItem();
