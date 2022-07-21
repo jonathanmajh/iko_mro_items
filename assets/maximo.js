@@ -1,7 +1,11 @@
 // various functions for fetching data from maximo rest api
+const SharedDatabase = require('../assets/sharedDB');
 
 class Maximo {
-    constructor() { }
+    constructor() { 
+        this.shareDB = new SharedDatabase();
+        this.login = this.shareDB.getPassword();
+    }
 
     async getMeters() {
         let response;
@@ -10,7 +14,7 @@ class Maximo {
         let meters = [];
         while (nextpage) {
             try {
-                response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/iko_meter?pageno=${pageno}&_lpwd=happy818&oslc.pageSize=100&_lid=corcoop3&oslc.select=*&oslc.where=domainid%3D%22M-%25%22`);
+                response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/iko_meter?pageno=${pageno}&_lpwd=${this.login.password}&oslc.pageSize=100&_lid=${this.login.userid}&oslc.select=*&oslc.where=domainid%3D%22M-%25%22`);
             } catch (err) {
                 postMessage(['error', 'Failed to fetch Data from Maximo, Please Check Network', err]);
                 return false;
@@ -41,7 +45,7 @@ class Maximo {
         let observations = [];
         while (nextpage) {
             try {
-                response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/iko_alndomain?pageno=${pageno}&oslc.where=domainid%3D%22M-%25%22&_lpwd=happy818&oslc.pageSize=100&_lid=corcoop3&oslc.select=alndomain%2Cdomainid%2Cdescription`);
+                response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/iko_alndomain?pageno=${pageno}&oslc.where=domainid%3D%22M-%25%22&_lpwd=${this.login.password}&oslc.pageSize=100&_lid=${this.login.userid}&oslc.select=alndomain%2Cdomainid%2Cdescription`);
             } catch (err) {
                 postMessage(['error', 'Failed to fetch Data from Maximo, Please Check Network', err]);
                 return false;
@@ -79,7 +83,7 @@ class Maximo {
         date = date.replace(' ', 'T');
         let response;
         try {
-            response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/mxitem?oslc.where=in22>"${date}" and itemnum="9%25"&_lid=corcoop3&_lpwd=happy818&oslc.select=itemnum,in22,description,issueunit,commoditygroup,externalrefid,status`);
+            response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/mxitem?oslc.where=in22>"${date}" and itemnum="9%25"&_lid=${this.login.userid}&_lpwd=${this.login.password}&oslc.select=itemnum,in22,description,issueunit,commoditygroup,externalrefid,status`);
         } catch (err) {
             postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (1)', err]);
             return false;
@@ -115,7 +119,7 @@ class Maximo {
         let response;
         try {
             // get latest 91* number (will need to be updated to 92 after 200k items have been created in Maximo)
-            response = await fetch('http://nscandacmaxapp1/maxrest/oslc/os/mxitem?oslc.where=itemnum="912%25"&_lid=corcoop3&_lpwd=happy818&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum');
+            response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/mxitem?oslc.where=itemnum="912%25"&_lid=${this.login.userid}&_lpwd=${this.login.password}&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum`);
         } catch (err) {
             postMessage(['result', 1,'Failed to fetch Data from Maximo, Please Check Network (1)']);
             return false;
@@ -127,6 +131,29 @@ class Maximo {
             let number = content["rdfs:member"][0]['spi:itemnum'];
             number = parseInt(number);
             postMessage(['result', 0, number]);
+        }
+    }
+
+    async checkLogin(userid = this.login.userid, password = this.login.password) {
+        let response;
+        try {
+            response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/whoami?_lid=${userid}&_lpwd=${password}`);
+        } catch (err) {
+            postMessage(['result', 1,'Failed to fetch Data from Maximo, Please Check Network (1)']);
+            return false;
+        }
+        let content = await response.json();
+        if (content["oslc:Error"]) {
+            postMessage(['result', 1, 'Failed to login to Maximo, Please Check User Name & Password']);
+            postMessage(['result', 1, content["oslc:Error"]["oslc:message"]]);
+            return false;
+        } else {
+            this.shareDB.savePassword(userid, password);
+            this.login.password = password;
+            this.login.userid = userid;
+            postMessage(['debug', `Successfully logged in to Maximo as: ${content.loginUserName}`]);
+            postMessage(['result', 0, 'Successfully logged in to Maximo']);
+            return true;
         }
     }
 }

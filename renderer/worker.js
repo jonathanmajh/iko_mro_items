@@ -78,7 +78,7 @@ onmessage = function (e) {
             if (result) {
                 postMessage(['result', result]);
             } else {
-                postMessage(['error', `${itemnum} cannot be found in Maximo`]);
+                postMessage(['error', `${e.data[1]} cannot be found in Maximo`]);
             }
             break;
         case 'translatepms':
@@ -95,6 +95,9 @@ onmessage = function (e) {
             break;
         case 'saveProcessed':
             saveProgress(e.data[1]);
+            break;
+        case 'checkUser':
+            checkUser(e.data[1]);
             break;
         default:
             console.log(`Unimplimented work ${e.data[0]}`);
@@ -267,9 +270,21 @@ async function writeItemNum(data) {
     }
 }
 
+async function checkUser(credentials = {}) {
+    const maximo = new Maximo();
+    const validUser = await maximo.checkLogin(credentials?.userid, credentials?.password);
+    if (validUser) {
+        postMessage(['result', true]);
+    } else {
+        postMessage(['result', false]);
+    }
+}
+
+
 async function checkItemCache(version) {
     // check internal cache of item information and update with new items in maximo
     postMessage(['debug', `Loading Item Module`]);
+    const maximo = new Maximo();
     postMessage(['debug', `0%: Checking list of Manufacturers & Abbrivations`]);
     const filePath = path.join(
         require('path').resolve(__dirname).replace('renderer', 'assets'),
@@ -296,7 +311,7 @@ async function checkItemCache(version) {
     curVersion = db.getVersion('maximoItemCache');
     curVersion = curVersion[0]?.changed_date ?? xlVersion;
     postMessage(['debug', `75%: Getting items with changes after: ${curVersion} from Maximo`]);
-    const maximo = new Maximo();
+
     let newItems = await maximo.getNewItems(curVersion);
     if (newItems) {
         postMessage(['debug', '85%: Saving maximo data to item cache']);

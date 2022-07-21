@@ -1,4 +1,6 @@
-const {ipcRenderer} = require('electron');
+const { ipcRenderer } = require('electron');
+let selected = '';
+const popupAlert = new bootstrap.Modal(document.getElementById('popupAlert'), { toggle: false });
 
 function openObserveTemp() {
     ipcRenderer.send('start_observation_template', 'finished');
@@ -15,15 +17,65 @@ function openItem() {
     }
 }
 
-function openItemTranslation() {
-    ipcRenderer.send('start_item_translate', 'finished');
+function tryLoginItem() {
+    selected = 'openItem';
+
+    const worker = new WorkerHandler();
+    worker.work(['checkUser'], checkLogin);
 }
+
 
 function openAssetDescription() {
     ipcRenderer.send('start_asset_translate', 'finished');
 }
 
+function checkLogin(status) {
+    document.getElementById('failedLogin').classList.remove("d-flex");
+    document.getElementById('failedLogin').classList.add("d-none");
+    document.getElementById('spinner').classList.remove("d-flex");
+    document.getElementById('spinner').classList.add("d-none");
+    if (status[0] === 0) {
+        html.hide();
+        postMessage(['debug', `Successfully logged in to Maximo`]);
+        switch (selected) {
+            case 'openItem':
+                openItem();
+                break;
+            default:
+                console.log('no default action set');
+        }
+    } else {
+        popupAlert.show();
+        document.getElementById('failedLogin').classList.remove("d-none");
+        document.getElementById('failedLogin').classList.add("d-flex");
+    }
+}
+
+function tryLoginAgain() {
+    document.getElementById('spinner').classList.remove("d-none");
+    document.getElementById('spinner').classList.add("d-flex");
+    document.getElementById('failedLogin').classList.remove("d-flex");
+    document.getElementById('failedLogin').classList.add("d-none");
+    const worker = new WorkerHandler();
+    worker.work(['checkUser', {
+        userid: document.getElementById('userid').value,
+        password: document.getElementById('password').value
+    }], checkLogin);
+}
+
+function noMaximo() {
+    switch (selected) {
+        case 'openItem':
+            openItem();
+            break;
+        default:
+            console.log('no default action set');
+    }
+}
+
 document.getElementById("openObserveTemp").addEventListener("click", openObserveTemp);
-document.getElementById("openItem").addEventListener("click", openItem);
+document.getElementById("openItem").addEventListener("click", tryLoginItem);
 // document.getElementById("openItemTranslation").addEventListener("click", openItemTranslation);
-document.getElementById("openAssetDescription").addEventListener("click", openAssetDescription); 
+document.getElementById("openAssetDescription").addEventListener("click", openAssetDescription);
+document.getElementById("continue").addEventListener("click", noMaximo);
+document.getElementById("tryLogin").addEventListener("click", tryLoginAgain);
