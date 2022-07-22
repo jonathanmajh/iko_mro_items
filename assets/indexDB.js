@@ -277,8 +277,8 @@ class Database {
     fetchAndObjectify(phrase, itemDict) {
         phrase = phrase.toUpperCase();
         postMessage(['debug', `Getting item from cache: "${phrase}"`]);
-        let stmt = this.db.prepare(`SELECT * from itemCache where search_text like '%${phrase}%'`);
-        let result = stmt.all();
+        let stmt = this.db.prepare(`SELECT * from itemCache where search_text like ?`);
+        let result = stmt.all(`%${phrase}%`);
         let itemNums = [];
         result.forEach(item => {
             itemNums.push(item.itemnum);
