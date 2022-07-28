@@ -33,11 +33,17 @@ class SharedDatabase {
     }
 
     getPassword() {
-        let stmt = this.db.prepare(`SELECT value FROM settings WHERE key = 'userid'`);
-        let userid = stmt.get()?.value;
-        stmt = this.db.prepare(`SELECT value FROM settings WHERE key = 'password'`);
-        let password = stmt.get()?.value;
-        return {userid: userid, password:password};
+		
+		try {
+			let stmt = this.db.prepare(`SELECT value FROM settings WHERE key = 'userid'`);
+			let userid = stmt.get()?.value;
+			stmt = this.db.prepare(`SELECT value FROM settings WHERE key = 'password'`);
+			let password = stmt.get()?.value;
+			return {userid: userid, password:password};
+		} catch (SqliteError) {
+			return {userid: '', password:''};
+		}
+        
     }
 }
 
