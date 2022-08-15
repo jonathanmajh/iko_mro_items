@@ -1,7 +1,7 @@
 {
   "name": "iko_utility",
   "productName": "IKO Reliability Tool",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "description": "Tool to help automate various Reliability Processes",
   "main": "main.js",
   "scripts": {
