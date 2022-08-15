@@ -271,6 +271,7 @@ async function writeItemNum(data) {
 }
 
 async function checkUser(credentials = {}) {
+    postMessage(['debug', `Checking Maximo Login`]);
     const maximo = new Maximo();
     const validUser = await maximo.checkLogin(credentials?.userid, credentials?.password);
     if (validUser) {
