@@ -4,6 +4,8 @@ const { SqliteError } = require('better-sqlite3');
 class SharedDatabase {
     constructor() {
         this.db = new sql(`${process.env.APPDATA}/IKO Reliability Tool/program.db`);//, { verbose: console.log });
+        let stmt = this.db.prepare('CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY, key TEXT UNIQUE NOT NULL, value TEXT NOT NULL)');
+        stmt.run();
     }
 
     // check if version db was last opened against matches curVersion, updates version in DB
@@ -35,13 +37,13 @@ class SharedDatabase {
     getPassword() {
 		
         try {
-                let stmt = this.db.prepare(`SELECT value FROM settings WHERE key = 'userid'`);
-                let userid = stmt.get()?.value;
-                stmt = this.db.prepare(`SELECT value FROM settings WHERE key = 'password'`);
-                let password = stmt.get()?.value;
-                return {userid: userid, password:password};
+            let stmt = this.db.prepare(`SELECT value FROM settings WHERE key = 'userid'`);
+            let userid = stmt.get()?.value;
+            stmt = this.db.prepare(`SELECT value FROM settings WHERE key = 'password'`);
+            let password = stmt.get()?.value;
+            return {userid: userid, password:password};
         } catch (SqliteError) {
-                return {userid: '', password:''};
+            return {userid: '', password:''};
 	}
         
     }
