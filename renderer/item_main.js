@@ -55,9 +55,10 @@ function pauseAuto() {
 }
 
 function loadItem() {
-    new Toast(`Loading Item: ${document.getElementById("interact-num").value}`);
+    var itemnum = document.getElementById("interact-num").value.trim();
+    new Toast(`Loading Item: ${itemnum}`);
     const worker = new WorkerHandler();
-    worker.work(['loadItem', document.getElementById("interact-num").value], showItem);
+    worker.work(['loadItem', itemnum], showItem);
 }
 
 function auto_grow(elementID) {
