@@ -1,11 +1,10 @@
-'use strict';
 const os = require('os');
 const { app, autoUpdater, dialog } = require('electron');
 const version = app.getVersion();
 const platform = os.platform() + '_' + os.arch();  // usually returns darwin_64
 
-const updaterFeedURL = 'https://jonathanmajh-iko-tool.herokuapp.com/update/' + platform + '/' + version;
-// replace updaterFeedURL with http://yourappname.herokuapp.com
+const updaterFeedURL = 'https://jonathanmajh-iko-mro-items.onrender.com/update/' + platform + '/' + version;
+// replace updaterFeedURL with https://l3gxze.deta.dev
 
 function appUpdater() {
 	autoUpdater.setFeedURL(updaterFeedURL);
