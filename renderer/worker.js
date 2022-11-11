@@ -10,6 +10,7 @@ const TranslationDatabase = require('../assets/item_translation/item-translation
 const path = require('path');
 const Translation = require('../assets/item_translation/item-translation');
 const fs = require('fs');
+const { debug } = require('console');
 
 onmessage = function (e) {
     let valid;
@@ -123,6 +124,7 @@ function nonInteractiveSave(params) {
                 params[0] = value[1][0];
                 break;
             }
+            params[0] = null;
         }
         // gets first element in related object scores
         // technically this is bad practise since object order might not be guarenteed

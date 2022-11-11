@@ -43,6 +43,8 @@ class Database {
             row INTEGER NOT NULL,
             description TEXT NOT NULL COLLATE NOCASE,
             analysis TEXT,
+            related TEXT,
+            translate TEXT,
             orgid TEXT COLLATE NOCASE
         )`);
         const createTable4 = this.db.prepare(`CREATE TABLE itemCache (
@@ -127,7 +129,7 @@ class Database {
     }
 
     getAllWorkingDesc() {
-        const stmt = this.db.prepare('SELECT * FROM workingDescription WHERE analysis IS NOT NULL');
+        const stmt = this.db.prepare('SELECT *, itemCache.description FROM workingDescription left join itemCache on itemCache.itemnum = workingDescription.related WHERE analysis IS NOT NULL');
         const result = stmt.all();
         return result;
     }
@@ -222,8 +224,8 @@ class Database {
     }
 
     saveDescriptionAnalysis(data, row) {
-        let stmt = this.db.prepare('UPDATE workingDescription SET analysis = ? WHERE row = ?');
-        stmt.run(JSON.stringify(data), row);
+        let stmt = this.db.prepare('UPDATE workingDescription SET analysis = ?, related = ? WHERE row = ?');
+        stmt.run(JSON.stringify(data), data.related, row);
     }
 
     getDescription(row) {

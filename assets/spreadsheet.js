@@ -182,8 +182,11 @@ class ExcelReader {
         for (const item of data) {
             item.analysis = JSON.parse(item.analysis);
             if (item.analysis.related) {
+                debugger;
                 worksheet.getCell(`${parmas[0].outItemNum}${item.row}`).value =
                     item.analysis.related; // itemnum
+                worksheet.getCell(`${parmas[0].outItemDesc[0]}${item.row}`).value =
+                    item.description;
             }
             if (item.analysis.translate) {
                 worksheet.getCell(`${parmas[0].outTranslate}${item.row}`).value =
