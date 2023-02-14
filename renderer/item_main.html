@@ -98,13 +98,63 @@
                   <div class="col-md">
                     <div class="form-floating">
                       <!-- consider doing a drop down select with filter -->
-                      <input type="text" class="form-control" id="uom-field" placeholder="Unit of Measure">
+                      <select class="form-select" id="num-type">
+                        <option value="EA" selected>EA: Each</option>
+                        <option value="BG">BG: Bag</option>
+                        <option value="BT">BT: Bottle</option>
+                        <option value="BX">BX: Box</option>
+                        <option value="CN">CN: Can</option>
+                        <option value="CS">CS: Case</option>
+                        <option value="DR">DR: Drum</option>
+                        <option value="F2">F2: Feet,Square</option>
+                        <option value="F3">F3: Feet,Cubic</option>
+                        <option value="FT">FT: Feet,Linear</option>
+                        <option value="G">G: Gram</option>
+                        <option value="GA">GA: Gallons</option>
+                        <option value="IN">IN: Inches</option>
+                        <option value="KG">KG: Kilogram</option>
+                        <option value="L">L: Liter</option>
+                        <option value="LB">LB: Pounds</option>
+                        <option value="M">M: Meter,Linear</option>
+                        <option value="M2">M2: Meter,Square</option>
+                        <option value="M3">M3: Meter,Cubic</option>
+                        <option value="PK">PK: Pack</option>
+                        <option value="RL">RL: Roll</option>
+                        <option value="SH">SH: Sheets</option>
+                        <option value="T">T: Metric Tonne (1000kg)</option>
+                        <option value="TN">TN: Ton (2000lbs)</option>
+                        <option value="Y2">Y2: Yard,Square</option>
+                        <option value="YD">YD: Yard</option>
+                      </select>
                       <label for="uom-field">Unit of Measure</label>
                     </div>
                   </div>
                   <div class="col-md">
                     <div class="form-floating">
-                      <input type="text" class="form-control" id="com-group" placeholder="Commodity Group">
+                      <select class="form-select" id="num-type">
+                        <option value="">Select Commodity Group</option>
+                        <option value="401">401: Electrical Devices and Components</option>
+                        <option value="402">402: Electrical Accessories (Accessories for the Devices)</option>
+                        <option value="403">403: Tools (Hand Tools, Air/Electric & Tool Attachments)</option>
+                        <option value="404">404: Steel Sections / General Stock Steel</option>
+                        <option value="405">405: Pipes, Hoses, and Related Fittings</option>
+                        <option value="406">406: Fasteners & Accessories, Brackets</option>
+                        <option value="407">407: Sealing Products / Adhesives / Tape</option>
+                        <option value="408">408: Transmission Parts</option>
+                        <option value="409">409: Pneumatic / Hydraulic Components & Accessories</option>
+                        <option value="415">415: Lubricant / Chemical</option>
+                        <option value="420">420: Fire/Safety Products and Supplies</option>
+                        <option value="425">425: Mobile Equipment Parts & Supplies</option>
+                        <option value="430">430: Water Treatment Supplies</option>
+                        <option value="490">490: Plant Supplies</option>
+                        <option value="500">500: Special - Machine Specific Parts</option>
+                        <option value="510">510: Special - Cones & Liners (Granule Plant)</option>
+                        <option value="511">511: Special - Screens (Granule Plant)</option>
+                        <option value="600">600: Raw Material Supplies</option>
+                        <option value="650">650: Non-capitalized Plant Equipment</option>
+                        <option value="860">860: Janitorial</option>
+                        <option value="870">870: Electronic Equipment</option>
+                      </select>
                       <label for="com-group">Commodity Group</label>
                     </div>
                   </div>
@@ -113,7 +163,20 @@
                 <div class="row">
                   <div class="col-md">
                     <div class="form-floating">
-                      <input type="text" class="form-control" id="gl-class" placeholder="GL Class">
+                      <select class="form-select" id="num-type">
+                        <option value="">Select GL Class</option>
+                        <option value="BRM">BRM: Building Repair & Maint</option>
+                        <option value="CLL">CLL: Comm Land Lines</option>
+                        <option value="ERM">ERM: Equipment Repair & Maint</option>
+                        <option value="FOL">FOL: Fuel Oil</option>
+                        <option value="HDW">HDW: Hardware (Computer)</option>
+                        <option value="LIC">LIC: Licenses</option>
+                        <option value="OFS">OFS: (Not to use) Office Supplies</option>
+                        <option value="PLM">PLM: Plant Machinery</option>
+                        <option value="PLS">PLS: Plant Supplies</option>
+                        <option value="RME">RME: Plant Auto R&M</option>
+                        <option value="SFS">SFS: Safety Supplies</option>
+                        <option value="WTR">WTR: Water</option></select>
                       <label for="gl-class">GL Class</label>
                     </div>
                   </div>
