@@ -325,7 +325,6 @@ async function checkItemCache(version) {
     curVersion = curVersion[0].changed_date;
     postMessage(['debug', `80%: Getting Manufacturer with changes after: ${curVersion} from Maximo`]);
     newItems = await maximo.getNewManufacturers(curVersion);
-    debugger;
     if (newItems) {
         postMessage(['debug', '90%: Saving maximo data to Manufacturer cache']);
         db.saveManufacturers(newItems[0]);
