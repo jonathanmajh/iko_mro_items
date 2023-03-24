@@ -13,7 +13,7 @@
             "windows": {
               "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
             },
-            "args" : ["."],
+            "runtimeArgs" : [".","--enable-logging"],
             "outputCapture": "std"
         }
     ]

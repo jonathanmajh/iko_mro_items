@@ -15,6 +15,7 @@ const { debug } = require('console');
 onmessage = function (e) {
     let valid;
     let maximo;
+    let result;
     switch (e.data[0]) {
         case 'validSingle':
             valid = new Validate();
@@ -75,7 +76,7 @@ onmessage = function (e) {
             break;
         case 'loadItem':
             maximo = new Database();
-            let result = maximo.loadItem(e.data[1]);
+            result = maximo.loadItem(e.data[1]);
             if (result) {
                 postMessage(['result', result]);
             } else {
@@ -115,31 +116,32 @@ async function saveProgress(params) {
 }
 
 function nonInteractiveSave(params) {
-    if (params[0]) {
-        // find related
-        const maximo = new Database();
-        let related = maximo.findRelated(params[2], false);
-        for (let value of Object.entries(related[0])) {
-            if (value[1][0]) {
-                params[0] = value[1][0];
-                break;
+    try {
+        if (params[0]) {
+            // find related
+            const maximo = new Database();
+            let related = maximo.findRelated(params[2], false);
+            for (let value of Object.entries(related[0])) {
+                if (value[1][0]) {
+                    params[0] = value[1][0];
+                    break;
+                }
+                params[0] = null;
             }
-            params[0] = null;
+            // gets first element in related object scores
+            // technically this is bad practise since object order might not be guarenteed
+            // https://stackoverflow.com/questions/983267/how-to-access-the-first-property-of-a-javascript-object
         }
-        // gets first element in related object scores
-        // technically this is bad practise since object order might not be guarenteed
-        // https://stackoverflow.com/questions/983267/how-to-access-the-first-property-of-a-javascript-object
-    }
-    if (params[1]) {
-        // translate
-        const trans = new Translation();
-        params[1] = trans.contextTranslate(params[2], params[3], 'return');
-    }
-    const db = new Database();
-    db.saveDescriptionAnalysis({ related: params[0], translate: params[1] }, params[5]);
-    // number of rows should be shown and that should be used to determine when to save / finsih
-    // also need stop / cancel button
-    postMessage(['nextrow', Number(params[5]) + 1]);
+        if (params[1]) {
+            // translate
+            const trans = new Translation();
+            params[1] = trans.contextTranslate(params[2], params[3], 'return');
+        }
+        const db = new Database();
+        db.saveDescriptionAnalysis({ related: params[0], translate: params[1] }, params[5]);
+        // number of rows should be shown and that should be used to determine when to save / finsih
+        // also need stop / cancel button
+    } finally { postMessage(['nextrow', Number(params[5]) + 1]); }
 }
 
 //depre
