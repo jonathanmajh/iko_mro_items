@@ -18,15 +18,14 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@electron-forge/cli": "^6.0.5",
-    "@electron-forge/maker-squirrel": "^6.0.5",
-    "@electron-forge/maker-zip": "^6.0.5",
-    "@electron-forge/publisher-github": "^6.0.5",
-    "electron": "^21.4.3"
+    "@electron-forge/cli": "^6.1.1",
+    "@electron-forge/maker-squirrel": "^6.1.1",
+    "@electron-forge/maker-zip": "^6.1.1",
+    "@electron-forge/publisher-github": "^6.1.1",
+    "electron": "^21.4.4"
   },
   "dependencies": {
     "better-sqlite3": "^8.2.0",
-    "electron-build": "^0.0.3",
     "electron-squirrel-startup": "^1.0.0",
     "exceljs": "^4.3.0",
     "lodash": "^4.17.0",
