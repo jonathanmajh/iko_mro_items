@@ -1,7 +1,7 @@
 <!-- http://operations.connect.na.local/support/Reliability/ReliabilityShared/Pages/AssetRedirect.aspx -->
 
 <!DOCTYPE html>
-<html lang="en" class="h-100">
+<html lang="en" class="h-100"  data-bs-theme="dark">
 
 <head>
   <meta charset="UTF-8" />
@@ -44,8 +44,14 @@
       <div class="row bg-danger text-light" style="padding-top: 20px">
         <div class="col-auto"><img src="IKO_Logo-nobg.png" /></div>
         <h1 class="col">Item Standardizer</h1>
-        <div class="col" style="text-align: right">
-          <i id="settings" class="material-icons pointer md-size">settings</i>
+        <div class="col d-flex align-items-center justify-content-end">
+          <span>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="dark-mode-switch" checked>
+              <label class="form-check-label" for="flexSwitchCheckChecked" id="dark-mode-switch-label">Dark</label>
+            </div>
+            <i id="settings" class="material-icons pointer md-size"  style="text-align: right">settings</i>
+          </span>
         </div>
       </div>
 

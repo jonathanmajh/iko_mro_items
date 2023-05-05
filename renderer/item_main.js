@@ -21,6 +21,8 @@ document.getElementById("open-in-browser").addEventListener("click", openBrowser
 document.getElementById("continueAuto").addEventListener("click", continueAuto);
 document.getElementById("openBatchFile").addEventListener("click", openFile);
 
+document.getElementById("dark-mode-switch").addEventListener("click", toggleTheme);
+
 
 // listener for enter key on search field
 document.getElementById("maximo-desc").addEventListener("keyup", function (event) {
@@ -529,4 +531,11 @@ function copyResult(copy) {
         });
         new Toast('Triple Description Copied to Clipboard!');
     }
+}
+
+function toggleTheme(){
+    let currentTheme = document.documentElement.getAttribute("data-bs-theme");
+    document.documentElement.setAttribute("data-bs-theme", currentTheme === "light" ? "dark" : "light");
+    let labelText = document.getElementById("dark-mode-switch-label");
+    labelText.innerHTML = currentTheme === "dark" ? "Light" : "Dark";
 }
