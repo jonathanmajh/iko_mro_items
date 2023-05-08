@@ -10,6 +10,7 @@
   <link rel="icon" type="image/png" href="iko_logo.png" />
   <title>IKO Item Standardizer</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="table_style.css" />
   <script src="..\node_modules\bootstrap\dist\js\bootstrap.bundle.min.js"></script>
   <script src="../assets/common.js"></script>
 </head>
@@ -41,16 +42,13 @@
   <main class="flex-shrink-1">
     <div class="container-fluid" id="main">
       <div class="row bg-danger text-light" style="padding-top: 20px">
-        <div class="col-auto"><img src="IKO_Logo-nobg.png" /></div>
+        <div class="col-auto" style="padding-top: 6px"><img src="IKO_Logo-nobg.png" /></div>
         <h1 class="col">Item Standardizer</h1>
         <div class="col d-flex align-items-center justify-content-end">
-          <span>
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="dark-mode-switch" checked>
-              <label class="form-check-label" for="flexSwitchCheckChecked" id="dark-mode-switch-label">Dark</label>
-            </div>
-            <i id="settings" class="material-icons pointer md-size"  style="text-align: right">settings</i>
-          </span>
+          <div class="form-check form-switch" style="padding-right: 20px; padding-top: 2px;">
+            <input class="form-check-input" type="checkbox" id="dark-mode-switch" checked>
+          </div>
+          <i id="settings" class="material-icons pointer md-size"  style="text-align: right">settings</i>
         </div>
       </div>
 
@@ -300,7 +298,7 @@
                       <label class="form-check-label" for="modeSelect">&nbsp;Interactive?</label>
                     </div>
                   </div>
-                  <div class="input-group-text btn-outline-danger">
+                  <div class="input-group-text btn-outline-danger"">
                     <div class="form-check form-switch">
                       <input class="form-check-input" type="checkbox" id="translateSelect" checked />
                       <label class="form-check-label" for="translateSelect">&nbsp;Translate?</label>
@@ -502,7 +500,7 @@
                 <div id="related-table" class="table-responsive row">
                   <table class="table table-bordered">
                     <thead>
-                      <tr class="table-info">
+                      <tr class="table-info-theme table-results" data-theme="dark" id="rel-items-heading">
                         <th>Percent Match</th>
                         <th>Item Number</th>
                         <th>Item Description</th>

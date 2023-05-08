@@ -2,6 +2,7 @@ const { clipboard, ipcRenderer, shell } = require('electron');
 // const { dialog } = require('electron').remote;
 const Database = require('../assets/indexDB');
 const Validate = require('../assets/validators');
+var theme = document.getElementById("dark-mode-switch").checked ? "dark" : "light";
 
 document.getElementById("load-item").addEventListener("click", loadItem);
 document.getElementById("valid-single").addEventListener("click", validSingle);
@@ -484,7 +485,7 @@ async function showRelated(result) {
                         }
                     }
 
-                }
+                } /// data-theme="${document.documentElement.getAttribute("data-bs-theme")}" 
                 if (key > 0.7) {
                     color = 'table-success';
                 } else if (key > 0.4) {
@@ -492,7 +493,10 @@ async function showRelated(result) {
                 } else {
                     color = 'table-danger';
                 }
-                html = `${html}\n<tr class="${color}"><td>${formatter.format(key)}</td>
+
+                color += "-theme";
+
+                html = `${html}\n<tr class="${color} table-results" data-theme="${theme}";><td>${formatter.format(key)}</td>
                 <td>${item}</td>
                 <td>${itemName}</td>
                 <td>${itemNames[item][2]}</td>
@@ -534,8 +538,10 @@ function copyResult(copy) {
 }
 
 function toggleTheme(){
-    let currentTheme = document.documentElement.getAttribute("data-bs-theme");
-    document.documentElement.setAttribute("data-bs-theme", currentTheme === "light" ? "dark" : "light");
-    let labelText = document.getElementById("dark-mode-switch-label");
-    labelText.innerHTML = currentTheme === "dark" ? "Light" : "Dark";
+    theme = document.getElementById("dark-mode-switch").checked ? "dark" : "light";
+    document.documentElement.setAttribute("data-bs-theme", theme);
+    let results = document.getElementsByClassName("table-results");
+    for(let i = 0; i<results.length; i++){
+        results[i].setAttribute("data-theme", theme);
+    }
 }

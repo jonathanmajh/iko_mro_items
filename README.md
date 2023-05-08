@@ -22,9 +22,9 @@ Note: Better-sqlite3 does not include prebuilt binaries for windows, this will h
 
 Using
 ```
-node v12.20.0
-electron v11.1.0
-better-sqlite3 v7.1.2
+node v18.16.0
+electron v21.4.3
+better-sqlite3 v8.2.0
 electron-squirrel-startup v1.0.0
 xlsx v0.16.9
 ```
@@ -32,4 +32,8 @@ xlsx v0.16.9
 Auto updating using Nuts
 https://github.com/GitbookIO/nuts
 
-Creating Dark Mode
+## To edit:
+### Editing CSS:
+When linking css to an html file, use style.css as the only stylesheet. To add or edit css, edit the "style.scss" file, then compile your changes onto "style.css" This can be done using an extension such as "Live Sass Compiler" on VScode
+### Live editing:
+Use ```npm start``` to open the application. Once you make any changes, hit ```ctrl+r``` to refresh the page. To restart the app, use ```rs``` while the app is still running. Opening the html file in a browser will prevent the JS from loading

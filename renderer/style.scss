@@ -11,6 +11,20 @@
 text-align: left;
 }
 
+#dark-mode-switch{
+    transition:all 0.2s ease-in-out;
+    transform: scale(2);
+    background-image: url("sun.png");
+    background-color: #f7f7f7;
+    border-color: #f7f7f7;
+}
+
+#dark-mode-switch:checked{
+    background-color: #212529;
+    border-color: #212529;
+    background-image: url("moon.png");
+}
+
 input {
 width: 100%;
 }
@@ -88,8 +102,4 @@ bottom: 20px; /* Place the button at the bottom of the page */
 right: 20px; /* Place the button 30px from the right */
 z-index: 99; /* Make sure it does not overlap */
 font-size: 25px; /* Increase font size */
-}
-
-.input-group-text {
-background-color: white;
 }

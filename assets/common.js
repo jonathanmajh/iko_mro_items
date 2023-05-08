@@ -1,4 +1,3 @@
-
 class WorkerHandler {
     async work(params, callback) {
         const worker = new Worker('./worker.js');
