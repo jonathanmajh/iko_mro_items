@@ -56,7 +56,7 @@
 
 .table-success-theme[data-theme="dark"] {
     --bs-table-color: #fff;
-    --bs-table-bg: #30442b;
+    --bs-table-bg: #485f42;
     --bs-table-border-color: #5c5c5c;
     --bs-table-striped-bg: #2c3034;
     --bs-table-striped-color: #fff;
@@ -84,7 +84,7 @@
 
 .table-warning-theme[data-theme="dark"] {
     --bs-table-color: #fff;
-    --bs-table-bg: #ffc40036;
+    --bs-table-bg: #ffc40063;
     --bs-table-border-color: #373b3e;
     --bs-table-striped-bg: #2c3034;
     --bs-table-striped-color: #fff;
