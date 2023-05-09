@@ -2,7 +2,7 @@ const { clipboard, ipcRenderer, shell } = require('electron');
 // const { dialog } = require('electron').remote;
 const Database = require('../assets/indexDB');
 const Validate = require('../assets/validators');
-var theme = document.getElementById("dark-mode-switch").checked ? "dark" : "light";
+let theme = document.getElementById("dark-mode-switch").checked ? "dark" : "light";
 
 document.getElementById("load-item").addEventListener("click", loadItem);
 document.getElementById("valid-single").addEventListener("click", validSingle);

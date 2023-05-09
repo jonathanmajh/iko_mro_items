@@ -12033,15 +12033,19 @@ textarea.form-control-lg {
 }
 
 #dark-mode-switch {
+  box-shadow: none;
   transition: all 0.2s ease-in-out;
   transform: scale(2);
   background-image: url("sun.png");
-  background-color: #f7f7f7;
+  background-color: #e9e6e6;
+  outline-offset: -1px;
+  outline: 2px solid #e9e6e6;
   border-color: #f7f7f7;
 }
 
 #dark-mode-switch:checked {
   background-color: #212529;
+  outline: 2px solid #212529;
   border-color: #212529;
   background-image: url("moon.png");
 }

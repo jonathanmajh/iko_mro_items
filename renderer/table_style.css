@@ -69,7 +69,7 @@
   }
   
 .table-info-theme[data-theme="dark"] {
-    --bs-table-color: #fff;
+    --bs-table-color: #e7e7e7;
     --bs-table-bg: #002244;
     --bs-table-border-color: #373b3e;
     --bs-table-striped-bg: #2c3034;

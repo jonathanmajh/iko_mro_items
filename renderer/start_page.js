@@ -1,6 +1,7 @@
 const { ipcRenderer } = require('electron');
 let selected = '';
 const popupAlert = new bootstrap.Modal(document.getElementById('popupAlert'), { toggle: false });
+let theme = "dark";
 
 function openObserveTemp() {
     ipcRenderer.send('start_observation_template', 'finished');
@@ -74,9 +75,15 @@ function noMaximo() {
     }
 }
 
+function toggleTheme(){
+    theme = document.getElementById("dark-mode-switch").checked ? "dark" : "light";
+    document.documentElement.setAttribute("data-bs-theme", theme);
+}
+
 document.getElementById("openObserveTemp").addEventListener("click", openObserveTemp);
 document.getElementById("openItem").addEventListener("click", tryLoginItem);
 // document.getElementById("openItemTranslation").addEventListener("click", openItemTranslation);
 document.getElementById("openAssetDescription").addEventListener("click", openAssetDescription);
 document.getElementById("continue").addEventListener("click", noMaximo);
 document.getElementById("tryLogin").addEventListener("click", tryLoginAgain);
+document.getElementById("dark-mode-switch").addEventListener("click", toggleTheme);

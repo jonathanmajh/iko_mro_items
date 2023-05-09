@@ -32,8 +32,8 @@ xlsx v0.16.9
 Auto updating using Nuts
 https://github.com/GitbookIO/nuts
 
-## To edit:
+## To edit
 ### Editing CSS:
-When linking css to an html file, use style.css as the only stylesheet. To add or edit css, edit the "style.scss" file, then compile your changes onto "style.css" This can be done using an extension such as "Live Sass Compiler" on VScode
+When linking css to an html file, use style.css as the only stylesheet. To add or edit css, edit the "style.scss" file, then compile your changes onto "style.css" This can be done using an extension such as "Live Sass Compiler" on VScode.
 ### Live editing:
-Use ```npm start``` to open the application. Once you make any changes, hit ```ctrl+r``` to refresh the page. To restart the app, use ```rs``` while the app is still running. Opening the html file in a browser will prevent the JS from loading
+Use ```npm start``` to open the application (make sure you've installed all dependencies using ```npm install``` at least once). Once you make any changes, hit ```ctrl+r``` in the app to refresh the page. To restart the app, enter ```rs``` in the terminal. Opening the html file in a browser directly will prevent the JS from loading.
