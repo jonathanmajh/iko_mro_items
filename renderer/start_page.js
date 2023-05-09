@@ -76,8 +76,14 @@ function noMaximo() {
 }
 
 function toggleTheme(){
+    theme = document.getElementById("dark-mode-switch").checked ? "light" : "dark";
+    let str = "[data-bs-theme=\"" + theme + "\"]";
     theme = document.getElementById("dark-mode-switch").checked ? "dark" : "light";
-    document.documentElement.setAttribute("data-bs-theme", theme);
+    //console.log(str);
+    let elms = document.querySelectorAll(str);
+    for(const elm of elms){
+        elm.setAttribute("data-bs-theme", theme);
+    }
 }
 
 document.getElementById("openObserveTemp").addEventListener("click", openObserveTemp);

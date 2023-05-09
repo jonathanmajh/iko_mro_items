@@ -35,24 +35,28 @@ class WorkerHandler {
 class Logging {
     constructor() {
         this.logTable = document.getElementById("logs-table");
+        this.theme = document.documentElement.getAttribute("data-bs-theme");
     }
 
     warning(msg) {
         let row = this.logTable.insertRow();
         row.innerHTML = `<td>WARNING</td><td>${msg}</td>`;
         row.classList.add("table-warning");
+        row.setAttribute("data-bs-theme",theme)
     }
 
     error(msg) {
         let row = this.logTable.insertRow();
         row.innerHTML = `<td>ERROR</td><td>${msg}</td>`;
         row.classList.add("table-danger");
+        row.setAttribute("data-bs-theme",theme)
     }
 
     info(msg) {
         let row = this.logTable.insertRow();
         row.innerHTML = `<td>INFO</td><td>${msg}</td>`;
-        row.classList.add("table-info");
+        row.classList.add("table-primary");
+        row.setAttribute("data-bs-theme",theme)
     }
 }
 

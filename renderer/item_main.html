@@ -10,7 +10,6 @@
   <link rel="icon" type="image/png" href="iko_logo.png" />
   <title>IKO Item Standardizer</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="table_style.css" />
   <script src="..\node_modules\bootstrap\dist\js\bootstrap.bundle.min.js"></script>
   <script src="../assets/common.js"></script>
 </head>
@@ -500,7 +499,7 @@
                 <div id="related-table" class="table-responsive row">
                   <table class="table table-bordered">
                     <thead>
-                      <tr class="table-info-theme table-results" data-theme="dark" id="rel-items-heading">
+                      <tr class="table-info" data-bs-theme="dark" id="rel-items-heading">
                         <th>Percent Match</th>
                         <th>Item Number</th>
                         <th>Item Description</th>
@@ -526,9 +525,9 @@
             <div id="accordion-logs" class="accordion-collapse collapse">
               <div class="accordion-body">
                 <div class="row table-responsive" id="logs-container">
-                  <table class="table table-bordered">
+                  <table class="table table-bordered table-striped">
                     <thead>
-                      <tr class="table-info-theme table-results" data-theme="dark">
+                      <tr class="table-primary" data-bs-theme="dark">
                         <th>Level</th>
                         <!-- <th>Time</th> -->
                         <th>Message</th>

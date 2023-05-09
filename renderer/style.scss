@@ -1,6 +1,7 @@
 // Include any default variable overrides here (though functions won't be available)
 
 @import "../node_modules/bootstrap/scss/bootstrap";
+@import "table_style.css";
 
 // Then add additional custom code here
 .row {
@@ -12,6 +13,7 @@ text-align: left;
 }
 
 #dark-mode-switch{
+    cursor:pointer;
     box-shadow: none;
     transition:all 0.2s ease-in-out;
     transform: scale(2);

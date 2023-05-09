@@ -494,9 +494,7 @@ async function showRelated(result) {
                     color = 'table-danger';
                 }
 
-                color += "-theme";
-
-                html = `${html}\n<tr><td class="${color} table-results" data-theme="${theme}";>${formatter.format(key)}</td>
+                html = `${html}\n<tr class="${color}" data-bs-theme="${theme}";><td>${formatter.format(key)}</td>
                 <td>${item}</td>
                 <td>${itemName}</td>
                 <td>${itemNames[item][2]}</td>
@@ -538,10 +536,12 @@ function copyResult(copy) {
 }
 
 function toggleTheme(){
+    theme = document.getElementById("dark-mode-switch").checked ? "light" : "dark";
+    let str = "[data-bs-theme=\"" + theme + "\"]";
     theme = document.getElementById("dark-mode-switch").checked ? "dark" : "light";
-    document.documentElement.setAttribute("data-bs-theme", theme);
-    let results = document.getElementsByClassName("table-results");
-    for(let i = 0; i<results.length; i++){
-        results[i].setAttribute("data-theme", theme);
+    //console.log(str);
+    let elms = document.querySelectorAll(str);
+    for(const elm of elms){
+        elm.setAttribute("data-bs-theme", theme);
     }
 }

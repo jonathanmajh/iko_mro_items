@@ -4,6 +4,7 @@
  * Copyright 2011-2023 The Bootstrap Authors
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
+@import "table_style.css";
 :root,
 [data-bs-theme=light] {
   --bs-blue: #0d6efd;
@@ -12033,6 +12034,7 @@ textarea.form-control-lg {
 }
 
 #dark-mode-switch {
+  cursor: pointer;
   box-shadow: none;
   transition: all 0.2s ease-in-out;
   transform: scale(2);

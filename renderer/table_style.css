@@ -1,62 +1,36 @@
-.table-success-theme {
-    --bs-table-color: #000;
-    --bs-table-bg: #d1e7dd;
-    --bs-table-border-color: #bcd0c7;
-    --bs-table-striped-bg: #c7dbd2;
-    --bs-table-striped-color: #000;
-    --bs-table-active-bg: #bcd0c7;
-    --bs-table-active-color: #000;
-    --bs-table-hover-bg: #c1d6cc;
-    --bs-table-hover-color: #000;
+/*test string for all colors --> LENS,MINI FLASHLIGHT,Q40,UK-PROD */
+
+.table-primary[data-bs-theme="dark"]{
+    --bs-table-color: #fff;
+    --bs-table-bg: #212529;
+    --bs-table-border-color: #373b3e;
+    --bs-table-striped-bg: #2c3034;
+    --bs-table-striped-color: #fff;
+    --bs-table-active-bg: #373b3e;
+    --bs-table-active-color: #fff;
+    --bs-table-hover-bg: #323539;
+    --bs-table-hover-color: #fff;
     color: var(--bs-table-color);
     border-color: var(--bs-table-border-color);
   }
-  
-.table-info-theme {
-    --bs-table-color: #000;
-    --bs-table-bg: #cff4fc;
-    --bs-table-border-color: #badce3;
-    --bs-table-striped-bg: #c5e8ef;
-    --bs-table-striped-color: #000;
-    --bs-table-active-bg: #badce3;
-    --bs-table-active-color: #000;
-    --bs-table-hover-bg: #bfe2e9;
-    --bs-table-hover-color: #000;
+
+.table-info[data-bs-theme="dark"]{
+    --bs-table-color: #e7e7e7;
+    --bs-table-bg: #251e30;
+    --bs-table-border-color: #373b3e;
+    --bs-table-striped-bg: #2c3034;
+    --bs-table-striped-color: #fff;
+    --bs-table-active-bg: #373b3e;
+    --bs-table-active-color: #fff;
+    --bs-table-hover-bg: #323539;
+    --bs-table-hover-color: #fff;
     color: var(--bs-table-color);
     border-color: var(--bs-table-border-color);
 }
 
-.table-warning-theme {
-    --bs-table-color: #000;
-    --bs-table-bg: #fff3cd;
-    --bs-table-border-color: #e6dbb9;
-    --bs-table-striped-bg: #f2e7c3;
-    --bs-table-striped-color: #000;
-    --bs-table-active-bg: #e6dbb9;
-    --bs-table-active-color: #000;
-    --bs-table-hover-bg: #ece1be;
-    --bs-table-hover-color: #000;
-    color: var(--bs-table-color);
-    border-color: var(--bs-table-border-color);
-}
-
-.table-danger-theme {
-    --bs-table-color: #000;
-    --bs-table-bg: #f8d7da;
-    --bs-table-border-color: #dfc2c4;
-    --bs-table-striped-bg: #eccccf;
-    --bs-table-striped-color: #000;
-    --bs-table-active-bg: #dfc2c4;
-    --bs-table-active-color: #000;
-    --bs-table-hover-bg: #e5c7ca;
-    --bs-table-hover-color: #000;
-    color: var(--bs-table-color);
-    border-color: var(--bs-table-border-color);
-}
-
-.table-success-theme[data-theme="dark"] {
+.table-success[data-bs-theme="dark"]{
     --bs-table-color: #fff;
-    --bs-table-bg: #485f42;
+    --bs-table-bg: #3d3f3d;
     --bs-table-border-color: #5c5c5c;
     --bs-table-striped-bg: #2c3034;
     --bs-table-striped-color: #fff;
@@ -67,10 +41,10 @@
     color: var(--bs-table-color);
     border-color: var(--bs-table-border-color);
   }
-  
-.table-info-theme[data-theme="dark"] {
-    --bs-table-color: #e7e7e7;
-    --bs-table-bg: #002244;
+
+.table-warning[data-bs-theme="dark"]{
+    --bs-table-color: #fff;
+    --bs-table-bg: #5a543f;
     --bs-table-border-color: #373b3e;
     --bs-table-striped-bg: #2c3034;
     --bs-table-striped-color: #fff;
@@ -82,23 +56,9 @@
     border-color: var(--bs-table-border-color);
 }
 
-.table-warning-theme[data-theme="dark"] {
+.table-danger[data-bs-theme="dark"]{
     --bs-table-color: #fff;
-    --bs-table-bg: #ffc40063;
-    --bs-table-border-color: #373b3e;
-    --bs-table-striped-bg: #2c3034;
-    --bs-table-striped-color: #fff;
-    --bs-table-active-bg: #373b3e;
-    --bs-table-active-color: #fff;
-    --bs-table-hover-bg: #323539;
-    --bs-table-hover-color: #fff;
-    color: var(--bs-table-color);
-    border-color: var(--bs-table-border-color);
-}
-
-.table-danger-theme[data-theme="dark"] {
-    --bs-table-color: #fff;
-    --bs-table-bg: #ff000057;
+    --bs-table-bg: #521818;
     --bs-table-border-color: #373b3e;
     --bs-table-striped-bg: #2c3034;
     --bs-table-striped-color: #fff;
