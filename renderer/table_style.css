@@ -1,4 +1,9 @@
-/*test string for all colors --> LENS,MINI FLASHLIGHT,Q40,UK-PROD */
+/*
+--> Added dark mode to data table elements since they dont exist in bootstrap yet
+
+--> test string for all colors: LENS,MINI FLASHLIGHT,Q40,UK-PROD 
+
+*/
 
 .table-primary[data-bs-theme="dark"]{
     --bs-table-color: #fff;
