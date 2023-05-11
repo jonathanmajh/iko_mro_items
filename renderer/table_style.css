@@ -1,11 +1,10 @@
 /*
 --> Added dark mode to data table elements since they dont exist in bootstrap yet
 
---> test string for all colors: LENS,MINI FLASHLIGHT,Q40,UK-PROD 
+--> test string for all colors: LENS,MINIFLASHLIGHT,Q40,UKPROD
 
 */
-
-.table-primary[data-bs-theme="dark"]{
+[data-bs-theme='dark'] .table-primary {
     --bs-table-color: #fff;
     --bs-table-bg: #212529;
     --bs-table-border-color: #373b3e;
@@ -17,9 +16,8 @@
     --bs-table-hover-color: #fff;
     color: var(--bs-table-color);
     border-color: var(--bs-table-border-color);
-  }
-
-.table-info[data-bs-theme="dark"]{
+}
+[data-bs-theme='dark'] .table-info {
     --bs-table-color: #e7e7e7;
     --bs-table-bg: #251e30;
     --bs-table-border-color: #373b3e;
@@ -32,8 +30,7 @@
     color: var(--bs-table-color);
     border-color: var(--bs-table-border-color);
 }
-
-.table-success[data-bs-theme="dark"]{
+[data-bs-theme='dark'] .table-success {
     --bs-table-color: #fff;
     --bs-table-bg: #3d3f3d;
     --bs-table-border-color: #5c5c5c;
@@ -45,9 +42,9 @@
     --bs-table-hover-color: #fff;
     color: var(--bs-table-color);
     border-color: var(--bs-table-border-color);
-  }
+}
 
-.table-warning[data-bs-theme="dark"]{
+[data-bs-theme='dark'] .table-warning {
     --bs-table-color: #fff;
     --bs-table-bg: #5a543f;
     --bs-table-border-color: #373b3e;
@@ -61,7 +58,7 @@
     border-color: var(--bs-table-border-color);
 }
 
-.table-danger[data-bs-theme="dark"]{
+[data-bs-theme='dark'] .table-danger {
     --bs-table-color: #fff;
     --bs-table-bg: #521818;
     --bs-table-border-color: #373b3e;

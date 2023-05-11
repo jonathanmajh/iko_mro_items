@@ -20,10 +20,10 @@ text-align: left;
   transition:all 0.2s ease-in-out;
   transform: scale(2);
   background-image: url("sun.png"); 
-  background-color: #e9e6e6;
+  background-color: #cfe2ff;
   outline-offset: -1px;
-  outline: 2px solid #e9e6e6;
-  border-color: #f7f7f7;
+  outline: 2px solid #cfe2ff;
+  border-color: #cfe2ff;
 }
 
 #dark-mode-switch:checked{
@@ -111,3 +111,4 @@ div img {
   z-index: 99; /* Make sure it does not overlap */
   font-size: 25px; /* Increase font size */
 }
+

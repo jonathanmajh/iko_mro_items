@@ -494,7 +494,7 @@ async function showRelated(result) {
                     color = 'table-danger';
                 }
 
-                html = `${html}\n<tr class="${color}" data-bs-theme="${theme}";><td>${formatter.format(key)}</td>
+                html = `${html}\n<tr class="${color}"><td>${formatter.format(key)}</td>
                 <td>${item}</td>
                 <td>${itemName}</td>
                 <td>${itemNames[item][2]}</td>
