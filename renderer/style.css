@@ -1,13 +1,41 @@
+@charset "UTF-8";
+@import "table_style.css";
+@import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
+
+/*
+--> custom styles for elements
+*/
+
 .row {
-  padding-bottom: 1em;
+    padding-bottom: 1em;
 }
+
 .btn {
-  text-align: left;
+text-align: left;
+}
+
+#dark-mode-switch{
+  cursor:pointer;
+  box-shadow: none;
+  transition:all 0.2s ease-in-out;
+  transform: scale(2);
+  background-image: url("sun.png"); 
+  background-color: #cfe2ff;
+  outline-offset: -1px;
+  outline: 2px solid #cfe2ff;
+  border-color: #cfe2ff;
+}
+
+#dark-mode-switch:checked{
+  background-color: #212529;
+  outline: 2px solid #212529;
+  border-color: #212529;
+  background-image: url("moon.png");
 }
 
 input {
   width: 100%;
-}
+  }
 
 textarea {
   resize: none;
@@ -84,6 +112,3 @@ div img {
   font-size: 25px; /* Increase font size */
 }
 
-.input-group-text {
-  background-color: white;
-}

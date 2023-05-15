@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" class="h-100">
+<html lang="en" class="h-100" data-bs-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta http-equiv="Content-Security-Policy" content="script-src 'self';" />
     <link rel="icon" type="image/png" href="iko_logo.png" />
     <title>IKO Item Standardizer</title>
-    <link rel="stylesheet" href="bootstrap.min.css" />
     <link rel="stylesheet" href="style.css" />
-    <script src="bootstrap.bundle.min.js"></script>
+    <script src="..\node_modules\bootstrap\dist\js\bootstrap.bundle.min.js"></script>
     <script src="../assets/common.js"></script>
   </head>
 
@@ -27,8 +26,13 @@
     <main class="flex-shrink-0">
       <div class="container-fluid" id="main">
         <div class="row bg-danger text-light" style="padding-top: 20px">
-          <div class="col-auto"><img src="IKO_Logo-nobg.png" /></div>
+          <div class="col-auto" style="padding-top: 6px"><a href="start_page.html"><img src="IKO_Logo-nobg.png" /></a></div>
           <h1 class="col">Asset, Job Plan, PM Translations</h1>
+          <div class="col d-flex align-items-center justify-content-end">
+            <div class="form-check form-switch" style="padding-right: 20px; padding-top: 2px;">
+              <input class="form-check-input" type="checkbox" id="dark-mode-switch" checked>
+            </div>
+          </div>
         </div>
 
         <div class="row">
@@ -111,8 +115,8 @@
     </main>
 
     <div class="toast-container position-absolute p-3 top-0 end-0" id="toastPlacement"></div>
-    <button id="topButton" title="Go to top">Top</button>
-    <button id="endButton" title="Go to end">End</button>
+    <button id="topButton" class="btn btn-danger material-icons pointer md-size" title="Go to top">arrow_upward</button>
+    <button id="endButton" class="btn btn-danger material-icons pointer md-size" title="Go to end">arrow_downward</button>
 
     <script src="./asset_translation.js"></script>
   </body>

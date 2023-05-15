@@ -3,6 +3,11 @@ const { clipboard, ipcRenderer, shell } = require('electron');
 const Database = require('../assets/indexDB');
 const Validate = require('../assets/validators');
 
+window.onload = function() {
+    document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
+}
+
+
 document.getElementById("load-item").addEventListener("click", loadItem);
 document.getElementById("valid-single").addEventListener("click", validSingle);
 document.getElementById("single-copy").addEventListener("click", () => { copyResult('single'); });
@@ -20,6 +25,8 @@ document.getElementById("skip-row").addEventListener("click", skipRow);
 document.getElementById("open-in-browser").addEventListener("click", openBrowser);
 document.getElementById("continueAuto").addEventListener("click", continueAuto);
 document.getElementById("openBatchFile").addEventListener("click", openFile);
+
+document.getElementById("dark-mode-switch").addEventListener("click", toggleTheme);
 
 
 // listener for enter key on search field
@@ -482,7 +489,7 @@ async function showRelated(result) {
                         }
                     }
 
-                }
+                } /// data-theme="${document.documentElement.getAttribute("data-bs-theme")}" 
                 if (key > 0.7) {
                     color = 'table-success';
                 } else if (key > 0.4) {
@@ -490,6 +497,7 @@ async function showRelated(result) {
                 } else {
                     color = 'table-danger';
                 }
+
                 html = `${html}\n<tr class="${color}"><td>${formatter.format(key)}</td>
                 <td>${item}</td>
                 <td>${itemName}</td>

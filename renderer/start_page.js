@@ -1,6 +1,12 @@
 const { ipcRenderer } = require('electron');
+const { uniqueId } = require('lodash');
 let selected = '';
 const popupAlert = new bootstrap.Modal(document.getElementById('popupAlert'), { toggle: false });
+
+window.onload = function() {
+    document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
+}
+
 
 function openObserveTemp() {
     ipcRenderer.send('start_observation_template', 'finished');
@@ -80,3 +86,4 @@ document.getElementById("openItem").addEventListener("click", tryLoginItem);
 document.getElementById("openAssetDescription").addEventListener("click", openAssetDescription);
 document.getElementById("continue").addEventListener("click", noMaximo);
 document.getElementById("tryLogin").addEventListener("click", tryLoginAgain);
+document.getElementById("dark-mode-switch").addEventListener("click", toggleTheme);

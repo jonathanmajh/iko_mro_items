@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<html lang="en" class="h-100">
+<html lang="en" class="h-100" >
     <head>
         <meta charset="UTF-8" />
         <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
         <meta http-equiv="Content-Security-Policy" content="script-src 'self';" />
         <link rel="icon" type="image/png" href="iko_logo.png" />
         <title>IKO Reliability Tool</title>
-        <link rel="stylesheet" href="bootstrap.min.css" />
-        <link rel="stylesheet" href="start_page.css" />
         <link rel="stylesheet" href="style.css" />
-        <script src="bootstrap.bundle.min.js"></script>
+        <script src="..\node_modules\bootstrap\dist\js\bootstrap.bundle.min.js"></script>
         <script src="../assets/common.js"></script>
     </head>
 
     <body>
+        <!-- <button>
+            <a href="item_main.html">
+                item tool
+            </a>
+        </button> -->
         <div class="modal fade" id="popupAlert" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -84,8 +87,14 @@
             </div>
         </div>
 
+
         <div class="card">
-            <h1 class="card-header">IKO Reliability Tool</h1>
+            <div class = "d-flex align-items-center card-header">
+                <h1>IKO Reliability Tool</h1>
+                <div class="form-check form-switch d-flex flex-grow-1 justify-content-end" style="padding-right: 50px;">
+                    <input class="form-check-input" type="checkbox" id="dark-mode-switch" checked>
+                </div>
+            </div>
             <div class="card-body">
                 <h5 class="card-title">Please Select Module to Begin</h5>
                 <div class="row row-cols-1 row-cols-md-2 g-4">
@@ -137,7 +146,7 @@
             <h1 class="card-header">Logs</h1>
             <div class="card-body">
                 <div class="table-responsive" id="logs-container">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered table-striped">
                         <thead>
                             <tr class="table-primary">
                                 <th>Level</th>

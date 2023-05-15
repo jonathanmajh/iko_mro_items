@@ -10,6 +10,7 @@ document.getElementById("endButton").addEventListener("click", toEnd);
 document.getElementById("select_file").addEventListener("click", selectFile);
 document.getElementById("select_jobtasks").addEventListener("click", selectJobTasks);
 document.getElementById("process").addEventListener("click", processFile);
+document.getElementById("dark-mode-switch").addEventListener("click", toggleTheme);
 
 function selectFile() {
     ipcRenderer.invoke('select-translations', 'finished').then((result) => {
@@ -58,4 +59,15 @@ function processFile() {
 function showResults(results) {
     let bar = new ProgressBar;
     bar.update(100, 'Done!');
+}
+
+function toggleTheme(){
+    theme = document.getElementById("dark-mode-switch").checked ? "light" : "dark";
+    let str = "[data-bs-theme=\"" + theme + "\"]";
+    theme = document.getElementById("dark-mode-switch").checked ? "dark" : "light";
+    //console.log(str);
+    let elms = document.querySelectorAll(str);
+    for(const elm of elms){
+        elm.setAttribute("data-bs-theme", theme);
+    }
 }

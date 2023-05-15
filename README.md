@@ -22,12 +22,18 @@ Note: Better-sqlite3 does not include prebuilt binaries for windows, this will h
 
 Using
 ```
-node v12.20.0
-electron v11.1.0
-better-sqlite3 v7.1.2
+node v18.16.0
+electron v21.4.3
+better-sqlite3 v8.2.0
 electron-squirrel-startup v1.0.0
 xlsx v0.16.9
 ```
 
 Auto updating using Nuts
 https://github.com/GitbookIO/nuts
+
+## To edit
+### Editing CSS:
+When linking css to an html file, use style.css as the only stylesheet. If you make another stylesheet, import it into style.css.
+### Live editing:
+Use ```npm start``` to open the application (make sure you've installed all dependencies using ```npm install``` at least once). Once you make any changes, hit ```ctrl+r``` in the app to refresh the page. To restart the app, enter ```rs``` in the terminal. Opening the html file in a browser directly will prevent the JS from loading.
