@@ -1,3 +1,16 @@
+//runs automagically
+(function() {
+    if(!(localStorage.getItem('theme'))){
+        localStorage.setItem('theme','dark');
+    }
+
+    document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('theme'));
+})();
+
+function fixSwitch(){
+    document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
+}
+
 class WorkerHandler {
     async work(params, callback) {
         const worker = new Worker('./worker.js');
@@ -126,5 +139,28 @@ function toTop() {
 function toEnd() {
     let element = document.getElementsByTagName("main");
     element[0].scrollTop = element[0].scrollHeight; // For Chrome, Firefox, IE and Opera
+}
+
+function toggleTheme(){
+    setTheme(localStorage.getItem('theme') === 'dark' ? 'light' : 'dark');
+}
+
+function setTheme(newTheme){
+    //safety
+    if(localStorage.getItem('theme')===newTheme){
+        return;
+    }
+
+    localStorage.setItem('theme', `${newTheme}`);
+    document.documentElement.setAttribute("data-bs-theme",newTheme);
+}
+
+function loadTheme(){
+    if(!(localStorage.getItem('theme'))){
+        localStorage.setItem('theme','dark');
+    }
+
+    document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('theme'));
+    console.log('i have run');
 }
 

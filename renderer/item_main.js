@@ -2,7 +2,11 @@ const { clipboard, ipcRenderer, shell } = require('electron');
 // const { dialog } = require('electron').remote;
 const Database = require('../assets/indexDB');
 const Validate = require('../assets/validators');
-let theme = document.getElementById("dark-mode-switch").checked ? "dark" : "light";
+
+window.onload = function() {
+    document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
+}
+
 
 document.getElementById("load-item").addEventListener("click", loadItem);
 document.getElementById("valid-single").addEventListener("click", validSingle);
@@ -532,16 +536,5 @@ function copyResult(copy) {
             html: `<table><tbody><tr><td>${desc[0]}</td><td>${desc[1]}</td><td>${desc[2]}</td></tr></tbody></table>`,
         });
         new Toast('Triple Description Copied to Clipboard!');
-    }
-}
-
-function toggleTheme(){
-    theme = document.getElementById("dark-mode-switch").checked ? "light" : "dark";
-    let str = "[data-bs-theme=\"" + theme + "\"]";
-    theme = document.getElementById("dark-mode-switch").checked ? "dark" : "light";
-    //console.log(str);
-    let elms = document.querySelectorAll(str);
-    for(const elm of elms){
-        elm.setAttribute("data-bs-theme", theme);
     }
 }

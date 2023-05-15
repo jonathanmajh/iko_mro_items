@@ -1,7 +1,12 @@
 const { ipcRenderer } = require('electron');
+const { uniqueId } = require('lodash');
 let selected = '';
 const popupAlert = new bootstrap.Modal(document.getElementById('popupAlert'), { toggle: false });
-let theme = "dark";
+
+window.onload = function() {
+    document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
+}
+
 
 function openObserveTemp() {
     ipcRenderer.send('start_observation_template', 'finished');
@@ -72,17 +77,6 @@ function noMaximo() {
             break;
         default:
             console.log('no default action set');
-    }
-}
-
-function toggleTheme(){
-    theme = document.getElementById("dark-mode-switch").checked ? "light" : "dark";
-    let str = "[data-bs-theme=\"" + theme + "\"]";
-    theme = document.getElementById("dark-mode-switch").checked ? "dark" : "light";
-    //console.log(str);
-    let elms = document.querySelectorAll(str);
-    for(const elm of elms){
-        elm.setAttribute("data-bs-theme", theme);
     }
 }
 
