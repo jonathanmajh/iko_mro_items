@@ -35,7 +35,8 @@
     <div id="progress-text">Ready!</div>
     <div class="progress bg-dark" style="height: 40px; width: 100%">
       <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar"
-        style="width: 100%" id="progress-bar"></div>
+        style="width: 100%" id="progress-bar">
+      </div>
     </div>
   </nav>
   <main class="flex-shrink-1">
@@ -66,7 +67,7 @@
                   <div class="col-md">
                     <div class="form-floating input-group">
                       <input type="text" class="form-control" id="interact-num" title="Look Up Existing Item Number"
-                        placeholder="Item Number">
+                        placeholder="Item Number" maxlength="7">  
                       <label for="interact-num">Item Number</label>
                       <button class="btn btn-danger" type="button" id="load-item">Load</button>
                     </div>
@@ -88,7 +89,7 @@
                 <div class="row">
                   <div class="col-md">
                     <div class="form-floating input-group">
-                      <input type="text" class="form-control" id="maximo-desc" placeholder="Item Description">
+                      <input type="text" class="form-control" id="maximo-desc" placeholder="Item Description" maxlength="100" required>
                       <label for="maximo-desc">Item Description</label>
                       <button class="btn btn-danger" type="button" id="valid-single">Check</button>
                     </div>
@@ -100,7 +101,7 @@
                   <div class="col-md">
                     <div class="form-floating">
                       <!-- consider doing a drop down select with filter -->
-                      <select class="form-select" id="uom-field">
+                      <select class="form-select" id="uom-field" required>
                         <option value="EA" selected>EA: Each</option>
                         <option value="BG">BG: Bag</option>
                         <option value="BT">BT: Bottle</option>
@@ -133,7 +134,7 @@
                   </div>
                   <div class="col-md">
                     <div class="form-floating">
-                      <select class="form-select" id="com-group">
+                      <select class="form-select" id="com-group" required>
                         <option value="">Select Commodity Group</option>
                         <option value="401">401: Electrical Devices and Components</option>
                         <option value="402">402: Electrical Accessories (Accessories for the Devices)</option>
@@ -165,7 +166,7 @@
                 <div class="row">
                   <div class="col-md">
                     <div class="form-floating">
-                      <select class="form-select" id="gl-class">
+                      <select class="form-select" id="gl-class" required>
                         <option value="">Select GL Class</option>
                         <option value="BRM">BRM: Building Repair & Maint</option>
                         <option value="CLL">CLL: Comm Land Lines</option>
@@ -202,7 +203,74 @@
                       <label for="selected-language">Translate to Language</label>
                     </div>
                   </div>
-                  <div class="col-md"></div>
+                  <div class="col-md d-flex input-group justify-content-center">
+                    <button class="btn btn-danger flex-grow-1" type="button" id="upload-btn">
+                      <strong>Upload Item</strong>
+                    </button>
+                  </div>
+
+                  <div class="modal modal-lg fade" id="confirmModal" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="confirmModalLabel">Confirm Upload</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                          <ul class="list-group mb-3">
+                            <li class="list-group-item">
+                              <div class="ms-2 me-auto">
+                                <div class="fw-bold">Item Number:</div>
+                                <p id="item-itemnum"></p>
+                              </div>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-start" style="display: inline-block">
+                              <div class="ms-2 me-auto">
+                                <div class="fw-bold">Description:</div>
+                                <p id="item-desc"></p>
+                              </div>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                              <div class="ms-2 me-auto">
+                                <div class="fw-bold">Unit of Measure:</div>
+                                <p id="item-uom"></p>
+                              </div>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                              <div class="ms-2 me-auto">
+                                <div class="fw-bold">Commodity Group:</div>
+                                <p id="item-commgroup"></p>
+                              </div>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                              <div class="ms-2 me-auto">
+                                <div class="fw-bold">Gl Class:</div>
+                                <p id="item-glclass"></p>
+                              </div>
+                            </li>
+                          </ul>
+                          <ul class="list-group">
+                            <li class="list-group-item" id="error">
+                              Waiting for confirm...
+                            </li>
+                          </ul>
+                          <h6 class="mt-3">Enter Additional Info (optional):</h6>
+                          <div class="row">
+                            <div class="input-group col-auto">
+                              <span class="input-group-text">Details:</span>
+                              <input type="text" class="form-control" id="long-desc" value="" required>
+                            </div>
+                          </div>                          
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          <button type="button" class="btn btn-warning" id="confirm-btn">
+                            Upload Item
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

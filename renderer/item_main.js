@@ -7,7 +7,6 @@ window.onload = function() {
     document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
 }
 
-
 document.getElementById("load-item").addEventListener("click", loadItem);
 document.getElementById("valid-single").addEventListener("click", validSingle);
 document.getElementById("single-copy").addEventListener("click", () => { copyResult('single'); });
@@ -25,6 +24,23 @@ document.getElementById("skip-row").addEventListener("click", skipRow);
 document.getElementById("open-in-browser").addEventListener("click", openBrowser);
 document.getElementById("continueAuto").addEventListener("click", continueAuto);
 document.getElementById("openBatchFile").addEventListener("click", openFile);
+document.getElementById("confirm-btn").addEventListener("click", () => {uploadItem();});
+document.getElementById("upload-btn").addEventListener("click",() => {
+    
+    let confirmModal = new bootstrap.Modal(document.getElementById("confirmModal"));
+
+    if(!(
+        document.getElementById("maximo-desc").reportValidity() &&
+        document.getElementById("uom-field").reportValidity() &&
+        document.getElementById("com-group").reportValidity() &&
+        document.getElementById("gl-class").reportValidity()
+    )){
+        return;
+    }
+
+    confirmModal.toggle();
+    getNextNumThenUpdate();
+});
 
 document.getElementById("dark-mode-switch").addEventListener("click", toggleTheme);
 
@@ -452,7 +468,6 @@ function calcConfidence(data) {
     }
 }
 
-
 async function showRelated(result) {
     let bar = new ProgressBar();
     if (!result[0]) {
@@ -538,3 +553,4 @@ function copyResult(copy) {
         new Toast('Triple Description Copied to Clipboard!');
     }
 }
+
