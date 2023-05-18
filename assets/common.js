@@ -9,9 +9,6 @@
 })();
 
 //classes
-
-
-
 class WorkerHandler {
     async work(params, callback) {
         const worker = new Worker('./worker.js');
@@ -170,19 +167,13 @@ function loadTheme(){
     document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('theme'));
     console.log('i have run');
 }
-/*
-
-<span class="spinner-border spinner-border-sm" role="status"></span>
-<span class="sr-only">Loading...</span>
-
-*/
     //upload item related
 function getNextNumThenUpdate(){
         document.getElementById("error").innerHTML = "Waiting for confirm...";
         const worker = new WorkerHandler();
-        document.getElementById("confirm-btn").innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span class="sr-only"> Loading...</span>';
+        document.getElementById("confirm-btn").innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span> Loading...</span>';
         document.getElementById("confirm-btn").disabled = true;
-        document.getElementById("item-itemnum").innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span class="sr-only"> Retreiving the latest item number...</span>';
+        document.getElementById("item-itemnum").innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span> Retreiving the latest item number...</span>';
         worker.work(['getNextItemNumber'], updateItemInfo);
         console.log("Getting new number from server")
 }
@@ -273,7 +264,7 @@ async function uploadItem(){
 
     console.log(xmldoc);
     document.getElementById("error").innerHTML = "Trying Upload..."
-    document.getElementById("confirm-btn").innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span class="sr-only"> Uploading...</span>';
+    document.getElementById("confirm-btn").innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span> Uploading...</span>';
     document.getElementById("confirm-btn").disabled = true;
     try{
         let response = await fetch(url, {
@@ -309,11 +300,13 @@ async function uploadItem(){
 
     document.getElementById("confirm-btn").innerHTML = 'Upload Item';
     document.getElementById("confirm-btn").disabled = false;
+
+    let itemUrl = `https://test.manage.test.iko.max-it-eam.com/maximo/ui/login?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
     document.getElementById("error").innerHTML = 
-    `Item Upload Successful! Click link to view item: <a id="item-link" href = "https://test.manage.test.iko.max-it-eam.com/maximo/ui/login?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}"> link <a>`;
+    `Item Upload Successful! <a id="item-link" href = "${itemUrl}"> (Click to view item) </a>`;
     document.getElementById("item-link").addEventListener('click', function (e) {
         e.preventDefault();
-        shell.openExternal(`https://test.manage.test.iko.max-it-eam.com/maximo/ui/login?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`);
+        shell.openExternal(itemUrl);
     });
 }
 
