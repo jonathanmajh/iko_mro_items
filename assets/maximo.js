@@ -149,12 +149,12 @@ class Maximo {
         }
     }
 
-    async getNextItemNumber() {
+    async getNextItemNumber(numSeries) {
         let response;
         try {
             // get latest 91* number (will need to be updated to 92 after 200k items have been created in Maximo)
             // %25 is %
-            response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/mxitem?oslc.where=status="active" and itemnum="91%25"&_lid=${this.login.userid}&_lpwd=${this.login.password}&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum`);
+            response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/mxitem?oslc.where=status="active" and itemnum="${numSeries}%25"&_lid=${this.login.userid}&_lpwd=${this.login.password}&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum`);
         } catch (err) {
             postMessage(['result', 1,'Failed to fetch Data from Maximo, Please Check Network (1)']);
             return false;

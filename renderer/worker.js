@@ -89,7 +89,7 @@ onmessage = function (e) {
             break;
         case 'getNextItemNumber':
             maximo = new Maximo();
-            maximo.getNextItemNumber();
+            maximo.getNextItemNumber(e.data[1]);
             break;
         case 'translateItem':
             const trans = new Translation();
