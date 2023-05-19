@@ -235,6 +235,10 @@ async function uploadItem(){
         sanitizeString(document.getElementById("com-group").value),
         sanitizeString(document.getElementById("gl-class").value)
     );
+    
+    if(document.getElementById("long-desc").value.length > 0){
+        item.longdescription = document.getElementById("long-desc").value;
+    }
 
     worker.work(['uploadItems',[item]], (e) => {
         document.getElementById("error").innerHTML = "Upload Success"
