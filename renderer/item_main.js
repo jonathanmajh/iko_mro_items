@@ -3,6 +3,9 @@ const { clipboard, ipcRenderer, shell } = require('electron');
 const Database = require('../assets/indexDB');
 const Validate = require('../assets/validators');
 
+const testItem = new Item(undefined,"test","EA","401","ERM","sdffas");
+const testItem2 = new Item(9,"test2","EA","401","ERM");
+
 window.onload = function() {
     document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
 }
@@ -39,7 +42,7 @@ document.getElementById("upload-btn").addEventListener("click",() => {
     }
 
     confirmModal.toggle();
-    getNextNumThenUpdate();
+    getNextNumThenUpdate(document.getElementById("num-type").value);
 });
 
 document.getElementById("dark-mode-switch").addEventListener("click", toggleTheme);
@@ -92,7 +95,7 @@ function auto_grow(elementID) {
 
 function openBrowser() {
     const worker = new WorkerHandler();
-    worker.work(['getNextItemNumber'], openBrowserLink);
+    worker.work(['getCurItemNumber'], openBrowserLink);
 }
 
 function openBrowserLink(info) {

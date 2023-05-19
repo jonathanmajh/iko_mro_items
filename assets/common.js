@@ -36,6 +36,8 @@ class WorkerHandler {
                 log.info(e.data[1]);
             } else if (e.data[0] === 'debug') {
                 log.info(e.data[1]);
+            } else if (e.data[0] === 'fail'){
+                log.error(e.data[1]);
             } else {
                 console.log(`Unimplemented worker message ${e.data}`);
             }
@@ -67,8 +69,10 @@ class Logging {
     }
 }
 
+
+
 class ProgressBar {
-    constructor() {
+    constructor(barId = "progress-bar",textId = "progress-text") {
         this.progressBar = document.getElementById("progress-bar");
         this.progressText = document.getElementById("progress-text");
         this.currentProgress = this.progressBar.getAttribute('style');
@@ -129,6 +133,24 @@ class Toast {
     }
 }
 
+class Item {
+    //add more properties later (e.g storeroom, manufacturer, etc.)
+    constructor(itemnumber=0, description, issueunit, commoditygroup, glclass, series=91, longdescription = "", assetprefix = "", assetseed = "", jpnum = "", inspectionrequired = 0, isimport = 0, rotating = 0){
+        this.itemnumber = itemnumber;
+        this.series=series;
+        this.description = description;
+        this.issueunit = issueunit;
+        this.commoditygroup = commoditygroup;
+        this.glclass = glclass;
+        this.longdescription = longdescription;
+        this.assetprefix = assetprefix;
+        this.assetseed = assetseed;
+        this.jpnum = jpnum;
+        this.inspectionrequired = inspectionrequired;
+        this.isimport = isimport;
+        this.rotating = rotating;
+    }
+}
 //functions
     //general
 function fixSwitch(){
@@ -168,23 +190,25 @@ function loadTheme(){
     console.log('i have run');
 }
     //upload item related
-function getNextNumThenUpdate(){
+function getNextNumThenUpdate(series){
         document.getElementById("error").innerHTML = "Waiting for confirm...";
         const worker = new WorkerHandler();
         document.getElementById("confirm-btn").innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span> Loading...</span>';
         document.getElementById("confirm-btn").disabled = true;
         document.getElementById("item-itemnum").innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span> Retreiving the latest item number...</span>';
-        worker.work(['getNextItemNumber',document.getElementById("num-type").value], updateItemInfo);
+        worker.work(['getCurItemNumber',series], updateItemInfo);
         console.log("Getting new number from server")
 }
 
-function updateItemInfo(newItemNum){
-    if(newItemNum[0]===1){
-        throw new Error(newItemNum[1]);
+function updateItemInfo(curItemNum){
+    console.log(curItemNum);
+
+    if(curItemNum[0]===0){
+        throw new Error(curItemNum[1]);
     }
 
     let itemnum = document.getElementById("interact-num");
-        itemnum.value = newItemNum[1] + 1;
+        itemnum.value = curItemNum[1] + 1;
     let desc = document.getElementById("maximo-desc");
     let uom = document.getElementById("uom-field");
     let commGroup = document.getElementById("com-group");
@@ -201,115 +225,34 @@ function updateItemInfo(newItemNum){
 }
 
 async function uploadItem(){
-    let item;
-    let itemnum = document.getElementById("interact-num");
-    let desc = document.getElementById("maximo-desc");
-    let uom = document.getElementById("uom-field");
-    let commGroup = document.getElementById("com-group");
-    let glclass = document.getElementById("gl-class");
-    let longdesc = document.getElementById("long-desc");
-    let url = "https://test.manage.test.iko.max-it-eam.com/maximo/api/os/IKO_ITEMMASTER?action=importfile";
-    let apiKey = "rho0tolsq1m2vbgkp22aipg48pe326prai0dicl4";
-
-    try{
-        item = {
-            //initalize properties
-            //crucial properties
-            itemnumber: itemnum.value,
-            description: desc.value,
-            issueunit: uom.value,
-            commoditygroup: commGroup.value,
-            glclass: glclass.value,
-    
-            //optional properties
-            longdescription: "",
-            assetprefix: "",
-            assetseed: "",
-            jpnum: "",
-            inspectionrequired: 0,
-            isimport: 0,
-            rotating: 0,
-        }
-    
-        if(longdesc.value.length>0){
-            item.longdescription = longdesc.value;
-        }
-    
-        console.log(item.itemnumber);
-    } catch (err){
-        document.getElementById("error").innerHTML = err;
-        console.log(err)
-        return;
-    }
-    document.getElementById("error").innerHTML = "Waiting for confirm...";
-
-    let xmldoc =     
-`<?xml version="1.0" encoding="UTF-8"?>
-<SyncIKO_ITEMMASTER xmlns="http://www.ibm.com/maximo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-<IKO_ITEMMASTERSet>
-    <ITEM>
-        <COMMODITYGROUP>${item.commoditygroup}</COMMODITYGROUP>
-        <DESCRIPTION>${item.description}</DESCRIPTION>
-        <DESCRIPTION_LONGDESCRIPTION>${item.longdescription}</DESCRIPTION_LONGDESCRIPTION>
-        <EXTERNALREFID>${item.glclass}</EXTERNALREFID>
-        <IKO_ASSETPREFIX>${item.assetprefix}</IKO_ASSETPREFIX>
-        <IKO_ASSETSEED>${item.assetseed}</IKO_ASSETSEED>
-        <IKO_JPNUM>${item.jpnum}</IKO_JPNUM>
-        <INSPECTIONREQUIRED>${item.inspectionrequired}</INSPECTIONREQUIRED>
-        <ISIMPORT>${item.isimport}</ISIMPORT>
-        <ISSUEUNIT>${item.issueunit}</ISSUEUNIT>
-        <ITEMNUM>${item.itemnumber}</ITEMNUM>
-        <ITEMSETID>ITEMSET1</ITEMSETID>
-        <ROTATING>${item.rotating}</ROTATING>
-        <STATUS>ACTIVE</STATUS>
-    </ITEM>
-</IKO_ITEMMASTERSet>
-</SyncIKO_ITEMMASTER>`;
-
-    console.log(xmldoc);
-    document.getElementById("error").innerHTML = "Trying Upload..."
     document.getElementById("confirm-btn").innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span> Uploading...</span>';
     document.getElementById("confirm-btn").disabled = true;
-    try{
-        let response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "apiKey":apiKey,
-                "filetype":"XML",
-                "preview":1,
-            },
-            body: xmldoc,
+    const worker = new WorkerHandler();
+    let item = new Item(
+        sanitizeString(document.getElementById("interact-num").value),
+        sanitizeString(document.getElementById("maximo-desc").value),
+        sanitizeString(document.getElementById("uom-field").value),
+        sanitizeString(document.getElementById("com-group").value),
+        sanitizeString(document.getElementById("gl-class").value)
+    );
+
+    worker.work(['uploadItems',[item]], (e) => {
+        document.getElementById("error").innerHTML = "Upload Success"
+        document.getElementById("confirm-btn").innerHTML = "Upload Item";
+        document.getElementById("confirm-btn").disabled = false;
+        let itemUrl = `https://test.manage.test.iko.max-it-eam.com/maximo/ui/login?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
+        document.getElementById("error").innerHTML = `Item Upload Successful! <a id="item-link" href = "${itemUrl}"> (Click to view item) </a>`;
+        document.getElementById("item-link").addEventListener('click', function (e) {
+            e.preventDefault();
+            shell.openExternal(itemUrl);
         });
-        let result = await response.json();
-        console.log(result);
-        if(result.validdoc!=1){
-            throw new Error("Invalid input parameters");
-        }
-    } catch (err) {
-        document.getElementById("error").innerHTML = err;
-        console.log(err);
-        console.log("Item upload failed!");
-    }    
-
-    // let response = await fetch(url, {
-    //     method: "POST",
-    //     headers: {
-    //         "apiKey":apiKey,
-    //         "filetype":"XML",
-    //     },
-    //     body: xmldoc,
-    // });
-    // console.log(await response.json());
-    // console.log("Success");
-
-    document.getElementById("confirm-btn").innerHTML = 'Upload Item';
-    document.getElementById("confirm-btn").disabled = false;
-
-    let itemUrl = `https://test.manage.test.iko.max-it-eam.com/maximo/ui/login?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
-    document.getElementById("error").innerHTML = `Item Upload Successful! <a id="item-link" href = "${itemUrl}"> (Click to view item) </a>`;
-    document.getElementById("item-link").addEventListener('click', function (e) {
-        e.preventDefault();
-        shell.openExternal(itemUrl);
     });
 }
 
+function sanitizeString(str){
+    let badChars = ['<','>'];
+    for(const badChar of badChars){
+        str = str.replaceAll(badChar,"");
+    }
+    return str;
+}
