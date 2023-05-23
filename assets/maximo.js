@@ -149,23 +149,29 @@ class Maximo {
         }
     }
 
-    async getNextItemNumber() {
+    async getCurItemNumber(numSeries) {
         let response;
         try {
             // get latest 91* number (will need to be updated to 92 after 200k items have been created in Maximo)
             // %25 is %
-            response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/mxitem?oslc.where=status="active" and itemnum="91%25"&_lid=${this.login.userid}&_lpwd=${this.login.password}&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum`);
+            response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/mxitem?oslc.where=status="active" and itemnum="${numSeries}%25"&_lid=${this.login.userid}&_lpwd=${this.login.password}&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum`);
         } catch (err) {
-            postMessage(['result', 1,'Failed to fetch Data from Maximo, Please Check Network (1)']);
-            return false;
+            postMessage(['debug','Failed to fetch data from Maximo, please check network (1)']);
+            throw new Error('Failed to fetch data from Maximo, please check network (1)');
         }
         let content = await response.json();
         if (content["oslc:Error"]) { //content["Error"]["message"]
-            postMessage(['result', 1, 'Failed to fetch Data from Maximo, Please Check Network (2)']);
+            postMessage(['debug', 'Failed to fetch Data from Maximo, Please Check Network (2)']);
+            throw new Error('Failed to fetch data from Maximo, please check network (2)');
         } else {
-            let number = content["rdfs:member"][0]['spi:itemnum'];
-            number = parseInt(number);
-            postMessage(['result', 0, number]);
+            try{
+                let number = content["rdfs:member"][0]['spi:itemnum'];
+                number = parseInt(number);
+                return number;
+            } catch {
+                throw new Error('Invalid number series');
+            }
+
         }
     }
 

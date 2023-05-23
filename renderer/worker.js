@@ -10,7 +10,7 @@ const TranslationDatabase = require('../assets/item_translation/item-translation
 const path = require('path');
 const Translation = require('../assets/item_translation/item-translation');
 const fs = require('fs');
-const { debug } = require('console');
+const { debug, error } = require('console');
 
 onmessage = function (e) {
     let valid;
@@ -87,10 +87,12 @@ onmessage = function (e) {
             const translate = new AssetTranslate();
             translate.translate(e.data[1]);
             break;
-        case 'getNextItemNumber':
-            maximo = new Maximo();
-            maximo.getNextItemNumber();
+        case 'getCurItemNumber':
+            getCurItemNum(e.data[1]);
             break;
+        case 'uploadItems':
+            uploadAllItems(e.data[1]);
+            break;     
         case 'translateItem':
             const trans = new Translation();
             result = trans.contextTranslate(e.data[1], e.data[2], e.data[3]);
@@ -113,6 +115,18 @@ async function saveProgress(params) {
     let result = await excel.saveNonInteractive(params, data);
     console.log(result);
     postMessage(['saveComplete', Number(params[1]) + 1]);
+}
+
+async function getCurItemNum(series) {
+    const maximo = new Maximo();
+    let num;
+    try{
+        num = await maximo.getCurItemNumber(series);
+        postMessage(['result',1,num]);
+    } catch (err){
+        postMessage(['debug',err]);
+        postMessage(['result',0,'Unable to get number'])
+    }
 }
 
 function nonInteractiveSave(params) {
@@ -333,4 +347,85 @@ async function checkItemCache(version) {
     }
 
     postMessage(['result', 'done']);
+}
+
+async function uploadAllItems(items){
+    const url = "https://test.manage.test.iko.max-it-eam.com/maximo/api/os/IKO_ITEMMASTER?action=importfile";
+    const apiKey = "rho0tolsq1m2vbgkp22aipg48pe326prai0dicl4";
+    const maximo = new Maximo();
+    let num,numFails,numSuccesses;
+    
+    for(const item of items){
+        try{
+            if(item.itemnumber === 0 || item.itemnumber.length != 7){
+                num = await maximo.getCurItemNumber(item.series);
+                num++;
+                item.itemnumber = num;
+            }
+        } catch (err){
+            numFails++;
+            console.log(err + ", Item Upload Failed");
+            postMessage(['fail',err]);
+            //postMessage(['result',0]);
+            continue;
+        }
+
+        try{
+            let result = await uploadToMaximo(item,url,apiKey);
+            console.log("Result: " + result);
+            if(result == 0){
+                throw new Error('Upload Failed');
+            } else {
+                postMessage(['debug',`Upload of ${item.description} succeeded`]);
+                console.log("Upload of " + item.description + " success")
+                numSuccesses++;
+            }
+        } catch (err){
+            numFails++;
+            postMessage(['fail',`Failed upload of ${item.description}`])
+            console.error(`Failed upload of \"${item.description}\", ${err}`);
+        }
+
+        
+    }
+
+    postMessage(['result',numFails,numSuccesses]);
+}
+
+async function uploadToMaximo(item,url,apiKey,){
+    let xmldoc =     
+`<?xml version="1.0" encoding="UTF-8"?>
+<SyncIKO_ITEMMASTER xmlns="http://www.ibm.com/maximo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<IKO_ITEMMASTERSet>
+    <ITEM>
+        <COMMODITYGROUP>${item.commoditygroup}</COMMODITYGROUP>
+        <DESCRIPTION>${item.description}</DESCRIPTION>
+        <DESCRIPTION_LONGDESCRIPTION>${item.longdescription}</DESCRIPTION_LONGDESCRIPTION>
+        <EXTERNALREFID>${item.glclass}</EXTERNALREFID>
+        <IKO_ASSETPREFIX>${item.assetprefix}</IKO_ASSETPREFIX>
+        <IKO_ASSETSEED>${item.assetseed}</IKO_ASSETSEED>
+        <IKO_JPNUM>${item.jpnum}</IKO_JPNUM>
+        <INSPECTIONREQUIRED>${item.inspectionrequired}</INSPECTIONREQUIRED>
+        <ISIMPORT>${item.isimport}</ISIMPORT>
+        <ISSUEUNIT>${item.issueunit}</ISSUEUNIT>
+        <ITEMNUM>${item.itemnumber}</ITEMNUM>
+        <ITEMSETID>ITEMSET1</ITEMSETID>
+        <ROTATING>${item.rotating}</ROTATING>
+        <STATUS>ACTIVE</STATUS>
+    </ITEM>
+</IKO_ITEMMASTERSet>
+</SyncIKO_ITEMMASTER>`;
+
+    let response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "apiKey":apiKey,
+            "filetype":"XML",
+            //"preview":1,
+        },
+        body: xmldoc,
+    });
+    let content = await response.json();
+    console.log(content);
+    return parseInt(content.validdoc);
 }
