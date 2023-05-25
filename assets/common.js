@@ -38,6 +38,8 @@ class WorkerHandler {
                 log.info(e.data[1]);
             } else if (e.data[0] === 'fail'){
                 log.error(e.data[1]);
+            } else if (e.data[0] === 'update'){
+                updateItemStatus(e.data[1],e.data[2]);
             } else {
                 console.log(`Unimplemented worker message ${e.data}`);
             }
@@ -68,8 +70,6 @@ class Logging {
         row.classList.add("table-primary");
     }
 }
-
-
 
 class ProgressBar {
     constructor(barId = "progress-bar",textId = "progress-text") {
@@ -253,10 +253,62 @@ async function uploadItem(){
     });
 }
 
+async function batchUploadItems(items){
+    const worker = new WorkerHandler();
+    worker.work(['uploadItems',items,true],()=>{
+        console.log("upload finished");
+    });
+}
+
 function sanitizeString(str){
     let badChars = ['<','>'];
     for(const badChar of badChars){
         str = str.replaceAll(badChar,"");
     }
     return str;
+}
+
+function convertToTable(pastedInput,id="")
+{
+    let rawRows = pastedInput.split("\n");
+    let numRows=rawRows.length;
+    let numCols=0;
+    let bodyRows = [];
+    let diff = 0;
+    rawRows.forEach((rawRow, idx) => {
+        let rawRowArray = rawRow.split("\t");
+        if (rawRow==0) {
+            diff--;
+            numRows--;
+        } else {
+            if(rawRowArray.length>numCols){
+                numCols=rawRowArray.length;
+            }
+            bodyRows.push(`<tr>\n`);
+            rawRowArray.forEach(function(value,index){
+                bodyRows.push(`\t<td id="${(idx+diff+1) + '-' + (index+1)}">${value}</td>\n`);
+            })
+            bodyRows.push(`</tr>\n`);
+        }
+    })
+    let tab = `
+<table class="table table-primary table-striped" data-rows="${numRows}" data-cols="${numCols}" id="${id}" contenteditable>
+${bodyRows.join("")}
+</table>
+    `;
+    
+    return tab;
+}
+
+function updateItemStatus(status,itemindex){
+    let statusimg = document.getElementById(`item-${itemindex}-status`);
+    if(status=="fail"){
+        statusimg.setAttribute("src","cross.svg")
+    } else if(status=="success"){
+        statusimg.setAttribute("src","check.svg")
+    } else if(status=="loading"){
+        statusimg.setAttribute("src","")
+    } else {
+        statusimg.setAttribute("src","neutral.svg")
+    }
 }

@@ -91,7 +91,7 @@ onmessage = function (e) {
             getCurItemNum(e.data[1]);
             break;
         case 'uploadItems':
-            uploadAllItems(e.data[1]);
+            e.data[2] ? uploadAllItems(e.data[1],e.data[2]) : uploadAllItems(e.data[1]);
             break;     
         case 'translateItem':
             const trans = new Translation();
@@ -103,8 +103,11 @@ onmessage = function (e) {
         case 'checkUser':
             checkUser(e.data[1]);
             break;
+        case 'getCellLoc':
+
+            break;
         default:
-            console.log(`Unimplimented work ${e.data[0]}`);
+        console.log(`Unimplimented work ${e.data[0]}`);
     }
 };
 
@@ -299,7 +302,6 @@ async function checkUser(credentials = {}) {
     }
 }
 
-
 async function checkItemCache(version) {
     // check internal cache of item information and update with new items in maximo
     postMessage(['debug', `Loading Item Module`]);
@@ -349,10 +351,11 @@ async function checkItemCache(version) {
     postMessage(['result', 'done']);
 }
 
-async function uploadAllItems(items){
+async function uploadAllItems(items,doUpdate = false){
     const url = "https://test.manage.test.iko.max-it-eam.com/maximo/api/os/IKO_ITEMMASTER?action=importfile";
     const apiKey = "rho0tolsq1m2vbgkp22aipg48pe326prai0dicl4";
     const maximo = new Maximo();
+    let count = 0;
     let num,numFails,numSuccesses;
     
     for(const item of items){
@@ -365,17 +368,19 @@ async function uploadAllItems(items){
         } catch (err){
             numFails++;
             console.log(err + ", Item Upload Failed");
+            if(doUpdate) postMessage(['update','fail',count])
             postMessage(['fail',err]);
-            //postMessage(['result',0]);
             continue;
         }
 
         try{
             let result = await uploadToMaximo(item,url,apiKey);
             console.log("Result: " + result);
-            if(result == 0){
+            if(!result){
+                if(doUpdate) postMessage(['update','fail',count])
                 throw new Error('Upload Failed');
             } else {
+                if(doUpdate) postMessage(['update','success',count])
                 postMessage(['debug',`Upload of ${item.description} succeeded`]);
                 console.log("Upload of " + item.description + " success")
                 numSuccesses++;
@@ -385,14 +390,14 @@ async function uploadAllItems(items){
             postMessage(['fail',`Failed upload of ${item.description}`])
             console.error(`Failed upload of \"${item.description}\", ${err}`);
         }
-
-        
+        console.log(count);
+        count++;
     }
 
     postMessage(['result',numFails,numSuccesses]);
 }
 
-async function uploadToMaximo(item,url,apiKey,){
+async function uploadToMaximo(item,url,apiKey){
     let xmldoc =     
 `<?xml version="1.0" encoding="UTF-8"?>
 <SyncIKO_ITEMMASTER xmlns="http://www.ibm.com/maximo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -421,7 +426,7 @@ async function uploadToMaximo(item,url,apiKey,){
         headers: {
             "apiKey":apiKey,
             "filetype":"XML",
-            //"preview":1,
+            "preview":1,
         },
         body: xmldoc,
     });
@@ -429,3 +434,4 @@ async function uploadToMaximo(item,url,apiKey,){
     console.log(content);
     return parseInt(content.validdoc);
 }
+
