@@ -255,9 +255,28 @@ async function uploadItem(){
 
 async function batchUploadItems(items){
     const worker = new WorkerHandler();
-    worker.work(['uploadItems',items,true],()=>{
+    let btn = document.getElementById("batch-upload-btn");
+    let clearBtn = document.getElementById("clear-batch-items-btn");
+    clearBtn.disabled = true;
+    btn.disabled = true;
+    worker.work(['uploadItems',items,true],(e)=>{
+        document.getElementById("batch-upload-status-text").innerHTML='Upload Finished!';
+        clearBtn.disabled = false;
+        btn.disabled = false;
+        updateItemNums(e[0]);
         console.log("upload finished");
     });
+}
+
+function updateItemNums(arr){
+    console.log(arr)
+    for(const pair of arr){
+        let num = pair[0];
+        let itemindex = pair[1];
+        let cell = document.getElementById(`${itemindex+1}-1`);
+        cell.innerHTML = num;
+        cell.classList.add("table-alert");
+    }
 }
 
 function sanitizeString(str){
@@ -288,11 +307,17 @@ function convertToTable(pastedInput,id="")
             rawRowArray.forEach(function(value,index){
                 bodyRows.push(`\t<td id="${(idx+diff+1) + '-' + (index+1)}">${value}</td>\n`);
             })
+            if(idx==0){
+                bodyRows.push(`<td style="border-left: 2px solid;" contentEditable="false"></td>`);
+            } else {
+
+                bodyRows.push(`<td id="item-${idx+diff}-status" contentEditable="false" style="border-left: 2px solid; width:0.1%; white-space: nowrap;"><i class="material-symbols-outlined mt-2">pending</i></td>`);
+            }
             bodyRows.push(`</tr>\n`);
         }
     })
     let tab = `
-<table class="table table-primary table-striped" data-rows="${numRows}" data-cols="${numCols}" id="${id}" contenteditable>
+<table class="table table-primary table-striped" data-rows="${numRows}" data-cols="${numCols}" id="${id}" style="margin-bottom: 0px" contenteditable>
 ${bodyRows.join("")}
 </table>
     `;
@@ -303,12 +328,14 @@ ${bodyRows.join("")}
 function updateItemStatus(status,itemindex){
     let statusimg = document.getElementById(`item-${itemindex}-status`);
     if(status=="fail"){
-        statusimg.setAttribute("src","cross.svg")
+        statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">close</i>`;
     } else if(status=="success"){
-        statusimg.setAttribute("src","check.svg")
+        statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">done</i>`;
     } else if(status=="loading"){
-        statusimg.setAttribute("src","")
+        statusimg.innerHTML = `<div class="spinner-border mt-1 mb-1" style="width: 24px; height: 24px;" role="status"></div>`;
+    } else if(status=="error"){
+        statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">error</i>`;
     } else {
-        statusimg.setAttribute("src","neutral.svg")
+        statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">pending</i>`;
     }
 }

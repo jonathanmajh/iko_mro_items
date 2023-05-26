@@ -3,6 +3,13 @@ const { clipboard, ipcRenderer, shell } = require('electron');
 const Database = require('../assets/indexDB');
 const Validate = require('../assets/validators');
 let itemsToUpload = [];
+let colLoc = {
+    description: -1,
+    uom: -1,
+    commGroup: -1,
+    glClass: -1,
+    maximo: -1
+}
 
 window.onload = function() {
     document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
@@ -17,7 +24,6 @@ document.getElementById("topButton").addEventListener("click", toTop);
 document.getElementById("endButton").addEventListener("click", toEnd);
 document.getElementById("interactive").addEventListener("click", openExcel);
 document.getElementById("worksheet-path").addEventListener("click", openExcel);
-document.getElementById("batch-pick-file").addEventListener("click", getBatchFile);
 document.getElementById("pauseAuto").addEventListener("click", pauseAuto);
 
 document.getElementById("save-desc").addEventListener("click", writeDescription);
@@ -43,46 +49,53 @@ document.getElementById("upload-btn").addEventListener("click",() => {
     getNextNumThenUpdate(document.getElementById("num-type").value);
 });
 
-
 //batch upload:
 document.getElementById("openBatchFile").addEventListener("click", () => {openFile("worksheet-path")});
 
-document.getElementById("open-batch-upload-file").addEventListener("click", () => {openFile("batch-file-path")});
-
 document.getElementById("clear-batch-items-btn").addEventListener("click", () => {
-    let list = document.getElementById("batch-items-list");
-    list.innerHTML = `
-<h4 class="text-center mt-2">
-No Items to Upload :(
-</h4>
-    `;
+    document.getElementById("batch-items-table").innerHTML = ``;
+    document.getElementById("batch-upload-status-text").innerHTML='Waiting for paste...';
 })
 document.getElementById("batch-items-textinput").addEventListener("paste", (e) => {
     setTimeout(() => {
         let paste = e.target.value;
         let table = document.getElementById("batch-items-table-div");
         table.innerHTML = convertToTable(paste,"batch-items-table");
+        document.getElementById("batch-upload-status-text").innerHTML='Paste detected! Edit table if needed and click upload.';
         e.target.value = "";
     },0)
 })
-document.getElementById("gen-items").addEventListener("click", () => {
+document.getElementById("batch-upload-btn").addEventListener("click", () => {
     try{
         itemsToUpload = getItemsFromTable("batch-items-table")
     } catch (error){
-        console.error(error);
-        document.getElementById("batch-items-list").innerHTML = `<h4 class="mt-2" style="text-align: center">Invalid Table Input!</h4>`
         itemsToUpload = [];
-    }
-})
-document.getElementById("batch-upload-btn").addEventListener("click", () => {
-    if(itemsToUpload.length > 0){
-        batchUploadItems(itemsToUpload);
+        document.getElementById("batch-upload-status-text").innerHTML=error;
         return;
     }
 
+    if(itemsToUpload.length > 0){
+        itemsToUpload.forEach((value,idx)=>{
+            if(value){
+                updateItemStatus('loading',idx+1);
+            }
+        })
+        batchUploadItems(itemsToUpload);
+        return;
+    } else {
+        document.getElementById("batch-upload-status-text").innerHTML='No valid items to upload!';
+    }
+    
     return;
 })
+document.getElementById("batch-paste-btn").addEventListener("click", async () => {
+    const text = await navigator.clipboard.readText();
+    const pasteEvent = new Event("paste", {"bubbles":true, "cancelable":false});
+    let textinput = document.getElementById("batch-items-textinput");
 
+    textinput.value = text;
+    textinput.dispatchEvent(pasteEvent);
+})
 //dark theme toggle
 document.getElementById("dark-mode-switch").addEventListener("click", toggleTheme);
 
@@ -275,20 +288,6 @@ function openExcel() {
     });
 }
 
-function getBatchFile() {
-    ipcRenderer.invoke('select-to-be-translated', 'finished').then((result) => {
-        if (!result.canceled) {
-            // const worker = new WorkerHandler();
-            // const params = worksheetParams(result.filePaths[0]);
-            // worker.work(['interactive', params], finishLoadingBatch);
-            const filePath = result.filePaths[0];
-            document.getElementById("batch-file-path").value = result.filePaths[0];
-        } else {
-            new Toast('File Picker Cancelled');
-        }
-    });
-}
-
 /**
  * Reads a table and generates items from it
  *
@@ -299,16 +298,10 @@ function getItemsFromTable(tableId) {
     //find Description, UOM, Commodity Group, and GL Class
     let rows = parseInt(table.getAttribute("data-rows"));
     let cols = parseInt(table.getAttribute("data-cols"));
-    let colLoc = {
-        description: -1,
-        uom: -1,
-        commGroup: -1,
-        glClass: -1,
-        maximo: -1
-    }
     //iniitalize items array
     let items = [];
-    //go through first row to find headings
+    //go through first row to find headings.
+    let validParams = 0;
     for(let i = 1; i<=cols; i++){
         //get a cell in the table by its id
         let cell = document.getElementById("1-"+i);
@@ -316,19 +309,30 @@ function getItemsFromTable(tableId) {
         //see if cell value matches any of the required parameters to create an item object
         if(cell.innerHTML.toUpperCase()==='DESCRIPTION'){
             colLoc.description=i;
+            validParams++;
         } else if(cell.innerHTML.toUpperCase()==='UOM'||cell.innerHTML.toUpperCase()==='ISSUE UNIT'){
             colLoc.uom=i;
+            validParams++;
         } else if(cell.innerHTML.toUpperCase()==='COMMODITY GROUP' || cell.innerHTML.toUpperCase()==='COMM GROUP'){
             colLoc.commGroup=i;
+            validParams++;
         } else if(cell.innerHTML.toUpperCase()==='GL CLASS'){
             colLoc.glClass=i;
+            validParams++;
         } else if(cell.innerHTML.toUpperCase()==='MAXIMO' || cell.innerHTML.toUpperCase()==='ITEM NUMBER'){
             colLoc.maximo=i;
+            validParams++;
         }
+        console.log(validParams)
+    }
+    if(validParams<4){
+        document.getElementById("batch-upload-status-text").innerHTML=`Table is missing ${5-validParams} column(s)! Table will not be uploaded.`;
+        return;
     }
 
     console.log(colLoc);
     //loop thru all rows
+    let invalidItems=0;
     for(let i=2; i<=rows; i++){
         let desc = document.getElementById(i + "-"+colLoc.description).innerHTML;
         let uom = document.getElementById(i+"-"+colLoc.uom).innerHTML;
@@ -343,6 +347,9 @@ function getItemsFromTable(tableId) {
 
         //if all required parameters are not available, don't create the item and move to next row
         if(desc==''||uom==''||commGroup==''||glclass==''){
+            updateItemStatus('error',(i-1));
+            items.push('');
+            invalidItems++;
             continue;
         }
 
@@ -354,26 +361,10 @@ function getItemsFromTable(tableId) {
         //add the item to the array
         items.push(item);
     }
-
-    //make the list element
-    let listItems = '';
-    let list = document.getElementById("batch-items-list");
-
-    items.forEach((item,index) => {
-        listItems += (
-            `<li class="list-group-item d-flex justify-content-between align-items-start" id="list-item-${index}">
-                <div class="ms-2 me-auto">
-                    <div class="fw-bold">${item.description}</div>
-                    ${item.issueunit + '---' + item.commoditygroup + '---' + item.glclass + '<br>' + (item.itemnumber==0 ? '<em>Creating New Item</em> ' :(`<em>Updating Item#: ${item.itemnumber}</em>`))}
-                </div>
-                
-                <img class="align-self-center" src="neutral.svg" id="item-${index}-status">
-            
-            </li>`)
-    })
-    
-    list.innerHTML = listItems;
-
+    if(invalidItems>0){
+        document.getElementById("batch-upload-status-text").innerHTML=`Warning! ${invalidItems} invalid items will not be uploaded`;
+    }
+    console.log(invalidItems)
     console.log(items);
     //return the item array
     return items;

@@ -355,17 +355,26 @@ async function uploadAllItems(items,doUpdate = false){
     const url = "https://test.manage.test.iko.max-it-eam.com/maximo/api/os/IKO_ITEMMASTER?action=importfile";
     const apiKey = "rho0tolsq1m2vbgkp22aipg48pe326prai0dicl4";
     const maximo = new Maximo();
-    let count = 0;
+    let count = 1;
+    let newNums = [];
     let num,numFails,numSuccesses;
     
     for(const item of items){
+        let needsNewNum = false;
         try{
+            if(item===''){
+                count++;
+                continue;
+            }
             if(item.itemnumber === 0 || item.itemnumber.length != 7){
+                needsNewNum = true;
                 num = await maximo.getCurItemNumber(item.series);
                 num++;
+                newNums.push([num,count]);
                 item.itemnumber = num;
             }
         } catch (err){
+            if(needsNewNum) newNums.pop();
             numFails++;
             console.log(err + ", Item Upload Failed");
             if(doUpdate) postMessage(['update','fail',count])
@@ -377,24 +386,24 @@ async function uploadAllItems(items,doUpdate = false){
             let result = await uploadToMaximo(item,url,apiKey);
             console.log("Result: " + result);
             if(!result){
-                if(doUpdate) postMessage(['update','fail',count])
+                if(doUpdate) postMessage(['update','fail',count]);
                 throw new Error('Upload Failed');
             } else {
-                if(doUpdate) postMessage(['update','success',count])
+                if(doUpdate) postMessage(['update','success',count]);
                 postMessage(['debug',`Upload of ${item.description} succeeded`]);
-                console.log("Upload of " + item.description + " success")
+                console.log("Upload of " + item.description + " success");
                 numSuccesses++;
             }
         } catch (err){
+            if(needsNewNum) newNums.pop();
             numFails++;
-            postMessage(['fail',`Failed upload of ${item.description}`])
+            postMessage(['fail',`Failed upload of ${item.description}`]);
             console.error(`Failed upload of \"${item.description}\", ${err}`);
         }
         console.log(count);
         count++;
     }
-
-    postMessage(['result',numFails,numSuccesses]);
+    postMessage(['result',newNums]);
 }
 
 async function uploadToMaximo(item,url,apiKey){

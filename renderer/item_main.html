@@ -565,41 +565,25 @@
             </h2>
             <div id="accordion-batchUpload" class="accordion-collapse collapse">
               <div class="accordion-body d-flex flex-column gap-3">
-                <div class="d-flex flex-grow-1">Choose an excel file to upload from:</div>
-                <div class="d-flex flex-grow-1">
-                  <div class="input-group">
-                    <button class="btn btn-outline-secondary" type="button" id="batch-pick-file">Choose File</button>
-                    <input type="text" class="form-control btn-outline-secondary pointer" id="batch-file-path" value="No file chosen" readonly>
-                    <button class="btn btn-outline-secondary" type="button" id="open-batch-upload-file">Open in Excel</button>
-                  </div>
+                <div class="d-flex flex-grow-1">Paste a table into the textbox below:</div>
+                <div class="input-group d-flex">
+                  <button class="btn btn-danger" type="button" id="batch-paste-btn">Paste</button>
+                  <textarea class ="flex-fill" id="batch-items-textinput" rows="1"></textarea>
                 </div>
-                <div class="d-flex">
-                    <div class="card flex-fill">
-                      <textarea placeholder="Or paste your table here:" id="batch-items-textinput" class="mt-3 ms-3 me-3 mb-3" rows="1"></textarea>
-                      <div class="overflow-auto flex-fill" style="min-height: min-content; max-height: 500px;">
-                        <div class="ms-3 me-3" id="batch-items-table-div">
-                        </div>
+                  <div class="card">
+                    <div class="overflow-auto flex-fill" style="min-height: min-content; max-height: 500px;">
+                      <div id="batch-items-table-div">
                       </div>
                     </div>
-                </div>
-                <div class="d-flex h5 flex-fill align-self-center">
-                  Items to upload:
-                </div>
-                <div class="d-flex">
-                  <div class = "overflow-auto flex-grow-1 card" style="min-height: min-content; max-height: 500px;">
-                    <ol class="list-group list-group-numbered" id="batch-items-list">
-                      <h4 class="text-center mt-2">
-                        No Items to Upload :(
-                      </h4>
-                    </ol>
                   </div>
-                </div>
                 <div class="d-flex">
-                  <button class="flex-fill btn btn-light" style="text-align: center;" id="gen-items">Generate Items</button>
+                  <ul class="list-group flex-fill">
+                    <li class="list-group-item" id="batch-upload-status-text">Waiting for paste...</li>
+                  </ul>
                 </div>
                 <div class="d-flex gap-1">
-                  <button class="btn btn-primary flex-fill" style="text-align: center;" id="clear-batch-items-btn"><strong>Clear Items</strong></button>
-                  <button class="btn btn-primary flex-fill" style="text-align: center;" id="batch-upload-btn"><strong>Upload Items</strong></button>
+                  <button class="btn btn-secondary flex-fill" style="text-align: center;" id="clear-batch-items-btn"><strong>Clear Table</strong></button>
+                  <button class="btn btn-danger flex-fill" style="text-align: center;" id="batch-upload-btn"><strong>Upload Items</strong></button>
                 </div>
               </div>
             </div>
