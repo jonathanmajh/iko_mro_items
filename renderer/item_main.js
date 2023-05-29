@@ -323,14 +323,14 @@ function getItemsFromTable(tableId) {
             colLoc.maximo=i;
             validParams++;
         }
-        console.log(validParams)
+        //console.log(validParams)
     }
     if(validParams<4){
         document.getElementById("batch-upload-status-text").innerHTML=`Table is missing ${5-validParams} column(s)! Table will not be uploaded.`;
         return;
     }
 
-    console.log(colLoc);
+    //console.log(colLoc);
     //loop thru all rows
     let invalidItems=0;
     for(let i=2; i<=rows; i++){
@@ -364,8 +364,8 @@ function getItemsFromTable(tableId) {
     if(invalidItems>0){
         document.getElementById("batch-upload-status-text").innerHTML=`Warning! ${invalidItems} invalid items will not be uploaded`;
     }
-    console.log(invalidItems)
-    console.log(items);
+    //console.log(invalidItems)
+    //console.log(items);
     //return the item array
     return items;
 }

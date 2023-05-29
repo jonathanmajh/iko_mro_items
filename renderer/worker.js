@@ -384,7 +384,7 @@ async function uploadAllItems(items,doUpdate = false){
 
         try{
             let result = await uploadToMaximo(item,url,apiKey);
-            console.log("Result: " + result);
+            //console.log("Result: " + result);
             if(!result){
                 if(doUpdate) postMessage(['update','fail',count]);
                 throw new Error('Upload Failed');
@@ -400,7 +400,7 @@ async function uploadAllItems(items,doUpdate = false){
             postMessage(['fail',`Failed upload of ${item.description}`]);
             console.error(`Failed upload of \"${item.description}\", ${err}`);
         }
-        console.log(count);
+        //console.log(count);
         count++;
     }
     postMessage(['result',newNums]);
