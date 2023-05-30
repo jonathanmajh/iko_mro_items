@@ -434,7 +434,7 @@ async function uploadToMaximo(item,url){
         method: "POST",
         headers: {
             "filetype":"XML",
-            "preview":1,
+            //"preview":1,
         },
         body: xmldoc,
     });
