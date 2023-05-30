@@ -224,66 +224,12 @@ function updateItemInfo(curItemNum){
     document.getElementById("confirm-btn").disabled = false;
 }
 
-async function uploadItem(){
-    document.getElementById("confirm-btn").innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span> Uploading...</span>';
-    document.getElementById("confirm-btn").disabled = true;
-    const worker = new WorkerHandler();
-    let item = new Item(
-        sanitizeString(document.getElementById("interact-num").value),
-        sanitizeString(document.getElementById("maximo-desc").value),
-        sanitizeString(document.getElementById("uom-field").value),
-        sanitizeString(document.getElementById("com-group").value),
-        sanitizeString(document.getElementById("gl-class").value)
-    );
-    
-    if(document.getElementById("long-desc").value.length > 0){
-        item.longdescription = document.getElementById("long-desc").value;
-    }
-
-    worker.work(['uploadItems',[item]], (e) => {
-        document.getElementById("error").innerHTML = "Upload Success"
-        document.getElementById("confirm-btn").innerHTML = "Upload Item";
-        document.getElementById("confirm-btn").disabled = false;
-        let itemUrl = `https://test.manage.test.iko.max-it-eam.com/maximo/ui/login?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
-        document.getElementById("error").innerHTML = `Item Upload Successful! <a id="item-link" href = "${itemUrl}"> (Click to view item) </a>`;
-        document.getElementById("item-link").addEventListener('click', function (e) {
-            e.preventDefault();
-            shell.openExternal(itemUrl);
-        });
-    });
-}
-
-async function batchUploadItems(items){
-    const worker = new WorkerHandler();
-    let btn = document.getElementById("batch-upload-btn");
-    let clearBtn = document.getElementById("clear-batch-items-btn");
-    clearBtn.disabled = true;
-    btn.disabled = true;
-    worker.work(['uploadItems',items,true],(e)=>{
-        document.getElementById("batch-upload-status-text").innerHTML='Upload Finished!';
-        clearBtn.disabled = false;
-        btn.disabled = false;
-        updateItemNums(e[0]);
-        console.log("upload finished");
-    });
-}
-
-function updateItemNums(arr){
-    console.log(arr)
-    for(const pair of arr){
-        let num = pair[0];
-        let itemindex = pair[1];
-        let cell = document.getElementById(`${itemindex+1}-1`);
-        cell.innerHTML = num;
-        cell.classList.add("table-alert");
-    }
-}
-
 function sanitizeString(str){
     let badChars = ['<','>'];
     for(const badChar of badChars){
         str = str.replaceAll(badChar,"");
     }
+    str = str.replaceAll(/&nbsp;/g, " ").replaceAll(/\u00A0/g, " ");
     return str;
 }
 

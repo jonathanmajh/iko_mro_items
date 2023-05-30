@@ -8,7 +8,8 @@ let colLoc = {
     uom: -1,
     commGroup: -1,
     glClass: -1,
-    maximo: -1
+    maximo: -1,
+    series: -1
 }
 
 window.onload = function() {
@@ -288,6 +289,7 @@ function openExcel() {
     });
 }
 
+//BATCH UPLOAD FUNCTIONS
 /**
  * Reads a table and generates items from it
  *
@@ -322,10 +324,12 @@ function getItemsFromTable(tableId) {
         } else if(cell.innerHTML.toUpperCase()==='MAXIMO' || cell.innerHTML.toUpperCase()==='ITEM NUMBER'){
             colLoc.maximo=i;
             validParams++;
+        } else if(cell.innerHTML.toUpperCase()==='SERIES'){
+            colLoc.series=i;
         }
         //console.log(validParams)
     }
-    if(validParams<4){
+    if(validParams<5){
         document.getElementById("batch-upload-status-text").innerHTML=`Table is missing ${5-validParams} column(s)! Table will not be uploaded.`;
         return;
     }
@@ -334,16 +338,11 @@ function getItemsFromTable(tableId) {
     //loop thru all rows
     let invalidItems=0;
     for(let i=2; i<=rows; i++){
-        let desc = document.getElementById(i + "-"+colLoc.description).innerHTML;
-        let uom = document.getElementById(i+"-"+colLoc.uom).innerHTML;
-        let commGroup = document.getElementById(i+"-"+colLoc.commGroup).innerHTML;
-        let glclass = document.getElementById(i+"-"+colLoc.glClass).innerHTML;
-        let maximo;
-        if(colLoc.maximo!=-1){
-            maximo = document.getElementById(i+"-"+colLoc.maximo).innerHTML;
-        } else {
-            maximo = 0;
-        }
+        let desc = sanitizeString(document.getElementById(i + "-"+colLoc.description).innerHTML);
+        let uom = sanitizeString(document.getElementById(i+"-"+colLoc.uom).innerHTML);
+        let commGroup = sanitizeString(document.getElementById(i+"-"+colLoc.commGroup).innerHTML);
+        let glclass = sanitizeString(document.getElementById(i+"-"+colLoc.glClass).innerHTML);
+        let maximo = sanitizeString(document.getElementById(i+"-"+colLoc.maximo).innerHTML);
 
         //if all required parameters are not available, don't create the item and move to next row
         if(desc==''||uom==''||commGroup==''||glclass==''){
@@ -356,6 +355,11 @@ function getItemsFromTable(tableId) {
         let item = new Item(undefined,desc,uom,commGroup,glclass);
         if(colLoc.maximo!=-1 && maximo!=0 && maximo.toString().length === 7){
             item.itemnumber = maximo;
+        } else if(desc.toUpperCase().includes("DWG")){
+            item.series = 98;
+        } else if(commGroup == "490" && glclass == "PLS"){
+            //Change when when item num reachs 9920000
+            item.series = 991;
         }
         //console.log(item);
         //add the item to the array
@@ -369,6 +373,87 @@ function getItemsFromTable(tableId) {
     //return the item array
     return items;
 }
+/**
+ * Uploads an item from item information accordion dropdown
+ *
+ */
+async function uploadItem(){
+    document.getElementById("confirm-btn").innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span> Uploading...</span>';
+    document.getElementById("confirm-btn").disabled = true;
+    const worker = new WorkerHandler();
+    let item = new Item(
+        sanitizeString(document.getElementById("interact-num").value),
+        sanitizeString(document.getElementById("maximo-desc").value),
+        sanitizeString(document.getElementById("uom-field").value),
+        sanitizeString(document.getElementById("com-group").value),
+        sanitizeString(document.getElementById("gl-class").value)
+    );
+    
+    if(document.getElementById("long-desc").value.length > 0){
+        item.longdescription = document.getElementById("long-desc").value;
+    }
+
+    worker.work(['uploadItems',[item]], (e) => {
+        document.getElementById("error").innerHTML = "Upload Success"
+        document.getElementById("confirm-btn").innerHTML = "Upload Item";
+        document.getElementById("confirm-btn").disabled = false;
+        let itemUrl = `http://nscandacmaxapp1/maximo/ui/login?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
+        document.getElementById("error").innerHTML = `Item Upload Successful! <a id="item-link" href = "${itemUrl}"> (Click to view item) </a>`;
+        document.getElementById("item-link").addEventListener('click', function (e) {
+            e.preventDefault();
+            shell.openExternal(itemUrl);
+        });
+    });
+}
+/**
+ * Uploads an array of items
+ *
+ */
+async function batchUploadItems(items){
+    const worker = new WorkerHandler();
+    let btn = document.getElementById("batch-upload-btn");
+    let clearBtn = document.getElementById("clear-batch-items-btn");
+    clearBtn.disabled = true;
+    btn.disabled = true;
+    worker.work(['uploadItems',items,true],(e)=>{
+        let finishText=`Upload Finished! ${e[2]} items uploaded. `;
+        clearBtn.disabled = false;
+        btn.disabled = false;
+        updateItemNums(e[0]);
+        let rows = parseInt(document.getElementById("batch-items-table").getAttribute("data-rows")) - 1;
+        let nums="";
+        for(let i = 2; i<=rows+1; i++){
+            nums += document.getElementById(`${i}-${colLoc.maximo}`).innerHTML ? (document.getElementById(`${i}-${colLoc.maximo}`).innerHTML + ",") : "";
+        }
+        if(e[2]>0){
+            let itemUrl = `http://nscandacmaxapp1/maximo/ui/login?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
+            finishText += `<a id="batch-link" href=${itemUrl}>Click to view:</a>`
+            document.getElementById("batch-upload-status-text").innerHTML = finishText;
+            document.getElementById("batch-link").addEventListener('click', function (e) {
+                e.preventDefault();
+                shell.openExternal(itemUrl);
+            });
+        } else {
+            document.getElementById("batch-upload-status-text").innerHTML = finishText;
+        }   
+        console.log("upload finished");
+    });
+}
+/**
+ * Gets a list of newly generated item nums and updates the table with them
+ *
+ */
+function updateItemNums(arr){
+    console.log(arr)
+    for(const pair of arr){
+        let num = pair[0];
+        let itemindex = pair[1];
+        let cell = document.getElementById(`${itemindex+1}-${colLoc.maximo}`);
+        cell.innerHTML = num;
+        cell.classList.add("table-alert");
+    }
+}
+////////////////////////
 
 function skipRow() {
     let row = document.getElementById("current-row").innerHTML;
