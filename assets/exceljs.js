@@ -302,27 +302,6 @@ class Spreadsheet {
         });
         postMessage(['result', [meters.slice(1), observations.slice(1)]]);
     }
-
-    async getCellLoc(value) {
-        // returns all the english descriptions on a workbook
-        // {wsname:string, maxNumCol:string, description:[string], manufacturerer: string, startingRow: int}
-        const wb = new Exceljs.Workbook();
-        await wb.xlsx.readFile(this.filePath);
-        const ws = wb.worksheets[0];
-        let match;
-        ws.eachRow(function (row) {
-            row.eachCell(function (cell) {
-                for (var i = 0; i < cell.names.length; i++) {
-                    if (cell.names[i] === name) {
-                        match = cell;
-                        break;
-                    }
-                }
-            });
-        });
-        return match;
-
-    }
 }
 
 function removeRichText(value) {

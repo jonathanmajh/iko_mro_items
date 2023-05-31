@@ -30,7 +30,22 @@ document.getElementById("pauseAuto").addEventListener("click", pauseAuto);
 document.getElementById("save-desc").addEventListener("click", writeDescription);
 document.getElementById("save-num").addEventListener("click", writeItemNum);
 document.getElementById("skip-row").addEventListener("click", skipRow);
-document.getElementById("open-in-browser").addEventListener("click", openBrowser);
+document.getElementById("open-in-browser").addEventListener("click", () => {
+    
+    let confirmModal = new bootstrap.Modal(document.getElementById("confirmModal"));
+
+    if(!(
+        document.getElementById("maximo-desc").reportValidity() &&
+        document.getElementById("uom-field").reportValidity() &&
+        document.getElementById("com-group").reportValidity() &&
+        document.getElementById("gl-class").reportValidity()
+    )){
+        return;
+    }
+
+    confirmModal.toggle();
+    getNextNumThenUpdate(document.getElementById("num-type").value);
+});
 document.getElementById("continueAuto").addEventListener("click", continueAuto);
 document.getElementById("confirm-btn").addEventListener("click", () => {uploadItem();});
 document.getElementById("upload-btn").addEventListener("click",() => {
@@ -143,42 +158,6 @@ function auto_grow(elementID) {
     const element = document.getElementById(elementID);
     element.style.height = "5px";
     element.style.height = (element.scrollHeight)+"px";
-}
-
-function openBrowser() {
-    const worker = new WorkerHandler();
-    worker.work(['getCurItemNumber'], openBrowserLink);
-}
-
-function openBrowserLink(info) {
-    document.getElementById("popupAlertTitle").innerHTML = 'Generating Maximo Link...';
-    document.getElementById("popupAlertBody").innerHTML = '<p>Getting New Item Number...</p>';
-    let url = `http://nscandacmaxapp1.na.iko/maximo/ui/maximo.jsp?event=loadapp&value=item&additionalevent=insert&additionaleventvalue=description=${document.getElementById('maximo-desc').value}`;
-    if (info[0] === 0) {
-        let number = info[1] + 1;
-        document.getElementById("popupAlertBody").innerHTML = `<p>New Item Number is: ${number}</p>`;
-        url = `${url}|itemnum=${number}`;
-    } else {
-        document.getElementById("popupAlertBody").innerHTML = `<p>Cannot get new item number...</p>\n<p>${info[1]}</p>`;
-    }
-    if (document.getElementById("uom-field").value.length > 0) {
-        url = `${url}|ISSUEUNIT=${document.getElementById("uom-field").value}`;
-    }
-    if (document.getElementById("com-group").value.length > 0) {
-        url = `${url}|COMMODITYGROUP=${document.getElementById("com-group").value}`;
-    }
-    if (document.getElementById("gl-class").value.length > 0) {
-        url = `${url}|EXTERNALREFID=${document.getElementById("gl-class").value}`;
-    }
-    document.getElementById("popupAlertBody").innerHTML =
-        `${document.getElementById("popupAlertBody").innerHTML}\n
-    <p>Link Ready: <a id="maximo-link" href="${url}">Create Item In Maximo</a></p>\n
-    <p>Remember to replace (&amp;quot;) in the description with (")</p>\n
-    <p>This is a limitation of the current method</p>`;
-    document.getElementById("maximo-link").addEventListener('click', function (e) {
-        e.preventDefault();
-        shell.openExternal(url);
-    });
 }
 
 function showItem(data) {
@@ -427,7 +406,7 @@ async function batchUploadItems(items){
         }
         if(e[2]>0){
             let itemUrl = `http://nscandacmaxapp1/maximo/ui/login?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
-            finishText += `<a id="batch-link" href=${itemUrl}>Click to view:</a>`
+            finishText += `<a id="batch-link" href="${itemUrl}">Click to view:</a>`
             document.getElementById("batch-upload-status-text").innerHTML = finishText;
             document.getElementById("batch-link").addEventListener('click', function (e) {
                 e.preventDefault();

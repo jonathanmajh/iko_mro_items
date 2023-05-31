@@ -103,9 +103,6 @@ onmessage = function (e) {
         case 'checkUser':
             checkUser(e.data[1]);
             break;
-        case 'getCellLoc':
-
-            break;
         default:
         console.log(`Unimplimented work ${e.data[0]}`);
     }
