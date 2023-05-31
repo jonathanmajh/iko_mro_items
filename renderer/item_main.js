@@ -9,7 +9,6 @@ let colLoc = {
     commGroup: -1,
     glClass: -1,
     maximo: -1,
-    series: -1
 }
 
 window.onload = function() {
@@ -111,6 +110,11 @@ document.getElementById("batch-paste-btn").addEventListener("click", async () =>
 
     textinput.value = text;
     textinput.dispatchEvent(pasteEvent);
+})
+document.getElementById("batch-copy-headers-btn").addEventListener("click", () => {
+    let copyText = `Maximo\tDescription\tIssue Unit\tCommodity Group\tGL Class\n\t`;
+    navigator.clipboard.writeText(copyText);
+    new Toast('Table copied to clipboard!');
 })
 //dark theme toggle
 document.getElementById("dark-mode-switch").addEventListener("click", toggleTheme);
@@ -275,6 +279,14 @@ function openExcel() {
  * @returns an array of items
  */
 function getItemsFromTable(tableId) {
+    colLoc = {
+        description: -1,
+        uom: -1,
+        commGroup: -1,
+        glClass: -1,
+        maximo: -1,
+    }
+
     let table=document.getElementById(`${tableId}`);
     //find Description, UOM, Commodity Group, and GL Class
     let rows = parseInt(table.getAttribute("data-rows"));
@@ -303,13 +315,23 @@ function getItemsFromTable(tableId) {
         } else if(cell.innerHTML.toUpperCase()==='MAXIMO' || cell.innerHTML.toUpperCase()==='ITEM NUMBER'){
             colLoc.maximo=i;
             validParams++;
-        } else if(cell.innerHTML.toUpperCase()==='SERIES'){
-            colLoc.series=i;
         }
         //console.log(validParams)
     }
+
     if(validParams<5){
-        document.getElementById("batch-upload-status-text").innerHTML=`Table is missing ${5-validParams} column(s)! Table will not be uploaded.`;
+        let missingCols = "";
+        let missingColArr = [];
+
+        for(const property in colLoc){
+            if(colLoc[property] == -1){
+                console.log(property);
+
+                missingColArr.push(property.toLowerCase());
+            }
+        }
+        missingCols = missingColArr.join(', ');
+        document.getElementById("batch-upload-status-text").innerHTML=`Table is missing ${5-validParams} column(s): (${missingCols}). Table will not be uploaded!`;
         return;
     }
 

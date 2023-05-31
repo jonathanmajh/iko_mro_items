@@ -115,6 +115,7 @@ class ProgressBar {
 }
 
 class Toast {
+    //popup thingy in top right corner
     constructor(newMessage, color = 'bg-primary') {
         this.toastContainer = document.getElementById('toastPlacement');
         this.newToast(newMessage, color);
