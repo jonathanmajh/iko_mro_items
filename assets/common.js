@@ -4,10 +4,11 @@ let DataTable, $;
     if(!(localStorage.getItem('theme'))){
         localStorage.setItem('theme','dark');
     }
+    document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('theme'));
 
     $ = require( 'jquery' );
     DataTable = require( 'datatables.net' )(window, $);
-    require( 'datatables.net-bs5' );
+    require( 'datatables.net-bs5' )(window,$);
 })();
 
 //classes

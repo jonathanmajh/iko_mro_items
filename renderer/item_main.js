@@ -19,7 +19,9 @@ window.onload = function() {
 
 $(document).ready(function() {
     table = new DataTable('#related-table-table', {
-        "ordering": false
+        "ordering": false,
+        "searching": false,
+        "pageLength": 25
     });
 })
 
@@ -762,7 +764,9 @@ async function showRelated(result) {
     html = new bootstrap.Collapse(document.getElementById('accordion-relatedItem'), { toggle: false });
     html.show();
     table = new DataTable('#related-table-table', {
-        "ordering": false
+        "ordering": false,
+        "searching": false,
+        "pageLength": 25
     });
     bar.update(100, 'Done!');
 }
