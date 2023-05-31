@@ -1,11 +1,13 @@
 //runs automagically
-
+let DataTable, $;
 (function() {
     if(!(localStorage.getItem('theme'))){
         localStorage.setItem('theme','dark');
     }
 
-    document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('theme'));
+    $ = require( 'jquery' );
+    DataTable = require( 'datatables.net' )(window, $);
+    require( 'datatables.net-bs5' );
 })();
 
 //classes

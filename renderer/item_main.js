@@ -2,6 +2,8 @@ const { clipboard, ipcRenderer, shell } = require('electron');
 // const { dialog } = require('electron').remote;
 const Database = require('../assets/indexDB');
 const Validate = require('../assets/validators');
+
+let table;
 let itemsToUpload = [];
 let colLoc = {
     description: -1,
@@ -14,6 +16,12 @@ let colLoc = {
 window.onload = function() {
     document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
 }
+
+$(document).ready(function() {
+    table = new DataTable('#related-table-table', {
+        "ordering": false
+    });
+})
 
 document.getElementById("load-item").addEventListener("click", loadItem);
 document.getElementById("valid-single").addEventListener("click", validSingle);
@@ -691,6 +699,7 @@ function calcConfidence(data) {
 }
 
 async function showRelated(result) {
+    table.destroy();
     let bar = new ProgressBar();
     if (!result[0]) {
         bar.update(100, 'Done!');
@@ -742,6 +751,7 @@ async function showRelated(result) {
                 <td>${itemNames[item][3]}</td>
                 <td>${itemNames[item][1]}</td>
                 <td><i class="material-icons pointer sm-size"> add_task</i></td></tr>`;
+                //table.row.add([formatter.format(key),item,itemName,itemNames[item][2],itemNames[item][3],itemNames[item][1],'<i class="material-icons pointer sm-size"> add_task</i>']).draw(false);
             } else {
                 html = `<tr class="table-danger"><td>0</td>\n<td>xxxxxxx</td>\n<td>No Related Items Found</td></tr>`;
             }
@@ -751,6 +761,9 @@ async function showRelated(result) {
     relatedTable.innerHTML = html;
     html = new bootstrap.Collapse(document.getElementById('accordion-relatedItem'), { toggle: false });
     html.show();
+    table = new DataTable('#related-table-table', {
+        "ordering": false
+    });
     bar.update(100, 'Done!');
 }
 

@@ -7,6 +7,7 @@
   <meta charset="UTF-8" />
   <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
   <meta http-equiv="Content-Security-Policy" content="script-src 'self';" />
+  <script src="yeet.js"></script>
   <link rel="icon" type="image/png" href="iko_logo.png" />
   <title>IKO Item Standardizer</title>
   <link rel="stylesheet" href="style.css" />
@@ -599,8 +600,8 @@
             </h2>
             <div id="accordion-relatedItem" class="accordion-collapse collapse">
               <div class="accordion-body">
-                <div id="related-table" class="table-responsive row">
-                  <table class="table table-bordered">
+                <div id="related-table" class="">
+                  <table class="table table-bordered" id="related-table-table">
                     <thead>
                       <tr class="table-info" id="rel-items-heading">
                         <th>Percent Match</th>
