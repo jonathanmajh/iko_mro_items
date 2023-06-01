@@ -155,6 +155,8 @@ class Maximo {
             // get latest 91* number (will need to be updated to 92 after 200k items have been created in Maximo)
             // %25 is %
             response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/mxitem?oslc.where=status="active" and itemnum="${numSeries}%25"&_lid=${this.login.userid}&_lpwd=${this.login.password}&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum`);
+            //TEST ENV --> response = await fetch(`http://nsmaxim1app1.na.iko/maxrest/oslc/os/mxitem?oslc.where=status="active" and itemnum="${numSeries}%25"&_lid=corcoop1&_lpwd=maximo&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum`);
+            
         } catch (err) {
             postMessage(['debug','Failed to fetch data from Maximo, please check network (1)']);
             throw new Error('Failed to fetch data from Maximo, please check network (1)');

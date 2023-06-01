@@ -208,6 +208,20 @@ class ExcelReader {
         }
         return savePath;
     }
+
+    async getColumnByName(name){
+        const wb = new Exceljs.Workbook();
+        await wb.xlsx.readFile(this.filePath);
+        const ws = wb.getWorksheet('Sheet1');
+
+        let match;
+        ws.eachRow(row => row.eachCell(cell => {
+            if (cell.names.find(n => n === name)) {
+                match = cell;
+            }
+        }))
+        return match;
+    }
 }
 
 module.exports = ExcelReader;

@@ -38,6 +38,8 @@ class WorkerHandler {
                 log.info(e.data[1]);
             } else if (e.data[0] === 'fail'){
                 log.error(e.data[1]);
+            } else if (e.data[0] === 'update'){
+                updateItemStatus(e.data[1],e.data[2]);
             } else {
                 console.log(`Unimplemented worker message ${e.data}`);
             }
@@ -68,8 +70,6 @@ class Logging {
         row.classList.add("table-primary");
     }
 }
-
-
 
 class ProgressBar {
     constructor(barId = "progress-bar",textId = "progress-text") {
@@ -115,6 +115,7 @@ class ProgressBar {
 }
 
 class Toast {
+    //popup thingy in top right corner
     constructor(newMessage, color = 'bg-primary') {
         this.toastContainer = document.getElementById('toastPlacement');
         this.newToast(newMessage, color);
@@ -224,39 +225,64 @@ function updateItemInfo(curItemNum){
     document.getElementById("confirm-btn").disabled = false;
 }
 
-async function uploadItem(){
-    document.getElementById("confirm-btn").innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span> Uploading...</span>';
-    document.getElementById("confirm-btn").disabled = true;
-    const worker = new WorkerHandler();
-    let item = new Item(
-        sanitizeString(document.getElementById("interact-num").value),
-        sanitizeString(document.getElementById("maximo-desc").value),
-        sanitizeString(document.getElementById("uom-field").value),
-        sanitizeString(document.getElementById("com-group").value),
-        sanitizeString(document.getElementById("gl-class").value)
-    );
-    
-    if(document.getElementById("long-desc").value.length > 0){
-        item.longdescription = document.getElementById("long-desc").value;
-    }
-
-    worker.work(['uploadItems',[item]], (e) => {
-        document.getElementById("error").innerHTML = "Upload Success"
-        document.getElementById("confirm-btn").innerHTML = "Upload Item";
-        document.getElementById("confirm-btn").disabled = false;
-        let itemUrl = `https://test.manage.test.iko.max-it-eam.com/maximo/ui/login?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
-        document.getElementById("error").innerHTML = `Item Upload Successful! <a id="item-link" href = "${itemUrl}"> (Click to view item) </a>`;
-        document.getElementById("item-link").addEventListener('click', function (e) {
-            e.preventDefault();
-            shell.openExternal(itemUrl);
-        });
-    });
-}
-
 function sanitizeString(str){
     let badChars = ['<','>'];
     for(const badChar of badChars){
         str = str.replaceAll(badChar,"");
     }
+    str = str.replaceAll(/&nbsp;/g, " ").replaceAll(/\u00A0/g, " ");
     return str;
+}
+
+function convertToTable(pastedInput,id="")
+{
+    let rawRows = pastedInput.split("\n");
+    let numRows=rawRows.length;
+    let numCols=0;
+    let bodyRows = [];
+    let diff = 0;
+    rawRows.forEach((rawRow, idx) => {
+        let rawRowArray = rawRow.split("\t");
+        if (rawRow==0) {
+            diff--;
+            numRows--;
+        } else {
+            if(rawRowArray.length>numCols){
+                numCols=rawRowArray.length;
+            }
+            bodyRows.push(`<tr>\n`);
+            rawRowArray.forEach(function(value,index){
+                bodyRows.push(`\t<td id="${(idx+diff+1) + '-' + (index+1)}">${value}</td>\n`);
+            })
+            if(idx==0){
+                bodyRows.push(`<td style="border-left: 2px solid;" contentEditable="false"></td>`);
+            } else {
+
+                bodyRows.push(`<td id="item-${idx+diff}-status" contentEditable="false" style="border-left: 2px solid; width:0.1%; white-space: nowrap;"><i class="material-symbols-outlined mt-2">pending</i></td>`);
+            }
+            bodyRows.push(`</tr>\n`);
+        }
+    })
+    let tab = `
+<table class="table table-primary table-striped" data-rows="${numRows}" data-cols="${numCols}" id="${id}" style="margin-bottom: 0px" contenteditable>
+${bodyRows.join("")}
+</table>
+    `;
+    
+    return tab;
+}
+
+function updateItemStatus(status,itemindex){
+    let statusimg = document.getElementById(`item-${itemindex}-status`);
+    if(status=="fail"){
+        statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">close</i>`;
+    } else if(status=="success"){
+        statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">done</i>`;
+    } else if(status=="loading"){
+        statusimg.innerHTML = `<div class="spinner-border mt-1 mb-1" style="width: 24px; height: 24px;" role="status"></div>`;
+    } else if(status=="error"){
+        statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">error</i>`;
+    } else {
+        statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">pending</i>`;
+    }
 }

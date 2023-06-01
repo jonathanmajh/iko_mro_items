@@ -91,7 +91,7 @@ onmessage = function (e) {
             getCurItemNum(e.data[1]);
             break;
         case 'uploadItems':
-            uploadAllItems(e.data[1]);
+            e.data[2] ? uploadAllItems(e.data[1],e.data[2]) : uploadAllItems(e.data[1]);
             break;     
         case 'translateItem':
             const trans = new Translation();
@@ -104,7 +104,7 @@ onmessage = function (e) {
             checkUser(e.data[1]);
             break;
         default:
-            console.log(`Unimplimented work ${e.data[0]}`);
+        console.log(`Unimplimented work ${e.data[0]}`);
     }
 };
 
@@ -299,7 +299,6 @@ async function checkUser(credentials = {}) {
     }
 }
 
-
 async function checkItemCache(version) {
     // check internal cache of item information and update with new items in maximo
     postMessage(['debug', `Loading Item Module`]);
@@ -349,50 +348,62 @@ async function checkItemCache(version) {
     postMessage(['result', 'done']);
 }
 
-async function uploadAllItems(items){
-    const url = "https://test.manage.test.iko.max-it-eam.com/maximo/api/os/IKO_ITEMMASTER?action=importfile";
-    const apiKey = "rho0tolsq1m2vbgkp22aipg48pe326prai0dicl4";
+async function uploadAllItems(items,doUpdate = false){
     const maximo = new Maximo();
-    let num,numFails,numSuccesses;
+    const url = `http://nscandacmaxapp1/maxrest/oslc/os/IKO_ITEMMASTER?action=importfile&_lid=${maximo.login.userid}&_lpwd=${maximo.login.password}`;
+    //TEST ENV --> const url = `http://nsmaxim1app1.na.iko/maxrest/oslc/os/IKO_ITEMMASTER?action=importfile&_lid=corcoop1&_lpwd=maximo`;
+    let count = 1;
+    let newNums = [];
+    let num,numFails=0,numSuccesses=0;
     
     for(const item of items){
+        let needsNewNum = false;
         try{
+            if(item===''){
+                count++;
+                continue;
+            }
             if(item.itemnumber === 0 || item.itemnumber.length != 7){
+                needsNewNum = true;
                 num = await maximo.getCurItemNumber(item.series);
                 num++;
+                newNums.push([num,count]);
                 item.itemnumber = num;
             }
         } catch (err){
+            if(needsNewNum) newNums.pop();
             numFails++;
             console.log(err + ", Item Upload Failed");
+            if(doUpdate) postMessage(['update','fail',count])
             postMessage(['fail',err]);
-            //postMessage(['result',0]);
             continue;
         }
 
         try{
-            let result = await uploadToMaximo(item,url,apiKey);
-            console.log("Result: " + result);
-            if(result == 0){
+            let result = await uploadToMaximo(item,url);
+            //console.log("Result: " + result);
+            if(!result){
+                if(doUpdate) postMessage(['update','fail',count]);
                 throw new Error('Upload Failed');
             } else {
+                if(doUpdate) postMessage(['update','success',count]);
                 postMessage(['debug',`Upload of ${item.description} succeeded`]);
-                console.log("Upload of " + item.description + " success")
+                console.log("Upload of " + item.description + " success");
                 numSuccesses++;
             }
         } catch (err){
+            if(needsNewNum) newNums.pop();
             numFails++;
-            postMessage(['fail',`Failed upload of ${item.description}`])
+            postMessage(['fail',`Failed upload of ${item.description}`]);
             console.error(`Failed upload of \"${item.description}\", ${err}`);
         }
-
-        
+        //console.log(count);
+        count++;
     }
-
-    postMessage(['result',numFails,numSuccesses]);
+    postMessage(['result',newNums,numFails,numSuccesses]);
 }
 
-async function uploadToMaximo(item,url,apiKey,){
+async function uploadToMaximo(item,url){
     let xmldoc =     
 `<?xml version="1.0" encoding="UTF-8"?>
 <SyncIKO_ITEMMASTER xmlns="http://www.ibm.com/maximo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -419,7 +430,6 @@ async function uploadToMaximo(item,url,apiKey,){
     let response = await fetch(url, {
         method: "POST",
         headers: {
-            "apiKey":apiKey,
             "filetype":"XML",
             //"preview":1,
         },
@@ -429,3 +439,4 @@ async function uploadToMaximo(item,url,apiKey,){
     console.log(content);
     return parseInt(content.validdoc);
 }
+
