@@ -371,6 +371,8 @@ function getItemsFromTable(tableId) {
         } else if(commGroup == "490" && glclass == "PLS"){
             //Change when when item num reachs 9920000
             item.series = 991;
+        } else if(commGroup="420" && glclass == "SFS"){
+            item.series = 991;
         }
         //console.log(item);
         //add the item to the array
