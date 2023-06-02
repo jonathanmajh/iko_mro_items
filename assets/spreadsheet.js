@@ -23,8 +23,35 @@ class ExcelReader {
     async getItemCache() {
         const wb = new Exceljs.Workbook();
         await wb.xlsx.readFile(this.filePath);
+        // read inventory data which will be appended to ext_search_text
+        const ws3 = wb.getWorksheet('Sheet3');
+        let lastRow = ws3.lastRow.number;
+        const inventory_data = new Map();
+        let row = Array();
+        for (let i = 2; i <= lastRow; i++) {
+            row = new Array();
+            row[0] = ws3.getCell(`A${i}`).text;
+            row[1] = ws3.getCell(`B${i}`).text;
+            row[2] = ws3.getCell(`C${i}`).text;
+            row[3] = ws3.getCell(`D${i}`).text;
+            row[4] = ws3.getCell(`E${i}`).text;
+            row[5] = ws3.getCell(`F${i}`).text;
+            row[6] = ws3.getCell(`G${i}`).text;
+            if (row[2].length > 0 || row[3].length > 0 || row[4].length > 0 || row[5].length > 0 || row[6].length > 0) {
+                if (inventory_data.has(row[0])) {
+                    for (let j = 2; j <= 6; j++) {
+                        if (row[j] > 0) {
+                            inventory_data.get(row[0])[j] = inventory_data.get(row[0])[j] + '|' + row[j];
+                        }
+                    }
+                } else {
+                    inventory_data.set(row[0], row)
+                }
+            }
+        }
+
         const ws = wb.getWorksheet('Sheet1'); //alternatively (fetch by ID): getWorksheet(1);
-        const lastRow = ws.lastRow.number; //last cell row in range
+        lastRow = ws.lastRow.number; //last cell row in range
         const data = []; //empty list
         for (let i = 2; i <= lastRow; i++) {
             try {
@@ -37,6 +64,8 @@ class ExcelReader {
                     ws.getCell(`D${i}`).text,
                     ws.getCell(`E${i}`).text,
                     ws.getCell(`F${i}`).text,
+                    ws.getCell(`H${i}`).text,
+                    inventory_data.get(ws.getCell(`A${i}`).text),
                 ]);
             } catch (error) {
                 console.log(error);

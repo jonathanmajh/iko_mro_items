@@ -4,6 +4,7 @@ const ExcelReader = require('./spreadsheet');
 const path = require('path');
 const utils = require('../assets/utils');
 const intersection = require('lodash/intersection');
+const { debug } = require('console');
 //https://lodash.com/docs/4.17.15#intersection
 // fast library for intersection of arrays
 
@@ -54,7 +55,8 @@ class Database {
             search_text TEXT COLLATE NOCASE,
             gl_class TEXT COLLATE NOCASE,
             uom TEXT COLLATE NOCASE,
-            commodity_group TEXT COLLATE NOCASE
+            commodity_group TEXT COLLATE NOCASE,
+            ext_search_text TEXT COLLATE NOCASE
         )`);
         const createTable5 = this.db.prepare(`CREATE TABLE itemDescAnalysis (
             tree TEXT PRIMARY KEY COLLATE NOCASE,
@@ -82,11 +84,21 @@ class Database {
     saveItemCache(data) {
         let dataDB = [];
         let search = '';
+        let ext_search = '';
+        debugger;
         for (let i = 0; i < data.length; i++) {
             if (data[i][1]) { //test if description is blank
                 search = data[i][1].toUpperCase();
                 for (const char of utils.STRINGCLEANUP) {
                     search = search.replaceAll(char, '');
+                }
+                ext_search = search
+                if (data[i][7]) {
+                    for (let j = 0; j < data[i][7].length; j++) {
+                        if (data[i][7][j].length > 0) {
+                            ext_search = `${ext_search}|${data[i][7][j]}`
+                        }
+                    }
                 }
                 dataDB.push({
                     itemnum: data[i][0],
@@ -95,13 +107,14 @@ class Database {
                     gl_class: data[i][3],
                     uom: data[i][4],
                     commodity_group: data[i][5],
-                    search_text: search
+                    search_text: search,
+                    ext_search_text: ext_search,
                 });
             }
         }
         const insert = this.db.prepare(`INSERT OR REPLACE INTO itemCache (
-            itemnum, description, changed_date, search_text, gl_class, uom, commodity_group)
-            VALUES (@itemnum, @description, @changed_date, @search_text, @gl_class, @uom, @commodity_group)`);
+            itemnum, description, changed_date, search_text, gl_class, uom, commodity_group, ext_search_text)
+            VALUES (@itemnum, @description, @changed_date, @search_text, @gl_class, @uom, @commodity_group, @ext_search_text)`);
         const insertMany = this.db.transaction((dataDB) => {
             for (const item of dataDB) insert.run(item);
         });
