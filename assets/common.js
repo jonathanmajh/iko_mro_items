@@ -40,6 +40,8 @@ class WorkerHandler {
                 log.error(e.data[1]);
             } else if (e.data[0] === 'update'){
                 updateItemStatus(e.data[1],e.data[2]);
+            } else if (e.data[0] === 'callback'){
+                callback(e.data.slice(1,))
             } else {
                 console.log(`Unimplemented worker message ${e.data}`);
             }

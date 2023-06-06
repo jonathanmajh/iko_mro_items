@@ -100,6 +100,9 @@ onmessage = function (e) {
         case 'saveProcessed':
             saveProgress(e.data[1]);
             break;
+        case 'uploadImages':
+            uploadImages(e.data[1]);
+            break;
         case 'checkUser':
             checkUser(e.data[1]);
             break;
@@ -350,7 +353,7 @@ async function checkItemCache(version) {
 
 async function uploadAllItems(items,doUpdate = false){
     const maximo = new Maximo();
-    const url = `http://nscandacmaxapp1/maxrest/oslc/os/IKO_ITEMMASTER?action=importfile&_lid=${maximo.login.userid}&_lpwd=${maximo.login.password}`;
+    const url = `http://nsmaxim1app1.na.iko/maxrest/oslc/os/IKO_ITEMMASTER?action=importfile&_lid=${maximo.login.userid}&_lpwd=${maximo.login.password}`;
     //TEST ENV --> const url = `http://nsmaxim1app1.na.iko/maxrest/oslc/os/IKO_ITEMMASTER?action=importfile&_lid=corcoop1&_lpwd=maximo`;
     let count = 1;
     let newNums = [];
@@ -438,5 +441,35 @@ async function uploadToMaximo(item,url){
     let content = await response.json();
     console.log(content);
     return parseInt(content.validdoc);
+}
+
+async function uploadImages(imgs){
+    const maximo = new Maximo();
+    let img = imgs[0];
+    //for(const img of imgs){
+        let base64img = img[0];
+        console.log(img[0])
+        let itemnum = img[1];
+        let response = await fetch(`http://nsmaxim1app1.na.iko/maxrest/oslc/os/mxitem?oslc.where=itemnum="${itemnum}"&_lid=${maximo.login.userid}&_lpwd=${maximo.login.password}`)
+        let content = await response.json();
+        let itemId = content["rdfs:member"][0]["rdf:resource"];
+        itemId=itemId.slice(40);
+        console.log(itemId);
+        //console.log(JSON.stringify(content));
+        response = await fetch(`http://nsmaxim1app1.na.iko/maxrest/oslc/os/mxitem/${itemId}?action=system:addimage&_lid=${maximo.login.userid}&_lpwd=${maximo.login.password}`, {
+            method: "POST",
+            headers: {
+                "x-method-override":"PATCH",
+                "Slug":`${itemnum}.jpg`,
+                "Content-type":"img/pjpeg",
+                "Custom-encoding":"base"
+            },
+            body: base64img,
+        });
+        content = await response.json();
+        console.log(content);
+        postMessage(['callback','success',`${itemnum}.jpg`]);
+    //}
+    //postMessage(['result','']);
 }
 

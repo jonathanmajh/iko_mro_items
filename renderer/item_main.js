@@ -3,6 +3,7 @@ const { clipboard, ipcRenderer, shell } = require('electron');
 const Database = require('../assets/indexDB');
 const Validate = require('../assets/validators');
 let itemsToUpload = [];
+let imgArr = [];
 let colLoc = {
     description: -1,
     uom: -1,
@@ -63,6 +64,11 @@ document.getElementById("upload-btn").addEventListener("click",() => {
     confirmModal.toggle();
     getNextNumThenUpdate(document.getElementById("num-type").value);
 });
+//image upload:
+document.getElementById("img-input").addEventListener("change", async (e) => {
+    console.log(await importImages(e));
+});
+document.getElementById("btn-img-upload").addEventListener("click",uploadImages);
 
 //batch upload:
 document.getElementById("openBatchFile").addEventListener("click", () => {openFile("worksheet-path")});
@@ -398,7 +404,7 @@ async function uploadItem(){
         document.getElementById("error").innerHTML = "Upload Success"
         document.getElementById("confirm-btn").innerHTML = "Upload Item";
         document.getElementById("confirm-btn").disabled = false;
-        let itemUrl = `http://nscandacmaxapp1/maximo/ui/login?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
+        let itemUrl = `http://nsmaxim1app1.na.iko/maximo/ui/login?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
         document.getElementById("error").innerHTML = `Item Upload Successful! <a id="item-link" href = "${itemUrl}"> (Click to view item) </a>`;
         document.getElementById("item-link").addEventListener('click', function (e) {
             e.preventDefault();
@@ -427,7 +433,7 @@ async function batchUploadItems(items){
             nums += document.getElementById(`${i}-${colLoc.maximo}`).innerHTML ? (document.getElementById(`${i}-${colLoc.maximo}`).innerHTML + ",") : "";
         }
         if(e[2]>0){
-            let itemUrl = `http://nscandacmaxapp1/maximo/ui/login?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
+            let itemUrl = `http://nsmaxim1app1.na.iko/maximo/ui/login?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
             finishText += `<a id="batch-link" href="${itemUrl}">Click to view:</a>`
             document.getElementById("batch-upload-status-text").innerHTML = finishText;
             document.getElementById("batch-link").addEventListener('click', function (e) {
@@ -453,6 +459,67 @@ function updateItemNums(arr){
         cell.innerHTML = num;
         cell.classList.add("table-alert");
     }
+}
+////////////////////////
+
+//IMAGE UPLOAD FUNCTIONS
+async function importImages(e){
+    let nums = new Set(['1','2','3','4','5','6','7','8','9','0']);
+    imgArr = [];
+    let selectedFiles = e.target.files;
+    console.log(selectedFiles);
+    try {
+        for(let i = 0; i < selectedFiles.length; i++){
+            //console.log(i);
+            const file = selectedFiles[i];
+            //remove extension
+            let fileName = file.name.replace(/\.[^.]*$/,'');
+            
+            //check valid file extension 
+            if(file.type != 'image/jpg' && file.type != 'image/jpeg' && file.type != 'image/pjpeg'){
+                console.log(file.name + " will not be uploaded");
+                if(i===selectedFiles.length-1){
+                    return 'finished';
+                }
+                continue;
+            }
+
+            //check if filename is a positive integer greater than 9000000
+            if(!(([...fileName].every(x=>nums.has(x)))&&parseInt(fileName)>9000000)){
+                console.log(file.name + " will not be uploaded");
+                if(i===selectedFiles.length-1){
+                    return 'finished';
+                }
+                continue;
+            }
+
+            const reader = new FileReader();
+            reader.onloadend = function () {
+                // Retrieve the base64 encoded string from the FileReader result
+                //let base64String = reader.result.split(',')[1];
+                console.log(reader.result);
+                //let binaryData = reader.result; 
+        
+                // Use the base64 string as needed (e.g., send it to a server)
+                document.getElementById("img-preview").setAttribute("src",reader.result);
+                imgArr.push([reader.result,parseInt(fileName)]);
+            };
+            reader.readAsDataURL(file);
+            if(i===selectedFiles.length-1){
+                return 'finished';
+            }
+        }
+    } catch(err) {
+        return err;
+    }
+}
+
+function uploadImages(){
+    console.log(imgArr);
+    const worker = new WorkerHandler();
+    worker.work(['uploadImages',imgArr],(e) => {
+        e[0] == 'success' ? console.log(e[1] + " uploaded") : (e[0]=='' ? console.log('upload finished') : console.log(e[1] + " not uploaded"));
+    })
 }
 ////////////////////////
 

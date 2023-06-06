@@ -593,6 +593,29 @@
           <div class="accordion-item">
             <h2 class="accordion-header">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#accordion-imageUpload">
+                Image Upload
+              </button>
+            </h2>
+            <div id="accordion-imageUpload" class="accordion-collapse collapse">
+              <div class="accordion-body d-flex flex-column gap-3 flex-fill">
+                <div class="input-group">
+                  <input class="form-control" type="file" id="img-input" accept=".jpeg,.jpg,.pjpeg" multiple>
+                </div>
+                <div class="card">
+                  <img src="test-image.jpg" class="card-img-top" id="img-preview">
+                  <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    <button class="btn btn-primary" type="button" id="btn-img-upload">Upload</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                 data-bs-target="#accordion-relatedItem">
                 Related items
               </button>
