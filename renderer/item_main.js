@@ -758,10 +758,11 @@ function loadRelated(){
     //kill function if end of results has been reached
     if(relatedResults.curKey >= Object.entries(scores).length){
         return;
-    } else if(Object.entries(scores)[relatedResults.curKey][1].length == 0 && relatedResults.curKey == 0) {
+    } else if(Object.entries(scores)[relatedResults.curKey][1].length == 0) {
         relatedResults.curKey++;
         relatedResults.idx = 0;
         loadRelated();
+        return;
     }
 
     let step = 20; //number of items to load at once
