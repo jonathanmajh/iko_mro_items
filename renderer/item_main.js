@@ -21,7 +21,7 @@ window.onload = function() {
 }
 
 
-//Infinite Scroll
+//Infinite scroll
 document.getElementById("everything").addEventListener('scroll',()=>{
     if(document.getElementById("related-items-accordion-btn").classList.contains("collapsed") || relatedResults.results.length == 0){
         return;
@@ -31,7 +31,7 @@ document.getElementById("everything").addEventListener('scroll',()=>{
 
     var domRect = element.getBoundingClientRect();
     var spaceBelow = document.getElementById("everything").offsetHeight - domRect.bottom;
-    //console.log(spaceBelow);
+    console.log(spaceBelow);
     if(spaceBelow>-100){
         loadRelated();
     }
@@ -758,6 +758,10 @@ function loadRelated(){
     //kill function if end of results has been reached
     if(relatedResults.curKey >= Object.entries(scores).length){
         return;
+    } else if(Object.entries(scores)[relatedResults.curKey][1].length == 0 && relatedResults.curKey == 0) {
+        relatedResults.curKey++;
+        relatedResults.idx = 0;
+        loadRelated();
     }
 
     let step = 20; //number of items to load at once
@@ -787,7 +791,6 @@ function loadRelated(){
         sliced = value.slice(relatedResults.idx,relatedResults.idx+step);
         relatedResults.idx += step;
     }
-
 
     //let sliced = value.slice(relatedResults.idx,(relatedResults.idx+step >= value.length ? undefined : relatedResults.idx+step)); //get 20 items from the value array
 
