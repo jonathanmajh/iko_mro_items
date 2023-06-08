@@ -31,7 +31,7 @@ document.getElementById("everything").addEventListener('scroll',()=>{
 
     var domRect = element.getBoundingClientRect();
     var spaceBelow = document.getElementById("everything").offsetHeight - domRect.bottom;
-    console.log(spaceBelow);
+    //console.log(spaceBelow);
     if(spaceBelow>-100){
         loadRelated();
     }
