@@ -22,7 +22,7 @@
     "@electron-forge/maker-squirrel": "^6.1.1",
     "@electron-forge/maker-zip": "^6.1.1",
     "@electron-forge/publisher-github": "^6.1.1",
-    "electron": "^21.4.4"
+    "electron": "^25.1.0"
   },
   "dependencies": {
     "better-sqlite3": "^8.2.0",
