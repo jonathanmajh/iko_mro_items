@@ -10,10 +10,32 @@ let colLoc = {
     glClass: -1,
     maximo: -1,
 }
+let relatedResults = {
+    idx: 0,
+    curKey: 0,
+    results: [],
+}
 
 window.onload = function() {
     document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
 }
+
+
+//Infinite Scroll
+document.getElementById("everything").addEventListener('scroll',()=>{
+    if(document.getElementById("related-items-accordion-btn").classList.contains("collapsed") || relatedResults.results.length == 0){
+        return;
+    }
+
+    let element = document.getElementById("related-items");
+
+    var domRect = element.getBoundingClientRect();
+    var spaceBelow = document.getElementById("everything").offsetHeight - domRect.bottom;
+    //console.log(spaceBelow);
+    if(spaceBelow>-100){
+        loadRelated();
+    }
+})
 
 document.getElementById("load-item").addEventListener("click", loadItem);
 document.getElementById("valid-single").addEventListener("click", validSingle);
@@ -118,6 +140,7 @@ document.getElementById("batch-copy-headers-btn").addEventListener("click", () =
 })
 //dark theme toggle
 document.getElementById("dark-mode-switch").addEventListener("click", toggleTheme);
+//Infinite scroll
 
 // listener for enter key on search field
 document.getElementById("maximo-desc").addEventListener("keyup", function (event) {
@@ -696,12 +719,53 @@ async function showRelated(result) {
         bar.update(100, 'Done!');
         return false;
     }
-    const scores = result[0];
-    const itemNames = result[1];
-    const searchWords = result[2].split(',');
-    let html = '';
+    relatedResults = {
+        idx: 0,
+        curKey: 0,
+        results: result,
+    }
+    
+    //reset table after called
+    const relatedTable = document.getElementById('related-table');
+    relatedTable.innerHTML = `
+<table class="table table-bordered">
+    <thead>
+        <tr class="table-info" id="rel-items-heading">
+        <th>Percent Match</th>
+        <th>Item Number</th>
+        <th>Item Description</th>
+        <th>UOM</th>
+        <th>C_Group</th>
+        <th>GL_Class</th>
+        <th></th>
+        </tr>
+    </thead>
+    <tbody id="related-items"></tbody>
+</table>
+    `;
+    //load a couple of items
+    loadRelated();
+    html = new bootstrap.Collapse(document.getElementById('accordion-relatedItem'), { toggle: false });
+    html.show();
+    bar.update(100, 'Done!');
+
+
+}
+
+function loadRelated(){
+
+    const scores = relatedResults.results[0];
+    //kill function if end of results has been reached
+    if(relatedResults.curKey >= Object.entries(scores).length){
+        return;
+    }
+
+    let step = 20; //number of items to load at once
+    //get arrs from results obj
+    const itemNames = relatedResults.results[1];
+    const searchWords = relatedResults.results[2].split(',');
+    let html = '', color='';
     let itemName;
-    bar.update(90, 'Generating table for showing related assets');
     const option = {
         style: 'percent',
         minimumFractionDigits: 0,
@@ -710,48 +774,61 @@ async function showRelated(result) {
     const formatter = new Intl.NumberFormat("en-US", option);
     // technically this is bad practise since object order might not be guarenteed 
     // https://stackoverflow.com/questions/983267/how-to-access-the-first-property-of-a-javascript-object
-    for (let [key, value] of Object.entries(scores)) {
-        let color = '';
-        for (let item of value) {
-            itemName = itemNames[item][0];
-            if (itemName) {
-                for (let word of searchWords) {
-                    split = word.split(' ');
-                    for (let smallWord of split) {
-                        if (smallWord.length > 0) {
-                            itemName = itemName.replace(
-                                new RegExp(`${smallWord}`, 'i'),
-                                `<b>${itemName.match(new RegExp(`${smallWord}`, 'i'))?.[0]}</b>`
-                            );
-                        }
-                    }
 
-                } /// data-theme="${document.documentElement.getAttribute("data-bs-theme")}" 
-                if (key > 0.7) {
-                    color = 'table-success';
-                } else if (key > 0.4) {
-                    color = 'table-warning';
-                } else {
-                    color = 'table-danger';
+    let key = Object.entries(scores)[relatedResults.curKey][0]; //get the current key
+    let value = Object.entries(scores)[relatedResults.curKey][1]; //get the array of items associated with key
+    let sliced;
+
+    if(relatedResults.idx+step >= value.length) {
+        sliced = value.slice(relatedResults.idx,undefined);
+        relatedResults.curKey++;
+        relatedResults.idx = 0;
+    } else {
+        sliced = value.slice(relatedResults.idx,relatedResults.idx+step);
+        relatedResults.idx += step;
+    }
+
+
+    //let sliced = value.slice(relatedResults.idx,(relatedResults.idx+step >= value.length ? undefined : relatedResults.idx+step)); //get 20 items from the value array
+
+    // iterate thru each item in value array
+    for (let item of sliced) {
+        itemName = itemNames[item][0];
+        if (itemName) {
+            for (let word of searchWords) {
+                split = word.split(' ');
+                for (let smallWord of split) {
+                    if (smallWord.length > 0) {
+                        itemName = itemName.replace(
+                            new RegExp(`${smallWord}`, 'i'),
+                            `<b>${itemName.match(new RegExp(`${smallWord}`, 'i'))?.[0]}</b>`
+                        );
+                    }
                 }
 
-                html = `${html}\n<tr class="${color}"><td>${formatter.format(key)}</td>
-                <td>${item}</td>
-                <td>${itemName}</td>
-                <td>${itemNames[item][2]}</td>
-                <td>${itemNames[item][3]}</td>
-                <td>${itemNames[item][1]}</td>
-                <td><i class="material-icons pointer sm-size"> add_task</i></td></tr>`;
+            } /// data-theme="${document.documentElement.getAttribute("data-bs-theme")}" 
+            if (key > 0.7) {
+                color = 'table-success';
+            } else if (key > 0.4) {
+                color = 'table-warning';
             } else {
-                html = `<tr class="table-danger"><td>0</td>\n<td>xxxxxxx</td>\n<td>No Related Items Found</td></tr>`;
+                color = 'table-danger';
             }
+
+            html = `${html}\n<tr class="${color}"><td>${formatter.format(key)}</td>
+            <td>${item}</td>
+            <td>${itemName}</td>
+            <td>${itemNames[item][2]}</td>
+            <td>${itemNames[item][3]}</td>
+            <td>${itemNames[item][1]}</td>
+            <td><i class="material-icons pointer sm-size"> add_task</i></td></tr>`;
+        } else {
+            html = `<tr class="table-danger"><td>0</td>\n<td>xxxxxxx</td>\n<td>No Related Items Found</td></tr>`;
         }
     }
+    
     const relatedTable = document.getElementById('related-items');
-    relatedTable.innerHTML = html;
-    html = new bootstrap.Collapse(document.getElementById('accordion-relatedItem'), { toggle: false });
-    html.show();
-    bar.update(100, 'Done!');
+    relatedTable.innerHTML += html;
 }
 
 function copyResult(copy) {
