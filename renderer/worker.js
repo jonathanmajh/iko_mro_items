@@ -103,6 +103,9 @@ onmessage = function (e) {
         case 'uploadImages':
             uploadImages(e.data[1]);
             break;
+        case 'uploadImages2':
+            uploadImages2(e.data[1]);
+            break;
         case 'checkUser':
             checkUser(e.data[1]);
             break;
@@ -444,6 +447,7 @@ async function uploadToMaximo(item,url){
 }
 
 async function uploadImages(imgs){
+    debugger;
     const maximo = new Maximo();
     let img = imgs[0];
     //for(const img of imgs){
@@ -456,20 +460,79 @@ async function uploadImages(imgs){
         itemId=itemId.slice(40);
         console.log(itemId);
         //console.log(JSON.stringify(content));
+        var formdata = new FormData();
+        formdata.append("file", img[2], img[1]);
+
+        var requestOptions = {
+            method: 'POST',
+            body: formdata,
+            redirect: 'follow',
+            headers: {
+                "x-method-override":"PATCH",
+                "Slug":`${itemnum}.jpg`,
+                "custom-encoding":"base"
+            },
+        };
+
+        // fetch(`http://nsmaxim1app1.na.iko/maxrest/oslc/os/mxitem/${itemId}?action=system:addimage&_lid=${maximo.login.userid}&_lpwd=${maximo.login.password}`, requestOptions)
+        // .then(response => response.text())
+        // .then(result => console.log(result))
+        // .catch(error => console.log('error', error));
+        const image = await fs.readFile(img[2]);
         response = await fetch(`http://nsmaxim1app1.na.iko/maxrest/oslc/os/mxitem/${itemId}?action=system:addimage&_lid=${maximo.login.userid}&_lpwd=${maximo.login.password}`, {
             method: "POST",
             headers: {
                 "x-method-override":"PATCH",
                 "Slug":`${itemnum}.jpg`,
-                "Content-type":"img/pjpeg",
-                "Custom-encoding":"base"
+                "Content-type":"image/jpeg",
+                "custom-encoding":"base"
             },
-            body: base64img,
+            body: image
         });
-        content = await response.json();
+        content = await response;
+        debugger;
+        content = content.json();
         console.log(content);
         postMessage(['callback','success',`${itemnum}.jpg`]);
     //}
     //postMessage(['result','']);
 }
 
+async function uploadImages2(imgs){
+    debugger;
+    const maximo = new Maximo();
+    for(const img of imgs){
+        // let base64img = img[0];
+        // console.log(img[0])
+        let itemnum = img.name.slice(0,7);
+        let response = await fetch(`http://nsmaxim1app1.na.iko/maxrest/oslc/os/mxitem?oslc.where=itemnum="${itemnum}"&_lid=${maximo.login.userid}&_lpwd=${maximo.login.password}`)
+        let content = await response.json();
+        let itemId = content["rdfs:member"][0]["rdf:resource"];
+        itemId=itemId.slice(40);
+        console.log(itemId);
+        //console.log(JSON.stringify(content));
+
+
+        // fetch(`http://nsmaxim1app1.na.iko/maxrest/oslc/os/mxitem/${itemId}?action=system:addimage&_lid=${maximo.login.userid}&_lpwd=${maximo.login.password}`, requestOptions)
+        // .then(response => response.text())
+        // .then(result => console.log(result))
+        // .catch(error => console.log('error', error));
+        // const image = await fs.readFile('./stickers.jpg');
+        response = await fetch(`http://nsmaxim1app1.na.iko/maxrest/oslc/os/mxitem/${itemId}?action=system:addimage&_lid=${maximo.login.userid}&_lpwd=${maximo.login.password}`, {
+            method: "POST",
+            headers: {
+                "x-method-override":"PATCH",
+                "Slug":`${itemnum}.jpg`,
+                "Content-type":"image/jpeg",
+                "custom-encoding":"base"
+            },
+            body: img
+        });
+        content = await response;
+        debugger;
+        content = content.json();
+        console.log(content);
+        postMessage(['callback','success',`${itemnum}.jpg`]);
+    }
+    //postMessage(['result','']);
+}

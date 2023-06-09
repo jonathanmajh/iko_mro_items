@@ -468,51 +468,57 @@ async function importImages(e){
     imgArr = [];
     let selectedFiles = e.target.files;
     console.log(selectedFiles);
-    try {
-        for(let i = 0; i < selectedFiles.length; i++){
+    const worker = new WorkerHandler();
+    worker.work(['uploadImages2',selectedFiles],(e) => {
+        e[0] == 'success' ? console.log(e[1] + " uploaded") : (e[0]=='' ? console.log('upload finished') : console.log(e[1] + " not uploaded"));
+    })
+    // try {
+    //     for(let i = 0; i < selectedFiles.length; i++){
+    //         const worker = new WorkerHandler();
+
             //console.log(i);
-            const file = selectedFiles[i];
-            //remove extension
-            let fileName = file.name.replace(/\.[^.]*$/,'');
+            // const file = selectedFiles[i];
+            // //remove extension
+            // let fileName = file.name.replace(/\.[^.]*$/,'');
             
-            //check valid file extension 
-            if(file.type != 'image/jpg' && file.type != 'image/jpeg' && file.type != 'image/pjpeg'){
-                console.log(file.name + " will not be uploaded");
-                if(i===selectedFiles.length-1){
-                    return 'finished';
-                }
-                continue;
-            }
+            // //check valid file extension 
+            // if(file.type != 'image/jpg' && file.type != 'image/jpeg' && file.type != 'image/pjpeg'){
+            //     console.log(file.name + " will not be uploaded");
+            //     if(i===selectedFiles.length-1){
+            //         return 'finished';
+            //     }
+            //     continue;
+            // }
 
-            //check if filename is a positive integer greater than 9000000
-            if(!(([...fileName].every(x=>nums.has(x)))&&parseInt(fileName)>9000000)){
-                console.log(file.name + " will not be uploaded");
-                if(i===selectedFiles.length-1){
-                    return 'finished';
-                }
-                continue;
-            }
+            // //check if filename is a positive integer greater than 9000000
+            // if(!(([...fileName].every(x=>nums.has(x)))&&parseInt(fileName)>9000000)){
+            //     console.log(file.name + " will not be uploaded");
+            //     if(i===selectedFiles.length-1){
+            //         return 'finished';
+            //     }
+            //     continue;
+            // }
 
-            const reader = new FileReader();
-            reader.onloadend = function () {
-                // Retrieve the base64 encoded string from the FileReader result
-                //let base64String = reader.result.split(',')[1];
-                console.log(reader.result);
-                //let binaryData = reader.result; 
+            // const reader = new FileReader();
+            // reader.onloadend = function () {
+            //     // Retrieve the base64 encoded string from the FileReader result
+            //     //let base64String = reader.result.split(',')[1];
+            //     console.log(reader.result);
+            //     //let binaryData = reader.result; 
         
-                // Use the base64 string as needed (e.g., send it to a server)
-                document.getElementById("img-preview").setAttribute("src",reader.result);
-                imgArr.push([reader.result,parseInt(fileName)]);
-            };
-            reader.readAsDataURL(file);
-            if(i===selectedFiles.length-1){
-                return 'finished';
-            }
+            //     // Use the base64 string as needed (e.g., send it to a server)
+            //     document.getElementById("img-preview").setAttribute("src",reader.result);
+            //     imgArr.push([reader.result,parseInt(fileName),file]);
+            // };
+            // reader.readAsBinaryString(file);
+            // if(i===selectedFiles.length-1){
+            //     return 'finished';
+            // }
         }
-    } catch(err) {
-        return err;
-    }
-}
+    // } catch(err) {
+    //     return err;
+    // }
+// }
 
 function uploadImages(){
     console.log(imgArr);
