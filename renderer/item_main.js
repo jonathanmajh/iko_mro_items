@@ -22,16 +22,18 @@ window.onload = function() {
 
 //Infinite scroll
 document.getElementById("everything").addEventListener('scroll',()=>{
+    //dont add items to the list if the accordion is collapsed
     if(document.getElementById("related-items-accordion-btn").classList.contains("collapsed") || relatedResults.results.length == 0){
         return;
     }
-
+    
     let element = document.getElementById("related-items");
 
     let domRect = element.getBoundingClientRect();
     let spaceBelow = document.getElementById("everything").offsetHeight - domRect.bottom;
     //console.log(spaceBelow);
     if(spaceBelow>-100){
+        //load more items if the bottom of the table is less than 100px below the bottom of the viewport
         loadRelated();
     }
 })
@@ -758,6 +760,7 @@ function loadRelated(){
     if(relatedResults.curKey >= Object.entries(scores).length){
         return;
     } else if(Object.entries(scores)[relatedResults.curKey][1].length == 0) {
+        //if no results for current key, move to next key and call function again
         relatedResults.curKey++;
         relatedResults.idx = 0;
         loadRelated();
@@ -791,8 +794,6 @@ function loadRelated(){
         sliced = value.slice(relatedResults.idx,relatedResults.idx+step);
         relatedResults.idx += step;
     }
-
-    //let sliced = value.slice(relatedResults.idx,(relatedResults.idx+step >= value.length ? undefined : relatedResults.idx+step)); //get 20 items from the value array
 
     // iterate thru each item in value array
     for (let item of sliced) {
@@ -829,10 +830,12 @@ function loadRelated(){
             html = `<tr class="table-danger"><td>0</td>\n<td>xxxxxxx</td>\n<td>No Related Items Found</td></tr>`;
         }
     }
-    
+
+    //add html to table
     const relatedTable = document.getElementById('related-items');
     relatedTable.innerHTML += html;
 
+    //if less than 2 items loaded, load more
     if(sliced.length < 2){
         loadRelated();
         return;
