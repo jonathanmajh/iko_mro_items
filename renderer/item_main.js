@@ -20,6 +20,7 @@ window.onload = function() {
     document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
 }
 
+let a;
 
 //Infinite scroll
 document.getElementById("everything").addEventListener('scroll',()=>{
@@ -29,9 +30,10 @@ document.getElementById("everything").addEventListener('scroll',()=>{
 
     let element = document.getElementById("related-items");
 
-    var domRect = element.getBoundingClientRect();
-    var spaceBelow = document.getElementById("everything").offsetHeight - domRect.bottom;
+    let domRect = element.getBoundingClientRect();
+    let spaceBelow = document.getElementById("everything").offsetHeight - domRect.bottom;
     //console.log(spaceBelow);
+    a=spaceBelow;
     if(spaceBelow>-100){
         loadRelated();
     }
@@ -743,7 +745,7 @@ async function showRelated(result) {
     <tbody id="related-items"></tbody>
 </table>
     `;
-    //load a couple of items
+    //load a couple of items and ensure at least 2 items load
     loadRelated();
     html = new bootstrap.Collapse(document.getElementById('accordion-relatedItem'), { toggle: false });
     html.show();
@@ -833,6 +835,11 @@ function loadRelated(){
     
     const relatedTable = document.getElementById('related-items');
     relatedTable.innerHTML += html;
+
+    if(sliced.length < 2){
+        loadRelated();
+        return;
+    }
 }
 
 function copyResult(copy) {
