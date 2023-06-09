@@ -835,8 +835,8 @@ function loadRelated(){
     const relatedTable = document.getElementById('related-items');
     relatedTable.innerHTML += html;
 
-    //if less than 2 items loaded, load more
-    if(sliced.length < 2){
+    //if less than 5 items loaded, load more
+    if(sliced.length < 5){
         loadRelated();
         return;
     }
