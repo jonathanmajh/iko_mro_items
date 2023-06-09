@@ -20,8 +20,6 @@ window.onload = function() {
     document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
 }
 
-let a;
-
 //Infinite scroll
 document.getElementById("everything").addEventListener('scroll',()=>{
     if(document.getElementById("related-items-accordion-btn").classList.contains("collapsed") || relatedResults.results.length == 0){
@@ -33,7 +31,6 @@ document.getElementById("everything").addEventListener('scroll',()=>{
     let domRect = element.getBoundingClientRect();
     let spaceBelow = document.getElementById("everything").offsetHeight - domRect.bottom;
     //console.log(spaceBelow);
-    a=spaceBelow;
     if(spaceBelow>-100){
         loadRelated();
     }
