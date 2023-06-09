@@ -85,7 +85,6 @@ class Database {
         let dataDB = [];
         let search = '';
         let ext_search = '';
-        debugger;
         for (let i = 0; i < data.length; i++) {
             if (data[i][1]) { //test if description is blank
                 search = data[i][1].toUpperCase();

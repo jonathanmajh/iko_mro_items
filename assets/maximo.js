@@ -2,7 +2,7 @@
 const SharedDatabase = require('../assets/sharedDB');
 
 class Maximo {
-    constructor() { 
+    constructor() {
         this.shareDB = new SharedDatabase();
         this.login = this.shareDB.getPassword();
     }
@@ -14,22 +14,25 @@ class Maximo {
         let meters = [];
         while (nextpage) {
             try {
-                response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/iko_meter?pageno=${pageno}&_lpwd=${this.login.password}&oslc.pageSize=100&_lid=${this.login.userid}&oslc.select=*&oslc.where=domainid%3D%22M-%25%22`);
+                response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/iko_meter?lean=1&pageno=${pageno}&oslc.pageSize=100&oslc.select=*&oslc.where=domainid%3D%22M-%25%22`, {
+                    headers: {
+                        "apikey": this.login.userid,
+                    }});
             } catch (err) {
                 postMessage(['error', 'Failed to fetch Data from Maximo, Please Check Network', err]);
                 return false;
             }
             let content = await response.json();
-            if (content["oslc:responseInfo"]["oslc:nextPage"]) {
+            if (content["responseInfo"]["nextPage"]) {
                 pageno = pageno + 1;
             } else {
                 nextpage = false;
             }
-            content["rdfs:member"].forEach(meter => {
+            content["member"].forEach(meter => {
                 meters.push({
-                    list_id: meter["spi:domainid"],
-                    inspect: meter["spi:description"].slice(0, meter["spi:description"].length - 9),
-                    metername: meter["spi:metername"]
+                    list_id: meter["domainid"],
+                    inspect: meter["description"].slice(0, meter["description"].length - 9),
+                    metername: meter["metername"]
                 });
             });
         }
@@ -45,34 +48,37 @@ class Maximo {
         let observations = [];
         while (nextpage) {
             try {
-                response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/iko_alndomain?pageno=${pageno}&oslc.where=domainid%3D%22M-%25%22&_lpwd=${this.login.password}&oslc.pageSize=100&_lid=${this.login.userid}&oslc.select=alndomain%2Cdomainid%2Cdescription`);
+                response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/iko_alndomain?lean=1&pageno=${pageno}&oslc.where=domainid%3D%22M-%25%22&oslc.pageSize=100&oslc.select=alndomain%2Cdomainid%2Cdescription`, {
+                    headers: {
+                        "apikey": this.login.userid,
+                    }});
             } catch (err) {
                 postMessage(['error', 'Failed to fetch Data from Maximo, Please Check Network', err]);
                 return false;
             }
             let content = await response.json();
-            if (content["oslc:responseInfo"]["oslc:nextPage"]) {
+            if (content["responseInfo"]["nextPage"]) {
                 pageno = pageno + 1;
             } else {
                 nextpage = false;
             }
-            content["rdfs:member"].forEach(meter => {
+            content["member"].forEach(meter => {
                 meters.push({
-                    list_id: meter["spi:domainid"],
-                    inspect: meter["spi:description"],
-                    search_str: `${meter["spi:domainid"]}~${meter["spi:description"]}`
+                    list_id: meter["domainid"],
+                    inspect: meter["description"],
+                    search_str: `${meter["domainid"]}~${meter["description"]}`
                 });
-                if (meter["spi:alndomain"]) {
-                    meter["spi:alndomain"].forEach(observation => {
+                if (meter["alndomain"]) {
+                    meter["alndomain"].forEach(observation => {
                         observations.push({
-                            meter: meter["spi:domainid"].slice(2),
-                            id_value: observation["spi:value"],
-                            observation: observation["spi:description"],
-                            search_str: `${meter["spi:domainid"].slice(2)}~${observation["spi:value"]}`
+                            meter: meter["domainid"].slice(2),
+                            id_value: observation["value"],
+                            observation: observation["description"],
+                            search_str: `${meter["domainid"].slice(2)}~${observation["value"]}`
                         });
                     });
                 } else {
-                    postMessage(['warning', `Meter: ${meter["spi:domainid"]} has no observation codes`]);
+                    postMessage(['warning', `Meter: ${meter["domainid"]} has no observation codes`]);
                 }
             });
         }
@@ -83,7 +89,10 @@ class Maximo {
         date = date.replace(' ', 'T');
         let response;
         try {
-            response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/mxitem?oslc.where=in22>"${date}" and itemnum="9%25"&_lid=${this.login.userid}&_lpwd=${this.login.password}&oslc.select=itemnum,in22,description,issueunit,commoditygroup,externalrefid,status`);
+            response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=in22>"${date}" and itemnum="9%25"&oslc.select=itemnum,in22,description,issueunit,commoditygroup,externalrefid,status`, {
+                headers: {
+                    "apikey": this.login.userid,
+                }});
         } catch (err) {
             postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (1)', err]);
             return false;
@@ -92,20 +101,20 @@ class Maximo {
         let items = [];
         let previousDate = [new Date("2000-01-01"), ''];
         let newDate = '';
-        if (content["oslc:Error"]) { //content["Error"]["message"]
-            postMessage(['warning', content["oslc:Error"]]);
+        if (content["Error"]) { //content["Error"]["message"]
+            postMessage(['warning', content["Error"]]);
             postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (2)']);
             await new Promise(resolve => setTimeout(resolve, 5000));
         } else {
-            content["rdfs:member"].forEach(item => {
-                newDate = item["spi:in22"].replace("T", " ").slice(0, -6);
+            content["member"].forEach(item => {
+                newDate = item["in22"].replace("T", " ").slice(0, -6);
                 items.push([
-                    item["spi:itemnum"], 
-                    item["spi:description"], 
+                    item["itemnum"],
+                    item["description"],
                     newDate,
-                    item["spi:externalrefid"], 
-                    item["spi:issueunit"], 
-                    item["spi:commoditygroup"], 
+                    item["externalrefid"],
+                    item["issueunit"],
+                    item["commoditygroup"],
                 ]);
                 if (previousDate[0] < new Date(newDate)) {
                     previousDate = [new Date(newDate), newDate];
@@ -119,7 +128,10 @@ class Maximo {
         date = date.replace(' ', 'T');
         let response;
         try {
-            response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/IKO_COMPMASTER?oslc.where=type="M" and changedate>"${date}"&oslc.select=company,name,homepage,changedate&_lid=${this.login.userid}&_lpwd=${this.login.password}`);
+            response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/IKO_COMPMASTER?lean=1&oslc.where=type="M" and changedate>"${date}"&oslc.select=company,name,homepage,changedate`, {
+                headers: {
+                    "apikey": this.login.userid,
+                }});
         } catch (err) {
             postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (1)', err]);
             return false;
@@ -128,18 +140,18 @@ class Maximo {
         let items = [];
         let previousDate = [new Date("2000-01-01"), ''];
         let newDate = '';
-        if (content["oslc:Error"]) { //content["Error"]["message"]
-            postMessage(['warning', content["oslc:Error"]]);
+        if (content["Error"]) { //content["Error"]["message"]
+            postMessage(['warning', content["Error"]]);
             postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (2)']);
             await new Promise(resolve => setTimeout(resolve, 5000));
         } else {
-            content["rdfs:member"].forEach(item => {
-                newDate = item["spi:changedate"].replace("T", " ").slice(0, -6);
+            content["member"].forEach(item => {
+                newDate = item["changedate"].replace("T", " ").slice(0, -6);
                 items.push([
-                    item["spi:company"],
-                    newDate, 
-                    item["spi:name"], 
-                    item["spi:homepage"], 
+                    item["company"],
+                    newDate,
+                    item["name"],
+                    item["homepage"],
                 ]);
                 if (previousDate[0] < new Date(newDate)) {
                     previousDate = [new Date(newDate), newDate];
@@ -154,20 +166,22 @@ class Maximo {
         try {
             // get latest 91* number (will need to be updated to 92 after 200k items have been created in Maximo)
             // %25 is %
-            response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/os/mxitem?oslc.where=status="active" and itemnum="${numSeries}%25"&_lid=${this.login.userid}&_lpwd=${this.login.password}&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum`);
-            //TEST ENV --> response = await fetch(`http://nsmaxim1app1.na.iko/maxrest/oslc/os/mxitem?oslc.where=status="active" and itemnum="${numSeries}%25"&_lid=corcoop1&_lpwd=maximo&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum`);
-            
+            response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=status="active" and itemnum="${numSeries}%25"&_lid=${this.login.userid}&_lpwd=${this.login.password}&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum`, {
+                headers: {
+                    "apikey": this.login.userid,
+                }});
+
         } catch (err) {
-            postMessage(['debug','Failed to fetch data from Maximo, please check network (1)']);
+            postMessage(['debug', 'Failed to fetch data from Maximo, please check network (1)']);
             throw new Error('Failed to fetch data from Maximo, please check network (1)');
         }
         let content = await response.json();
-        if (content["oslc:Error"]) { //content["Error"]["message"]
+        if (content["Error"]) { //content["Error"]["message"]
             postMessage(['debug', 'Failed to fetch Data from Maximo, Please Check Network (2)']);
             throw new Error('Failed to fetch data from Maximo, please check network (2)');
         } else {
-            try{
-                let number = content["rdfs:member"][0]['spi:itemnum'];
+            try {
+                let number = content["member"][0]['itemnum'];
                 number = parseInt(number);
                 return number;
             } catch {
@@ -180,15 +194,19 @@ class Maximo {
     async checkLogin(userid = this.login.userid, password = this.login.password) {
         let response;
         try {
-            response = await fetch(`http://nscandacmaxapp1/maxrest/oslc/whoami?_lid=${userid}&_lpwd=${password}`);
+            response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/whoami?lean=1`, {
+                headers: {
+                    "apikey": userid,
+                },
+            });
         } catch (err) {
-            postMessage(['result', 1,'Failed to fetch Data from Maximo, Please Check Network (1)']);
+            postMessage(['result', 1, 'Failed to fetch Data from Maximo, Please Check Network (1)']);
             return false;
         }
         let content = await response.json();
-        if (content["oslc:Error"]) {
+        if (content["Error"]) {
             postMessage(['result', 1, 'Failed to login to Maximo, Please Check User Name & Password']);
-            postMessage(['result', 1, content["oslc:Error"]["oslc:message"]]);
+            postMessage(['result', 1, content["Error"]["message"]]);
             return false;
         } else {
             this.shareDB.savePassword(userid, password);
@@ -198,6 +216,42 @@ class Maximo {
             postMessage(['result', 0, 'Successfully logged in to Maximo']);
             return true;
         }
+    }
+
+    async uploadToMaximo(item){
+        let xmldoc =     
+    `<?xml version="1.0" encoding="UTF-8"?>
+    <SyncIKO_ITEMMASTER xmlns="http://www.ibm.com/maximo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <IKO_ITEMMASTERSet>
+        <ITEM>
+            <COMMODITYGROUP>${item.commoditygroup}</COMMODITYGROUP>
+            <DESCRIPTION>${item.description}</DESCRIPTION>
+            <DESCRIPTION_LONGDESCRIPTION>${item.longdescription}</DESCRIPTION_LONGDESCRIPTION>
+            <EXTERNALREFID>${item.glclass}</EXTERNALREFID>
+            <IKO_ASSETPREFIX>${item.assetprefix}</IKO_ASSETPREFIX>
+            <IKO_ASSETSEED>${item.assetseed}</IKO_ASSETSEED>
+            <IKO_JPNUM>${item.jpnum}</IKO_JPNUM>
+            <INSPECTIONREQUIRED>${item.inspectionrequired}</INSPECTIONREQUIRED>
+            <ISIMPORT>${item.isimport}</ISIMPORT>
+            <ISSUEUNIT>${item.issueunit}</ISSUEUNIT>
+            <ITEMNUM>${item.itemnumber}</ITEMNUM>
+            <ITEMSETID>ITEMSET1</ITEMSETID>
+            <ROTATING>${item.rotating}</ROTATING>
+            <STATUS>ACTIVE</STATUS>
+        </ITEM>
+    </IKO_ITEMMASTERSet>
+    </SyncIKO_ITEMMASTER>`;
+    
+        let response = await fetch('https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/IKO_ITEMMASTER?action=importfile', {
+            method: "POST",
+            headers: {
+                "filetype":"XML",
+                "apikey": this.login.userid,
+            },
+            body: xmldoc,
+        });
+        let content = await response.json();
+        return parseInt(content.validdoc);
     }
 }
 

@@ -422,7 +422,7 @@ async function uploadItem(){
         document.getElementById("error").innerHTML = "Upload Success"
         document.getElementById("confirm-btn").innerHTML = "Upload Item";
         document.getElementById("confirm-btn").disabled = false;
-        let itemUrl = `http://nscandacmaxapp1/maximo/ui/login?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
+        let itemUrl = `https://prod.manage.prod.iko.max-it-eam.com/maximo?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
         document.getElementById("error").innerHTML = `Item Upload Successful! <a id="item-link" href = "${itemUrl}"> (Click to view item) </a>`;
         document.getElementById("item-link").addEventListener('click', function (e) {
             e.preventDefault();
@@ -451,7 +451,7 @@ async function batchUploadItems(items){
             nums += document.getElementById(`${i}-${colLoc.maximo}`).innerHTML ? (document.getElementById(`${i}-${colLoc.maximo}`).innerHTML + ",") : "";
         }
         if(e[2]>0){
-            let itemUrl = `http://nscandacmaxapp1/maximo/ui/login?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
+            let itemUrl = `https://prod.manage.prod.iko.max-it-eam.com/maximo?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
             finishText += `<a id="batch-link" href="${itemUrl}">Click to view:</a>`
             document.getElementById("batch-upload-status-text").innerHTML = finishText;
             document.getElementById("batch-link").addEventListener('click', function (e) {

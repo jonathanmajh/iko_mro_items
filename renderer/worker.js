@@ -350,8 +350,6 @@ async function checkItemCache(version) {
 
 async function uploadAllItems(items,doUpdate = false){
     const maximo = new Maximo();
-    const url = `http://nscandacmaxapp1/maxrest/oslc/os/IKO_ITEMMASTER?action=importfile&_lid=${maximo.login.userid}&_lpwd=${maximo.login.password}`;
-    //TEST ENV --> const url = `http://nsmaxim1app1.na.iko/maxrest/oslc/os/IKO_ITEMMASTER?action=importfile&_lid=corcoop1&_lpwd=maximo`;
     let count = 1;
     let newNums = [];
     let num,numFails=0,numSuccesses=0;
@@ -380,8 +378,7 @@ async function uploadAllItems(items,doUpdate = false){
         }
 
         try{
-            let result = await uploadToMaximo(item,url);
-            //console.log("Result: " + result);
+            let result = await maximo.uploadToMaximo(item);
             if(!result){
                 if(doUpdate) postMessage(['update','fail',count]);
                 throw new Error('Upload Failed');
@@ -403,40 +400,4 @@ async function uploadAllItems(items,doUpdate = false){
     postMessage(['result',newNums,numFails,numSuccesses]);
 }
 
-async function uploadToMaximo(item,url){
-    let xmldoc =     
-`<?xml version="1.0" encoding="UTF-8"?>
-<SyncIKO_ITEMMASTER xmlns="http://www.ibm.com/maximo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-<IKO_ITEMMASTERSet>
-    <ITEM>
-        <COMMODITYGROUP>${item.commoditygroup}</COMMODITYGROUP>
-        <DESCRIPTION>${item.description}</DESCRIPTION>
-        <DESCRIPTION_LONGDESCRIPTION>${item.longdescription}</DESCRIPTION_LONGDESCRIPTION>
-        <EXTERNALREFID>${item.glclass}</EXTERNALREFID>
-        <IKO_ASSETPREFIX>${item.assetprefix}</IKO_ASSETPREFIX>
-        <IKO_ASSETSEED>${item.assetseed}</IKO_ASSETSEED>
-        <IKO_JPNUM>${item.jpnum}</IKO_JPNUM>
-        <INSPECTIONREQUIRED>${item.inspectionrequired}</INSPECTIONREQUIRED>
-        <ISIMPORT>${item.isimport}</ISIMPORT>
-        <ISSUEUNIT>${item.issueunit}</ISSUEUNIT>
-        <ITEMNUM>${item.itemnumber}</ITEMNUM>
-        <ITEMSETID>ITEMSET1</ITEMSETID>
-        <ROTATING>${item.rotating}</ROTATING>
-        <STATUS>ACTIVE</STATUS>
-    </ITEM>
-</IKO_ITEMMASTERSet>
-</SyncIKO_ITEMMASTER>`;
-
-    let response = await fetch(url, {
-        method: "POST",
-        headers: {
-            "filetype":"XML",
-            //"preview":1,
-        },
-        body: xmldoc,
-    });
-    let content = await response.json();
-    console.log(content);
-    return parseInt(content.validdoc);
-}
 
