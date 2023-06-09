@@ -65,7 +65,7 @@ function tryLoginAgain() {
     const worker = new WorkerHandler();
     worker.work(['checkUser', {
         userid: document.getElementById('userid').value,
-        password: document.getElementById('password').value
+        password: ''
     }], checkLogin);
 }
 
