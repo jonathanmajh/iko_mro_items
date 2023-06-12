@@ -745,6 +745,7 @@ async function showRelated(result) {
 </table>
     `;
     //load a couple of items and ensure at least 2 items load
+    document.getElementById('related-items-accordion-btn').classList.remove('collapsed');
     loadRelated();
     html = new bootstrap.Collapse(document.getElementById('accordion-relatedItem'), { toggle: false });
     html.show();
@@ -837,8 +838,7 @@ function loadRelated(){
 
     //if less than 5 items loaded, load more
     if(sliced.length < 5){
-        loadRelated();
-        return;
+        document.getElementById("everything").dispatchEvent(new Event('scroll'));
     }
 }
 
