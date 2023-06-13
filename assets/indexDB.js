@@ -251,7 +251,7 @@ class Database {
         return result;
     }
 
-    findRelated(data, postmessage) {
+    findRelated(data, ext=false, postmessage) {
         let itemDict = {};
         for (const char of utils.STRINGCLEANUP) {
             data = data.replaceAll(char, ',');
@@ -261,7 +261,7 @@ class Database {
         postMessage(['progress', 25, "Getting Item Descriptions From Maximo"]);
         for (let i = 0; i < phrases.length; i++) {
             if (phrases[i].length > 1) { // ignore single characters searches since they add too much time
-                result.push(this.fetchAndObjectify(phrases[i], itemDict));
+                result.push(this.fetchAndObjectify(phrases[i], ext, itemDict));
                 postMessage(['progress', 75, "Processing Item Descriptions From Maximo"]); //change this to per phrase
             }
         }
@@ -288,15 +288,38 @@ class Database {
         }
     }
 
-    fetchAndObjectify(phrase, itemDict) {
+    fetchAndObjectify(phrase, ext, itemDict) {
         phrase = phrase.toUpperCase();
         postMessage(['debug', `Getting item from cache: "${phrase}"`]);
-        let stmt = this.db.prepare(`SELECT * from itemCache where search_text like ?`);
+        let stmt;
+        if(ext) {
+            stmt = this.db.prepare(`SELECT * from itemCache where ext_search_text like ?`);
+        } else {
+            stmt = this.db.prepare(`SELECT * from itemCache where search_text like ?`);
+        }
+
         let result = stmt.all(`%${phrase}%`);
         let itemNums = [];
         result.forEach(item => {
             itemNums.push(item.itemnum);
-            itemDict[item.itemnum] = [item.description, item.gl_class, item.uom, item.commodity_group];
+            if(ext) {
+                let desc = item.ext_search_text;
+                let idx = desc.indexOf("|");//find the pipe symbol
+                //if there is a pipe symbol, then there is additional info after it
+                if(idx!==-1) {
+                    let itemInfo = desc.slice(idx+12);//stuff after the pipe symbol
+                    itemInfo = itemInfo.replaceAll("NULL", "").replaceAll("|", " ");
+
+                    desc = item.description + "|" + itemInfo;
+                } else { //no pipe symbol, just use the description
+                    desc = item.description + "|";
+                }
+                
+                itemDict[item.itemnum] = [desc, item.gl_class, item.uom, item.commodity_group];
+            } else {
+                itemDict[item.itemnum] = [item.description, item.gl_class, item.uom, item.commodity_group];
+            }
+            
         });
         return itemNums;
     }

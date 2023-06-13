@@ -40,7 +40,7 @@ onmessage = function (e) {
             break;
         case 'findRelated':
             maximo = new Database();
-            maximo.findRelated(e.data[1], true);
+            maximo.findRelated(e.data[1], e.data[2], true);
             break;
         case 'interactive':
             interactive(e);

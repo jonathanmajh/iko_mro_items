@@ -39,7 +39,8 @@ document.getElementById("everything").addEventListener('scroll',()=>{
 })
 
 document.getElementById("load-item").addEventListener("click", loadItem);
-document.getElementById("valid-single").addEventListener("click", validSingle);
+document.getElementById("valid-single").addEventListener("click", () => {validSingle()});
+document.getElementById("valid-single-ext").addEventListener("click", () => {validSingle(true)});
 document.getElementById("single-copy").addEventListener("click", () => { copyResult('single'); });
 document.getElementById("triple-copy").addEventListener("click", () => { copyResult('triple'); });
 document.getElementById("settings").addEventListener("click", openSettings);
@@ -422,7 +423,7 @@ async function uploadItem(){
         document.getElementById("error").innerHTML = "Upload Success"
         document.getElementById("confirm-btn").innerHTML = "Upload Item";
         document.getElementById("confirm-btn").disabled = false;
-        let itemUrl = `https://prod.manage.prod.iko.max-it-eam.com/maximo?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
+        let itemUrl = `https://prod.manage.prod.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum%3D${item.itemnumber}`;
         document.getElementById("error").innerHTML = `Item Upload Successful! <a id="item-link" href = "${itemUrl}"> (Click to view item) </a>`;
         document.getElementById("item-link").addEventListener('click', function (e) {
             e.preventDefault();
@@ -586,15 +587,17 @@ function interactiveGoNext(row) {
     }
 }
 
-function validSingle() {
+function validSingle(isExtended = false) {
     let bar = new ProgressBar();
     bar.update(0, 'Starting Item Description Validation');
     let raw_desc = document.getElementById("maximo-desc").value;
     const worker = new WorkerHandler();
-    worker.work(['validSingle', raw_desc], showResult);
+    worker.work(['validSingle', raw_desc], (result) => {
+        showResult(result, isExtended)
+    });
 }
 
-function showResult(result) {
+function showResult(result, isExtended=false) {
     let triDesc = document.getElementById('result-triple-main');
     triDesc.value = result[0][0];
     triDesc = document.getElementById('result-triple-ext1');
@@ -614,14 +617,14 @@ function showResult(result) {
         translationDescription(result[0][3]);
     }
     if (related) {
-        findRelated(result[0]);
+        findRelated(result[0],isExtended);
     }
 
 }
 
-function findRelated(result) {
+function findRelated(result, isExtended=false) {
     const worker = new WorkerHandler();
-    worker.work(['findRelated', result[3]], showRelated);
+    worker.work(['findRelated', result[3], isExtended], (result) => {showRelated(result, isExtended)});
 }
 
 function translationDescription(description) {
@@ -714,7 +717,7 @@ function calcConfidence(data) {
     }
 }
 
-async function showRelated(result) {
+async function showRelated(result, isExtended = false) {
     let bar = new ProgressBar();
     if (!result[0]) {
         bar.update(100, 'Done!');
@@ -728,6 +731,15 @@ async function showRelated(result) {
     
     //reset table after called
     const relatedTable = document.getElementById('related-table');
+
+    if(isExtended){
+        relatedTable.classList.add(`isExt`);
+    } else {
+        if(relatedTable.classList.contains(`isExt`)){
+            relatedTable.classList.remove(`isExt`);
+        }
+    }
+
     relatedTable.innerHTML = `
 <table class="table table-bordered">
     <thead>
@@ -735,6 +747,7 @@ async function showRelated(result) {
         <th>Percent Match</th>
         <th>Item Number</th>
         <th>Item Description</th>
+        ${(isExtended ? '<th>More Info</th>' : '')}
         <th>UOM</th>
         <th>C_Group</th>
         <th>GL_Class</th>
@@ -755,7 +768,8 @@ async function showRelated(result) {
 }
 
 function loadRelated(){
-
+    const isExtended = document.getElementById('related-table').classList.contains('isExt');
+    //console.log(relatedResults);
     const scores = relatedResults.results[0];
     //kill function if end of results has been reached
     if(relatedResults.curKey >= Object.entries(scores).length){
@@ -820,9 +834,11 @@ function loadRelated(){
                 color = 'table-danger';
             }
 
-            html = `${html}\n<tr class="${color}"><td>${formatter.format(key)}</td>
+            html = `${html}\n<tr class="${color}">
+            <td>${formatter.format(key)}</td>
             <td>${item}</td>
-            <td>${itemName}</td>
+            ${(isExtended ? `<td>${itemName.substring(0,itemName.indexOf("|"))}</td>` : `<td>${itemName}</td>`)}
+            ${(isExtended ? `<td>${itemName.slice(itemName.indexOf("|")+1)}</td>` : '')}
             <td>${itemNames[item][2]}</td>
             <td>${itemNames[item][3]}</td>
             <td>${itemNames[item][1]}</td>
