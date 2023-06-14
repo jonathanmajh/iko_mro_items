@@ -1,16 +1,13 @@
 const { ipcRenderer } = require('electron');
-const { uniqueId } = require('lodash');
 let selected = '';
 const popupAlert = new bootstrap.Modal(document.getElementById('popupAlert'), { toggle: false });
 
 window.onload = function() {
     document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
+    tryLoginItem();
 }
 
 
-function openObserveTemp() {
-    ipcRenderer.send('start_observation_template', 'finished');
-}
 
 function openItem() {
     const worker = new WorkerHandler();
@@ -31,9 +28,6 @@ function tryLoginItem() {
 }
 
 
-function openAssetDescription() {
-    ipcRenderer.send('start_asset_translate', 'finished');
-}
 
 function checkLogin(status) {
     document.getElementById('failedLogin').classList.remove("d-flex");
@@ -80,10 +74,10 @@ function noMaximo() {
     }
 }
 
-document.getElementById("openObserveTemp").addEventListener("click", openObserveTemp);
+// document.getElementById("openObserveTemp").addEventListener("click", openObserveTemp);
 document.getElementById("openItem").addEventListener("click", tryLoginItem);
 // document.getElementById("openItemTranslation").addEventListener("click", openItemTranslation);
-document.getElementById("openAssetDescription").addEventListener("click", openAssetDescription);
+// document.getElementById("openAssetDescription").addEventListener("click", openAssetDescription);
 document.getElementById("continue").addEventListener("click", noMaximo);
 document.getElementById("tryLogin").addEventListener("click", tryLoginAgain);
 document.getElementById("dark-mode-switch").addEventListener("click", toggleTheme);
