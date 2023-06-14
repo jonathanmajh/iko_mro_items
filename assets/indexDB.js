@@ -56,7 +56,8 @@ class Database {
             gl_class TEXT COLLATE NOCASE,
             uom TEXT COLLATE NOCASE,
             commodity_group TEXT COLLATE NOCASE,
-            ext_search_text TEXT COLLATE NOCASE
+            ext_search_text TEXT COLLATE NOCASE,
+            ext_description TEXT COLLATE NOCASE
         )`);
         const createTable5 = this.db.prepare(`CREATE TABLE itemDescAnalysis (
             tree TEXT PRIMARY KEY COLLATE NOCASE,
@@ -85,13 +86,15 @@ class Database {
         let dataDB = [];
         let search = '';
         let ext_search = '';
+        let ext_desc = '';
         for (let i = 0; i < data.length; i++) {
             if (data[i][1]) { //test if description is blank
                 search = data[i][1].toUpperCase();
                 for (const char of utils.STRINGCLEANUP) {
                     search = search.replaceAll(char, '');
                 }
-                ext_search = search
+                ext_search = search;
+                ext_desc = '';
 
                 // add inventory data
                 if (data[i][7]) {
@@ -100,11 +103,17 @@ class Database {
                             ext_search = `${ext_search}|${data[i][7][j]}`
                         }
                     }
+                    for (let j = 2; j < data[i][7].length; j++) {
+                        if (data[i][7][j].length > 0) {
+                            ext_desc = `${ext_desc}${data[i][7][j].replaceAll('|', ' ')} `
+                        }
+                    }
                 }
 
                 // add item master details
                 if (data[i][6]) {
                     ext_search = `${ext_search}|${data[i][6]}`
+                    ext_desc = `${ext_desc}${data[i][6]}`
                     for (const char of utils.STRINGCLEANUP) {
                         ext_search = ext_search.replaceAll(char, '');
                     }
@@ -118,12 +127,13 @@ class Database {
                     commodity_group: data[i][5],
                     search_text: search,
                     ext_search_text: ext_search,
+                    ext_desc: ext_desc,
                 });
             }
         }
         const insert = this.db.prepare(`INSERT OR REPLACE INTO itemCache (
-            itemnum, description, changed_date, search_text, gl_class, uom, commodity_group, ext_search_text)
-            VALUES (@itemnum, @description, @changed_date, @search_text, @gl_class, @uom, @commodity_group, @ext_search_text)`);
+            itemnum, description, changed_date, search_text, gl_class, uom, commodity_group, ext_search_text, ext_description)
+            VALUES (@itemnum, @description, @changed_date, @search_text, @gl_class, @uom, @commodity_group, @ext_search_text, @ext_desc)`);
         const insertMany = this.db.transaction((dataDB) => {
             for (const item of dataDB) insert.run(item);
         });

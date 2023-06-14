@@ -23,7 +23,7 @@ class ExcelReader {
     async getItemCache() {
         const wb = new Exceljs.Workbook();
         await wb.xlsx.readFile(this.filePath);
-        
+
         // read inventory data which will be appended to ext_search_text
         const ws3 = wb.getWorksheet('Sheet3');
         let lastRow = ws3.lastRow.number;
@@ -39,14 +39,19 @@ class ExcelReader {
             row[5] = ws3.getCell(`F${i}`).text;
             row[6] = ws3.getCell(`G${i}`).text;
             if (row[2].length > 0 || row[3].length > 0 || row[4].length > 0 || row[5].length > 0 || row[6].length > 0) {
+                debugger
                 if (inventory_data.has(row[0])) {
                     for (let j = 2; j <= 6; j++) {
-                        if (row[j] > 0) {
-                            // dont add null values
+                        if (row[j] > 0 && row[j] != "NULL") {
                             inventory_data.get(row[0])[j] = inventory_data.get(row[0])[j] + '|' + row[j];
                         }
                     }
                 } else {
+                    for (let j = 2; j <= 6; j++) {
+                        if (row[j] == "NULL") {
+                            row[j] = '';
+                        }
+                    }
                     inventory_data.set(row[0], row)
                 }
             }
