@@ -92,11 +92,21 @@ class Database {
                     search = search.replaceAll(char, '');
                 }
                 ext_search = search
+
+                // add inventory data
                 if (data[i][7]) {
                     for (let j = 0; j < data[i][7].length; j++) {
                         if (data[i][7][j].length > 0) {
                             ext_search = `${ext_search}|${data[i][7][j]}`
                         }
+                    }
+                }
+
+                // add item master details
+                if (data[i][6]) {
+                    ext_search = `${ext_search}|${data[i][6]}`
+                    for (const char of utils.STRINGCLEANUP) {
+                        ext_search = ext_search.replaceAll(char, '');
                     }
                 }
                 dataDB.push({

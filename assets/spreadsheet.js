@@ -23,6 +23,7 @@ class ExcelReader {
     async getItemCache() {
         const wb = new Exceljs.Workbook();
         await wb.xlsx.readFile(this.filePath);
+        
         // read inventory data which will be appended to ext_search_text
         const ws3 = wb.getWorksheet('Sheet3');
         let lastRow = ws3.lastRow.number;
@@ -41,6 +42,7 @@ class ExcelReader {
                 if (inventory_data.has(row[0])) {
                     for (let j = 2; j <= 6; j++) {
                         if (row[j] > 0) {
+                            // dont add null values
                             inventory_data.get(row[0])[j] = inventory_data.get(row[0])[j] + '|' + row[j];
                         }
                     }
@@ -49,7 +51,7 @@ class ExcelReader {
                 }
             }
         }
-
+        // read item master data
         const ws = wb.getWorksheet('Sheet1'); //alternatively (fetch by ID): getWorksheet(1);
         lastRow = ws.lastRow.number; //last cell row in range
         const data = []; //empty list
