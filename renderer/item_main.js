@@ -423,7 +423,7 @@ async function uploadItem(){
         document.getElementById("error").innerHTML = "Upload Success"
         document.getElementById("confirm-btn").innerHTML = "Upload Item";
         document.getElementById("confirm-btn").disabled = false;
-        let itemUrl = `https://prod.manage.prod.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum%3D${item.itemnumber}`;
+        let itemUrl = `https://prod.manage.prod.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
         document.getElementById("error").innerHTML = `Item Upload Successful! <a id="item-link" href = "${itemUrl}"> (Click to view item) </a>`;
         document.getElementById("item-link").addEventListener('click', function (e) {
             e.preventDefault();
