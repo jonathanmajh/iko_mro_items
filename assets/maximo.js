@@ -269,7 +269,7 @@ class Maximo {
             }
         })
         let content = await response.json();
-        if(content["rdfs:member"].length == 0 || content['oslc:Error']){
+        if(content["rdfs:member"] == 0 || content['oslc:Error']){
             return 'fail';
         }
 

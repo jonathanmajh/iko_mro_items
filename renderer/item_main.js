@@ -118,7 +118,12 @@ document.getElementById("img-upload-btn").addEventListener("click", () => {
             document.getElementById("img-progress-bar").innerHTML = `Upload Complete!`;
             clearBtn.disabled = false;
             uploadBtn.disabled = false;
-            
+        } else if(result[0]=='total failure'){
+            finishedItems=imgsToUpload.length;
+            document.getElementById("img-progress-bar").innerHTML = `Upload Complete!`;
+            document.getElementById("img-upload-status-text").innerHTML = `Upload Failed: ${result[1]}}`;
+            clearBtn.disabled = false;
+            uploadBtn.disabled = false;
         }
 
         if(result!='done'){

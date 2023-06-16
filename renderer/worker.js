@@ -417,7 +417,7 @@ async function uploadImages(images){
     }
     catch(err){
         console.log(err);
-        postMessage(['result','fail',err]);
+        postMessage(['result','total failure',err]);
     }
 }
 
