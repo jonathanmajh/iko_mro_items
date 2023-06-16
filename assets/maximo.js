@@ -314,7 +314,7 @@ class Maximo {
         });
 
         //debugger;
-        console.log(response['statusText']);
+        //console.log(response['statusText']);
         return 'success';
     }
 }
