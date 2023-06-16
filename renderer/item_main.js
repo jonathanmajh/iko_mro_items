@@ -127,7 +127,7 @@ document.getElementById("img-upload-btn").addEventListener("click", () => {
 
         document.getElementById("img-progress-bar").style.width = `${finishedItems*100 / imgsToUpload.length}%`;
 
-        console.log(result);
+        //console.log(result);
     });
 });
 

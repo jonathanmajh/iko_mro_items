@@ -259,7 +259,7 @@ class Maximo {
         if(image.type !== "image/jpeg"){
             return 'fail';
         }
-        
+
         //check valid item number        
         let itemnum = image.name.slice(0,7);
         let response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem?oslc.where=itemnum=${itemnum}`, {
@@ -276,7 +276,7 @@ class Maximo {
         //get item id
         let itemId = content["rdfs:member"][0]["rdf:resource"];
         itemId = itemId.slice(38);
-        console.log("item id " + itemId);
+        //console.log("item id " + itemId);
 
         //check for existing image
         response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}`,{
@@ -289,7 +289,7 @@ class Maximo {
 
         //delete image if it exists
         if(content["_imagelibref"]){
-            console.log("image exists");
+            //console.log("image exists");
             //delete existing image
             response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}?action=system:deleteimage`, {
                 method: "POST",

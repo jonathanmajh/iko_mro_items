@@ -409,7 +409,7 @@ async function uploadImages(images){
         for(let i = 0; i < images.length; i++){
             let img = images[i];
             let result = await maximo.uploadImageToMaximo(img);
-            console.log(result);
+            //console.log(result);
             postMessage(['callback',result,i]);
             postMessage([`${(result=='success'?'debug':'fail')}`,`${img.name} upload ${(result=='success' ? 'success' : 'fail')}`]);
         }
