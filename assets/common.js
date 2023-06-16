@@ -40,6 +40,8 @@ class WorkerHandler {
                 log.error(e.data[1]);
             } else if (e.data[0] === 'update'){
                 updateItemStatus(e.data[1],e.data[2]);
+            } else if (e.data[0] === 'callback'){
+                callback(e.data.slice(1,));
             } else {
                 console.log(`Unimplemented worker message ${e.data}`);
             }
@@ -286,3 +288,16 @@ function updateItemStatus(status,itemindex){
         statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">pending</i>`;
     }
 }
+
+function fileBase64(file) {
+    return new Promise((resolve, reject) => {
+      let reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = function() {
+        resolve(reader.result);
+      };
+      reader.onerror = function(error) {
+        reject(error);
+      };
+    });
+  }
