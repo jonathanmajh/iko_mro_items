@@ -1,4 +1,5 @@
 // various functions for fetching data from maximo rest api
+const { Duration } = require('luxon');
 const SharedDatabase = require('../assets/sharedDB');
 
 class Maximo {
@@ -225,8 +226,8 @@ class Maximo {
     <IKO_ITEMMASTERSet>
         <ITEM>
             <COMMODITYGROUP>${item.commoditygroup}</COMMODITYGROUP>
-            <DESCRIPTION>${item.description}</DESCRIPTION>
-            <DESCRIPTION_LONGDESCRIPTION>${item.longdescription}</DESCRIPTION_LONGDESCRIPTION>
+            <DESCRIPTION>${item.description.replaceAll('&','&amp;')}</DESCRIPTION>
+            <DESCRIPTION_LONGDESCRIPTION>${item.longdescription.replaceAll('&','&amp;')}</DESCRIPTION_LONGDESCRIPTION>
             <EXTERNALREFID>${item.glclass}</EXTERNALREFID>
             <IKO_ASSETPREFIX>${item.assetprefix}</IKO_ASSETPREFIX>
             <IKO_ASSETSEED>${item.assetseed}</IKO_ASSETSEED>
@@ -247,10 +248,12 @@ class Maximo {
             headers: {
                 "filetype":"XML",
                 "apikey": this.login.userid,
+                //"preview": "1"
             },
             body: xmldoc,
         });
         let content = await response.json();
+        console.log(content);
         return parseInt(content.validdoc);
     }
 
