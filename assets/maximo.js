@@ -290,17 +290,21 @@ class Maximo {
         })
         content = await response.json();
 
-        //delete image if it exists
+        //if image exists
         if(content["_imagelibref"]){
             //console.log("image exists");
-            //delete existing image
-            response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}?action=system:deleteimage`, {
+
+            //code to delete existing image
+            /*response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}?action=system:deleteimage`, {
                 method: "POST",
                 headers: {
                     "x-method-override":"PATCH",
                     "apikey": this.login.userid,
                 }
-            });
+            });*/
+            
+            //dont upload image
+            return ['warning', 'Image already exists for item number'];
         }
 
         //upload new image

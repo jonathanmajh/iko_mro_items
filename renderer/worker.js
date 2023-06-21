@@ -411,7 +411,14 @@ async function uploadImages(images){
             let data = await maximo.uploadImageToMaximo(img);
             let result = data[0];
             postMessage(['callback',result,i]);
-            postMessage([`${(result=='success'?'debug':'fail')}`,`${img.name} upload ${(result=='success' ? 'success' : `fail; ${data[1]}`)}`]);
+
+            if(result== 'success'){
+                postMessage(['debug',`${img.name} upload success`]);
+            } else if (result == 'fail' || result == 'warning'){
+                postMessage(['fail',`${img.name} upload fail; ${data[1]}`]);
+            }
+
+            //postMessage([`${(result=='success'?'debug':'fail')}`,`${img.name} upload ${(result=='success' ? 'success' : `fail; ${data[1]}`)}`]);
         }
         postMessage(['result','done']);
     }

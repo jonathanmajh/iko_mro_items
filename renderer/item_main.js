@@ -123,6 +123,8 @@ document.getElementById("img-upload-btn").addEventListener("click", () => {
             progressBar.update(100,'Upload Complete!');
             clearBtn.disabled = false;
             uploadBtn.disabled = false;
+        } else if(result[0]=='warning'){
+            document.getElementById(`img-${result[1]}-status`).innerHTML = `warning`;
         } else if(result[0]=='total failure'){
             finishedItems=imgsToUpload.length;
             progressBar.update(100,'Error occurred while attempting upload!');
