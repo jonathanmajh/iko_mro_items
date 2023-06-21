@@ -259,8 +259,8 @@ class Maximo {
 
     async uploadImageToMaximo(image){
         //check valid image type
-        if(image.type !== "image/jpeg"){
-            return ['fail', 'Image type not jpeg'];
+        if(image.type !== "image/jpeg" && image.type !== "image/png"){
+            return ['fail', 'Image type not jpeg or png'];
         }
 
         //check valid item number        
