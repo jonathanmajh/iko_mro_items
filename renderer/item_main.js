@@ -3,6 +3,7 @@ const { clipboard, ipcRenderer, shell } = require('electron');
 const Database = require('../assets/indexDB');
 const Validate = require('../assets/validators');
 let itemsToUpload = [];
+let imgsToUpload = [];
 let colLoc = {
     description: -1,
     uom: -1,
@@ -37,7 +38,112 @@ document.getElementById("everything").addEventListener('scroll',()=>{
         loadRelated();
     }
 })
+//Image upload
+document.getElementById("imgInput").addEventListener("change", async (e) => {
+    let progressBar = new ProgressBar();
 
+    document.getElementById("imgList").innerHTML = ``;
+    let files = document.getElementById("imgInput").files;
+    imgsToUpload = files;
+    let nums = '';
+
+    if(files.length == 0 || !files){
+        return;
+    }
+
+    let imgList = document.getElementById("imgList");
+
+    progressBar.update(0,'Loading Images...');
+    
+
+    for(let i = 0; i<files.length; i++){
+        let file = files[i];
+        let completion = (i+1)/files.length*100;
+
+        nums += file.name.slice(0,7) + ',';
+        progressBar.updateProgressBar(completion);
+
+        imgList.innerHTML += `
+<li class="d-flex align-items-center justify-content-between list-group-item">
+    <div class="d-flex align-items-center">
+        <img src="${URL.createObjectURL(file)}" class="img-thumbnail me-2">
+        <p class="mb-0"><strong>${file.name.slice(0,7)}</strong></p>
+    </div>
+    <i id="img-${i}-status" class="material-icons">pending</i>
+</li>`;
+    }
+
+    let url = `https://test.manage.test.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;    
+    document.getElementById("img-upload-status-text").innerHTML = `<a href=${url} id="imgs-link">Selected Items:</a>`;
+    document.getElementById("imgs-link").addEventListener('click', function (e) {
+        e.preventDefault();
+        shell.openExternal(url);
+    });
+
+    progressBar.update(100,'Ready to Upload!');
+});
+
+document.getElementById("imgInput").addEventListener("click", () => {
+    document.getElementById("img-clear-btn").dispatchEvent(new Event('click'));
+});
+document.getElementById("img-clear-btn").addEventListener("click", () => {
+    let progressBar = new ProgressBar();
+    document.getElementById("imgList").innerHTML = ``;
+    progressBar.update(100,'Ready!');
+    imgsToUpload = [];
+    document.getElementById("imgInput").value = null;
+    document.getElementById("img-upload-status-text").innerHTML = 'Select Images to Continue...';
+    //
+});
+document.getElementById("img-upload-btn").addEventListener("click", () => {
+    let progressBar = new ProgressBar();
+    let clearBtn = document.getElementById('img-clear-btn');
+    let uploadBtn = document.getElementById('img-upload-btn');
+
+    if(imgsToUpload.length == 0){
+        new Toast('No Images Selected!');
+        return;
+    }
+
+    let finishedItems = 0;
+
+    clearBtn.disabled = true;
+    uploadBtn.disabled = true;
+
+    const worker = new WorkerHandler();
+
+    progressBar.update(0,'Uploading Images...');
+
+    worker.work(['uploadImages',imgsToUpload],(result) => {
+        if(result[0] == 'success'){
+            document.getElementById(`img-${result[1]}-status`).innerHTML = `done`;
+        } else if(result[0]=='fail'){
+            document.getElementById(`img-${result[1]}-status`).innerHTML = `close`;
+        } else if(result[0]=='done') {
+            progressBar.update(100,'Upload Complete!');
+            clearBtn.disabled = false;
+            uploadBtn.disabled = false;
+        } else if(result[0]=='warning'){
+            document.getElementById(`img-${result[1]}-status`).innerHTML = `warning`;
+        } else if(result[0]=='total failure'){
+            finishedItems=imgsToUpload.length;
+            progressBar.update(100,'Error occurred while attempting upload!');
+            document.getElementById("img-upload-status-text").innerHTML = `Upload Failed: ${result[1]}}`;
+            clearBtn.disabled = false;
+            uploadBtn.disabled = false;
+        }
+
+        if(result!='done'){
+            finishedItems++;
+        }
+
+        progressBar.updateProgressBar(finishedItems*100 / imgsToUpload.length);
+
+        //console.log(result);
+    });
+});
+
+//Other
 document.getElementById("load-item").addEventListener("click", loadItem);
 document.getElementById("valid-single").addEventListener("click", () => {validSingle()});
 document.getElementById("valid-single-ext").addEventListener("click", () => {validSingle(true)});
@@ -423,7 +529,7 @@ async function uploadItem(){
         document.getElementById("error").innerHTML = "Upload Success"
         document.getElementById("confirm-btn").innerHTML = "Upload Item";
         document.getElementById("confirm-btn").disabled = false;
-        let itemUrl = `https://prod.manage.prod.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
+        let itemUrl = `https://test.manage.test.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
         document.getElementById("error").innerHTML = `Item Upload Successful! <a id="item-link" href = "${itemUrl}"> (Click to view item) </a>`;
         document.getElementById("item-link").addEventListener('click', function (e) {
             e.preventDefault();
@@ -452,7 +558,7 @@ async function batchUploadItems(items){
             nums += document.getElementById(`${i}-${colLoc.maximo}`).innerHTML ? (document.getElementById(`${i}-${colLoc.maximo}`).innerHTML + ",") : "";
         }
         if(e[2]>0){
-            let itemUrl = `https://prod.manage.prod.iko.max-it-eam.com/maximo?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
+            let itemUrl = `https://test.manage.test.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
             finishText += `<a id="batch-link" href="${itemUrl}">Click to view:</a>`
             document.getElementById("batch-upload-status-text").innerHTML = finishText;
             document.getElementById("batch-link").addEventListener('click', function (e) {

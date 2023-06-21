@@ -103,6 +103,9 @@ onmessage = function (e) {
         case 'checkUser':
             checkUser(e.data[1]);
             break;
+        case 'uploadImages':
+            uploadImages(e.data[1]);
+            break;
         default:
         console.log(`Unimplimented work ${e.data[0]}`);
     }
@@ -398,6 +401,31 @@ async function uploadAllItems(items,doUpdate = false){
         count++;
     }
     postMessage(['result',newNums,numFails,numSuccesses]);
+}
+
+async function uploadImages(images){
+    try{
+        const maximo = new Maximo();
+        for(let i = 0; i < images.length; i++){
+            let img = images[i];
+            let data = await maximo.uploadImageToMaximo(img);
+            let result = data[0];
+            postMessage(['runCallback',result,i]);
+
+            if(result== 'success'){
+                postMessage(['debug',`${img.name} upload success`]);
+            } else if (result == 'fail' || result == 'warning'){
+                postMessage(['fail',`${img.name} upload fail; ${data[1]}`]);
+            }
+
+            //postMessage([`${(result=='success'?'debug':'fail')}`,`${img.name} upload ${(result=='success' ? 'success' : `fail; ${data[1]}`)}`]);
+        }
+        postMessage(['result','done']);
+    }
+    catch(err){
+        console.log(err);
+        postMessage(['result','total failure',err]);
+    }
 }
 
 

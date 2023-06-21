@@ -1,4 +1,5 @@
 // various functions for fetching data from maximo rest api
+const { Duration } = require('luxon');
 const SharedDatabase = require('../assets/sharedDB');
 
 class Maximo {
@@ -14,7 +15,7 @@ class Maximo {
         let meters = [];
         while (nextpage) {
             try {
-                response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/iko_meter?lean=1&pageno=${pageno}&oslc.pageSize=100&oslc.select=*&oslc.where=domainid%3D%22M-%25%22`, {
+                response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/iko_meter?lean=1&pageno=${pageno}&oslc.pageSize=100&oslc.select=*&oslc.where=domainid%3D%22M-%25%22`, {
                     headers: {
                         "apikey": this.login.userid,
                     }});
@@ -48,7 +49,7 @@ class Maximo {
         let observations = [];
         while (nextpage) {
             try {
-                response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/iko_alndomain?lean=1&pageno=${pageno}&oslc.where=domainid%3D%22M-%25%22&oslc.pageSize=100&oslc.select=alndomain%2Cdomainid%2Cdescription`, {
+                response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/iko_alndomain?lean=1&pageno=${pageno}&oslc.where=domainid%3D%22M-%25%22&oslc.pageSize=100&oslc.select=alndomain%2Cdomainid%2Cdescription`, {
                     headers: {
                         "apikey": this.login.userid,
                     }});
@@ -89,7 +90,7 @@ class Maximo {
         date = date.replace(' ', 'T');
         let response;
         try {
-            response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=in22>"${date}" and itemnum="9%25"&oslc.select=itemnum,in22,description,issueunit,commoditygroup,externalrefid,status`, {
+            response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=in22>"${date}" and itemnum="9%25"&oslc.select=itemnum,in22,description,issueunit,commoditygroup,externalrefid,status`, {
                 headers: {
                     "apikey": this.login.userid,
                 }});
@@ -128,7 +129,7 @@ class Maximo {
         date = date.replace(' ', 'T');
         let response;
         try {
-            response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/IKO_COMPMASTER?lean=1&oslc.where=type="M" and changedate>"${date}"&oslc.select=company,name,homepage,changedate`, {
+            response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/IKO_COMPMASTER?lean=1&oslc.where=type="M" and changedate>"${date}"&oslc.select=company,name,homepage,changedate`, {
                 headers: {
                     "apikey": this.login.userid,
                 }});
@@ -166,7 +167,7 @@ class Maximo {
         try {
             // get latest 91* number (will need to be updated to 92 after 200k items have been created in Maximo)
             // %25 is %
-            response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=status="active" and itemnum="${numSeries}%25"&_lid=${this.login.userid}&_lpwd=${this.login.password}&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum`, {
+            response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=status="active" and itemnum="${numSeries}%25"&_lid=${this.login.userid}&_lpwd=${this.login.password}&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum`, {
                 headers: {
                     "apikey": this.login.userid,
                 }});
@@ -194,7 +195,7 @@ class Maximo {
     async checkLogin(userid = this.login.userid, password = this.login.password) {
         let response;
         try {
-            response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/whoami?lean=1`, {
+            response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/whoami?lean=1`, {
                 headers: {
                     "apikey": userid,
                 },
@@ -225,8 +226,8 @@ class Maximo {
     <IKO_ITEMMASTERSet>
         <ITEM>
             <COMMODITYGROUP>${item.commoditygroup}</COMMODITYGROUP>
-            <DESCRIPTION>${item.description}</DESCRIPTION>
-            <DESCRIPTION_LONGDESCRIPTION>${item.longdescription}</DESCRIPTION_LONGDESCRIPTION>
+            <DESCRIPTION>${item.description.replaceAll('&','&amp;')}</DESCRIPTION>
+            <DESCRIPTION_LONGDESCRIPTION>${item.longdescription.replaceAll('&','&amp;')}</DESCRIPTION_LONGDESCRIPTION>
             <EXTERNALREFID>${item.glclass}</EXTERNALREFID>
             <IKO_ASSETPREFIX>${item.assetprefix}</IKO_ASSETPREFIX>
             <IKO_ASSETSEED>${item.assetseed}</IKO_ASSETSEED>
@@ -242,16 +243,86 @@ class Maximo {
     </IKO_ITEMMASTERSet>
     </SyncIKO_ITEMMASTER>`;
     
-        let response = await fetch('https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/IKO_ITEMMASTER?action=importfile', {
+        let response = await fetch('https://test.manage.test.iko.max-it-eam.com/maximo/api/os/IKO_ITEMMASTER?action=importfile', {
             method: "POST",
             headers: {
                 "filetype":"XML",
                 "apikey": this.login.userid,
+                //"preview": "1"
             },
             body: xmldoc,
         });
         let content = await response.json();
+        //console.log(content);
         return parseInt(content.validdoc);
+    }
+
+    async uploadImageToMaximo(image){
+        //check valid image type
+        if(image.type !== "image/jpeg" && image.type !== "image/png"){
+            return ['fail', 'Image type not jpeg or png'];
+        }
+
+        //check valid item number        
+        let itemnum = image.name.slice(0,7);
+        let response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem?oslc.where=itemnum=${itemnum}`, {
+            method: "GET",
+            headers: {
+                "apikey": this.login.userid,
+            }
+        })
+        let content = await response.json();
+        if(content["rdfs:member"] == 0 || content['oslc:Error']){
+            return ['fail', 'Item number not found'];
+        }
+
+        //get item id
+        let itemId = content["rdfs:member"][0]["rdf:resource"];
+        itemId = itemId.slice(38);
+        //console.log("item id " + itemId);
+
+        //check for existing image
+        response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}`,{
+            method: "GET",
+            headers: {
+                "apikey": this.login.userid,
+            }
+        })
+        content = await response.json();
+
+        //if image exists
+        if(content["_imagelibref"]){
+            //console.log("image exists");
+
+            //code to delete existing image
+            /*response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}?action=system:deleteimage`, {
+                method: "POST",
+                headers: {
+                    "x-method-override":"PATCH",
+                    "apikey": this.login.userid,
+                }
+            });*/
+            
+            //dont upload image
+            return ['warning', 'Image already exists for item number'];
+        }
+
+        //upload new image
+        response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}?action=system:addimage`, {
+            method: "POST",
+            headers: {
+                "x-method-override":"PATCH",
+                "Slug":`${itemnum}.jpg`,
+                "Content-type":"image/jpeg",
+                "custom-encoding":"base",
+                "apikey": this.login.userid,
+            },
+            body: image
+        });
+
+        //debugger;
+        //console.log(response['statusText']);
+        return ['success'];
     }
 }
 
