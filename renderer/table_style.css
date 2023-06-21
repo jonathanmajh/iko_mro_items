@@ -60,9 +60,9 @@
 
 [data-bs-theme='dark'] .table-danger {
     --bs-table-color: #fff;
-    --bs-table-bg: #521818;
+    --bs-table-bg: #470909;
     --bs-table-border-color: #373b3e;
-    --bs-table-striped-bg: #2c3034;
+    --bs-table-striped-bg: #521818;
     --bs-table-striped-color: #fff;
     --bs-table-active-bg: #373b3e;
     --bs-table-active-color: #fff;

@@ -40,6 +40,8 @@ document.getElementById("everything").addEventListener('scroll',()=>{
 })
 //Image upload
 document.getElementById("imgInput").addEventListener("change", async (e) => {
+    let progressBar = new ProgressBar();
+
     document.getElementById("imgList").innerHTML = ``;
     let files = document.getElementById("imgInput").files;
     imgsToUpload = files;
@@ -50,16 +52,17 @@ document.getElementById("imgInput").addEventListener("change", async (e) => {
     }
 
     let imgList = document.getElementById("imgList");
-    document.getElementById("img-progress-bar").style.width = `0%`;
-    document.getElementById("img-progress-bar").innerHTML = `Loading Images...`;
+
+    progressBar.update(0,'Loading Images...');
+    
 
     for(let i = 0; i<files.length; i++){
         let file = files[i];
         let completion = (i+1)/files.length*100;
 
         nums += file.name.slice(0,7) + ',';
-        document.getElementById("img-progress-bar").style.width = `${completion}%`;
-        
+        progressBar.updateProgressBar(completion);
+
         imgList.innerHTML += `
 <li class="d-flex align-items-center justify-content-between list-group-item">
     <div class="d-flex align-items-center">
@@ -77,24 +80,28 @@ document.getElementById("imgInput").addEventListener("change", async (e) => {
         shell.openExternal(url);
     });
 
-    document.getElementById("img-progress-bar").innerHTML = `Ready to Upload!`;
+    progressBar.update(100,'Ready to Upload!');
 });
+
 document.getElementById("imgInput").addEventListener("click", () => {
     document.getElementById("img-clear-btn").dispatchEvent(new Event('click'));
 });
 document.getElementById("img-clear-btn").addEventListener("click", () => {
+    let progressBar = new ProgressBar();
     document.getElementById("imgList").innerHTML = ``;
-    document.getElementById("img-progress-bar").innerHTML = `No Images Selected!`;
+    progressBar.update(100,'Ready!');
     imgsToUpload = [];
     document.getElementById("imgInput").value = null;
     document.getElementById("img-upload-status-text").innerHTML = 'Select Images to Continue...';
     //
 });
 document.getElementById("img-upload-btn").addEventListener("click", () => {
+    let progressBar = new ProgressBar();
     let clearBtn = document.getElementById('img-clear-btn');
     let uploadBtn = document.getElementById('img-upload-btn');
 
     if(imgsToUpload.length == 0){
+        new Toast('No Images Selected!');
         return;
     }
 
@@ -105,8 +112,7 @@ document.getElementById("img-upload-btn").addEventListener("click", () => {
 
     const worker = new WorkerHandler();
 
-    document.getElementById("img-progress-bar").style.width = `0%`;
-    document.getElementById("img-progress-bar").innerHTML = `Uploading Images...`;
+    progressBar.update(0,'Uploading Images...');
 
     worker.work(['uploadImages',imgsToUpload],(result) => {
         if(result[0] == 'success'){
@@ -114,13 +120,12 @@ document.getElementById("img-upload-btn").addEventListener("click", () => {
         } else if(result[0]=='fail'){
             document.getElementById(`img-${result[1]}-status`).innerHTML = `close`;
         } else if(result[0]=='done') {
-            document.getElementById("img-progress-bar").style.width = `100%`;
-            document.getElementById("img-progress-bar").innerHTML = `Upload Complete!`;
+            progressBar.update(100,'Upload Complete!');
             clearBtn.disabled = false;
             uploadBtn.disabled = false;
         } else if(result[0]=='total failure'){
             finishedItems=imgsToUpload.length;
-            document.getElementById("img-progress-bar").innerHTML = `Upload Complete!`;
+            progressBar.update(100,'Error occurred while attempting upload!');
             document.getElementById("img-upload-status-text").innerHTML = `Upload Failed: ${result[1]}}`;
             clearBtn.disabled = false;
             uploadBtn.disabled = false;
@@ -130,7 +135,7 @@ document.getElementById("img-upload-btn").addEventListener("click", () => {
             finishedItems++;
         }
 
-        document.getElementById("img-progress-bar").style.width = `${finishedItems*100 / imgsToUpload.length}%`;
+        progressBar.updateProgressBar(finishedItems*100 / imgsToUpload.length);
 
         //console.log(result);
     });

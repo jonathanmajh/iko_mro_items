@@ -253,14 +253,14 @@ class Maximo {
             body: xmldoc,
         });
         let content = await response.json();
-        console.log(content);
+        //console.log(content);
         return parseInt(content.validdoc);
     }
 
     async uploadImageToMaximo(image){
         //check valid image type
         if(image.type !== "image/jpeg"){
-            return 'fail';
+            return ['fail', 'Image type not jpeg'];
         }
 
         //check valid item number        
@@ -273,7 +273,7 @@ class Maximo {
         })
         let content = await response.json();
         if(content["rdfs:member"] == 0 || content['oslc:Error']){
-            return 'fail';
+            return ['fail', 'Item number not found'];
         }
 
         //get item id
@@ -318,7 +318,7 @@ class Maximo {
 
         //debugger;
         //console.log(response['statusText']);
-        return 'success';
+        return ['success'];
     }
 }
 

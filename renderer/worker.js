@@ -408,10 +408,10 @@ async function uploadImages(images){
         const maximo = new Maximo();
         for(let i = 0; i < images.length; i++){
             let img = images[i];
-            let result = await maximo.uploadImageToMaximo(img);
-            //console.log(result);
+            let data = await maximo.uploadImageToMaximo(img);
+            let result = data[0];
             postMessage(['callback',result,i]);
-            postMessage([`${(result=='success'?'debug':'fail')}`,`${img.name} upload ${(result=='success' ? 'success' : 'fail')}`]);
+            postMessage([`${(result=='success'?'debug':'fail')}`,`${img.name} upload ${(result=='success' ? 'success' : `fail; ${data[1]}`)}`]);
         }
         postMessage(['result','done']);
     }
