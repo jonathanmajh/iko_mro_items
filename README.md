@@ -31,6 +31,10 @@ xlsx v0.16.9
 
 Auto updating using Nuts
 https://github.com/GitbookIO/nuts
+releases are created using tags
+npm version major/minor/patch
+
+git push --follow-tags
 
 ## To edit
 ### Editing CSS:
