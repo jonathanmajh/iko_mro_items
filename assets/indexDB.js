@@ -218,7 +218,6 @@ class Database {
 
     // checks if the name given is a manufacturer
     isManufacturer(name) {
-        name = name[0];
         let stmt = this.db.prepare(`SELECT short_name FROM manufacturers where full_name = ? or short_name = ?`);
         return stmt.get([name, name]);
     }
