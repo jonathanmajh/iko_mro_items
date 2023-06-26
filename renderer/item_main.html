@@ -1,7 +1,7 @@
 <!-- http://operations.connect.na.local/support/Reliability/ReliabilityShared/Pages/AssetRedirect.aspx -->
 
 <!DOCTYPE html>
-<html lang="en" class="h-100"  data-bs-theme="dark">
+<html lang="en" class="h-100" data-bs-theme="dark">
 
 <head>
   <meta charset="UTF-8" />
@@ -15,16 +15,111 @@
 </head>
 
 <body class="d-flex flex-column h-100">
-  <div class="modal fade" id="popupAlert" tabindex="-1">
-    <div class="modal-dialog">
+  <!-- popup for uploading items -->
+  <div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="popupAlertTitle">Loading...</h5>
+          <h5 class="modal-title" id="confirmModalLabel">Confirm Upload</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-        <div class="modal-body" id="popupAlertBody">Loading...</div>
+        <div class="modal-body">
+          <div class="row">
+              <div class="row">
+                <div class="col-md">
+                  <div class="form-floating input-group">
+                    <input type="text" class="form-control" id="item-itemnum" placeholder="Maximo Description" disabled
+                      readonly>
+                    <label for="item-itemnum">Item Number</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md">
+                  <div class="form-floating input-group">
+                    <input type="text" class="form-control" id="item-desc" placeholder="Maximo Description" disabled
+                      readonly>
+                    <label for="item-desc">Maximo Description</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md">
+                  <div class="input-group form-floating">
+                    <input type="text" class="form-control" id="result-triple-main" placeholder="JDE Description1"
+                      disabled readonly>
+                    <label for="result-triple-main">JDE Description</label>
+
+                    <input type="text" class="form-control" id="result-triple-ext1" placeholder="JDE Description2"
+                      disabled readonly>
+
+                    <input type="text" class="form-control" id="result-triple-ext2" placeholder="JDE Manufacturer"
+                      disabled readonly>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md">
+                  <div class="form-floating input-group">
+                    <input type="text" class="form-control" id="item-commgroup" placeholder="Maximo Description"
+                      disabled readonly>
+                    <label for="item-commgroup">Commodity Group:</label>
+                  </div>
+                </div>
+                <div class="col-md">
+                  <div class="form-floating input-group">
+                    <input type="text" class="form-control" id="item-uom" placeholder="Maximo Description" disabled
+                      readonly>
+                    <label for="item-uom">Unit of Measure:</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md">
+                  <div class="form-floating input-group">
+                    <input type="text" class="form-control" id="item-glclass" placeholder="Maximo Description" disabled
+                      readonly>
+                    <label for="item-glclass">Gl Class:</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md">
+                  <div class="form-floating">
+                    <textarea class="form-control" placeholder="Optional" id="long-desc"
+                      style="height: 100px"></textarea>
+                    <label for="long-desc">Details: (Optional)</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md">
+                  <div class="form-floating input-group" style="height: 200px;overflow-y: auto;">
+                    <textarea class="form-control" id="valid-description" placeholder="Analysis" disabled
+                      readonly style="height: 200px;"></textarea>
+                    <label for="valid-description">Analysis</label>
+                  </div>
+                </div>
+            </div>
+          </div>
+          <ul class="list-group">
+            <li class="list-group-item" id="error">
+              Waiting for confirm...
+            </li>
+          </ul>
+
+        </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-warning" id="confirm-btn">
+            Upload Item
+          </button>
         </div>
       </div>
     </div>
@@ -42,13 +137,14 @@
   <main class="flex-shrink-1" id="everything">
     <div class="container-fluid" id="main">
       <div class="row bg-danger text-light" style="padding-top: 20px">
-        <div class="col-auto" style="padding-top: 6px"><a href="start_page.html"><img src="IKO_Logo-nobg.png" /></a></div>
+        <div class="col-auto" style="padding-top: 6px"><a href="start_page.html"><img src="IKO_Logo-nobg.png" /></a>
+        </div>
         <h1 class="col">Item Standardizer</h1>
         <div class="col d-flex align-items-center justify-content-end">
           <div class="form-check form-switch" style="padding-right: 20px; padding-top: 2px;">
             <input class="form-check-input" type="checkbox" id="dark-mode-switch" checked>
           </div>
-          <i id="settings" class="material-icons pointer md-size"  style="text-align: right">settings</i>
+          <i id="settings" class="material-icons pointer md-size" style="text-align: right">settings</i>
         </div>
       </div>
 
@@ -67,7 +163,7 @@
                   <div class="col-md">
                     <div class="form-floating input-group">
                       <input type="text" class="form-control" id="interact-num" title="Look Up Existing Item Number"
-                        placeholder="Item Number" maxlength="7">  
+                        placeholder="Item Number" maxlength="7">
                       <label for="interact-num">Item Number</label>
                       <button class="btn btn-danger" type="button" id="load-item">Load</button>
                     </div>
@@ -90,7 +186,8 @@
                 <div class="row">
                   <div class="col-md">
                     <div class="form-floating input-group">
-                      <input type="text" class="form-control" id="maximo-desc" placeholder="Item Description" maxlength="100" required>
+                      <input type="text" class="form-control" id="maximo-desc" placeholder="Item Description"
+                        maxlength="100" required>
                       <label for="maximo-desc">Item Description</label>
                       <button class="btn btn-danger" type="button" id="valid-single">Check</button>
                       <button class="btn btn-danger" type="button" id="valid-single-ext">Ext Check</button>
@@ -181,7 +278,8 @@
                         <option value="PLS">PLS: Plant Supplies</option>
                         <option value="RME">RME: Plant Auto R&M</option>
                         <option value="SFS">SFS: Safety Supplies</option>
-                        <option value="WTR">WTR: Water</option></select>
+                        <option value="WTR">WTR: Water</option>
+                      </select>
                       <label for="gl-class">GL Class</label>
                     </div>
                   </div>
@@ -210,74 +308,11 @@
                       <strong>Upload Item</strong>
                     </button>
                   </div>
-
-                  <div class="modal modal-lg fade" id="confirmModal" tabindex="-1">
-                    <div class="modal-dialog modal-dialog-centered modal-lg">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 class="modal-title" id="confirmModalLabel">Confirm Upload</h5>
-                          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                          <ul class="list-group mb-3">
-                            <li class="list-group-item">
-                              <div class="ms-2 me-auto">
-                                <div class="fw-bold">Item Number:</div>
-                                <p id="item-itemnum"></p>
-                              </div>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-start" style="display: inline-block">
-                              <div class="ms-2 me-auto">
-                                <div class="fw-bold">Description:</div>
-                                <p id="item-desc"></p>
-                              </div>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-start">
-                              <div class="ms-2 me-auto">
-                                <div class="fw-bold">Unit of Measure:</div>
-                                <p id="item-uom"></p>
-                              </div>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-start">
-                              <div class="ms-2 me-auto">
-                                <div class="fw-bold">Commodity Group:</div>
-                                <p id="item-commgroup"></p>
-                              </div>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-start">
-                              <div class="ms-2 me-auto">
-                                <div class="fw-bold">Gl Class:</div>
-                                <p id="item-glclass"></p>
-                              </div>
-                            </li>
-                          </ul>
-                          <ul class="list-group">
-                            <li class="list-group-item" id="error">
-                              Waiting for confirm...
-                            </li>
-                          </ul>
-                          <h6 class="mt-3">Enter Additional Info (optional):</h6>
-                          <div class="row">
-                            <div class="input-group col-auto">
-                              <span class="input-group-text">Details:</span>
-                              <input type="text" class="form-control" id="long-desc" value="" required>
-                            </div>
-                          </div>                          
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                          <button type="button" class="btn btn-warning" id="confirm-btn">
-                            Upload Item
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="accordion-item">
+          <div class="accordion-item" style="display: none;">
             <h2 class="accordion-header">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                 data-bs-target="#accordion-validDescription">
@@ -286,43 +321,6 @@
             </h2>
             <div id="accordion-validDescription" class="accordion-collapse collapse">
               <div class="accordion-body">
-                <div class="row">
-                  <div class="col-md">
-                    <div class="form-floating input-group">
-                      <input type="text" class="form-control" id="result-single" placeholder="Maximo Description"
-                        disabled readonly>
-                      <label for="result-single">Maximo Description</label>
-                      <button class="btn btn-danger" type="button" id="single-copy"><i
-                          class="material-icons pointer">content_copy</i></button>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md">
-                    <div class="input-group form-floating">
-                      <input type="text" class="form-control" id="result-triple-main" placeholder="JDE Description1"
-                        disabled readonly>
-                      <label for="result-triple-main">JDE Description</label>
-                      <input type="text" class="form-control" id="result-triple-ext1" placeholder="JDE Description2"
-                        disabled readonly>
-                      <input type="text" class="form-control" id="result-triple-ext2" placeholder="JDE Manufacturer"
-                        disabled readonly>
-                      <button class="btn btn-danger" type="button" id="triple-copy"><i
-                          class="material-icons pointer">content_copy</i></button>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md">
-                    <div class="form-floating input-group">
-                      <textarea class="form-control" id="valid-description" placeholder="Analysis" disabled
-                        readonly></textarea>
-                      <label for="valid-description">Analysis</label>
-                      <button id="open-in-browser" class="btn btn-danger" type="button"><i
-                          class="material-icons pointer">cloud_upload</i></button>
-                    </div>
-                  </div>
-                </div>
                 <div class="row">
                   <div class="col-md">
                     <div class="form-floating input-group">
@@ -337,8 +335,8 @@
                 <div class="row">
                   <div class="col-md">
                     <div class="form-floating input-group">
-                      <textarea  class="form-control" id="translation-description"
-                        placeholder="Translation Notes" disabled readonly></textarea>
+                      <textarea class="form-control" id="translation-description" placeholder="Translation Notes"
+                        disabled readonly></textarea>
                       <label for="translation-description">Translation Notes</label>
                       <button class="btn btn-danger" type="button" id="trans-notes"><i id="export-translation"
                           class="material-icons pointer" data-bs-toggle="modal"
@@ -407,8 +405,10 @@
                         <div class="accordion-body">
                           <div class="row">
                             <div class="input-group">
-                              <button class="btn btn-outline-secondary" type="button" id="interactive">Choose File</button>
-                              <input type="text" class="form-control btn-outline-secondary pointer" id="worksheet-path" value="No file chosen" readonly>
+                              <button class="btn btn-outline-secondary" type="button" id="interactive">Choose
+                                File</button>
+                              <input type="text" class="form-control btn-outline-secondary pointer" id="worksheet-path"
+                                value="No file chosen" readonly>
                               <!-- probably need some kind of handler to override default action id="valid-file"-->
                               <!-- might possibly also need to just emulate it with another button on the left -->
                               <button class="btn btn-outline-secondary" type="button" id="openBatchFile">Open in
@@ -558,7 +558,8 @@
           </div>
           <div class="accordion-item">
             <h2 class="accordion-header">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#imgUpload">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#imgUpload">
                 Image Upload
               </button>
             </h2>
@@ -571,18 +572,21 @@
                 <div class="d-flex justify-content-center">
                   <div class="overflow-auto flex-fill" style="min-height: min-content; max-height: 500px;">
                     <ul class="list-group" id="imgList">
-                      
+
                     </ul>
                   </div>
                 </div>
                 <div class="d-flex mt-1">
                   <ul class="list-group flex-fill">
-                    <li class="list-group-item" id="img-upload-status-text" style="text-align: center;">Select Images to Continue...</li>
+                    <li class="list-group-item" id="img-upload-status-text" style="text-align: center;">Select Images to
+                      Continue...</li>
                   </ul>
                 </div>
                 <div class="d-flex gap-1 mt-1">
-                  <button class="btn btn-secondary flex-fill" id="img-clear-btn" type="button" style="text-align: center;"><strong>Clear</strong></button>
-                  <button class="btn btn-danger flex-fill" id="img-upload-btn" type="button" style="text-align: center;"><strong>Upload</strong></button>
+                  <button class="btn btn-secondary flex-fill" id="img-clear-btn" type="button"
+                    style="text-align: center;"><strong>Clear</strong></button>
+                  <button class="btn btn-danger flex-fill" id="img-upload-btn" type="button"
+                    style="text-align: center;"><strong>Upload</strong></button>
                 </div>
               </div>
             </div>
@@ -599,23 +603,25 @@
                 <div class="d-flex flex-grow-1">Paste a table into the textbox below:</div>
                 <div class="input-group d-flex">
                   <button class="btn btn-danger" type="button" id="batch-paste-btn">Paste</button>
-                  <textarea class ="flex-fill" id="batch-items-textinput" rows="1"></textarea>
+                  <textarea class="flex-fill" id="batch-items-textinput" rows="1"></textarea>
                   <button class="btn btn-danger" type="button" id="batch-copy-headers-btn">Copy Headers</button>
                 </div>
-                  <div class="card">
-                    <div class="overflow-auto flex-fill" style="min-height: min-content; max-height: 500px;">
-                      <div id="batch-items-table-div">
-                      </div>
+                <div class="card">
+                  <div class="overflow-auto flex-fill" style="min-height: min-content; max-height: 500px;">
+                    <div id="batch-items-table-div">
                     </div>
                   </div>
+                </div>
                 <div class="d-flex">
                   <ul class="list-group flex-fill">
                     <li class="list-group-item" id="batch-upload-status-text">Waiting for paste...</li>
                   </ul>
                 </div>
                 <div class="d-flex gap-1">
-                  <button class="btn btn-secondary flex-fill" style="text-align: center;" id="clear-batch-items-btn"><strong>Clear Table</strong></button>
-                  <button class="btn btn-danger flex-fill" style="text-align: center;" id="batch-upload-btn"><strong>Upload Items</strong></button>
+                  <button class="btn btn-secondary flex-fill" style="text-align: center;"
+                    id="clear-batch-items-btn"><strong>Clear Table</strong></button>
+                  <button class="btn btn-danger flex-fill" style="text-align: center;"
+                    id="batch-upload-btn"><strong>Upload Items</strong></button>
                 </div>
                 <div>
                 </div>

@@ -216,12 +216,11 @@ function updateItemInfo(curItemNum){
     let uom = document.getElementById("uom-field");
     let commGroup = document.getElementById("com-group");
     let glclass = document.getElementById("gl-class");
-
-    document.getElementById("item-itemnum").innerHTML=itemnum.value;
-    document.getElementById("item-desc").innerHTML=desc.value;
-    document.getElementById("item-uom").innerHTML=uom.value;
-    document.getElementById("item-commgroup").innerHTML=commGroup.value;
-    document.getElementById("item-glclass").innerHTML=glclass.value;
+    document.getElementById("item-itemnum").value=itemnum.value;
+    document.getElementById("item-desc").value=desc.value;
+    document.getElementById("item-uom").value=uom.value;
+    document.getElementById("item-commgroup").value=commGroup.value;
+    document.getElementById("item-glclass").value=glclass.value;
 
     document.getElementById("confirm-btn").innerHTML = "Upload Item";
     document.getElementById("confirm-btn").disabled = false;

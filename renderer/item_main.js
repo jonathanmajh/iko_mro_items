@@ -147,8 +147,6 @@ document.getElementById("img-upload-btn").addEventListener("click", () => {
 document.getElementById("load-item").addEventListener("click", loadItem);
 document.getElementById("valid-single").addEventListener("click", () => {validSingle()});
 document.getElementById("valid-single-ext").addEventListener("click", () => {validSingle(true)});
-document.getElementById("single-copy").addEventListener("click", () => { copyResult('single'); });
-document.getElementById("triple-copy").addEventListener("click", () => { copyResult('triple'); });
 document.getElementById("settings").addEventListener("click", openSettings);
 document.getElementById("topButton").addEventListener("click", toTop);
 document.getElementById("endButton").addEventListener("click", toEnd);
@@ -159,28 +157,12 @@ document.getElementById("pauseAuto").addEventListener("click", pauseAuto);
 document.getElementById("save-desc").addEventListener("click", writeDescription);
 document.getElementById("save-num").addEventListener("click", writeItemNum);
 document.getElementById("skip-row").addEventListener("click", skipRow);
-document.getElementById("open-in-browser").addEventListener("click", () => {
-    
-    let confirmModal = new bootstrap.Modal(document.getElementById("confirmModal"));
-
-    if(!(
-        document.getElementById("maximo-desc").reportValidity() &&
-        document.getElementById("uom-field").reportValidity() &&
-        document.getElementById("com-group").reportValidity() &&
-        document.getElementById("gl-class").reportValidity()
-    )){
-        return;
-    }
-
-    confirmModal.toggle();
-    getNextNumThenUpdate(document.getElementById("num-type").value);
-});
 document.getElementById("continueAuto").addEventListener("click", continueAuto);
 document.getElementById("confirm-btn").addEventListener("click", () => {uploadItem();});
 document.getElementById("upload-btn").addEventListener("click",() => {
     
     let confirmModal = new bootstrap.Modal(document.getElementById("confirmModal"));
-
+    confirmModal.toggle();
     if(!(
         document.getElementById("maximo-desc").reportValidity() &&
         document.getElementById("uom-field").reportValidity() &&
@@ -189,7 +171,7 @@ document.getElementById("upload-btn").addEventListener("click",() => {
     )){
         return;
     }
-
+    ItemAnalysis();
     confirmModal.toggle();
     getNextNumThenUpdate(document.getElementById("num-type").value);
 });
@@ -271,13 +253,6 @@ document.getElementById("interact-num").addEventListener("keyup", function (even
     }
 });
 
-// listener for general click events on icons
-document.getElementById("accordion-validDescription").addEventListener('shown.bs.collapse', (event) => {
-    document.getElementById("validate-badge").innerHTML = "";
-    auto_grow('valid-description');
-    auto_grow('translation-description');
-});
-
 function pauseAuto() {
     document.getElementById("modeSelect").checked = true;
 }
@@ -290,6 +265,7 @@ function loadItem() {
 }
 
 function auto_grow(elementID) {
+    debugger;
     const element = document.getElementById(elementID);
     element.style.height = "5px";
     element.style.height = (element.scrollHeight)+"px";
@@ -525,6 +501,8 @@ async function uploadItem(){
         item.longdescription = document.getElementById("long-desc").value;
     }
 
+
+
     worker.work(['uploadItems',[item]], (e) => {
         document.getElementById("error").innerHTML = "Upload Success"
         document.getElementById("confirm-btn").innerHTML = "Upload Item";
@@ -710,11 +688,6 @@ function showResult(result, isExtended=false) {
     triDesc.value = result[0][1];
     triDesc = document.getElementById('result-triple-ext2');
     triDesc.value = result[0][2];
-    triDesc = document.getElementById('result-single');
-    triDesc.value = result[0][3];
-    // triDesc = new bootstrap.Collapse(document.getElementById('accordion-validDescription'), { toggle: false });
-    // triDesc.show();
-    // showing badge instead of auto opening
     const related = document.getElementById("relatedSelect").checked;
     const translate = document.getElementById("translateSelect").checked;
     calcConfidence(result[0][3]);
@@ -725,7 +698,19 @@ function showResult(result, isExtended=false) {
     if (related) {
         findRelated(result[0],isExtended);
     }
+}
 
+async function ItemAnalysis() {
+    const valid = new Validate();
+    let raw_desc = document.getElementById("maximo-desc").value;
+    let result = await valid.validateSingle(raw_desc);
+    let triDesc = document.getElementById('result-triple-main');
+    triDesc.value = result[0];
+    triDesc = document.getElementById('result-triple-ext1');
+    triDesc.value = result[1];
+    triDesc = document.getElementById('result-triple-ext2');
+    triDesc.value = result[2];
+    calcConfidence(result[3]);
 }
 
 function findRelated(result, isExtended=false) {
@@ -817,7 +802,6 @@ function calcConfidence(data) {
             }
         }
         document.getElementById('valid-description').value = result.trim();
-        auto_grow('valid-description');
     } else {
         new Toast('Blank Description');
     }
