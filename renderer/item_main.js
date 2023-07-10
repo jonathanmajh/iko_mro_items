@@ -162,7 +162,6 @@ document.getElementById("confirm-btn").addEventListener("click", () => {uploadIt
 document.getElementById("upload-btn").addEventListener("click",() => {
     
     let confirmModal = new bootstrap.Modal(document.getElementById("confirmModal"));
-    confirmModal.toggle();
     if(!(
         document.getElementById("maximo-desc").reportValidity() &&
         document.getElementById("uom-field").reportValidity() &&
