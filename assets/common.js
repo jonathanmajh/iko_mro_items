@@ -226,6 +226,20 @@ function updateItemInfo(curItemNum){
     document.getElementById("confirm-btn").disabled = false;
 }
 
+function poppulateModal()
+{
+    let desc = document.getElementById("maximo-desc");
+    let uom = document.getElementById("uom-field");
+    let commGroup = document.getElementById("com-group");
+    let glclass = document.getElementById("gl-class");
+   
+    document.getElementById("item-descr").value=desc.value;
+    document.getElementById("issue-unit").value=uom.value;
+    document.getElementById("comm-grp").value=commGroup.value;
+    document.getElementById("gl-class").value=glclass.value;
+
+}
+
 function sanitizeString(str){
     let badChars = ['<','>'];
     for(const badChar of badChars){

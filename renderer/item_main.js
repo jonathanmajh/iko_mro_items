@@ -1,6 +1,9 @@
 const { clipboard, ipcRenderer, shell } = require('electron');
+const fs = require('fs');
+const path = require('path');
 // const { dialog } = require('electron').remote;
 const Database = require('../assets/indexDB');
+const SharedDatabase = require('../assets/sharedDB');
 const Validate = require('../assets/validators');
 let itemsToUpload = [];
 let imgsToUpload = [];
@@ -20,6 +23,192 @@ let relatedResults = {
 window.onload = function() {
     document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
 }
+
+//power mode
+document.getElementById("secret-button").addEventListener('click',(e) => {
+ 
+    let isPowerUser = false;
+    let numClicks = parseInt(e.target.getAttribute('data-clicks'));
+
+    numClicks++;
+    console.log(numClicks);
+
+    if(numClicks === 5){
+        //dostuff;
+        isPowerUser = true; 
+        e.target.setAttribute('data-clicks','0');
+    }
+    else{
+        e.target.setAttribute('data-clicks',`${numClicks}`);
+        isPowerUser = false;
+    } 
+//toggle button display
+    if (isPowerUser == true) {
+        document.getElementById("upload-btn").style.display = "block";
+        document.getElementById("request-btn").style.display = "none"; 
+    }
+    else {
+        document.getElementById("upload-btn").style.display = "none";
+        document.getElementById("request-btn").style.display = "block"; 
+    }
+});
+
+//Request button
+document.getElementById("request-btn").addEventListener('click',() => {
+
+    let requestModal = new bootstrap.Modal(document.getElementById("requestModal"));
+    requestModal.toggle();
+
+//Code to Allow conditional input of manufacturer name
+document.getElementById("manu-name").addEventListener('click',() => {
+
+    let manufacValue = document.getElementById("manu-name");
+    let selectedVal = manufacValue.options[manufacValue.selectedIndex].text;
+    if(selectedVal == "Other")
+    {
+        document.getElementById("pref-manu").style.display = "block";
+    }
+    else 
+    {
+        document.getElementById("pref-manu").style.display = "none";
+    }   
+})
+
+//Populating the modal:
+poppulateModal();
+
+//download email file when submit button is pressed
+
+ document.getElementById("submit-btn").addEventListener('click',(e) => {
+//checking required fields are filled
+    if(!(document.getElementById("part-num").reportValidity()&&
+        document.getElementById("storeroom").reportValidity()&&
+        document.getElementById("item-descr").reportValidity()))
+    {
+        console.log("Required fields still empty");
+        return;
+    }
+
+    var textFile = null,
+    makeTextFile = function (text) {
+      var data = new Blob([text], {type: 'text/html'});
+  
+      if (textFile !== null) {
+        window.URL.revokeObjectURL(textFile);
+      }
+  
+      textFile = window.URL.createObjectURL(data);
+  
+      return textFile;
+    };
+
+    let desc = document.getElementById("maximo-desc");
+    let uom = document.getElementById("uom-field");
+    let commGroup = document.getElementById("com-group");
+    let glclass = document.getElementById("gl-class");
+    let num = document.getElementById("number-type");
+    let store = document.getElementById("storeroom");
+    let ven = document.getElementById("ven-num");
+    let cat = document.getElementById("cat-num");
+    let manu = document.getElementById("manu-name");
+    let pref = document.getElementById("pref-manu");
+    let part = document.getElementById("part-num");
+    let asset = document.getElementById("asset-num");
+    let web = document.getElementById("web-link");
+    
+    let mail = makeTextFile(
+        `<textarea id="textbox" cols="2" rows="13" style="display: none">
+To: Maximo Item request <maximo.item@iko.com>
+Subject: Item request
+X-Unsent: 1
+Content-Type: text/html; boundary=--boundary_text_string 
+
+<html>
+   <h2>Item Request</h2> 
+   <table>
+    <tr style="border: 0.01cm solid black;">
+      <td style="border: 0.01cm solid black;">Item number type:</td>
+      <td id="number-type2" style="border: 0.01cm solid black;">${num.value}XXXXX</td>
+    </tr>
+    <tr style="border: 0.01cm solid black;">
+      <td style="border: 0.01cm solid black;">Item description:</td>
+      <td id="item-descr2" style="border: 0.01cm solid black;">${desc.value}</td>
+    </tr>
+    <tr style="border: 0.01cm solid black;">
+      <td style="border: 0.01cm solid black;">Commodity group:</td>
+      <td id="comm-grp2" style="border: 0.01cm solid black;">${commGroup.value}</td>
+    </tr>
+    <tr style="border: 0.01cm solid black;">
+      <td style="border: 0.01cm solid black;">Issue Unit:</td>
+      <td id="issue-unit2" style="border: 0.01cm solid black;">${uom.value}</td>
+    </tr>
+    <tr style="border: 0.01cm solid black;">
+      <td style="border: 0.01cm solid black;">GL class:</td>
+      <td id="gl-class2" style="border: 0.01cm solid black;">${glclass.value}</td>
+    </tr>
+    <tr style="border: 0.01cm solid black;">
+      <td style="border: 0.01cm solid black;">Storeroom:</td>
+      <td id="storeroom2" style="border: 0.01cm solid black;">${store.value}</td>
+    </tr>
+    <tr style="border: 0.01cm solid black;">
+      <td style="border: 0.01cm solid black;">Vendor number:</td>
+      <td id="ven-num2" style="border: 0.01cm solid black;">${ven.value}</td>
+    </tr>
+    <tr style="border: 0.01cm solid black;">
+      <td style="border: 0.01cm solid black;">Catalog number:</td>
+      <td id="cat-num2" style="border: 0.01cm solid black;">${cat.value}</td>
+    </tr>
+    <tr style="border: 0.01cm solid black;">
+      <td style="border: 0.01cm solid black;">Manufacturer type:</td>
+      <td id="manu-type2" style="border: 0.01cm solid black;">${manu.value}</td>
+    </tr>
+    <tr style="border: 0.01cm solid black;">
+      <td style="border: 0.01cm solid black;">Manufacturer name:</td>
+      <td id="manu-name2" style="border: 0.01cm solid black;">${pref.value}</td>
+    </tr>
+    <tr style="border: 0.01cm solid black;">
+      <td style="border: 0.01cm solid black;">Part number:</td>
+      <td id="part-num2" style="border: 0.01cm solid black;">${part.value}</td>
+    </tr>
+    <tr style="border: 0.01cm solid black;">
+      <td style="border: 0.01cm solid black;">Spare parts asset number:</td>
+      <td id="asset-num2" style="border: 0.01cm solid black;">${asset.value}</td>
+    </tr>
+    <tr style="border: 0.01cm solid black;">
+      <td style="border: 0.01cm solid black;">Website link:</td>
+      <td id="web-link2" style="border: 0.01cm solid black;">${web.value}</td>
+    </tr>
+  </table>
+  </html>
+ </textarea>`);
+    console.log(mail);
+    const blobUrl = mail;  // store blob url here
+    const pathToFile = path.resolve(__dirname, 'downloadedFile.eml');
+//fetching blobUrl from where it is stored
+  fetch(blobUrl)
+    .then(res => res.blob())
+    .then(blob => {
+    //use filereader to convert blob URL into a data URL (base64 encoded)
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64data = reader.result.split(',')[1]; // get the base64 encoded data
+        //write the base 64 to a file path using fs
+        fs.writeFile(pathToFile, base64data, {encoding: 'base64'}, (err) => {
+          if (err) {
+            console.error(`Error writing file: ${err}`);
+          } else {
+            //open the email in default application
+            shell.openPath(pathToFile);
+          }
+        });
+      }
+      reader.readAsDataURL(blob);
+    })
+    .catch(err => console.error(`Error fetching blob: ${err}`));
+
+  }, false);
+});
+
 
 //Infinite scroll
 document.getElementById("everything").addEventListener('scroll',()=>{
@@ -77,7 +266,7 @@ document.getElementById("imgInput").addEventListener("change", async (e) => {
     document.getElementById("img-upload-status-text").innerHTML = `<a href=${url} id="imgs-link">Selected Items:</a>`;
     document.getElementById("imgs-link").addEventListener('click', function (e) {
         e.preventDefault();
-        shell.openExternal(url);
+        shell.openFile(url);
     });
 
     progressBar.update(100,'Ready to Upload!');
@@ -175,6 +364,7 @@ document.getElementById("upload-btn").addEventListener("click",() => {
     confirmModal.toggle();
     getNextNumThenUpdate(document.getElementById("num-type").value);
 });
+
 
 //batch upload:
 document.getElementById("openBatchFile").addEventListener("click", () => {openFile("worksheet-path")});
@@ -969,4 +1159,3 @@ function copyResult(copy) {
         new Toast('Triple Description Copied to Clipboard!');
     }
 }
-
