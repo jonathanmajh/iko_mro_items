@@ -198,7 +198,7 @@ document.getElementById("batch-copy-nums").addEventListener("click", () => {
         navigator.clipboard.writeText(nums);
         new Toast('Item Numbers Copied to Clipboard!');
     } catch (error){
-        console.log(error);
+        //console.log(error);
         new Toast('Unable to copy numbers, please check table formatting!');
     }
 
@@ -578,7 +578,6 @@ async function batchUploadItems(items){
  *
  */
 function updateItemNums(arr){
-    console.log(arr)
     for(const pair of arr){
         let num = pair[0];
         let itemindex = pair[1];
