@@ -165,7 +165,6 @@ class Maximo {
     async getCurItemNumber(numSeries) {
         let response;
         try {
-            // get latest 91* number (will need to be updated to 92 after 200k items have been created in Maximo)
             // %25 is %
             response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=status="active" and itemnum="${numSeries}%25"&_lid=${this.login.userid}&_lpwd=${this.login.password}&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum`, {
                 headers: {

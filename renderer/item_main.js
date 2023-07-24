@@ -446,9 +446,9 @@ function getItemsFromTable(tableId) {
     let invalidItems=0;
     for(let i=2; i<=rows; i++){
         let desc = sanitizeString(document.getElementById(i + "-"+colLoc.description).innerHTML);
-        let uom = sanitizeString(document.getElementById(i+"-"+colLoc.uom).innerHTML);
+        let uom = sanitizeString(document.getElementById(i+"-"+colLoc.uom).innerHTML).toUpperCase();
         let commGroup = sanitizeString(document.getElementById(i+"-"+colLoc.commGroup).innerHTML);
-        let glclass = sanitizeString(document.getElementById(i+"-"+colLoc.glClass).innerHTML);
+        let glclass = sanitizeString(document.getElementById(i+"-"+colLoc.glClass).innerHTML).toUpperCase();
         let maximo = sanitizeString(document.getElementById(i+"-"+colLoc.maximo).innerHTML);
 
         //if all required parameters are not available, don't create the item and move to next row
