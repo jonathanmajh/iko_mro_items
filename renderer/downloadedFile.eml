@@ -29,7 +29,7 @@ Content-Type: text/html; boundary=--boundary_text_string
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Storeroom:</td>
-      <td id="storeroom2" style="border: 0.01cm solid black;">fsdf</td>
+      <td id="storeroom2" style="border: 0.01cm solid black;">AAG</td>
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Vendor number:</td>
@@ -49,7 +49,7 @@ Content-Type: text/html; boundary=--boundary_text_string
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Part number:</td>
-      <td id="part-num2" style="border: 0.01cm solid black;">sfds</td>
+      <td id="part-num2" style="border: 0.01cm solid black;">DFSF</td>
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Spare parts asset number:</td>

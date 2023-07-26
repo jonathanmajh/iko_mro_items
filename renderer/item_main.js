@@ -46,10 +46,12 @@ document.getElementById("secret-button").addEventListener('click',(e) => {
     if (isPowerUser == true) {
         document.getElementById("upload-btn").style.display = "block";
         document.getElementById("request-btn").style.display = "none"; 
+        document.getElementById("batch-upld-btn").style.display = "block";
     }
     else {
         document.getElementById("upload-btn").style.display = "none";
         document.getElementById("request-btn").style.display = "block"; 
+        document.getElementById("batch-upld-btn").style.display = "none";
     }
 });
 
@@ -78,8 +80,8 @@ document.getElementById("manu-name").addEventListener('click',() => {
 poppulateModal();
 
 //download email file when submit button is pressed
-
  document.getElementById("submit-btn").addEventListener('click',(e) => {
+
 //checking required fields are filled
     if(!(document.getElementById("part-num").reportValidity()&&
         document.getElementById("storeroom").reportValidity()&&
