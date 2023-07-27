@@ -1,4 +1,6 @@
 const { clipboard, ipcRenderer, shell } = require('electron');
+const natural = require('natural');
+const PorterStemmer = natural.PorterStemmer;
 // const { dialog } = require('electron').remote;
 const Database = require('../assets/indexDB');
 const Validate = require('../assets/validators');
@@ -674,8 +676,11 @@ function validSingle(isExtended = false) {
     let bar = new ProgressBar();
     bar.update(0, 'Starting Item Description Validation');
     let raw_desc = document.getElementById("maximo-desc").value;
+    const tokens = raw_desc.split(' ');
+    const stemmedTokens = tokens.map(token => PorterStemmer.stem(token));
+    let newDesc = stemmedTokens.join(' ');
     const worker = new WorkerHandler();
-    worker.work(['validSingle', raw_desc], (result) => {
+    worker.work(['validSingle', newDesc], (result) => {
         showResult(result, isExtended)
     });
 }
