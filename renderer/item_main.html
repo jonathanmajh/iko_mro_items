@@ -150,43 +150,6 @@
                     <div class="form-floating input-group">
                       <select class="form-select" id="storeroom" required>
                         <option value="">Select Storeroom</option>
-                        <option value="AAG">AAG: Brampton B2 Storeroom</option>
-                        <option value="AAL">AAL: Brampton B2/B4 Maintenance Storeroom</option>
-                        <option value="AAO">AAO: Brampton B4 Oxidizer Storeroom</option>
-                        <option value="AN1">AN1: Antwerp Mod Line Storeroom</option>
-                        <option value="AN2">AN2: Antwerp Coating Line Storeroom</option>
-                        <option value="BAL">BAL: IKO Calgary Maintenance Storeroom</option>
-                        <option value="BLC">BLC: Hagerstown TPO Storeroom</option>
-                        <option value="BLD">BLD: Hagerstown ISO Storeroom</option>
-                        <option value="BLL">BLL: Hagerstown Maintenance Storeroom(Shared)</option>
-                        <option value="CAL">IKO Kankakee Maintenance Storeroom</option>
-                        <option value="C61">IKO Appley Bridge Maintenance Storeroom</option>
-                        <option value="CB1">Combronde Maintenance Storeroom</option>
-                        <option value="GAL">IKO Wilmington Maintenance Storeroom</option>
-                        <option value="GCA">Sumas Shipping Storeroom</option>
-                        <option value="GCD">Sumas Shingle Storeroom</option>
-                        <option value="GCG">Sumas Mod Line Storeroom</option>
-                        <option value="GCJ">Sumas Crusher Storeroom</option>
-                        <option value="GCK">Sumas Tank Farm Storeroom</option>
-                        <option value="GCL">Sumas Maintenance Storeroom</option>
-                        <option value="GEL">Ashcroft Maintenance Storeroom</option>
-                        <option value="GHL">IKO Hawkesbury Maintenance Storeroom</option>
-                        <option value="GIL">IKO Madoc Maintenance Storeroom</option>
-                        <option value="GJL">CRC Toronto Maintenance Storeroom</option>
-                        <option value="GKA">IG Brampton B7 and B8 Storeroom</option>
-                        <option value="GKC">IG Brampton B6 and Laminator Storeroom</option>
-                        <option value="GKL">IG Brampton Maintenance Storeroom</option>
-                        <option value="GML">IG High River Maintenance Storeroom</option>
-                        <option value="GPL">CRC Brampton Maintenance Storeroom</option>
-                        <option value="GRL">Bramcal Maintenance Storeroom</option>
-                        <option value="GSL">Sylacauga Maintenance Storeroom</option>
-                        <option value="GVL">IKO Hillsboro Maintenance Storeroom</option>
-                        <option value="GXL">Maxi-Mix Maintenance Storeroom</option>
-                        <option value="KD1">IKO Klundert Maintenance Storeroom</option>
-                        <option value="KD2">IKO Klundert Lab Storeroom</option>
-                        <option value="KD3">IKO Klundert Logistics Storeroom</option>
-                        <option value="PB6">Slovakia Maintenance Storeroom</option>
-                        <option value="RA6">IKO Alconbury Maintenance Storeroom</option>
                       </select>
                       <label for="storeroom">Storeroom*</label>
                     </div>
@@ -225,10 +188,10 @@
                   </div>
                 </div>
 
-                <div class="row">
+                <div class="row" id="part-form"  style="display: none;">
                   <div class="col-md">
                     <div class="form-floating input-group">
-                      <input type="text" class="form-control" id="part-num" required>
+                      <input type="text" class="form-control" id="part-num" style="display: block;" required>
                       <label for="part-num">Preferred Manufacturer Part Number*</label>
                     </div>
                   </div>

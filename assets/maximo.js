@@ -210,12 +210,15 @@ class Maximo {
             postMessage(['result', 1, content["Error"]["message"]]);
             return false;
         } else {
+            let userSite = content['insertSite'];
+            let siteID = userSite,
+                status = true;
             this.shareDB.savePassword(userid, password);
             this.login.password = password;
             this.login.userid = userid;
             postMessage(['debug', `Successfully logged in to Maximo as: ${content.displayName}`]);
             postMessage(['result', 0, 'Successfully logged in to Maximo']);
-            return true;
+            return {siteID, status};
         }
     }
 

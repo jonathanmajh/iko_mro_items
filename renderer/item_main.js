@@ -5,6 +5,7 @@ const path = require('path');
 const Database = require('../assets/indexDB');
 const SharedDatabase = require('../assets/sharedDB');
 const Validate = require('../assets/validators');
+const Maximo = require('../assets/maximo');
 let itemsToUpload = [];
 let imgsToUpload = [];
 let colLoc = {
@@ -24,7 +25,7 @@ window.onload = function() {
     document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
 }
 
-//power mode
+//power user toggle
 document.getElementById("secret-button").addEventListener('click',(e) => {
  
     let isPowerUser = false;
@@ -34,7 +35,6 @@ document.getElementById("secret-button").addEventListener('click',(e) => {
     console.log(numClicks);
 
     if(numClicks === 5){
-        //dostuff;
         isPowerUser = true; 
         e.target.setAttribute('data-clicks','0');
     }
@@ -42,7 +42,7 @@ document.getElementById("secret-button").addEventListener('click',(e) => {
         e.target.setAttribute('data-clicks',`${numClicks}`);
         isPowerUser = false;
     } 
-//toggle button display
+//toggle button display based off of power user status
     if (isPowerUser == true) {
         document.getElementById("upload-btn").style.display = "block";
         document.getElementById("request-btn").style.display = "none"; 
@@ -55,13 +55,74 @@ document.getElementById("secret-button").addEventListener('click',(e) => {
     }
 });
 
-//Request button
+//gets user site information
+async function getSite(credentials = {}) {
+    const maximo = new Maximo();
+    const currInfo = await maximo.checkLogin(credentials?.userid, credentials?.password);
+    return currInfo.siteID;
+}
+
+//Request item
 document.getElementById("request-btn").addEventListener('click',() => {
 
     let requestModal = new bootstrap.Modal(document.getElementById("requestModal"));
     requestModal.toggle();
+        
+        let currPass = new SharedDatabase().getPassword(),
+            userid = currPass.userid;
+            let siteID;
 
-//Code to Allow conditional input of manufacturer name
+            const sites = {
+                'AA': ['AAG: Brampton B2 Storeroom', 'AAL: Brampton B2/B4 Maintenance Storeroom', 'AAO: Brampton B4 Oxidizer Storeroom'],
+                'ANT': ['AN1: Antwerp Mod Line Storeroom', 'AN2: Antwerp Coating Line Storeroom'],
+                'BA': ['BAL: IKO Calgary Maintenance Storeroom'],
+                'BL': ['BLC: Hagerstown TPO Storeroom', 'BLD: Hagerstown ISO Storeroom', 'BLL: Hagerstown Maintenance Storeroom(Shared)'],
+                'CA': ['CAL">IKO Kankakee Maintenance Storeroom'],
+                'CAM': ['C61">IKO Appley Bridge Maintenance Storeroom'],
+                'COM': ['CB1">Combronde Maintenance Storeroom'],
+                'GA': ['GAL: IKO Wilmington Maintenance Storeroom'],
+                'GC': ['GCL: Sumas Maintenance Storeroom', 'GCA: Sumas Shipping Storeroom', 'GCD: Sumas Shingle Storeroom', 'GCG: Sumas Mod Line Storeroom', 'GCJ: Sumas Crusher Storeroom', 'GCK: Sumas Tank Farm Storeroom'],
+                'GE': ['GEL: Ashcroft Maintenance Storeroom'],
+                'GH': ['GHL: IKO Hawkesbury Maintenance Storeroom'],
+                'GI': ['GIL: IKO Madoc Maintenance Storeroom'],
+                'GJ': ['GJL: CRC Toronto Maintenance Storeroom'],
+                'GK': ['GKA: IG Brampton B7 and B8 Storeroom', 'GKC: IG Brampton B6 and Laminator Storeroom', 'GKL: IG Brampton Maintenance Storeroom'],
+                'GM': ['GML: IG High River Maintenance Storeroom'],
+                'GP': ['GPL: CRC Brampton Maintenance Storeroom'],
+                'GR': ['GRL: Bramcal Maintenance Storeroom'],
+                'GS': ['GSL: Sylacauga Maintenance Storeroom'],
+                'GV': ['GVL: IKO Hillsboro Maintenance Storeroom'],
+                'GX': ['GXL: Maxi-Mix Maintenance Storeroom'],
+                'KLU': ['KD1: IKO Klundert Maintenance Storeroom', 'KD2: IKO Klundert Lab Storeroom', 'KD3: IKO Klundert Logistics Storeroom'],
+                'PBM': ['PB6: Slovakia Maintenance Storeroom'],
+                'RAM': ['RA6: IKO Alconbury Maintenance Storeroom']
+                // Add more sites and storerooms as needed...
+            };
+
+        const userSite = getSite({userid: userid, password: currPass.password});
+        userSite.then(response => {
+            siteID = response;
+
+            const storeroomSelect = document.getElementById('storeroom');
+            //poppulate correct user storerooms in modal
+            function updateStoreroomOptions() {
+
+                storeroomSelect.options.length = 1;
+
+                // Add new options
+                const neededStorerooms = sites[siteID];
+                for (const storeroom of neededStorerooms) {
+                    const option = document.createElement('option');
+                    option.value = storeroom;
+                    option.text = storeroom;
+                    storeroomSelect.add(option);
+                }
+            }
+            updateStoreroomOptions();
+        })
+        .catch(error => console.error(`Error: ${error}`));
+
+//Allow input of manufacturer name & part number if "Other" is selected
 document.getElementById("manu-name").addEventListener('click',() => {
 
     let manufacValue = document.getElementById("manu-name");
@@ -69,59 +130,50 @@ document.getElementById("manu-name").addEventListener('click',() => {
     if(selectedVal == "Other")
     {
         document.getElementById("pref-manu").style.display = "block";
+        document.getElementById("part-form").style.display = "block";
     }
     else 
     {
         document.getElementById("pref-manu").style.display = "none";
+        document.getElementById("part-form").style.display = "none";
     }   
 })
 
-//Populating the modal:
 poppulateModal();
 
 //download email file when submit button is pressed
  document.getElementById("submit-btn").addEventListener('click',(e) => {
 
 //checking required fields are filled
+if(document.getElementById("manu-name").value == "Other") {
+  
     if(!(document.getElementById("part-num").reportValidity()&&
         document.getElementById("storeroom").reportValidity()&&
-        document.getElementById("item-descr").reportValidity()))
+        document.getElementById("item-descr").reportValidity()))    
     {
         console.log("Required fields still empty");
         return;
     }
+}
+else {
 
-    var textFile = null,
-    makeTextFile = function (text) {
-      var data = new Blob([text], {type: 'text/html'});
-  
-      if (textFile !== null) {
-        window.URL.revokeObjectURL(textFile);
-      }
-  
-      textFile = window.URL.createObjectURL(data);
-  
-      return textFile;
-    };
-
-    let desc = document.getElementById("maximo-desc");
-    let uom = document.getElementById("uom-field");
-    let commGroup = document.getElementById("com-group");
-    let glclass = document.getElementById("gl-class");
-    let num = document.getElementById("number-type");
-    let store = document.getElementById("storeroom");
-    let ven = document.getElementById("ven-num");
-    let cat = document.getElementById("cat-num");
-    let manu = document.getElementById("manu-name");
-    let pref = document.getElementById("pref-manu");
-    let part = document.getElementById("part-num");
-    let asset = document.getElementById("asset-num");
-    let web = document.getElementById("web-link");
-    
-    let mail = makeTextFile(
+    if(!(document.getElementById("storeroom").reportValidity()&&
+        document.getElementById("item-descr").reportValidity()))    
+    {
+        console.log("Required fields still empty");
+        return;
+    }
+}
+//storing current date and time for email subject
+    const currentdate = new Date();
+    var datetime = currentdate.getDay() + "/" + currentdate.getMonth() 
++ "/" + currentdate.getFullYear() + " @ " 
++ currentdate.getHours() + ":" 
++ currentdate.getMinutes() + ":" + currentdate.getSeconds();
+    let mailText = 
         `<textarea id="textbox" cols="2" rows="13" style="display: none">
 To: Maximo Item request <maximo.item@iko.com>
-Subject: Item request
+Subject: Item request ${datetime}
 X-Unsent: 1
 Content-Type: text/html; boundary=--boundary_text_string 
 
@@ -130,84 +182,63 @@ Content-Type: text/html; boundary=--boundary_text_string
    <table>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Item number type:</td>
-      <td id="number-type2" style="border: 0.01cm solid black;">${num.value}XXXXX</td>
+      <td id="number-type2" style="border: 0.01cm solid black;">${document.getElementById("number-type").value}XXXXX</td>
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Item description:</td>
-      <td id="item-descr2" style="border: 0.01cm solid black;">${desc.value}</td>
+      <td id="item-descr2" style="border: 0.01cm solid black;">${document.getElementById("maximo-desc").value}</td>
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Commodity group:</td>
-      <td id="comm-grp2" style="border: 0.01cm solid black;">${commGroup.value}</td>
+      <td id="comm-grp2" style="border: 0.01cm solid black;">${document.getElementById("com-group").value}</td>
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Issue Unit:</td>
-      <td id="issue-unit2" style="border: 0.01cm solid black;">${uom.value}</td>
+      <td id="issue-unit2" style="border: 0.01cm solid black;">${document.getElementById("uom-field").value}</td>
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">GL class:</td>
-      <td id="gl-class2" style="border: 0.01cm solid black;">${glclass.value}</td>
+      <td id="gl-class2" style="border: 0.01cm solid black;">${document.getElementById("gl-class").value}</td>
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Storeroom:</td>
-      <td id="storeroom2" style="border: 0.01cm solid black;">${store.value}</td>
+      <td id="storeroom2" style="border: 0.01cm solid black;">${document.getElementById("storeroom").value}</td>
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Vendor number:</td>
-      <td id="ven-num2" style="border: 0.01cm solid black;">${ven.value}</td>
+      <td id="ven-num2" style="border: 0.01cm solid black;">${document.getElementById("ven-num").value}</td>
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Catalog number:</td>
-      <td id="cat-num2" style="border: 0.01cm solid black;">${cat.value}</td>
+      <td id="cat-num2" style="border: 0.01cm solid black;">${document.getElementById("cat-num").value}</td>
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Manufacturer type:</td>
-      <td id="manu-type2" style="border: 0.01cm solid black;">${manu.value}</td>
+      <td id="manu-type2" style="border: 0.01cm solid black;">${document.getElementById("manu-name").value}</td>
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Manufacturer name:</td>
-      <td id="manu-name2" style="border: 0.01cm solid black;">${pref.value}</td>
+      <td id="manu-name2" style="border: 0.01cm solid black;">${document.getElementById("pref-manu").value}</td>
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Part number:</td>
-      <td id="part-num2" style="border: 0.01cm solid black;">${part.value}</td>
+      <td id="part-num2" style="border: 0.01cm solid black;">${document.getElementById("part-num").value}</td>
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Spare parts asset number:</td>
-      <td id="asset-num2" style="border: 0.01cm solid black;">${asset.value}</td>
+      <td id="asset-num2" style="border: 0.01cm solid black;">${document.getElementById("asset-num").value}</td>
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Website link:</td>
-      <td id="web-link2" style="border: 0.01cm solid black;">${web.value}</td>
+      <td id="web-link2" style="border: 0.01cm solid black;">${document.getElementById("web-link").value}</td>
     </tr>
   </table>
   </html>
- </textarea>`);
-    console.log(mail);
-    const blobUrl = mail;  // store blob url here
-    const pathToFile = path.resolve(__dirname, 'downloadedFile.eml');
-//fetching blobUrl from where it is stored
-  fetch(blobUrl)
-    .then(res => res.blob())
-    .then(blob => {
-    //use filereader to convert blob URL into a data URL (base64 encoded)
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64data = reader.result.split(',')[1]; // get the base64 encoded data
-        //write the base 64 to a file path using fs
-        fs.writeFile(pathToFile, base64data, {encoding: 'base64'}, (err) => {
-          if (err) {
-            console.error(`Error writing file: ${err}`);
-          } else {
-            //open the email in default application
-            shell.openPath(pathToFile);
-          }
-        });
-      }
-      reader.readAsDataURL(blob);
-    })
-    .catch(err => console.error(`Error fetching blob: ${err}`));
+ </textarea>`;
 
+ //Send string to main process to write file
+ipcRenderer.send('write-file', mailText);
+requestModal.toggle();
   }, false);
 });
 

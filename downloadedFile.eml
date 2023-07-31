@@ -1,6 +1,6 @@
 <textarea id="textbox" cols="2" rows="13" style="display: none">
 To: Maximo Item request <maximo.item@iko.com>
-Subject: Item request
+Subject: Item request 1/6/2023 @ 10:43:57
 X-Unsent: 1
 Content-Type: text/html; boundary=--boundary_text_string 
 
@@ -29,7 +29,7 @@ Content-Type: text/html; boundary=--boundary_text_string
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Storeroom:</td>
-      <td id="storeroom2" style="border: 0.01cm solid black;">AN1</td>
+      <td id="storeroom2" style="border: 0.01cm solid black;">GCJ</td>
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Vendor number:</td>
@@ -41,7 +41,7 @@ Content-Type: text/html; boundary=--boundary_text_string
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Manufacturer type:</td>
-      <td id="manu-type2" style="border: 0.01cm solid black;">Other</td>
+      <td id="manu-type2" style="border: 0.01cm solid black;">Unknown</td>
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Manufacturer name:</td>
@@ -49,7 +49,7 @@ Content-Type: text/html; boundary=--boundary_text_string
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Part number:</td>
-      <td id="part-num2" style="border: 0.01cm solid black;">fsdsf</td>
+      <td id="part-num2" style="border: 0.01cm solid black;"></td>
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Spare parts asset number:</td>
