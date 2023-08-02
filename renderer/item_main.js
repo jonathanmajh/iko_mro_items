@@ -47,11 +47,13 @@ document.getElementById("secret-button").addEventListener('click',(e) => {
         document.getElementById("upload-btn").style.display = "block";
         document.getElementById("request-btn").style.display = "none"; 
         document.getElementById("batch-upld-btn").style.display = "block";
+        document.getElementById("img-upld-toggle").style.display = "block";
     }
     else {
         document.getElementById("upload-btn").style.display = "none";
         document.getElementById("request-btn").style.display = "block"; 
         document.getElementById("batch-upld-btn").style.display = "none";
+        document.getElementById("img-upld-toggle").style.display = "none";
     }
 });
 
