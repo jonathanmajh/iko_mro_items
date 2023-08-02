@@ -1,6 +1,6 @@
 {
   "name": "iko_utility",
-  "productName": "IKO Reliability Tool",
+  "productName": "EAM Spare Parts",
   "version": "3.5.0",
   "description": "Tool to help automate various Reliability Processes",
   "main": "main.js",
@@ -35,14 +35,14 @@
   "config": {
     "forge": {
       "packagerConfig": {
-        "icon": "renderer/iko_logo.ico"
+        "icon": "AppIcon.ico"
       },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
             "name": "iko_utility",
-            "setupIcon": "renderer/iko_logo.ico"
+            "setupIcon": "AppIcon.ico"
           }
         },
         {

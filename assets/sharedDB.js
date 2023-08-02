@@ -3,7 +3,7 @@ const { SqliteError } = require('better-sqlite3');
 
 class SharedDatabase {
     constructor() {
-        this.db = new sql(`${process.env.APPDATA}/IKO Reliability Tool/program.db`);//, { verbose: console.log });
+        this.db = new sql(`${process.env.APPDATA}/EAM Spare Parts/program.db`);//, { verbose: console.log });
         let stmt = this.db.prepare('CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY, key TEXT UNIQUE NOT NULL, value TEXT NOT NULL)');
         stmt.run();
     }
