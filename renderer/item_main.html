@@ -15,6 +15,220 @@
 </head>
 
 <body class="d-flex flex-column h-100">
+
+  <!-- popup for requesting items-->
+<div class="modal fade" id="requestModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="requestModalLabel">Request Template</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="row">
+            <div class="col-md">
+              <h6 class="title">Fields marked with "*" are compulsory</h6>
+<!--Input fields-->
+                <div class="row">
+                  <div class="col-md">
+                    <div class="form-floating">
+                      <select class="form-select" id="number-type">
+                        <option selected value="91">9######: Standard MRO</option>
+                        <!-- ^Update this value to 92 after 200k items have been created -->
+                        <option value="98">98#####: IKO Custom</option>
+                        <option value="991">99#####: Supply</option>
+                        <option value="9S">9S#####: Service</option>
+                      </select>
+                      <label for="number-type">Item Type (Series)*</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md">
+                    <div class="form-floating input-group">
+                      <input type="text" class="form-control" id="item-descr" placeholder="Maximo Description" disabled readonly required>
+                      <label for="item-descr">Maximo Description*</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md">
+                    <div class="form-floating">
+                      <select class="form-select" id="comm-grp" disabled readonly>
+                        <option value="">Select Commodity Group</option>
+                        <option value="401">401: Electrical Devices and Components</option>
+                        <option value="402">402: Electrical Accessories (Accessories for the Devices)</option>
+                        <option value="403">403: Tools (Hand Tools, Air/Electric & Tool Attachments)</option>
+                        <option value="404">404: Steel Sections / General Stock Steel</option>
+                        <option value="405">405: Pipes, Hoses, and Related Fittings</option>
+                        <option value="406">406: Fasteners & Accessories, Brackets</option>
+                        <option value="407">407: Sealing Products / Adhesives / Tape</option>
+                        <option value="408">408: Transmission Parts</option>
+                        <option value="409">409: Pneumatic / Hydraulic Components & Accessories</option>
+                        <option value="415">415: Lubricant / Chemical</option>
+                        <option value="420">420: Fire/Safety Products and Supplies</option>
+                        <option value="425">425: Mobile Equipment Parts & Supplies</option>
+                        <option value="430">430: Water Treatment Supplies</option>
+                        <option value="490">490: Plant Supplies</option>
+                        <option value="500">500: Special - Machine Specific Parts</option>
+                        <option value="510">510: Special - Cones & Liners (Granule Plant)</option>
+                        <option value="511">511: Special - Screens (Granule Plant)</option>
+                        <option value="600">600: Raw Material Supplies</option>
+                        <option value="650">650: Non-capitalized Plant Equipment</option>
+                        <option value="860">860: Janitorial</option>
+                        <option value="870">870: Electronic Equipment</option>
+                      </select>
+                      <label for="comm-grp">Commodity Group</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md">
+                    <div class="form-floating">
+                      <select class="form-select" id="issue-unit" disabled readonly>
+                        <option value="EA" selected>EA: Each</option>
+                        <option value="BG">BG: Bag</option>
+                        <option value="BT">BT: Bottle</option>
+                        <option value="BX">BX: Box</option>
+                        <option value="CN">CN: Can</option>
+                        <option value="CS">CS: Case</option>
+                        <option value="DR">DR: Drum</option>
+                        <option value="F2">F2: Feet,Square</option>
+                        <option value="F3">F3: Feet,Cubic</option>
+                        <option value="FT">FT: Feet,Linear</option>
+                        <option value="G">G: Gram</option>
+                        <option value="GA">GA: Gallons</option>
+                        <option value="IN">IN: Inches</option>
+                        <option value="KG">KG: Kilogram</option>
+                        <option value="L">L: Liter</option>
+                        <option value="LB">LB: Pounds</option>
+                        <option value="M">M: Meter,Linear</option>
+                        <option value="M2">M2: Meter,Square</option>
+                        <option value="M3">M3: Meter,Cubic</option>
+                        <option value="PK">PK: Pack</option>
+                        <option value="RL">RL: Roll</option>
+                        <option value="SH">SH: Sheets</option>
+                        <option value="T">T: Metric Tonne (1000kg)</option>
+                        <option value="TN">TN: Ton (2000lbs)</option>
+                        <option value="Y2">Y2: Yard,Square</option>
+                        <option value="YD">YD: Yard</option>
+                      </select>
+                      <label for="issue-unit">Unit of Measure</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md">
+                    <div class="form-floating">
+                      <select class="form-select" id="gl-class-new" disabled readonly>
+                        <option value="">Select GL Class</option>
+                        <option value="BRM">BRM: Building Repair & Maint</option>
+                        <option value="CLL">CLL: Comm Land Lines</option>
+                        <option value="ERM">ERM: Equipment Repair & Maint</option>
+                        <option value="FOL">FOL: Fuel Oil</option>
+                        <option value="HDW">HDW: Hardware (Computer)</option>
+                        <option value="LIC">LIC: Licenses</option>
+                        <option value="OFS">OFS: (Not to use) Office Supplies</option>
+                        <option value="PLM">PLM: Plant Machinery</option>
+                        <option value="PLS">PLS: Plant Supplies</option>
+                        <option value="RME">RME: Plant Auto R&M</option>
+                        <option value="SFS">SFS: Safety Supplies</option>
+                        <option value="WTR">WTR: Water</option>
+                      </select>
+                      <label for="gl-class-new">GL Class</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md">
+                    <div class="form-floating input-group">
+                      <select class="form-select" id="storeroom" required>
+                        <option value="">Select Storeroom</option>
+                      </select>
+                      <label for="storeroom">Storeroom*</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md">
+                    <div class="form-floating input-group">
+                      <input type="text" class="form-control" id="ven-num">
+                      <label for="ven-num">Preferred Vendor Number</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md">
+                    <div class="form-floating input-group">
+                      <input type="text" class="form-control" id="cat-num">
+                      <label for="cat-num">Catalog Number</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md">
+                    <div class="form-floating input-group">
+                      <select class="form-select" id="manu-name">
+                        <option value="N/A">N/A</option>
+                        <option value="Generic">Generic</option>
+                        <option value="Other">Other</option>
+                      </select>   
+                      <label for="manu-name">Preferred Manufacturer</label>
+                    </div>
+                    <input type="text" class="form-control" id="pref-manu" style="display: none" placeholder="Manufacturer Name">
+                  </div>
+                </div>
+
+                <div class="row" id="part-form"  style="display: none;">
+                  <div class="col-md">
+                    <div class="form-floating input-group">
+                      <input type="text" class="form-control" id="part-num" style="display: block;" required>
+                      <label for="part-num">Preferred Manufacturer Part Number*</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md">
+                    <div class="form-floating input-group">
+                      <input type="text" class="form-control" id="asset-num">
+                      <label for="asset-num">Spare Part Asset Number</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md">
+                    <div class="form-floating input-group">
+                      <input type="text" class="form-control" id="web-link">
+                      <label for="web-link">Website link</label>
+                    </div>
+                  </div>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div> 
+      <!--footer buttons and confirmation-->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <a download="request.eml" class="btn btn-danger" id="submit-btn">
+          Submit Request
+        </a>
+      </div>
+    </div>
+  </div>
+</div> 
+
   <!-- popup for uploading items -->
   <div class="modal fade" id="confirmModal" tabindex="-1">
     <div class="modal-dialog modal-xl">
@@ -141,6 +355,7 @@
         </div>
         <h1 class="col">Item Standardizer</h1>
         <div class="col d-flex align-items-center justify-content-end">
+          <i id="secret-button" data-clicks='0' class="material-icons pointer md-size" style="text-align: right; padding-right: 20px; opacity: 0;" >question_mark</i>
           <div class="form-check form-switch" style="padding-right: 20px; padding-top: 2px;">
             <input class="form-check-input" type="checkbox" id="dark-mode-switch" checked>
           </div>
@@ -292,7 +507,7 @@
                 </div>
 
                 <div class="row">
-                  <div class="col-md">
+                  <div class="col-md" style="display: none;">
                     <div class="form-floating">
                       <select class="form-select" name="language" id="selected-language">
                         <option value="nl" selected>Dutch</option>
@@ -304,8 +519,11 @@
                     </div>
                   </div>
                   <div class="col-md d-flex input-group justify-content-center">
-                    <button class="btn btn-danger flex-grow-1" type="button" id="upload-btn">
+                    <button class="btn btn-danger flex-grow-1" style="display: none;" type="button" id="upload-btn">
                       <strong>Upload Item</strong>
+                    </button>
+                    <button class="btn btn-danger flex-grow-1" style="display: block; text-align: center;" type="button" id="request-btn">
+                      <strong>Request Item</strong>
                     </button>
                   </div>
                 </div>
@@ -347,7 +565,7 @@
               </div>
             </div>
           </div>
-          <div class="accordion-item">
+          <div class="accordion-item" id="batch-mode-toggle" style="display: none;">
             <h2 class="accordion-header">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                 data-bs-target="#accordion-batchMode">
@@ -556,7 +774,7 @@
               </div>
             </div>
           </div>
-          <div class="accordion-item">
+          <div class="accordion-item" id="img-upld-toggle" style="display: none;">
             <h2 class="accordion-header">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                 data-bs-target="#imgUpload">
@@ -591,7 +809,7 @@
               </div>
             </div>
           </div>
-          <div class="accordion-item">
+          <div class="accordion-item" id="batch-upld-btn" style="display: none;">
             <h2 class="accordion-header">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                 data-bs-target="#accordion-batchUpload">
