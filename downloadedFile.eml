@@ -1,6 +1,6 @@
 <textarea id="textbox" cols="2" rows="13" style="display: none">
 To: Maximo Item request <maximo.item@iko.com>
-Subject: Item request 1/6/2023 @ 10:43:57
+Subject: Item request 2023/8/4 @ 15:0:57
 X-Unsent: 1
 Content-Type: text/html; boundary=--boundary_text_string 
 
@@ -29,7 +29,7 @@ Content-Type: text/html; boundary=--boundary_text_string
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Storeroom:</td>
-      <td id="storeroom2" style="border: 0.01cm solid black;">GCJ</td>
+      <td id="storeroom2" style="border: 0.01cm solid black;">GCA: Sumas Shipping Storeroom</td>
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Vendor number:</td>
@@ -41,7 +41,7 @@ Content-Type: text/html; boundary=--boundary_text_string
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Manufacturer type:</td>
-      <td id="manu-type2" style="border: 0.01cm solid black;">Unknown</td>
+      <td id="manu-type2" style="border: 0.01cm solid black;">N/A</td>
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Manufacturer name:</td>

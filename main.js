@@ -16,7 +16,20 @@ ipcMain.on('write-file', (event, emailData) => {
     if (err) {
       console.error(`Error writing file: ${err}`);
     } else {
-      shell.openPath(pathToFile);
+      shell.openPath(pathToFile)
+      .then(() => {
+        // Delete the file after opening
+        fs.unlink(pathToFile, (err) => {
+          if (err) {
+            console.error(`Error deleting file: ${err}`);
+          } else {
+            console.log('File deleted successfully');
+          }
+        });
+      })
+      .catch((err) => {
+        console.error(`Error opening file: ${err}`);
+      });
     }
   });
 });

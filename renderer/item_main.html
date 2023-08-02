@@ -125,7 +125,7 @@
                 <div class="row">
                   <div class="col-md">
                     <div class="form-floating">
-                      <select class="form-select" id="gl-class" disabled readonly>
+                      <select class="form-select" id="gl-class-new" disabled readonly>
                         <option value="">Select GL Class</option>
                         <option value="BRM">BRM: Building Repair & Maint</option>
                         <option value="CLL">CLL: Comm Land Lines</option>
@@ -140,7 +140,7 @@
                         <option value="SFS">SFS: Safety Supplies</option>
                         <option value="WTR">WTR: Water</option>
                       </select>
-                      <label for="gl-class">GL Class</label>
+                      <label for="gl-class-new">GL Class</label>
                     </div>
                   </div>
                 </div>
@@ -178,7 +178,7 @@
                   <div class="col-md">
                     <div class="form-floating input-group">
                       <select class="form-select" id="manu-name">
-                        <option value="Unknown">Unknown</option>
+                        <option value="N/A">N/A</option>
                         <option value="Generic">Generic</option>
                         <option value="Other">Other</option>
                       </select>   
@@ -509,7 +509,7 @@
                 <div class="row">
                   <div class="col-md">
                     <div class="form-floating">
-                      <select class="form-select" name="language" id="selected-language">
+                      <select class="form-select" name="language" id="selected-language" style="display: none;">
                         <option value="nl" selected>Dutch</option>
                         <option value="en">English</option>
                         <option value="fr">French</option>
@@ -565,7 +565,7 @@
               </div>
             </div>
           </div>
-          <div class="accordion-item">
+          <div class="accordion-item" id="batch-mode-toggle" style="display: none;">
             <h2 class="accordion-header">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                 data-bs-target="#accordion-batchMode">

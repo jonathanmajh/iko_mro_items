@@ -48,12 +48,14 @@ document.getElementById("secret-button").addEventListener('click',(e) => {
         document.getElementById("request-btn").style.display = "none"; 
         document.getElementById("batch-upld-btn").style.display = "block";
         document.getElementById("img-upld-toggle").style.display = "block";
+        document.getElementById("batch-mode-toggle").style.display = "block";
     }
     else {
         document.getElementById("upload-btn").style.display = "none";
         document.getElementById("request-btn").style.display = "block"; 
         document.getElementById("batch-upld-btn").style.display = "none";
         document.getElementById("img-upld-toggle").style.display = "none";
+        document.getElementById("batch-mode-toggle").style.display = "none";
     }
 });
 
@@ -167,9 +169,9 @@ else {
     }
 }
 //storing current date and time for email subject
-    const currentdate = new Date();
-    var datetime = currentdate.getDay() + "/" + currentdate.getMonth() 
-+ "/" + currentdate.getFullYear() + " @ " 
+    let currentdate = new Date();
+    var datetime = currentdate.getFullYear()+ "/" + (currentdate.getMonth()+1) + "/" + (currentdate.getDay()+1)
++ " @ " 
 + currentdate.getHours() + ":" 
 + currentdate.getMinutes() + ":" + currentdate.getSeconds();
     let mailText = 
@@ -200,7 +202,7 @@ Content-Type: text/html; boundary=--boundary_text_string
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">GL class:</td>
-      <td id="gl-class2" style="border: 0.01cm solid black;">${document.getElementById("gl-class").value}</td>
+      <td id="gl-class2" style="border: 0.01cm solid black;">${document.getElementById("gl-class-new").value}</td>
     </tr>
     <tr style="border: 0.01cm solid black;">
       <td style="border: 0.01cm solid black;">Storeroom:</td>

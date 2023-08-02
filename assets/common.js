@@ -236,7 +236,7 @@ function poppulateModal()
     document.getElementById("item-descr").value=desc.value;
     document.getElementById("issue-unit").value=uom.value;
     document.getElementById("comm-grp").value=commGroup.value;
-    document.getElementById("gl-class").value=glclass.value;
+    document.getElementById("gl-class-new").value=glclass.value;
 
 }
 
