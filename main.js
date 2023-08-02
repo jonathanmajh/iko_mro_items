@@ -17,21 +17,24 @@ ipcMain.on('write-file', (event, emailData) => {
       console.error(`Error writing file: ${err}`);
     } else {
       shell.openPath(pathToFile)
-      .then(() => {
-        // Delete the file after opening
-        fs.unlink(pathToFile, (err) => {
-          if (err) {
-            console.error(`Error deleting file: ${err}`);
-          } else {
-            console.log('File deleted successfully');
+        .then(() => {
+          sleep(2000).then(() => {
+            // Delete the file after opening
+            fs.unlink(pathToFile, (err) => {
+              if (err) {
+                console.error(`Error deleting file: ${err}`);
+              } else {
+                console.log('File deleted successfully');
+              }
+            });
           }
-        });
-      })
-      .catch((err) => {
-        console.error(`Error opening file: ${err}`);
-      });
+          )
+            .catch((err) => {
+              console.error(`Error opening file: ${err}`);
+            });
+        })
     }
-  });
+  })
 });
 
 ipcMain.on('openSettings', (event, arg) => {

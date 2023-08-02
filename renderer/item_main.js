@@ -304,6 +304,7 @@ document.getElementById("imgInput").addEventListener("change", async (e) => {
     document.getElementById("imgs-link").addEventListener('click', function (e) {
         e.preventDefault();
         shell.openFile(url);
+        // TODO move this to main
     });
 
     progressBar.update(100,'Ready to Upload!');
