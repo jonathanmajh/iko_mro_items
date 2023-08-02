@@ -180,13 +180,38 @@ document.getElementById("openBatchFile").addEventListener("click", () => {openFi
 
 document.getElementById("clear-batch-items-btn").addEventListener("click", () => {
     document.getElementById("batch-items-table").innerHTML = ``;
+    document.getElementById("batch-copy-nums").disabled = true;
     document.getElementById("batch-upload-status-text").innerHTML='Waiting for paste...';
 })
+
+document.getElementById("batch-copy-nums").addEventListener("click", () => {
+    try{
+        let result = getItemsFromTable("batch-items-table");
+        if(result == undefined || result == null || result == 0){
+            throw('Table missing columns');
+        } 
+        let rows = parseInt(document.getElementById("batch-items-table").getAttribute("data-rows")) - 1;
+        let nums="";
+        for(let i = 2; i<=rows+1; i++){
+            nums += document.getElementById(`${i}-${colLoc.maximo}`).innerHTML ? (document.getElementById(`${i}-${colLoc.maximo}`).innerHTML + "\n") : "";
+        }
+        navigator.clipboard.writeText(nums);
+        new Toast('Item Numbers Copied to Clipboard!');
+    } catch (error){
+        //console.log(error);
+        new Toast('Unable to copy numbers, please check table formatting!');
+    }
+
+});
+
 document.getElementById("batch-items-textinput").addEventListener("paste", (e) => {
     setTimeout(() => {
         let paste = e.target.value;
         let table = document.getElementById("batch-items-table-div");
         table.innerHTML = convertToTable(paste,"batch-items-table");
+
+        document.getElementById("batch-copy-nums").disabled = false;
+
         document.getElementById("batch-upload-status-text").innerHTML='Paste detected! Edit table if needed and click upload.';
         e.target.value = "";
     },0)
@@ -196,7 +221,7 @@ document.getElementById("batch-upload-btn").addEventListener("click", () => {
         itemsToUpload = getItemsFromTable("batch-items-table")
     } catch (error){
         itemsToUpload = [];
-        document.getElementById("batch-upload-status-text").innerHTML=error;
+        document.getElementById("batch-upload-status-text").innerHTML=`Error, check table format! (${error})`;
         return;
     }
 
@@ -446,13 +471,13 @@ function getItemsFromTable(tableId) {
     let invalidItems=0;
     for(let i=2; i<=rows; i++){
         let desc = sanitizeString(document.getElementById(i + "-"+colLoc.description).innerHTML);
-        let uom = sanitizeString(document.getElementById(i+"-"+colLoc.uom).innerHTML);
+        let uom = sanitizeString(document.getElementById(i+"-"+colLoc.uom).innerHTML).toUpperCase();
         let commGroup = sanitizeString(document.getElementById(i+"-"+colLoc.commGroup).innerHTML);
-        let glclass = sanitizeString(document.getElementById(i+"-"+colLoc.glClass).innerHTML);
+        let glclass = sanitizeString(document.getElementById(i+"-"+colLoc.glClass).innerHTML).toUpperCase();
         let maximo = sanitizeString(document.getElementById(i+"-"+colLoc.maximo).innerHTML);
 
         //if all required parameters are not available, don't create the item and move to next row
-        if(desc==''||uom==''||commGroup==''||glclass==''){
+        if(desc==''||uom==''||commGroup==''||glclass==''||desc==0||uom==0||commGroup==0||glclass==0){
             updateItemStatus('error',(i-1));
             items.push('');
             invalidItems++;
@@ -553,7 +578,6 @@ async function batchUploadItems(items){
  *
  */
 function updateItemNums(arr){
-    console.log(arr)
     for(const pair of arr){
         let num = pair[0];
         let itemindex = pair[1];

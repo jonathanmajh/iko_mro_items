@@ -242,6 +242,11 @@ function convertToTable(pastedInput,id="")
     let numCols=0;
     let bodyRows = [];
     let diff = 0;
+    if(!pastedInput.toUpperCase().includes("MAXIMO")){
+        numRows++;
+        let firstRow = ("Maximo\tDescription\tIssue Unit\tCommodity Group\tGL Class");
+        rawRows = [firstRow,...rawRows];
+    }
     rawRows.forEach((rawRow, idx) => {
         let rawRowArray = rawRow.split("\t");
         if (rawRow==0) {
