@@ -55,19 +55,19 @@ class Logging {
     }
 
     warning(msg) {
-        let row = this.logTable.insertRow();
+        let row = this.logTable.insertRow(0);
         row.innerHTML = `<td>WARNING</td><td>${msg}</td>`;
         row.classList.add("table-warning");
     }
 
     error(msg) {
-        let row = this.logTable.insertRow();
+        let row = this.logTable.insertRow(0);
         row.innerHTML = `<td>ERROR</td><td>${msg}</td>`;
         row.classList.add("table-danger");
     }
 
     info(msg) {
-        let row = this.logTable.insertRow();
+        let row = this.logTable.insertRow(0);
         row.innerHTML = `<td>INFO</td><td>${msg}</td>`;
         row.classList.add("table-primary");
     }
@@ -190,7 +190,7 @@ function loadTheme(){
     }
 
     document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('theme'));
-    console.log('i have run');
+    //console.log('i have run');
 }
     //upload item related
 function getNextNumThenUpdate(series){
