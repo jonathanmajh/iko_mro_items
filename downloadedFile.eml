@@ -1,64 +1,64 @@
 <textarea id="textbox" cols="2" rows="13" style="display: none">
 To: Maximo Item request <maximo.item@iko.com>
-Subject: Item request 2023/8/4 @ 16:4:29
+Subject: Item request 2023/8/6 @ 11:44:32
 X-Unsent: 1
 Content-Type: text/html; boundary=--boundary_text_string 
 
 <html>
-   <h2>Item Request</h2> 
-   <table>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Item number type:</td>
-      <td id="number-type2" style="border: 0.01cm solid black;">91XXXXX</td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Item description:</td>
-      <td id="item-descr2" style="border: 0.01cm solid black;">HARD DRIVE,INTERNAL,1.92TB,SATA,P18436-B21,REIC-DREW</td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Commodity group:</td>
-      <td id="comm-grp2" style="border: 0.01cm solid black;">401</td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Issue Unit:</td>
-      <td id="issue-unit2" style="border: 0.01cm solid black;">EA</td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">GL class:</td>
-      <td id="gl-class2" style="border: 0.01cm solid black;">ERM</td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Storeroom:</td>
-      <td id="storeroom2" style="border: 0.01cm solid black;">GPL: CRC Brampton Maintenance Storeroom</td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Vendor number:</td>
-      <td id="ven-num2" style="border: 0.01cm solid black;"></td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Catalog number:</td>
-      <td id="cat-num2" style="border: 0.01cm solid black;"></td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Manufacturer type:</td>
-      <td id="manu-type2" style="border: 0.01cm solid black;">N/A</td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Manufacturer name:</td>
-      <td id="manu-name2" style="border: 0.01cm solid black;"></td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Part number:</td>
-      <td id="part-num2" style="border: 0.01cm solid black;"></td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Spare parts asset number:</td>
-      <td id="asset-num2" style="border: 0.01cm solid black;"></td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Website link:</td>
-      <td id="web-link2" style="border: 0.01cm solid black;"></td>
-    </tr>
-  </table>
-  </html>
- </textarea>
+<h2>Item Request</h2> 
+<table>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Item number type:</td>
+  <td id="number-type2" style="border: 0.01cm solid black;">91XXXXX</td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Item description:</td>
+  <td id="item-descr2" style="border: 0.01cm solid black;">PIPE,ROTARY,FG,1-1/2" NPT,BAYCO 1580</td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Commodity group:</td>
+  <td id="comm-grp2" style="border: 0.01cm solid black;">405</td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Issue Unit:</td>
+  <td id="issue-unit2" style="border: 0.01cm solid black;">EA</td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">GL class:</td>
+  <td id="gl-class2" style="border: 0.01cm solid black;">ERM</td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Storeroom:</td>
+  <td id="storeroom2" style="border: 0.01cm solid black;">AAG: Brampton B2 Storeroom</td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Vendor number:</td>
+  <td id="ven-num2" style="border: 0.01cm solid black;"></td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Catalog number:</td>
+  <td id="cat-num2" style="border: 0.01cm solid black;"></td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Manufacturer type:</td>
+  <td id="manu-type2" style="border: 0.01cm solid black;">N/A</td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Manufacturer name:</td>
+  <td id="manu-name2" style="border: 0.01cm solid black;"></td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Part number:</td>
+  <td id="part-num2" style="border: 0.01cm solid black;"></td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Spare parts asset number:</td>
+  <td id="asset-num2" style="border: 0.01cm solid black;"></td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Website link:</td>
+  <td id="web-link2" style="border: 0.01cm solid black;"></td>
+</tr>
+</table>
+</html>
+</textarea>

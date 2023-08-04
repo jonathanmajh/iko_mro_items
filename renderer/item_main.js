@@ -21,11 +21,11 @@ let relatedResults = {
     results: [],
 }
 
-window.onload = function() {
+window.onload = function () {
     document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
-    if(localStorage.getItem('powerUser') === 'true'){
+    if (localStorage.getItem('powerUser') === 'true') {
         document.getElementById("upload-btn").style.display = "block";
-        document.getElementById("request-btn").style.display = "none"; 
+        document.getElementById("request-btn").style.display = "none";
         document.getElementById("batch-upld-btn").style.display = "block";
         document.getElementById("img-upld-toggle").style.display = "block";
         document.getElementById("batch-mode-toggle").style.display = "block";
@@ -33,34 +33,34 @@ window.onload = function() {
     }
 }
 //power user toggle
-document.getElementById("secret-button").addEventListener('click',(e) => {
+document.getElementById("secret-button").addEventListener('click', (e) => {
     let isPowerUser = false;
     let numClicks = parseInt(e.target.getAttribute('data-clicks'));
 
     numClicks++;
     //console.log(numClicks);
 
-    if(numClicks === 5){
+    if (numClicks === 5) {
         isPowerUser = true;
         localStorage.setItem('powerUser', 'true');
-        e.target.setAttribute('data-clicks','0');
+        e.target.setAttribute('data-clicks', '0');
     }
-    else{
+    else {
         localStorage.setItem('powerUser', 'false');
-        e.target.setAttribute('data-clicks',`${numClicks}`);
+        e.target.setAttribute('data-clicks', `${numClicks}`);
         isPowerUser = false;
     }
-//toggle button display based off of power user status
+    //toggle button display based off of power user status
     if (isPowerUser == true) {
         document.getElementById("upload-btn").style.display = "block";
-        document.getElementById("request-btn").style.display = "none"; 
+        document.getElementById("request-btn").style.display = "none";
         document.getElementById("batch-upld-btn").style.display = "block";
         document.getElementById("img-upld-toggle").style.display = "block";
         document.getElementById("batch-mode-toggle").style.display = "block";
     }
     else {
         document.getElementById("upload-btn").style.display = "none";
-        document.getElementById("request-btn").style.display = "block"; 
+        document.getElementById("request-btn").style.display = "block";
         document.getElementById("batch-upld-btn").style.display = "none";
         document.getElementById("img-upld-toggle").style.display = "none";
         document.getElementById("batch-mode-toggle").style.display = "none";
@@ -75,114 +75,113 @@ async function getSite(credentials = {}) {
 }
 
 //Request item
-document.getElementById("request-btn").addEventListener('click',() => {
+document.getElementById("request-btn").addEventListener('click', () => {
 
     let requestModal = new bootstrap.Modal(document.getElementById("requestModal"));
     requestModal.toggle();
-        
-        let currPass = new SharedDatabase().getPassword(),
-            userid = currPass.userid;
-            let siteID;
 
-            const sites = {
-                'AA': ['AAG: Brampton B2 Storeroom', 'AAL: Brampton B2/B4 Maintenance Storeroom', 'AAO: Brampton B4 Oxidizer Storeroom'],
-                'ANT': ['AN1: Antwerp Mod Line Storeroom', 'AN2: Antwerp Coating Line Storeroom'],
-                'BA': ['BAL: IKO Calgary Maintenance Storeroom'],
-                'BL': ['BLC: Hagerstown TPO Storeroom', 'BLD: Hagerstown ISO Storeroom', 'BLL: Hagerstown Maintenance Storeroom(Shared)'],
-                'CA': ['CAL">IKO Kankakee Maintenance Storeroom'],
-                'CAM': ['C61">IKO Appley Bridge Maintenance Storeroom'],
-                'COM': ['CB1">Combronde Maintenance Storeroom'],
-                'GA': ['GAL: IKO Wilmington Maintenance Storeroom'],
-                'GC': ['GCL: Sumas Maintenance Storeroom', 'GCA: Sumas Shipping Storeroom', 'GCD: Sumas Shingle Storeroom', 'GCG: Sumas Mod Line Storeroom', 'GCJ: Sumas Crusher Storeroom', 'GCK: Sumas Tank Farm Storeroom'],
-                'GE': ['GEL: Ashcroft Maintenance Storeroom'],
-                'GH': ['GHL: IKO Hawkesbury Maintenance Storeroom'],
-                'GI': ['GIL: IKO Madoc Maintenance Storeroom'],
-                'GJ': ['GJL: CRC Toronto Maintenance Storeroom'],
-                'GK': ['GKA: IG Brampton B7 and B8 Storeroom', 'GKC: IG Brampton B6 and Laminator Storeroom', 'GKL: IG Brampton Maintenance Storeroom'],
-                'GM': ['GML: IG High River Maintenance Storeroom'],
-                'GP': ['GPL: CRC Brampton Maintenance Storeroom'],
-                'GR': ['GRL: Bramcal Maintenance Storeroom'],
-                'GS': ['GSL: Sylacauga Maintenance Storeroom'],
-                'GV': ['GVL: IKO Hillsboro Maintenance Storeroom'],
-                'GX': ['GXL: Maxi-Mix Maintenance Storeroom'],
-                'KLU': ['KD1: IKO Klundert Maintenance Storeroom', 'KD2: IKO Klundert Lab Storeroom', 'KD3: IKO Klundert Logistics Storeroom'],
-                'PBM': ['PB6: Slovakia Maintenance Storeroom'],
-                'RAM': ['RA6: IKO Alconbury Maintenance Storeroom']
-                // Add more sites and storerooms as needed...
-            };
+    let currPass = new SharedDatabase().getPassword(),
+        userid = currPass.userid;
+    let siteID;
 
-        const userSite = getSite({userid: userid, password: currPass.password});
-        userSite.then(response => {
-            siteID = response;
+    const sites = {
+        'AA': ['AAG: Brampton B2 Storeroom', 'AAL: Brampton B2/B4 Maintenance Storeroom', 'AAO: Brampton B4 Oxidizer Storeroom'],
+        'ANT': ['AN1: Antwerp Mod Line Storeroom', 'AN2: Antwerp Coating Line Storeroom'],
+        'BA': ['BAL: IKO Calgary Maintenance Storeroom'],
+        'BL': ['BLC: Hagerstown TPO Storeroom', 'BLD: Hagerstown ISO Storeroom', 'BLL: Hagerstown Maintenance Storeroom(Shared)'],
+        'CA': ['CAL">IKO Kankakee Maintenance Storeroom'],
+        'CAM': ['C61">IKO Appley Bridge Maintenance Storeroom'],
+        'COM': ['CB1">Combronde Maintenance Storeroom'],
+        'GA': ['GAL: IKO Wilmington Maintenance Storeroom'],
+        'GC': ['GCL: Sumas Maintenance Storeroom', 'GCA: Sumas Shipping Storeroom', 'GCD: Sumas Shingle Storeroom', 'GCG: Sumas Mod Line Storeroom', 'GCJ: Sumas Crusher Storeroom', 'GCK: Sumas Tank Farm Storeroom'],
+        'GE': ['GEL: Ashcroft Maintenance Storeroom'],
+        'GH': ['GHL: IKO Hawkesbury Maintenance Storeroom'],
+        'GI': ['GIL: IKO Madoc Maintenance Storeroom'],
+        'GJ': ['GJL: CRC Toronto Maintenance Storeroom'],
+        'GK': ['GKA: IG Brampton B7 and B8 Storeroom', 'GKC: IG Brampton B6 and Laminator Storeroom', 'GKL: IG Brampton Maintenance Storeroom'],
+        'GM': ['GML: IG High River Maintenance Storeroom'],
+        'GP': ['GPL: CRC Brampton Maintenance Storeroom'],
+        'GR': ['GRL: Bramcal Maintenance Storeroom'],
+        'GS': ['GSL: Sylacauga Maintenance Storeroom'],
+        'GV': ['GVL: IKO Hillsboro Maintenance Storeroom'],
+        'GX': ['GXL: Maxi-Mix Maintenance Storeroom'],
+        'KLU': ['KD1: IKO Klundert Maintenance Storeroom', 'KD2: IKO Klundert Lab Storeroom', 'KD3: IKO Klundert Logistics Storeroom'],
+        'PBM': ['PB6: Slovakia Maintenance Storeroom'],
+        'RAM': ['RA6: IKO Alconbury Maintenance Storeroom']
+        // Add more sites and storerooms as needed...
+    };
 
-            const storeroomSelect = document.getElementById('storeroom');
-            //poppulate correct user storerooms in modal
-            function updateStoreroomOptions() {
+    const userSite = getSite({ userid: userid, password: currPass.password });
+    userSite.then(response => {
+        siteID = response;
 
-                storeroomSelect.options.length = 1;
+        const storeroomSelect = document.getElementById('storeroom');
+        //poppulate correct user storerooms in modal
+        function updateStoreroomOptions() {
 
-                // Add new options
-                const neededStorerooms = sites[siteID];
-                for (const storeroom of neededStorerooms) {
-                    const option = document.createElement('option');
-                    option.value = storeroom;
-                    option.text = storeroom;
-                    storeroomSelect.add(option);
-                }
+            storeroomSelect.options.length = 1;
+
+            // Add new options
+            const neededStorerooms = sites[siteID];
+            for (const storeroom of neededStorerooms) {
+                const option = document.createElement('option');
+                option.value = storeroom;
+                option.text = storeroom;
+                storeroomSelect.add(option);
             }
-            updateStoreroomOptions();
-        })
+        }
+        updateStoreroomOptions();
+    })
         .catch(error => console.error(`Error: ${error}`));
 
-//Allow input of manufacturer name & part number if "Other" is selected
-document.getElementById("manu-name").addEventListener('click',() => {
+    //Allow input of manufacturer name & part number if "Other" is selected
+    document.getElementById("manu-name").addEventListener('click', () => {
 
-    let manufacValue = document.getElementById("manu-name");
-    let selectedVal = manufacValue.options[manufacValue.selectedIndex].text;
-    if(selectedVal == "Other")
-    {
-        document.getElementById("pref-manu").style.display = "block";
-        document.getElementById("part-form").style.display = "block";
-    }
-    else 
-    {
-        document.getElementById("pref-manu").style.display = "none";
-        document.getElementById("part-form").style.display = "none";
-    }   
-})
+        let manufacValue = document.getElementById("manu-name");
+        let selectedVal = manufacValue.options[manufacValue.selectedIndex].text;
+        if (selectedVal == "Other") {
+            document.getElementById("pref-manu").style.display = "block";
+            document.getElementById("part-form").style.display = "block";
+        }
+        else {
+            document.getElementById("pref-manu").style.display = "none";
+            document.getElementById("part-form").style.display = "none";
+        }
+    })
 
-poppulateModal();
+    poppulateModal();
+});
 
 //download email file when submit button is pressed
- document.getElementById("submit-btn").addEventListener('click',(e) => {
+document.getElementById("submit-btn").addEventListener('click', submitMail, false);
 
-//checking required fields are filled
-if(document.getElementById("manu-name").value == "Other") {
-  
-    if(!(document.getElementById("part-num").reportValidity()&&
-        document.getElementById("storeroom").reportValidity()&&
-        document.getElementById("item-descr").reportValidity()))    
-    {
-        console.log("Required fields still empty");
-        return;
-    }
-}
-else {
+function submitMail() {
 
-    if(!(document.getElementById("storeroom").reportValidity()&&
-        document.getElementById("item-descr").reportValidity()))    
-    {
-        console.log("Required fields still empty");
-        return;
+    //checking required fields are filled
+    if (document.getElementById("manu-name").value == "Other") {
+
+        if (!(document.getElementById("part-num").reportValidity() &&
+            document.getElementById("storeroom").reportValidity() &&
+            document.getElementById("item-descr").reportValidity())) {
+            console.log("Required fields still empty");
+            return;
+        }
     }
-}
-//storing current date and time for email subject
+    else {
+
+        if (!(document.getElementById("storeroom").reportValidity() &&
+            document.getElementById("item-descr").reportValidity())) {
+            console.log("Required fields still empty");
+            return;
+        }
+    }
+    //storing current date and time for email subject
     let currentdate = new Date();
-    var datetime = currentdate.getFullYear()+ "/" + (currentdate.getMonth()+1) + "/" + (currentdate.getDay()+1)
-+ " @ " 
-+ currentdate.getHours() + ":" 
-+ currentdate.getMinutes() + ":" + currentdate.getSeconds();
-    let mailText = 
+    var datetime = currentdate.getFullYear() + "/" + (currentdate.getMonth() + 1) + "/" + (currentdate.getDay() + 1)
+        + " @ "
+        + currentdate.getHours() + ":"
+        + currentdate.getMinutes() + ":" + currentdate.getSeconds();
+    let mailText =
         `<textarea id="textbox" cols="2" rows="13" style="display: none">
 To: Maximo Item request <maximo.item@iko.com>
 Subject: Item request ${datetime}
@@ -190,84 +189,82 @@ X-Unsent: 1
 Content-Type: text/html; boundary=--boundary_text_string 
 
 <html>
-   <h2>Item Request</h2> 
-   <table>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Item number type:</td>
-      <td id="number-type2" style="border: 0.01cm solid black;">${document.getElementById("number-type").value}XXXXX</td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Item description:</td>
-      <td id="item-descr2" style="border: 0.01cm solid black;">${document.getElementById("maximo-desc").value}</td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Commodity group:</td>
-      <td id="comm-grp2" style="border: 0.01cm solid black;">${document.getElementById("com-group").value}</td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Issue Unit:</td>
-      <td id="issue-unit2" style="border: 0.01cm solid black;">${document.getElementById("uom-field").value}</td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">GL class:</td>
-      <td id="gl-class2" style="border: 0.01cm solid black;">${document.getElementById("gl-class-new").value}</td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Storeroom:</td>
-      <td id="storeroom2" style="border: 0.01cm solid black;">${document.getElementById("storeroom").value}</td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Vendor number:</td>
-      <td id="ven-num2" style="border: 0.01cm solid black;">${document.getElementById("ven-num").value}</td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Catalog number:</td>
-      <td id="cat-num2" style="border: 0.01cm solid black;">${document.getElementById("cat-num").value}</td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Manufacturer type:</td>
-      <td id="manu-type2" style="border: 0.01cm solid black;">${document.getElementById("manu-name").value}</td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Manufacturer name:</td>
-      <td id="manu-name2" style="border: 0.01cm solid black;">${document.getElementById("pref-manu").value}</td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Part number:</td>
-      <td id="part-num2" style="border: 0.01cm solid black;">${document.getElementById("part-num").value}</td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Spare parts asset number:</td>
-      <td id="asset-num2" style="border: 0.01cm solid black;">${document.getElementById("asset-num").value}</td>
-    </tr>
-    <tr style="border: 0.01cm solid black;">
-      <td style="border: 0.01cm solid black;">Website link:</td>
-      <td id="web-link2" style="border: 0.01cm solid black;">${document.getElementById("web-link").value}</td>
-    </tr>
-  </table>
-  </html>
- </textarea>`;
+<h2>Item Request</h2> 
+<table>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Item number type:</td>
+  <td id="number-type2" style="border: 0.01cm solid black;">${document.getElementById("number-type").value}XXXXX</td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Item description:</td>
+  <td id="item-descr2" style="border: 0.01cm solid black;">${document.getElementById("maximo-desc").value}</td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Commodity group:</td>
+  <td id="comm-grp2" style="border: 0.01cm solid black;">${document.getElementById("com-group").value}</td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Issue Unit:</td>
+  <td id="issue-unit2" style="border: 0.01cm solid black;">${document.getElementById("uom-field").value}</td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">GL class:</td>
+  <td id="gl-class2" style="border: 0.01cm solid black;">${document.getElementById("gl-class-new").value}</td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Storeroom:</td>
+  <td id="storeroom2" style="border: 0.01cm solid black;">${document.getElementById("storeroom").value}</td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Vendor number:</td>
+  <td id="ven-num2" style="border: 0.01cm solid black;">${document.getElementById("ven-num").value}</td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Catalog number:</td>
+  <td id="cat-num2" style="border: 0.01cm solid black;">${document.getElementById("cat-num").value}</td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Manufacturer type:</td>
+  <td id="manu-type2" style="border: 0.01cm solid black;">${document.getElementById("manu-name").value}</td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Manufacturer name:</td>
+  <td id="manu-name2" style="border: 0.01cm solid black;">${document.getElementById("pref-manu").value}</td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Part number:</td>
+  <td id="part-num2" style="border: 0.01cm solid black;">${document.getElementById("part-num").value}</td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Spare parts asset number:</td>
+  <td id="asset-num2" style="border: 0.01cm solid black;">${document.getElementById("asset-num").value}</td>
+</tr>
+<tr style="border: 0.01cm solid black;">
+  <td style="border: 0.01cm solid black;">Website link:</td>
+  <td id="web-link2" style="border: 0.01cm solid black;">${document.getElementById("web-link").value}</td>
+</tr>
+</table>
+</html>
+</textarea>`;
 
- //Send string to main process to write file
-ipcRenderer.send('write-file', mailText);
-requestModal.toggle();
-  }, false);
-});
-
+    //Send string to main process to write file
+    ipcRenderer.send('write-file', mailText);
+    //requestModal.toggle();
+}
 
 //Infinite scroll
-document.getElementById("everything").addEventListener('scroll',()=>{
+document.getElementById("everything").addEventListener('scroll', () => {
     //dont add items to the list if the accordion is collapsed
-    if(document.getElementById("related-items-accordion-btn").classList.contains("collapsed") || relatedResults.results.length == 0){
+    if (document.getElementById("related-items-accordion-btn").classList.contains("collapsed") || relatedResults.results.length == 0) {
         return;
     }
-    
+
     let element = document.getElementById("related-items");
 
     let domRect = element.getBoundingClientRect();
     let spaceBelow = document.getElementById("everything").offsetHeight - domRect.bottom;
     //console.log(spaceBelow);
-    if(spaceBelow>-100){
+    if (spaceBelow > -100) {
         //load more items if the bottom of the table is less than 100px below the bottom of the viewport
         loadRelated();
     }
@@ -281,33 +278,33 @@ document.getElementById("imgInput").addEventListener("change", async (e) => {
     imgsToUpload = files;
     let nums = '';
 
-    if(files.length == 0 || !files){
+    if (files.length == 0 || !files) {
         return;
     }
 
     let imgList = document.getElementById("imgList");
 
-    progressBar.update(0,'Loading Images...');
-    
+    progressBar.update(0, 'Loading Images...');
 
-    for(let i = 0; i<files.length; i++){
+
+    for (let i = 0; i < files.length; i++) {
         let file = files[i];
-        let completion = (i+1)/files.length*100;
+        let completion = (i + 1) / files.length * 100;
 
-        nums += file.name.slice(0,7) + ',';
+        nums += file.name.slice(0, 7) + ',';
         progressBar.updateProgressBar(completion);
 
         imgList.innerHTML += `
 <li class="d-flex align-items-center justify-content-between list-group-item">
     <div class="d-flex align-items-center">
         <img src="${URL.createObjectURL(file)}" class="img-thumbnail me-2">
-        <p class="mb-0"><strong>${file.name.slice(0,7)}</strong></p>
+        <p class="mb-0"><strong>${file.name.slice(0, 7)}</strong></p>
     </div>
     <i id="img-${i}-status" class="material-icons">pending</i>
 </li>`;
     }
 
-    let url = `https://prod.manage.prod.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;    
+    let url = `https://prod.manage.prod.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
     document.getElementById("img-upload-status-text").innerHTML = `<a href=${url} id="imgs-link">Selected Items:</a>`;
     document.getElementById("imgs-link").addEventListener('click', function (e) {
         e.preventDefault();
@@ -315,7 +312,7 @@ document.getElementById("imgInput").addEventListener("change", async (e) => {
         // TODO move this to main
     });
 
-    progressBar.update(100,'Ready to Upload!');
+    progressBar.update(100, 'Ready to Upload!');
 });
 
 document.getElementById("imgInput").addEventListener("click", () => {
@@ -324,7 +321,7 @@ document.getElementById("imgInput").addEventListener("click", () => {
 document.getElementById("img-clear-btn").addEventListener("click", () => {
     let progressBar = new ProgressBar();
     document.getElementById("imgList").innerHTML = ``;
-    progressBar.update(100,'Ready!');
+    progressBar.update(100, 'Ready!');
     imgsToUpload = [];
     document.getElementById("imgInput").value = null;
     document.getElementById("img-upload-status-text").innerHTML = 'Select Images to Continue...';
@@ -335,7 +332,7 @@ document.getElementById("img-upload-btn").addEventListener("click", () => {
     let clearBtn = document.getElementById('img-clear-btn');
     let uploadBtn = document.getElementById('img-upload-btn');
 
-    if(imgsToUpload.length == 0){
+    if (imgsToUpload.length == 0) {
         new Toast('No Images Selected!');
         return;
     }
@@ -347,32 +344,32 @@ document.getElementById("img-upload-btn").addEventListener("click", () => {
 
     const worker = new WorkerHandler();
 
-    progressBar.update(0,'Uploading Images...');
+    progressBar.update(0, 'Uploading Images...');
 
-    worker.work(['uploadImages',imgsToUpload],(result) => {
-        if(result[0] == 'success'){
+    worker.work(['uploadImages', imgsToUpload], (result) => {
+        if (result[0] == 'success') {
             document.getElementById(`img-${result[1]}-status`).innerHTML = `done`;
-        } else if(result[0]=='fail'){
+        } else if (result[0] == 'fail') {
             document.getElementById(`img-${result[1]}-status`).innerHTML = `close`;
-        } else if(result[0]=='done') {
-            progressBar.update(100,'Upload Complete!');
+        } else if (result[0] == 'done') {
+            progressBar.update(100, 'Upload Complete!');
             clearBtn.disabled = false;
             uploadBtn.disabled = false;
-        } else if(result[0]=='warning'){
+        } else if (result[0] == 'warning') {
             document.getElementById(`img-${result[1]}-status`).innerHTML = `warning`;
-        } else if(result[0]=='total failure'){
-            finishedItems=imgsToUpload.length;
-            progressBar.update(100,'Error occurred while attempting upload!');
+        } else if (result[0] == 'total failure') {
+            finishedItems = imgsToUpload.length;
+            progressBar.update(100, 'Error occurred while attempting upload!');
             document.getElementById("img-upload-status-text").innerHTML = `Upload Failed: ${result[1]}}`;
             clearBtn.disabled = false;
             uploadBtn.disabled = false;
         }
 
-        if(result!='done'){
+        if (result != 'done') {
             finishedItems++;
         }
 
-        progressBar.updateProgressBar(finishedItems*100 / imgsToUpload.length);
+        progressBar.updateProgressBar(finishedItems * 100 / imgsToUpload.length);
 
         //console.log(result);
     });
@@ -380,8 +377,8 @@ document.getElementById("img-upload-btn").addEventListener("click", () => {
 
 //Other
 document.getElementById("load-item").addEventListener("click", loadItem);
-document.getElementById("valid-single").addEventListener("click", () => {validSingle()});
-document.getElementById("valid-single-ext").addEventListener("click", () => {validSingle(true)});
+document.getElementById("valid-single").addEventListener("click", () => { validSingle() });
+document.getElementById("valid-single-ext").addEventListener("click", () => { validSingle(true) });
 document.getElementById("settings").addEventListener("click", openSettings);
 document.getElementById("topButton").addEventListener("click", toTop);
 document.getElementById("endButton").addEventListener("click", toEnd);
@@ -393,16 +390,16 @@ document.getElementById("save-desc").addEventListener("click", writeDescription)
 document.getElementById("save-num").addEventListener("click", writeItemNum);
 document.getElementById("skip-row").addEventListener("click", skipRow);
 document.getElementById("continueAuto").addEventListener("click", continueAuto);
-document.getElementById("confirm-btn").addEventListener("click", () => {uploadItem();});
-document.getElementById("upload-btn").addEventListener("click",() => {
-    
+document.getElementById("confirm-btn").addEventListener("click", () => { uploadItem(); });
+document.getElementById("upload-btn").addEventListener("click", () => {
+
     let confirmModal = new bootstrap.Modal(document.getElementById("confirmModal"));
-    if(!(
+    if (!(
         document.getElementById("maximo-desc").reportValidity() &&
         document.getElementById("uom-field").reportValidity() &&
         document.getElementById("com-group").reportValidity() &&
         document.getElementById("gl-class").reportValidity()
-    )){
+    )) {
         return;
     }
     ItemAnalysis();
@@ -412,28 +409,28 @@ document.getElementById("upload-btn").addEventListener("click",() => {
 
 
 //batch upload:
-document.getElementById("openBatchFile").addEventListener("click", () => {openFile("worksheet-path")});
+document.getElementById("openBatchFile").addEventListener("click", () => { openFile("worksheet-path") });
 
 document.getElementById("clear-batch-items-btn").addEventListener("click", () => {
     document.getElementById("batch-items-table").innerHTML = ``;
     document.getElementById("batch-copy-nums").disabled = true;
-    document.getElementById("batch-upload-status-text").innerHTML='Waiting for paste...';
+    document.getElementById("batch-upload-status-text").innerHTML = 'Waiting for paste...';
 })
 
 document.getElementById("batch-copy-nums").addEventListener("click", () => {
-    try{
+    try {
         let result = getItemsFromTable("batch-items-table");
-        if(result == undefined || result == null || result == 0){
-            throw('Table missing columns');
-        } 
+        if (result == undefined || result == null || result == 0) {
+            throw ('Table missing columns');
+        }
         let rows = parseInt(document.getElementById("batch-items-table").getAttribute("data-rows")) - 1;
-        let nums="";
-        for(let i = 2; i<=rows+1; i++){
+        let nums = "";
+        for (let i = 2; i <= rows + 1; i++) {
             nums += document.getElementById(`${i}-${colLoc.maximo}`).innerHTML ? (document.getElementById(`${i}-${colLoc.maximo}`).innerHTML + "\n") : "";
         }
         navigator.clipboard.writeText(nums);
         new Toast('Item Numbers Copied to Clipboard!');
-    } catch (error){
+    } catch (error) {
         //console.log(error);
         new Toast('Unable to copy numbers, please check table formatting!');
     }
@@ -444,40 +441,40 @@ document.getElementById("batch-items-textinput").addEventListener("paste", (e) =
     setTimeout(() => {
         let paste = e.target.value;
         let table = document.getElementById("batch-items-table-div");
-        table.innerHTML = convertToTable(paste,"batch-items-table");
+        table.innerHTML = convertToTable(paste, "batch-items-table");
 
         document.getElementById("batch-copy-nums").disabled = false;
 
-        document.getElementById("batch-upload-status-text").innerHTML='Paste detected! Edit table if needed and click upload.';
+        document.getElementById("batch-upload-status-text").innerHTML = 'Paste detected! Edit table if needed and click upload.';
         e.target.value = "";
-    },0)
+    }, 0)
 })
 document.getElementById("batch-upload-btn").addEventListener("click", () => {
-    try{
+    try {
         itemsToUpload = getItemsFromTable("batch-items-table")
-    } catch (error){
+    } catch (error) {
         itemsToUpload = [];
-        document.getElementById("batch-upload-status-text").innerHTML=`Error, check table format! (${error})`;
+        document.getElementById("batch-upload-status-text").innerHTML = `Error, check table format! (${error})`;
         return;
     }
 
-    if(itemsToUpload.length > 0){
-        itemsToUpload.forEach((value,idx)=>{
-            if(value){
-                updateItemStatus('loading',idx+1);
+    if (itemsToUpload.length > 0) {
+        itemsToUpload.forEach((value, idx) => {
+            if (value) {
+                updateItemStatus('loading', idx + 1);
             }
         })
         batchUploadItems(itemsToUpload);
         return;
     } else {
-        document.getElementById("batch-upload-status-text").innerHTML='No valid items to upload!';
+        document.getElementById("batch-upload-status-text").innerHTML = 'No valid items to upload!';
     }
-    
+
     return;
 })
 document.getElementById("batch-paste-btn").addEventListener("click", async () => {
     const text = await navigator.clipboard.readText();
-    const pasteEvent = new Event("paste", {"bubbles":true, "cancelable":false});
+    const pasteEvent = new Event("paste", { "bubbles": true, "cancelable": false });
     let textinput = document.getElementById("batch-items-textinput");
 
     textinput.value = text;
@@ -528,7 +525,7 @@ function auto_grow(elementID) {
     debugger;
     const element = document.getElementById(elementID);
     element.style.height = "5px";
-    element.style.height = (element.scrollHeight)+"px";
+    element.style.height = (element.scrollHeight) + "px";
 }
 
 function showItem(data) {
@@ -654,7 +651,7 @@ function getItemsFromTable(tableId) {
         maximo: -1,
     }
 
-    let table=document.getElementById(`${tableId}`);
+    let table = document.getElementById(`${tableId}`);
     //find Description, UOM, Commodity Group, and GL Class
     let rows = parseInt(table.getAttribute("data-rows"));
     let cols = parseInt(table.getAttribute("data-cols"));
@@ -662,70 +659,70 @@ function getItemsFromTable(tableId) {
     let items = [];
     //go through first row to find headings.
     let validParams = 0;
-    for(let i = 1; i<=cols; i++){
+    for (let i = 1; i <= cols; i++) {
         //get a cell in the table by its id
-        let cell = document.getElementById("1-"+i);
+        let cell = document.getElementById("1-" + i);
 
         //see if cell value matches any of the required parameters to create an item object
-        if(cell.innerHTML.toUpperCase()==='DESCRIPTION'){
-            colLoc.description=i;
+        if (cell.innerHTML.toUpperCase() === 'DESCRIPTION') {
+            colLoc.description = i;
             validParams++;
-        } else if(cell.innerHTML.toUpperCase()==='UOM'||cell.innerHTML.toUpperCase()==='ISSUE UNIT'){
-            colLoc.uom=i;
+        } else if (cell.innerHTML.toUpperCase() === 'UOM' || cell.innerHTML.toUpperCase() === 'ISSUE UNIT') {
+            colLoc.uom = i;
             validParams++;
-        } else if(cell.innerHTML.toUpperCase()==='COMMODITY GROUP' || cell.innerHTML.toUpperCase()==='COMM GROUP'){
-            colLoc.commGroup=i;
+        } else if (cell.innerHTML.toUpperCase() === 'COMMODITY GROUP' || cell.innerHTML.toUpperCase() === 'COMM GROUP') {
+            colLoc.commGroup = i;
             validParams++;
-        } else if(cell.innerHTML.toUpperCase()==='GL CLASS'){
-            colLoc.glClass=i;
+        } else if (cell.innerHTML.toUpperCase() === 'GL CLASS') {
+            colLoc.glClass = i;
             validParams++;
-        } else if(cell.innerHTML.toUpperCase()==='MAXIMO' || cell.innerHTML.toUpperCase()==='ITEM NUMBER'){
-            colLoc.maximo=i;
+        } else if (cell.innerHTML.toUpperCase() === 'MAXIMO' || cell.innerHTML.toUpperCase() === 'ITEM NUMBER') {
+            colLoc.maximo = i;
             validParams++;
         }
         //console.log(validParams)
     }
 
-    if(validParams<5){
+    if (validParams < 5) {
         let missingCols = "";
         let missingColArr = [];
 
-        for(const property in colLoc){
-            if(colLoc[property] == -1){
+        for (const property in colLoc) {
+            if (colLoc[property] == -1) {
                 console.log(property);
 
                 missingColArr.push(property.toLowerCase());
             }
         }
         missingCols = missingColArr.join(', ');
-        document.getElementById("batch-upload-status-text").innerHTML=`Table is missing ${5-validParams} column(s): (${missingCols}). Table will not be uploaded!`;
+        document.getElementById("batch-upload-status-text").innerHTML = `Table is missing ${5 - validParams} column(s): (${missingCols}). Table will not be uploaded!`;
         return;
     }
 
     //console.log(colLoc);
     //loop thru all rows
-    let invalidItems=0;
-    for(let i=2; i<=rows; i++){
-        let desc = sanitizeString(document.getElementById(i + "-"+colLoc.description).innerHTML);
-        let uom = sanitizeString(document.getElementById(i+"-"+colLoc.uom).innerHTML).toUpperCase();
-        let commGroup = sanitizeString(document.getElementById(i+"-"+colLoc.commGroup).innerHTML);
-        let glclass = sanitizeString(document.getElementById(i+"-"+colLoc.glClass).innerHTML).toUpperCase();
-        let maximo = sanitizeString(document.getElementById(i+"-"+colLoc.maximo).innerHTML);
+    let invalidItems = 0;
+    for (let i = 2; i <= rows; i++) {
+        let desc = sanitizeString(document.getElementById(i + "-" + colLoc.description).innerHTML);
+        let uom = sanitizeString(document.getElementById(i + "-" + colLoc.uom).innerHTML).toUpperCase();
+        let commGroup = sanitizeString(document.getElementById(i + "-" + colLoc.commGroup).innerHTML);
+        let glclass = sanitizeString(document.getElementById(i + "-" + colLoc.glClass).innerHTML).toUpperCase();
+        let maximo = sanitizeString(document.getElementById(i + "-" + colLoc.maximo).innerHTML);
 
         //if all required parameters are not available, don't create the item and move to next row
-        if(desc==''||uom==''||commGroup==''||glclass==''||desc==0||uom==0||commGroup==0||glclass==0){
-            updateItemStatus('error',(i-1));
+        if (desc == '' || uom == '' || commGroup == '' || glclass == '' || desc == 0 || uom == 0 || commGroup == 0 || glclass == 0) {
+            updateItemStatus('error', (i - 1));
             items.push('');
             invalidItems++;
             continue;
         }
 
-        let item = new Item(undefined,desc,uom,commGroup,glclass);
-        if(colLoc.maximo!=-1 && maximo!=0 && maximo.toString().length === 7){
+        let item = new Item(undefined, desc, uom, commGroup, glclass);
+        if (colLoc.maximo != -1 && maximo != 0 && maximo.toString().length === 7) {
             item.itemnumber = maximo;
-        } else if(desc.toUpperCase().includes("DWG")){
+        } else if (desc.toUpperCase().includes("DWG")) {
             item.series = 98;
-        } else if(commGroup == "490" && glclass == "PLS"){
+        } else if (commGroup == "490" && glclass == "PLS") {
             //Change when when item num reachs 9920000
             item.series = 991;
         }
@@ -733,8 +730,8 @@ function getItemsFromTable(tableId) {
         //add the item to the array
         items.push(item);
     }
-    if(invalidItems>0){
-        document.getElementById("batch-upload-status-text").innerHTML=`Warning! ${invalidItems} invalid items will not be uploaded`;
+    if (invalidItems > 0) {
+        document.getElementById("batch-upload-status-text").innerHTML = `Warning! ${invalidItems} invalid items will not be uploaded`;
     }
     //console.log(invalidItems)
     //console.log(items);
@@ -745,7 +742,7 @@ function getItemsFromTable(tableId) {
  * Uploads an item from item information accordion dropdown
  *
  */
-async function uploadItem(){
+async function uploadItem() {
     document.getElementById("confirm-btn").innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span> Uploading...</span>';
     document.getElementById("confirm-btn").disabled = true;
     const worker = new WorkerHandler();
@@ -756,14 +753,14 @@ async function uploadItem(){
         sanitizeString(document.getElementById("com-group").value),
         sanitizeString(document.getElementById("gl-class").value)
     );
-    
-    if(document.getElementById("long-desc").value.length > 0){
+
+    if (document.getElementById("long-desc").value.length > 0) {
         item.longdescription = document.getElementById("long-desc").value;
     }
 
 
 
-    worker.work(['uploadItems',[item]], (e) => {
+    worker.work(['uploadItems', [item]], (e) => {
         document.getElementById("error").innerHTML = "Upload Success"
         document.getElementById("confirm-btn").innerHTML = "Upload Item";
         document.getElementById("confirm-btn").disabled = false;
@@ -779,23 +776,23 @@ async function uploadItem(){
  * Uploads an array of items
  *
  */
-async function batchUploadItems(items){
+async function batchUploadItems(items) {
     const worker = new WorkerHandler();
     let btn = document.getElementById("batch-upload-btn");
     let clearBtn = document.getElementById("clear-batch-items-btn");
     clearBtn.disabled = true;
     btn.disabled = true;
-    worker.work(['uploadItems',items,true],(e)=>{
-        let finishText=`Upload Finished! ${e[2]} items uploaded. `;
+    worker.work(['uploadItems', items, true], (e) => {
+        let finishText = `Upload Finished! ${e[2]} items uploaded. `;
         clearBtn.disabled = false;
         btn.disabled = false;
         updateItemNums(e[0]);
         let rows = parseInt(document.getElementById("batch-items-table").getAttribute("data-rows")) - 1;
-        let nums="";
-        for(let i = 2; i<=rows+1; i++){
+        let nums = "";
+        for (let i = 2; i <= rows + 1; i++) {
             nums += document.getElementById(`${i}-${colLoc.maximo}`).innerHTML ? (document.getElementById(`${i}-${colLoc.maximo}`).innerHTML + ",") : "";
         }
-        if(e[2]>0){
+        if (e[2] > 0) {
             let itemUrl = `https://prod.manage.prod.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
             finishText += `<a id="batch-link" href="${itemUrl}">Click to view:</a>`
             document.getElementById("batch-upload-status-text").innerHTML = finishText;
@@ -805,7 +802,7 @@ async function batchUploadItems(items){
             });
         } else {
             document.getElementById("batch-upload-status-text").innerHTML = finishText;
-        }   
+        }
         console.log("upload finished");
     });
 }
@@ -813,11 +810,11 @@ async function batchUploadItems(items){
  * Gets a list of newly generated item nums and updates the table with them
  *
  */
-function updateItemNums(arr){
-    for(const pair of arr){
+function updateItemNums(arr) {
+    for (const pair of arr) {
         let num = pair[0];
         let itemindex = pair[1];
-        let cell = document.getElementById(`${itemindex+1}-${colLoc.maximo}`);
+        let cell = document.getElementById(`${itemindex + 1}-${colLoc.maximo}`);
         cell.innerHTML = num;
         cell.classList.add("table-alert");
     }
@@ -940,7 +937,7 @@ function validSingle(isExtended = false) {
     });
 }
 
-function showResult(result, isExtended=false) {
+function showResult(result, isExtended = false) {
     let triDesc = document.getElementById('result-triple-main');
     triDesc.value = result[0][0];
     triDesc = document.getElementById('result-triple-ext1');
@@ -955,7 +952,7 @@ function showResult(result, isExtended=false) {
         translationDescription(result[0][3]);
     }
     if (related) {
-        findRelated(result[0],isExtended);
+        findRelated(result[0], isExtended);
     }
 }
 
@@ -972,9 +969,9 @@ async function ItemAnalysis() {
     calcConfidence(result[3]);
 }
 
-function findRelated(result, isExtended=false) {
+function findRelated(result, isExtended = false) {
     const worker = new WorkerHandler();
-    worker.work(['findRelated', result[3], isExtended], (result) => {showRelated(result, isExtended)});
+    worker.work(['findRelated', result[3], isExtended], (result) => { showRelated(result, isExtended) });
 }
 
 function translationDescription(description) {
@@ -986,7 +983,7 @@ function translationDescription(description) {
         } else {
             description = document.getElementById('result-triple-main').value;
         }
-    
+
         worker.work([
             'translateItem',
             description,
@@ -1072,9 +1069,9 @@ async function showRelated(result, isExtended = false) {
         bar.update(100, 'Done!');
         return false;
     }
-    
+
     //reverse results
-    for(const [key,value] of Object.entries(result[0])){
+    for (const [key, value] of Object.entries(result[0])) {
         result[0][key] = result[0][key].reverse();
     }
 
@@ -1083,14 +1080,14 @@ async function showRelated(result, isExtended = false) {
         curKey: 0,
         results: result,
     }
-    
+
     //reset table after called
     const relatedTable = document.getElementById('related-table');
 
-    if(isExtended){
+    if (isExtended) {
         relatedTable.classList.add(`isExt`);
     } else {
-        if(relatedTable.classList.contains(`isExt`)){
+        if (relatedTable.classList.contains(`isExt`)) {
             relatedTable.classList.remove(`isExt`);
         }
     }
@@ -1122,14 +1119,14 @@ async function showRelated(result, isExtended = false) {
 
 }
 
-function loadRelated(){
+function loadRelated() {
     const isExtended = document.getElementById('related-table').classList.contains('isExt');
     //console.log(relatedResults);
     const scores = relatedResults.results[0];
     //kill function if end of results has been reached
-    if(relatedResults.curKey >= Object.entries(scores).length){
+    if (relatedResults.curKey >= Object.entries(scores).length) {
         return;
-    } else if(Object.entries(scores)[relatedResults.curKey][1].length == 0) {
+    } else if (Object.entries(scores)[relatedResults.curKey][1].length == 0) {
         //if no results for current key, move to next key and call function again
         relatedResults.curKey++;
         relatedResults.idx = 0;
@@ -1141,7 +1138,7 @@ function loadRelated(){
     //get arrs from results obj
     const itemNames = relatedResults.results[1];
     const searchWords = relatedResults.results[2].split(',');
-    let html = '', color='';
+    let html = '', color = '';
     let itemName;
     const option = {
         style: 'percent',
@@ -1156,12 +1153,12 @@ function loadRelated(){
     let value = Object.entries(scores)[relatedResults.curKey][1]; //get the array of items associated with key
     let sliced;
 
-    if(relatedResults.idx+step >= value.length) {
-        sliced = value.slice(relatedResults.idx,undefined);
+    if (relatedResults.idx + step >= value.length) {
+        sliced = value.slice(relatedResults.idx, undefined);
         relatedResults.curKey++;
         relatedResults.idx = 0;
     } else {
-        sliced = value.slice(relatedResults.idx,relatedResults.idx+step);
+        sliced = value.slice(relatedResults.idx, relatedResults.idx + step);
         relatedResults.idx += step;
     }
 
@@ -1192,8 +1189,8 @@ function loadRelated(){
             html = `${html}\n<tr class="${color}">
             <td>${formatter.format(key)}</td>
             <td>${item}</td>
-            ${(isExtended ? `<td>${itemName.substring(0,itemName.indexOf("|"))}</td>` : `<td>${itemName}</td>`)}
-            ${(isExtended ? `<td>${itemName.slice(itemName.indexOf("|")+1)}</td>` : '')}
+            ${(isExtended ? `<td>${itemName.substring(0, itemName.indexOf("|"))}</td>` : `<td>${itemName}</td>`)}
+            ${(isExtended ? `<td>${itemName.slice(itemName.indexOf("|") + 1)}</td>` : '')}
             <td>${itemNames[item][2]}</td>
             <td>${itemNames[item][3]}</td>
             <td>${itemNames[item][1]}</td>
@@ -1208,7 +1205,7 @@ function loadRelated(){
     relatedTable.innerHTML += html;
 
     //if less than 5 items loaded, load more
-    if(sliced.length < 5){
+    if (sliced.length < 5) {
         document.getElementById("everything").dispatchEvent(new Event('scroll'));
     }
 }
