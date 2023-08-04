@@ -1072,6 +1072,12 @@ async function showRelated(result, isExtended = false) {
         bar.update(100, 'Done!');
         return false;
     }
+    
+    //reverse results
+    for(const [key,value] of Object.entries(result[0])){
+        result[0][key] = result[0][key].reverse();
+    }
+
     relatedResults = {
         idx: 0,
         curKey: 0,
