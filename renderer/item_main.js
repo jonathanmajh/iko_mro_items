@@ -305,7 +305,7 @@ document.getElementById("imgInput").addEventListener("change", async (e) => {
     document.getElementById("img-upload-status-text").innerHTML = `<a href=${url} id="imgs-link">Selected Items:</a>`;
     document.getElementById("imgs-link").addEventListener('click', function (e) {
         e.preventDefault();
-        shell.openFile(url);
+        shell.openExternal(url);
         // TODO move this to main
     });
 
