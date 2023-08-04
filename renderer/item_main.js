@@ -23,25 +23,33 @@ let relatedResults = {
 
 window.onload = function() {
     document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
+    if(localStorage.getItem('powerUser') === 'true'){
+        document.getElementById("upload-btn").style.display = "block";
+        document.getElementById("request-btn").style.display = "none"; 
+        document.getElementById("batch-upld-btn").style.display = "block";
+        document.getElementById("img-upld-toggle").style.display = "block";
+        document.getElementById("batch-mode-toggle").style.display = "block";
+        return;
+    }
 }
-
 //power user toggle
 document.getElementById("secret-button").addEventListener('click',(e) => {
- 
     let isPowerUser = false;
     let numClicks = parseInt(e.target.getAttribute('data-clicks'));
 
     numClicks++;
-    console.log(numClicks);
+    //console.log(numClicks);
 
     if(numClicks === 5){
-        isPowerUser = true; 
+        isPowerUser = true;
+        localStorage.setItem('powerUser', 'true');
         e.target.setAttribute('data-clicks','0');
     }
     else{
+        localStorage.setItem('powerUser', 'false');
         e.target.setAttribute('data-clicks',`${numClicks}`);
         isPowerUser = false;
-    } 
+    }
 //toggle button display based off of power user status
     if (isPowerUser == true) {
         document.getElementById("upload-btn").style.display = "block";
