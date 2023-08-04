@@ -134,23 +134,20 @@ document.getElementById("request-btn").addEventListener('click', () => {
     })
         .catch(error => console.error(`Error: ${error}`));
 
-    //Allow input of manufacturer name & part number if "Other" is selected
-    document.getElementById("manu-name").addEventListener('click', () => {
-
-        let manufacValue = document.getElementById("manu-name");
-        let selectedVal = manufacValue.options[manufacValue.selectedIndex].text;
-        if (selectedVal == "Other") {
-            document.getElementById("pref-manu").style.display = "block";
-            document.getElementById("part-form").style.display = "block";
-        }
-        else {
-            document.getElementById("pref-manu").style.display = "none";
-            document.getElementById("part-form").style.display = "none";
-        }
-    })
-
     poppulateModal();
 });
+
+//Allow input of manufacturer name & part number if "Other" is selected
+document.getElementById("manu-name").addEventListener('click', (e) => {
+    if (e.target.value == "Other") {
+        document.getElementById("pref-manu").style.display = "block";
+        document.getElementById("part-form").style.display = "block";
+    }
+    else {
+        document.getElementById("pref-manu").style.display = "none";
+        document.getElementById("part-form").style.display = "none";
+    }
+})
 
 //download email file when submit button is pressed
 document.getElementById("submit-btn").addEventListener('click', submitMail, false);
