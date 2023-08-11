@@ -10,6 +10,10 @@ let colLoc = {
     commGroup: -1,
     glClass: -1,
     maximo: -1,
+    vendor: -1,
+    storeroom: -1,
+    catNum: -1,
+    siteID: -1,
 }
 let relatedResults = {
     idx: 0,
@@ -73,7 +77,7 @@ document.getElementById("imgInput").addEventListener("change", async (e) => {
 </li>`;
     }
 
-    let url = `https://prod.manage.prod.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;    
+    let url = `https://test.manage.test.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;    
     document.getElementById("img-upload-status-text").innerHTML = `<a href=${url} id="imgs-link">Selected Items:</a>`;
     document.getElementById("imgs-link").addEventListener('click', function (e) {
         e.preventDefault();
@@ -248,7 +252,7 @@ document.getElementById("batch-paste-btn").addEventListener("click", async () =>
     textinput.dispatchEvent(pasteEvent);
 })
 document.getElementById("batch-copy-headers-btn").addEventListener("click", () => {
-    let copyText = `Maximo\tDescription\tIssue Unit\tCommodity Group\tGL Class\n\t`;
+    let copyText = `Maximo\tDescription\tIssue Unit\tCommodity Group\tGL Class\tSite\tStoreroom\tVendor\tCatalogue Number\n\t`;
     navigator.clipboard.writeText(copyText);
     new Toast('Table copied to clipboard!');
 })
@@ -416,6 +420,10 @@ function getItemsFromTable(tableId) {
         commGroup: -1,
         glClass: -1,
         maximo: -1,
+        vendor: -1,
+        storeroom: -1,
+        catNum: -1,
+        siteID: -1,
     }
 
     let table=document.getElementById(`${tableId}`);
@@ -443,65 +451,131 @@ function getItemsFromTable(tableId) {
         } else if(cell.innerHTML.toUpperCase()==='GL CLASS'){
             colLoc.glClass=i;
             validParams++;
+        } else if(cell.innerHTML.toUpperCase()==='SITEID' || cell.innerHTML.toUpperCase()==='SITE'){
+            colLoc.siteID=i;
+            validParams++;
+        } else if(cell.innerHTML.toUpperCase()==='STOREROOM' || cell.innerHTML.toUpperCase()==='STOREROOM'){
+            colLoc.storeroom=i;
+            validParams++;
+        } else if(cell.innerHTML.toUpperCase()==='VENDOR' || cell.innerHTML.toUpperCase()==='VENDOR NUMBER'){
+            colLoc.vendor=i;
+            validParams++;
+        } else if(cell.innerHTML.toUpperCase()==='CAT NUMBER' || cell.innerHTML.toUpperCase()==='CATALOG NUMBER' || cell.innerHTML.toUpperCase()==='CATALOGUE NUMBER'){
+            colLoc.catNum=i;
+            validParams++;
         } else if(cell.innerHTML.toUpperCase()==='MAXIMO' || cell.innerHTML.toUpperCase()==='ITEM NUMBER'){
             colLoc.maximo=i;
             validParams++;
         }
-        //console.log(validParams)
+        // console.log(validParams)
     }
-
-    if(validParams<5){
-        let missingCols = "";
-        let missingColArr = [];
-
-        for(const property in colLoc){
-            if(colLoc[property] == -1){
-                console.log(property);
-
-                missingColArr.push(property.toLowerCase());
+//Checking if mandatory columns are filled
+if(colLoc.siteID!=-1 || colLoc.storeroom!=-1 || colLoc.vendor!=-1 || colLoc.catNum!=-1){
+    if(colLoc.siteID==-1 || colLoc.storeroom==-1){
+       let numMissing = 0;
+       let missingCols = "";
+       let missingColArr = [];
+   console.log("missing params");
+       for(const property in colLoc){
+           if(colLoc[property] == -1 && property != "vendor" && property != "catNum"){
+               console.log(property);
+               numMissing++;
+               missingColArr.push(property.toLowerCase());
+           }
+       }
+       missingCols = missingColArr.join(', ');
+       document.getElementById("batch-upload-status-text").innerHTML=`Table is missing ${numMissing} column(s): (${missingCols}). Table will not be uploaded!`;
+       return;
+   }
+    }
+    else{
+        if(validParams<5){
+            let missingCols = "";
+            let missingColArr = [];
+        console.log("missing params");
+            for(const property in colLoc){
+                if(colLoc[property] == -1 && property != "siteID" && property != "storeroom" && property != "vendor" && property != "catNum"){
+                    console.log(property);
+                    missingColArr.push(property.toLowerCase());
+                }
             }
+            missingCols = missingColArr.join(', ');
+            document.getElementById("batch-upload-status-text").innerHTML=`Table is missing ${5-validParams} column(s): (${missingCols}). Table will not be uploaded!`;
+            return;
         }
-        missingCols = missingColArr.join(', ');
-        document.getElementById("batch-upload-status-text").innerHTML=`Table is missing ${5-validParams} column(s): (${missingCols}). Table will not be uploaded!`;
-        return;
     }
-
-    //console.log(colLoc);
-    //loop thru all rows
     let invalidItems=0;
-    for(let i=2; i<=rows; i++){
-        let desc = sanitizeString(document.getElementById(i + "-"+colLoc.description).innerHTML);
-        let uom = sanitizeString(document.getElementById(i+"-"+colLoc.uom).innerHTML).toUpperCase();
-        let commGroup = sanitizeString(document.getElementById(i+"-"+colLoc.commGroup).innerHTML);
-        let glclass = sanitizeString(document.getElementById(i+"-"+colLoc.glClass).innerHTML).toUpperCase();
-        let maximo = sanitizeString(document.getElementById(i+"-"+colLoc.maximo).innerHTML);
-
-        //if all required parameters are not available, don't create the item and move to next row
-        if(desc==''||uom==''||commGroup==''||glclass==''||desc==0||uom==0||commGroup==0||glclass==0){
-            updateItemStatus('error',(i-1));
-            items.push('');
-            invalidItems++;
-            continue;
+//Make item for request that includes inventory upload
+    if(validParams>5){
+        let site = undefined;
+        let storeroom = undefined;
+        let vendor = undefined;
+        let catNum = undefined;
+        for(let i=2; i<=rows; i++){
+            let desc = sanitizeString(document.getElementById(i + "-"+colLoc.description).innerHTML);
+            let uom = sanitizeString(document.getElementById(i+"-"+colLoc.uom).innerHTML).toUpperCase();
+            let commGroup = sanitizeString(document.getElementById(i+"-"+colLoc.commGroup).innerHTML);
+            let glclass = sanitizeString(document.getElementById(i+"-"+colLoc.glClass).innerHTML).toUpperCase();
+            if(colLoc.siteID!=-1){site = sanitizeString(document.getElementById(i+"-"+colLoc.siteID).innerHTML).toUpperCase();} 
+            if(colLoc.storeroom!=-1){storeroom = sanitizeString(document.getElementById(i+"-"+colLoc.storeroom).innerHTML).toUpperCase();}
+            if(colLoc.vendor!=-1){vendor = sanitizeString(document.getElementById(i+"-"+colLoc.vendor).innerHTML);}
+            if(colLoc.catNum!=-1){catNum = sanitizeString(document.getElementById(i+"-"+colLoc.catNum).innerHTML);}
+            let maximo = sanitizeString(document.getElementById(i+"-"+colLoc.maximo).innerHTML);
+            //if all required parameters are not available, don't create the item and move to next row
+            if(desc==''||uom==''||commGroup==''||glclass==''||desc==0||uom==0||commGroup==0||glclass==0||site==''||storeroom==''){
+                updateItemStatus('error',(i-1));
+                items.push('');
+                invalidItems++;
+                continue;
+            }
+            
+            let item = new Item(undefined,desc,uom,commGroup,glclass,site,storeroom,vendor,catNum);
+            if(colLoc.maximo!=-1 && maximo!=0 && maximo.toString().length === 7){
+                item.itemnumber = maximo;
+            } else if(desc.toUpperCase().includes("DWG")){
+                item.series = 98;
+            } else if(commGroup == "490" && glclass == "PLS"){
+                //Change when when item num reachs 9920000
+                item.series = 991;
+            }
+            // console.log(item);
+            //add the item to the array
+            items.push(item);
         }
-
-        let item = new Item(undefined,desc,uom,commGroup,glclass);
-        if(colLoc.maximo!=-1 && maximo!=0 && maximo.toString().length === 7){
-            item.itemnumber = maximo;
-        } else if(desc.toUpperCase().includes("DWG")){
-            item.series = 98;
-        } else if(commGroup == "490" && glclass == "PLS"){
-            //Change when when item num reachs 9920000
-            item.series = 991;
-        }
-        //console.log(item);
-        //add the item to the array
-        items.push(item);
     }
+    //Make item for request that doesn't need inventory upload
+    else{
+        for(let i=2; i<=rows; i++){
+            let desc = sanitizeString(document.getElementById(i + "-"+colLoc.description).innerHTML);
+            let uom = sanitizeString(document.getElementById(i+"-"+colLoc.uom).innerHTML).toUpperCase();
+            let commGroup = sanitizeString(document.getElementById(i+"-"+colLoc.commGroup).innerHTML);
+            let glclass = sanitizeString(document.getElementById(i+"-"+colLoc.glClass).innerHTML).toUpperCase();
+            let maximo = sanitizeString(document.getElementById(i+"-"+colLoc.maximo).innerHTML);
+            //if all required parameters are not available, don't create the item and move to next row
+            if(desc==''||uom==''||commGroup==''||glclass==''||desc==0||uom==0||commGroup==0||glclass==0){
+                updateItemStatus('error',(i-1));
+                items.push('');
+                invalidItems++;
+                continue;
+            }
+            let item = new Item(undefined,desc,uom,commGroup,glclass);
+            if(colLoc.maximo!=-1 && maximo!=0 && maximo.toString().length === 7){
+                item.itemnumber = maximo;
+            } else if(desc.toUpperCase().includes("DWG")){
+                item.series = 98;
+            } else if(commGroup == "490" && glclass == "PLS"){
+                //Change when when item num reachs 9920000
+                item.series = 991;
+            }
+            // console.log(item);
+            //add the item to the array
+            items.push(item);
+        }
+    }
+   
     if(invalidItems>0){
         document.getElementById("batch-upload-status-text").innerHTML=`Warning! ${invalidItems} invalid items will not be uploaded`;
     }
-    //console.log(invalidItems)
-    //console.log(items);
     //return the item array
     return items;
 }
@@ -531,7 +605,7 @@ async function uploadItem(){
         document.getElementById("error").innerHTML = "Upload Success"
         document.getElementById("confirm-btn").innerHTML = "Upload Item";
         document.getElementById("confirm-btn").disabled = false;
-        let itemUrl = `https://prod.manage.prod.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
+        let itemUrl = `https://test.manage.test.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
         document.getElementById("error").innerHTML = `Item Upload Successful! <a id="item-link" href = "${itemUrl}"> (Click to view item) </a>`;
         document.getElementById("item-link").addEventListener('click', function (e) {
             e.preventDefault();
@@ -550,7 +624,10 @@ async function batchUploadItems(items){
     clearBtn.disabled = true;
     btn.disabled = true;
     worker.work(['uploadItems',items,true],(e)=>{
-        let finishText=`Upload Finished! ${e[2]} items uploaded. `;
+        let finishText=`Upload Finished! ${e[2]} items uploaded, ${e[3]} items added to inventory. `;
+        if(e[0]=="failure"){
+                    new Toast(`Invalid! ${e[1]}}!`);
+                }
         clearBtn.disabled = false;
         btn.disabled = false;
         updateItemNums(e[0]);
@@ -560,7 +637,7 @@ async function batchUploadItems(items){
             nums += document.getElementById(`${i}-${colLoc.maximo}`).innerHTML ? (document.getElementById(`${i}-${colLoc.maximo}`).innerHTML + ",") : "";
         }
         if(e[2]>0){
-            let itemUrl = `https://prod.manage.prod.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
+            let itemUrl = `https://test.manage.test.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
             finishText += `<a id="batch-link" href="${itemUrl}">Click to view:</a>`
             document.getElementById("batch-upload-status-text").innerHTML = finishText;
             document.getElementById("batch-link").addEventListener('click', function (e) {

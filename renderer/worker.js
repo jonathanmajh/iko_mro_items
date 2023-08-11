@@ -92,7 +92,7 @@ onmessage = function (e) {
             break;
         case 'uploadItems':
             e.data[2] ? uploadAllItems(e.data[1],e.data[2]) : uploadAllItems(e.data[1]);
-            break;     
+            break;   
         case 'translateItem':
             const trans = new Translation();
             result = trans.contextTranslate(e.data[1], e.data[2], e.data[3]);
@@ -355,7 +355,7 @@ async function uploadAllItems(items,doUpdate = false){
     const maximo = new Maximo();
     let count = 1;
     let newNums = [];
-    let num,numFails=0,numSuccesses=0;
+    let num,numFails=0,numSuccesses=0,numStoreroomSuccesses=0;
     
     for(const item of items){
         let needsNewNum = false;
@@ -397,10 +397,40 @@ async function uploadAllItems(items,doUpdate = false){
             postMessage(['fail',`Failed upload of ${item.description}`]);
             console.error(`Failed upload of \"${item.description}\", ${err}`);
         }
+        //Does inventory upload of the item if any of the inventory fields are filled in
+        if(item.storeroomname != "" || item.siteID != "" || item.cataloguenum != "" || item.vendorname != ""){
+            try{
+                let result = await maximo.uploadToInventory(item);
+                //Cases of result are listed in maximo.js
+                if(result == 0){
+                    throw new Error('Unable to upload');
+                } else if(result == 1){
+                    postMessage(['debug',`Inventory upload of ${item.description} succeeded`]);
+                    console.log("Adding to " + item.storeroomname + " success");
+                    numStoreroomSuccesses++;
+                } else if(result == 2){
+                    throw (['Invalid Vendor', 'vendor']);
+                } else if(result == 3){
+                    throw (['Invalid Site', 'siteID']);
+                } else{
+                    throw (['Invalid Storeroom', 'storeroom']);
+                }
+    
+            } catch (err){
+                numFails++;
+                //highlight the cells that have invalid values to red
+                postMessage(['updateColors',count+1,err[1]]);
+                //Creates toast for the error
+                postMessage(['runCallback','failure',`Failed Inventory upload of ${item.description}. ${err}`]);
+                //Adds error to log
+                postMessage(['fail',`Failed Inventory upload of ${item.description}. ${err}`]);
+                console.error(`Failed inventory upload of \"${item.description}\", ${err}`);
+            }
+        }
         //console.log(count);
         count++;
     }
-    postMessage(['result',newNums,numFails,numSuccesses]);
+    postMessage(['result',newNums,numFails,numSuccesses,numStoreroomSuccesses]);
 }
 
 async function uploadImages(images){

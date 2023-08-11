@@ -15,7 +15,7 @@ class Maximo {
         let meters = [];
         while (nextpage) {
             try {
-                response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/iko_meter?lean=1&pageno=${pageno}&oslc.pageSize=100&oslc.select=*&oslc.where=domainid%3D%22M-%25%22`, {
+                response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/iko_meter?lean=1&pageno=${pageno}&oslc.pageSize=100&oslc.select=*&oslc.where=domainid%3D%22M-%25%22`, {
                     headers: {
                         "apikey": this.login.userid,
                     }});
@@ -49,7 +49,7 @@ class Maximo {
         let observations = [];
         while (nextpage) {
             try {
-                response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/iko_alndomain?lean=1&pageno=${pageno}&oslc.where=domainid%3D%22M-%25%22&oslc.pageSize=100&oslc.select=alndomain%2Cdomainid%2Cdescription`, {
+                response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/iko_alndomain?lean=1&pageno=${pageno}&oslc.where=domainid%3D%22M-%25%22&oslc.pageSize=100&oslc.select=alndomain%2Cdomainid%2Cdescription`, {
                     headers: {
                         "apikey": this.login.userid,
                     }});
@@ -90,7 +90,7 @@ class Maximo {
         date = date.replace(' ', 'T');
         let response;
         try {
-            response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=in22>"${date}" and itemnum="9%25"&oslc.select=itemnum,in22,description,issueunit,commoditygroup,externalrefid,status`, {
+            response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=in22>"${date}" and itemnum="9%25"&oslc.select=itemnum,in22,description,issueunit,commoditygroup,externalrefid,status`, {
                 headers: {
                     "apikey": this.login.userid,
                 }});
@@ -129,7 +129,7 @@ class Maximo {
         date = date.replace(' ', 'T');
         let response;
         try {
-            response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/IKO_COMPMASTER?lean=1&oslc.where=type="M" and changedate>"${date}"&oslc.select=company,name,homepage,changedate`, {
+            response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/IKO_COMPMASTER?lean=1&oslc.where=type="M" and changedate>"${date}"&oslc.select=company,name,homepage,changedate`, {
                 headers: {
                     "apikey": this.login.userid,
                 }});
@@ -166,7 +166,7 @@ class Maximo {
         let response;
         try {
             // %25 is %
-            response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=status="active" and itemnum="${numSeries}%25"&_lid=${this.login.userid}&_lpwd=${this.login.password}&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum`, {
+            response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=status="active" and itemnum="${numSeries}%25"&_lid=${this.login.userid}&_lpwd=${this.login.password}&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum`, {
                 headers: {
                     "apikey": this.login.userid,
                 }});
@@ -194,7 +194,7 @@ class Maximo {
     async checkLogin(userid = this.login.userid, password = this.login.password) {
         let response;
         try {
-            response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/whoami?lean=1`, {
+            response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/whoami?lean=1`, {
                 headers: {
                     "apikey": userid,
                 },
@@ -220,40 +220,87 @@ class Maximo {
 
     async uploadToMaximo(item){
         let xmldoc =     
-    `<?xml version="1.0" encoding="UTF-8"?>
-    <SyncIKO_ITEMMASTER xmlns="http://www.ibm.com/maximo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <IKO_ITEMMASTERSet>
-        <ITEM>
-            <COMMODITYGROUP>${item.commoditygroup}</COMMODITYGROUP>
-            <DESCRIPTION>${item.description.replaceAll('&','&amp;')}</DESCRIPTION>
-            <DESCRIPTION_LONGDESCRIPTION>${item.longdescription.replaceAll('&','&amp;')}</DESCRIPTION_LONGDESCRIPTION>
-            <EXTERNALREFID>${item.glclass}</EXTERNALREFID>
-            <IKO_ASSETPREFIX>${item.assetprefix}</IKO_ASSETPREFIX>
-            <IKO_ASSETSEED>${item.assetseed}</IKO_ASSETSEED>
-            <IKO_JPNUM>${item.jpnum}</IKO_JPNUM>
-            <INSPECTIONREQUIRED>${item.inspectionrequired}</INSPECTIONREQUIRED>
-            <ISIMPORT>${item.isimport}</ISIMPORT>
-            <ISSUEUNIT>${item.issueunit}</ISSUEUNIT>
-            <ITEMNUM>${item.itemnumber}</ITEMNUM>
-            <ITEMSETID>ITEMSET1</ITEMSETID>
-            <ROTATING>${item.rotating}</ROTATING>
-            <STATUS>ACTIVE</STATUS>
-        </ITEM>
-    </IKO_ITEMMASTERSet>
-    </SyncIKO_ITEMMASTER>`;
-    
-        let response = await fetch('https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/IKO_ITEMMASTER?action=importfile', {
+        `<?xml version="1.0" encoding="UTF-8"?>
+        <SyncIKO_ITEMMASTER xmlns="http://www.ibm.com/maximo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <IKO_ITEMMASTERSet>
+            <ITEM>
+                <COMMODITYGROUP>${item.commoditygroup}</COMMODITYGROUP>
+                <DESCRIPTION>${item.description.replaceAll('&','&amp;')}</DESCRIPTION>
+                <DESCRIPTION_LONGDESCRIPTION>${item.longdescription.replaceAll('&','&amp;')}</DESCRIPTION_LONGDESCRIPTION>
+                <EXTERNALREFID>${item.glclass}</EXTERNALREFID>
+                <IKO_ASSETPREFIX>${item.assetprefix}</IKO_ASSETPREFIX>
+                <IKO_ASSETSEED>${item.assetseed}</IKO_ASSETSEED>
+                <IKO_JPNUM>${item.jpnum}</IKO_JPNUM>
+                <INSPECTIONREQUIRED>${item.inspectionrequired}</INSPECTIONREQUIRED>
+                <ISIMPORT>${item.isimport}</ISIMPORT>
+                <ISSUEUNIT>${item.issueunit}</ISSUEUNIT>
+                <ITEMNUM>${item.itemnumber}</ITEMNUM>
+                <ITEMSETID>ITEMSET1</ITEMSETID>
+                <ROTATING>${item.rotating}</ROTATING>
+                <STATUS>ACTIVE</STATUS>
+            </ITEM>
+        </IKO_ITEMMASTERSet>
+        </SyncIKO_ITEMMASTER>`;
+        let response = await fetch('https://test.manage.test.iko.max-it-eam.com/maximo/api/os/IKO_ITEMMASTER?action=importfile', {
             method: "POST",
             headers: {
                 "filetype":"XML",
                 "apikey": this.login.userid,
-                //"preview": "1"
+                // "preview": "1"
             },
             body: xmldoc,
         });
         let content = await response.json();
-        //console.log(content);
+        // console.log(content);
         return parseInt(content.validdoc);
+    }
+//Uploads item to inventory
+    async uploadToInventory(item){
+        let xmldoc =     
+        `<?xml version="1.0" encoding="UTF-8"?>
+        <SyncIKO_INVENTORY xmlns="http://www.ibm.com/maximo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <IKO_INVENTORYSet>
+            <INVENTORY>
+              <CATALOGCODE>${item.cataloguenum}</CATALOGCODE>
+              <ISSUEUNIT>${item.issueunit}</ISSUEUNIT>
+              <ITEMNUM>${item.itemnumber}</ITEMNUM>
+              <ITEMSETID>ITEMSET1</ITEMSETID>
+              <LOCATION>${item.storeroomname}</LOCATION>
+              <SITEID>${item.siteID}</SITEID>
+              <VENDOR>${item.vendorname}</VENDOR>
+            </INVENTORY>
+          </IKO_INVENTORYSet>
+        </SyncIKO_INVENTORY>`;
+        let response = await fetch('https://test.manage.test.iko.max-it-eam.com/maximo/api/os/IKO_INVENTORY?action=importfile', {
+            method: "POST",
+            headers: {
+                "filetype":"XML",
+                "apikey": this.login.userid,
+                // "preview": "1"
+            },
+            body: xmldoc,
+        });
+        let content = await response.json();
+        //if upload to storeroom succeeded
+        if(parseInt(content.validdoc) == 1){
+            return 1;
+        } //failure due to invalid vendor name
+        else if(content["oslc:Error"]["oslc:message"].includes("Company is not valid")){
+            console.log(content["oslc:Error"]["oslc:message"]);
+            return 2;
+        } //failure due to invalid site id
+        else if(content["oslc:Error"]["oslc:message"].includes("is not a valid site")){
+            console.log(content["oslc:Error"]["oslc:message"]);
+            return 3;
+        } //failure due to invalid storeroom
+        else if(content["oslc:Error"]["oslc:message"].includes("is not a valid inventory location")){
+            console.log(content["oslc:Error"]["oslc:message"]);
+            return 4;
+        } //failure due to other reason i.e. item already has inventory fields filled in on Maximo
+        else {
+            console.log(content["oslc:Error"]["oslc:message"]);
+            return 0; 
+        } 
     }
 
     async uploadImageToMaximo(image){
@@ -264,7 +311,7 @@ class Maximo {
 
         //check valid item number        
         let itemnum = image.name.slice(0,7);
-        let response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem?oslc.where=itemnum=${itemnum}`, {
+        let response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem?oslc.where=itemnum=${itemnum}`, {
             method: "GET",
             headers: {
                 "apikey": this.login.userid,
@@ -281,7 +328,7 @@ class Maximo {
         //console.log("item id " + itemId);
 
         //check for existing image
-        response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}`,{
+        response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}`,{
             method: "GET",
             headers: {
                 "apikey": this.login.userid,
@@ -294,7 +341,7 @@ class Maximo {
             //console.log("image exists");
 
             //code to delete existing image
-            /*response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}?action=system:deleteimage`, {
+            /*response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}?action=system:deleteimage`, {
                 method: "POST",
                 headers: {
                     "x-method-override":"PATCH",
@@ -307,7 +354,7 @@ class Maximo {
         }
 
         //upload new image
-        response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}?action=system:addimage`, {
+        response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}?action=system:addimage`, {
             method: "POST",
             headers: {
                 "x-method-override":"PATCH",

@@ -1,4 +1,3 @@
-//runs automagically
 
 (function() {
     if(!(localStorage.getItem('theme'))){
@@ -40,6 +39,8 @@ class WorkerHandler {
                 log.error(e.data[1]);
             } else if (e.data[0] === 'update'){
                 updateItemStatus(e.data[1],e.data[2]);
+            } else if (e.data[0] === 'updateColors'){
+                updateTableColors(e.data[1],e.data[2]);
             } else if (e.data[0] === 'runCallback'){
                 callback(e.data.slice(1,));
             } else {
@@ -137,8 +138,8 @@ class Toast {
 }
 
 class Item {
-    //add more properties later (e.g storeroom, manufacturer, etc.)
-    constructor(itemnumber=0, description, issueunit, commoditygroup, glclass, series=91, longdescription = "", assetprefix = "", assetseed = "", jpnum = "", inspectionrequired = 0, isimport = 0, rotating = 0){
+    //add more properties later (e.g manufacturer, part num, etc.)
+    constructor(itemnumber=0, description, issueunit, commoditygroup, glclass, siteID = "", storeroomname = "", vendorname = "", cataloguenum = "", series=91, longdescription = "", assetprefix = "", assetseed = "", jpnum = "", inspectionrequired = 0, isimport = 0, rotating = 0){
         this.itemnumber = itemnumber;
         this.series=series;
         this.description = description;
@@ -152,6 +153,10 @@ class Item {
         this.inspectionrequired = inspectionrequired;
         this.isimport = isimport;
         this.rotating = rotating;
+        this.siteID = siteID;
+        this.storeroomname = storeroomname;
+        this.vendorname = vendorname;
+        this.cataloguenum = cataloguenum;
     }
 }
 //functions
@@ -277,8 +282,56 @@ ${bodyRows.join("")}
     
     return tab;
 }
+//Highlights cells red for any cell with invalid data
+function updateTableColors(itemindex,category){
+    let colLoc = {
+        description: -1,
+        uom: -1,
+        commGroup: -1,
+        glClass: -1,
+        maximo: -1,
+        vendor: -1,
+        storeroom: -1,
+        catNum: -1,
+        siteID: -1,
+    }
+    let table=document.getElementById("batch-items-table");
+    //Assign column locations
+    let cols = parseInt(table.getAttribute("data-cols"));
+    //go through first row to find headings.
+    for(let i = 1; i<=cols; i++){
+        //get a cell in the table by its id
+        let cell = document.getElementById("1-"+i);
+        //see if cell value matches any of the required parameters to create an item object
+        if(cell.innerHTML.toUpperCase()==='DESCRIPTION'){
+            colLoc.description=i;
+        } else if(cell.innerHTML.toUpperCase()==='UOM'||cell.innerHTML.toUpperCase()==='ISSUE UNIT'){
+            colLoc.uom=i;
+        } else if(cell.innerHTML.toUpperCase()==='COMMODITY GROUP' || cell.innerHTML.toUpperCase()==='COMM GROUP'){
+            colLoc.commGroup=i;
+        } else if(cell.innerHTML.toUpperCase()==='GL CLASS'){
+            colLoc.glClass=i;
+        } else if(cell.innerHTML.toUpperCase()==='SITEID' || cell.innerHTML.toUpperCase()==='SITE'){
+            colLoc.siteID=i;
+        } else if(cell.innerHTML.toUpperCase()==='STOREROOM' || cell.innerHTML.toUpperCase()==='STOREROOM'){
+            colLoc.storeroom=i;
+        } else if(cell.innerHTML.toUpperCase()==='VENDOR' || cell.innerHTML.toUpperCase()==='VENDOR NUMBER'){
+            colLoc.vendor=i;
+        } else if(cell.innerHTML.toUpperCase()==='CAT NUMBER' || cell.innerHTML.toUpperCase()==='CATALOG NUMBER' || cell.innerHTML.toUpperCase()==='CATALOGUE NUMBER'){
+            colLoc.catNum=i;
+        } else if(cell.innerHTML.toUpperCase()==='MAXIMO' || cell.innerHTML.toUpperCase()==='ITEM NUMBER'){
+            colLoc.maximo=i;
+        }
+    }
+        let colNum = colLoc[category];
+        let cell = document.getElementById(`${itemindex}-${colNum}`);
+        //change color of cell
+        cell.classList.add("table-danger");
+        
+}
 
 function updateItemStatus(status,itemindex){
+    //Changes item status column to reflect status
     let statusimg = document.getElementById(`item-${itemindex}-status`);
     if(status=="fail"){
         statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">close</i>`;
