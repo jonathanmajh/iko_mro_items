@@ -12,10 +12,16 @@ const Translation = require('../assets/item_translation/item-translation');
 const fs = require('fs');
 const { debug, error } = require('console');
 
+/**
+ * Handles messages from the WorkerHandler
+ * 
+ * @param {Array} e
+ */
 onmessage = function (e) {
     let valid;
     let maximo;
     let result;
+    //decide which function to run based on the first element in the array
     switch (e.data[0]) {
         case 'validSingle':
             valid = new Validate();
@@ -119,7 +125,11 @@ async function saveProgress(params) {
     console.log(result);
     postMessage(['saveComplete', Number(params[1]) + 1]);
 }
-
+/**
+ * Get the latest item number for the given series (91, 98, 99)
+ * 
+ * @param {string} series 
+ */
 async function getCurItemNum(series) {
     const maximo = new Maximo();
     let num;
@@ -127,7 +137,7 @@ async function getCurItemNum(series) {
         num = await maximo.getCurItemNumber(series);
         postMessage(['result',1,num]);
     } catch (err){
-        postMessage(['debug',err]);
+        postMessage(['fail',err]);
         postMessage(['result',0,'Unable to get number'])
     }
 }
@@ -351,32 +361,48 @@ async function checkItemCache(version) {
 
     postMessage(['result', 'done']);
 }
-
-async function uploadAllItems(items,doUpdate = false){
+/**
+ * Uploads a list of items to Maximo
+ * 
+ * @param {Item[] | string[]} items - Array of items to upload
+ * @param {boolean} doUpdate - Whether or not to update item status. Item status is not updated for single item upload, but is updated for batch upload
+ * @postmessage list of new item numbers and item upload statistics
+ */
+async function uploadAllItems(items,doUpdate = false){ //NOTE: the current implementation of this function means that "9S" series numbers aren't supported
     const maximo = new Maximo();
-    let count = 1;
+    //row index of the current item in the table (the first row has an index of 1, initializing to 0 because it gets incremented in the loop)
+    let rowIndex = 0;
+    //newNums is a list of new item numbers and their corresponding row index
     let newNums = [];
+    //num is the current item number, numFails is the number of items that failed to upload, numSuccesses is the number of items that successfully uploaded
     let num,numFails=0,numSuccesses=0;
     
     for(const item of items){
-        let needsNewNum = false;
+        let needsNewNum = false; //by default the item does not need a new item number
+        rowIndex++; //for each item increment rowindex
         try{
+            //if item is an empty string, it is invalid, therefore skip it
             if(item===''){
-                count++;
                 continue;
             }
             if(item.itemnumber === 0 || item.itemnumber.length != 7){
+                //if the item number is 0 or is not 7 characters long, assign a new item number
                 needsNewNum = true;
+                //get latest item number
                 num = await maximo.getCurItemNumber(item.series);
-                num++;
-                newNums.push([num,count]);
+                //increment it by 1 to get an unused item number
+                num++; //since we are incrementing nums, we can't use a 9S series number because it will be a string, not a number
+                //push the new item number and the row index to newNums
+                newNums.push([num,rowIndex]);
+                //set itemnumber property of the item to the new item number
                 item.itemnumber = num;
             }
         } catch (err){
+            //if theres an error, remove the new item num from newNums as it wont be used for the failed item.
             if(needsNewNum) newNums.pop();
             numFails++;
             console.log(err + ", Item Upload Failed");
-            if(doUpdate) postMessage(['update','fail',count])
+            if(doUpdate) postMessage(['update','fail',rowIndex])
             postMessage(['fail',err]);
             continue;
         }
@@ -384,10 +410,10 @@ async function uploadAllItems(items,doUpdate = false){
         try{
             let result = await maximo.uploadToMaximo(item);
             if(!result){
-                if(doUpdate) postMessage(['update','fail',count]);
+                if(doUpdate) postMessage(['update','fail',rowIndex]);
                 throw new Error('Upload Failed');
             } else {
-                if(doUpdate) postMessage(['update','success',count]);
+                if(doUpdate) postMessage(['update','success',rowIndex]);
                 postMessage(['debug',`Upload of ${item.description} succeeded`]);
                 console.log("Upload of " + item.description + " success");
                 numSuccesses++;
@@ -398,28 +424,31 @@ async function uploadAllItems(items,doUpdate = false){
             postMessage(['fail',`Failed upload of ${item.description}`]);
             console.error(`Failed upload of \"${item.description}\", ${err}`);
         }
-        //console.log(count);
-        count++;
     }
     postMessage(['result',newNums,numFails,numSuccesses]);
 }
-
+/**
+ * Uploads images to Maximo at the item master level
+ * @param {File[]} images 
+ */
 async function uploadImages(images){
     try{
         const maximo = new Maximo();
         for(let i = 0; i < images.length; i++){
             let img = images[i];
+            //try to upload the image
             let data = await maximo.uploadImageToMaximo(img);
             let result = data[0];
+            
+            //handle result of upload
             postMessage(['runCallback',result,i]);
-
+            
+            //log result
             if(result== 'success'){
                 postMessage(['debug',`${img.name} upload success`]);
             } else if (result == 'fail' || result == 'warning'){
                 postMessage(['fail',`${img.name} upload fail; ${data[1]}`]);
             }
-
-            //postMessage([`${(result=='success'?'debug':'fail')}`,`${img.name} upload ${(result=='success' ? 'success' : `fail; ${data[1]}`)}`]);
         }
         postMessage(['result','done']);
     }

@@ -283,13 +283,13 @@ function convertToTable(pastedInput,id="")
             bodyRows.push(`</tr>\n`);
         }
     })
-    let tab = `
+    let table = `
 <table class="table table-primary table-striped" data-rows="${numRows}" data-cols="${numCols}" id="${id}" style="margin-bottom: 0px" contenteditable>
 ${bodyRows.join("")}
 </table>
     `;
     
-    return tab;
+    return table;
 }
 
 function updateItemStatus(status,itemindex){

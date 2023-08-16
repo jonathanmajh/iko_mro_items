@@ -15,7 +15,7 @@ class Maximo {
         let meters = [];
         while (nextpage) {
             try {
-                response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/iko_meter?lean=1&pageno=${pageno}&oslc.pageSize=100&oslc.select=*&oslc.where=domainid%3D%22M-%25%22`, {
+                response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/iko_meter?lean=1&pageno=${pageno}&oslc.pageSize=100&oslc.select=*&oslc.where=domainid%3D%22M-%25%22`, {
                     headers: {
                         "apikey": this.login.userid,
                     }});
@@ -49,7 +49,7 @@ class Maximo {
         let observations = [];
         while (nextpage) {
             try {
-                response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/iko_alndomain?lean=1&pageno=${pageno}&oslc.where=domainid%3D%22M-%25%22&oslc.pageSize=100&oslc.select=alndomain%2Cdomainid%2Cdescription`, {
+                response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/iko_alndomain?lean=1&pageno=${pageno}&oslc.where=domainid%3D%22M-%25%22&oslc.pageSize=100&oslc.select=alndomain%2Cdomainid%2Cdescription`, {
                     headers: {
                         "apikey": this.login.userid,
                     }});
@@ -90,7 +90,7 @@ class Maximo {
         date = date.replace(' ', 'T');
         let response;
         try {
-            response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=in22>"${date}" and itemnum="9%25"&oslc.select=itemnum,in22,description,issueunit,commoditygroup,externalrefid,status`, {
+            response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=in22>"${date}" and itemnum="9%25"&oslc.select=itemnum,in22,description,issueunit,commoditygroup,externalrefid,status`, {
                 headers: {
                     "apikey": this.login.userid,
                 }});
@@ -129,7 +129,7 @@ class Maximo {
         date = date.replace(' ', 'T');
         let response;
         try {
-            response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/IKO_COMPMASTER?lean=1&oslc.where=type="M" and changedate>"${date}"&oslc.select=company,name,homepage,changedate`, {
+            response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/IKO_COMPMASTER?lean=1&oslc.where=type="M" and changedate>"${date}"&oslc.select=company,name,homepage,changedate`, {
                 headers: {
                     "apikey": this.login.userid,
                 }});
@@ -162,22 +162,27 @@ class Maximo {
         }
     }
 
+    /**
+     * 
+     * @param {string} numSeries item series (99, 98, 91)
+     * @returns {number} latest item number
+     */
     async getCurItemNumber(numSeries) {
         let response;
         try {
             // %25 is %
-            response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=status="active" and itemnum="${numSeries}%25"&_lid=${this.login.userid}&_lpwd=${this.login.password}&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum`, {
+            response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=status="active" and itemnum="${numSeries}%25"&_lid=${this.login.userid}&_lpwd=${this.login.password}&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum`, {
                 headers: {
                     "apikey": this.login.userid,
                 }});
 
         } catch (err) {
-            postMessage(['debug', 'Failed to fetch data from Maximo, please check network (1)']);
+            postMessage(['debug', 'Failed to fetch data from Maximo, please check network (1)']); //this likely doesnt work, probably remove it
             throw new Error('Failed to fetch data from Maximo, please check network (1)');
         }
         let content = await response.json();
         if (content["Error"]) { //content["Error"]["message"]
-            postMessage(['debug', 'Failed to fetch Data from Maximo, Please Check Network (2)']);
+            postMessage(['debug', 'Failed to fetch Data from Maximo, Please Check Network (2)']); //this likely doesnt work, probably remove it
             throw new Error('Failed to fetch data from Maximo, please check network (2)');
         } else {
             try {
@@ -194,7 +199,7 @@ class Maximo {
     async checkLogin(userid = this.login.userid, password = this.login.password) {
         let response;
         try {
-            response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/whoami?lean=1`, {
+            response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/whoami?lean=1`, {
                 headers: {
                     "apikey": userid,
                 },
@@ -245,7 +250,7 @@ class Maximo {
     </IKO_ITEMMASTERSet>
     </SyncIKO_ITEMMASTER>`;
     
-        let response = await fetch('https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/IKO_ITEMMASTER?action=importfile', {
+        let response = await fetch('https://test.manage.test.iko.max-it-eam.com/maximo/api/os/IKO_ITEMMASTER?action=importfile', {
             method: "POST",
             headers: {
                 "filetype":"XML",
@@ -258,16 +263,21 @@ class Maximo {
         //console.log(content);
         return parseInt(content.validdoc);
     }
-
+    /**
+     * Uploads an image to maximo
+     * 
+     * @param {File} image
+     * @returns {string[]} [status, (message if upload is unsuccessful)]
+     */
     async uploadImageToMaximo(image){
         //check valid image type
         if(image.type !== "image/jpeg" && image.type !== "image/png"){
             return ['fail', 'Image type not jpeg or png'];
         }
 
-        //check valid item number        
-        let itemnum = image.name.slice(0,7);
-        let response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem?oslc.where=itemnum=${itemnum}`, {
+        //check if item number exists in maximo        
+        let itemnum = image.name.slice(0,7); //itemnum is first 7 digits of image name
+        let response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem?oslc.where=itemnum=${itemnum}`, {
             method: "GET",
             headers: {
                 "apikey": this.login.userid,
@@ -278,13 +288,13 @@ class Maximo {
             return ['fail', 'Item number not found'];
         }
 
-        //get item id
+        //get item id - item id is a code that lets you access information about the item through the API
         let itemId = content["rdfs:member"][0]["rdf:resource"];
         itemId = itemId.slice(38);
         //console.log("item id " + itemId);
 
         //check for existing image
-        response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}`,{
+        response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}`,{
             method: "GET",
             headers: {
                 "apikey": this.login.userid,
@@ -297,7 +307,7 @@ class Maximo {
             //console.log("image exists");
 
             //code to delete existing image
-            /*response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}?action=system:deleteimage`, {
+            /*response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}?action=system:deleteimage`, {
                 method: "POST",
                 headers: {
                     "x-method-override":"PATCH",
@@ -310,7 +320,7 @@ class Maximo {
         }
 
         //upload new image
-        response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}?action=system:addimage`, {
+        response = await fetch(`https://test.manage.test.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}?action=system:addimage`, {
             method: "POST",
             headers: {
                 "x-method-override":"PATCH",
