@@ -6,8 +6,16 @@ const Database = require('../assets/indexDB');
 const SharedDatabase = require('../assets/sharedDB');
 const Validate = require('../assets/validators');
 const Maximo = require('../assets/maximo');
+//stores items that are to be uploaded through the "batch upload" accordion.
 let itemsToUpload = [];
+
+//stores images that are to be uploaded through the "image upload" accordion.
 let imgsToUpload = [];
+
+//an object that stores the location of each column in the batch upload table.
+//allows for column locations to be interchanged. -1 means a column is not in 
+//the table. Maybe in the future, column locations should be predetermined so 
+//that a global variable is not used for this.
 let colLoc = {
     description: -1,
     uom: -1,
@@ -15,14 +23,21 @@ let colLoc = {
     glClass: -1,
     maximo: -1,
 }
+
+//an object that stores all search results and "bookmarks" how many items have
+//been loaded in the related results table. Used for infinite scroll.
 let relatedResults = {
-    idx: 0,
-    curKey: 0,
-    results: [],
+    idx: 0,      // store the index of the current item being loaded
+    curKey: 0,   // store which key is currently being loaded from the search results
+    results: [], // store all search results (dictonary)
 }
 
+//a function that is called immediately after the window has been loaded
 window.onload = function () {
-    document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
+    //set the darkmode toggle to the correct position by retreiving information from the local storage
+    document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false); 
+
+    //change the UI based on whether the user is a "power user". show all upload elements if they are a power user, else hide it.
     if (localStorage.getItem('powerUser') === 'true') {
         document.getElementById("upload-btn").style.display = "block";
         document.getElementById("request-btn").style.display = "none";
@@ -32,13 +47,23 @@ window.onload = function () {
         return;
     }
 }
-//power user toggle
+
+/*
+Power User Toggle
+
+Allows user to toggle between 2 modes: Power user and Normal User.
+Normal user mode hides all upload elements and only allows the user to request items.
+Power user mode shows all upload elements and allows the user to upload items and images.
+
+Created for the purpose of hiding upload functionality from people who shouldn't be
+uploading items (a.k.a. everyone except for reliability team).
+*/
+//set the user to a power user if they have clicked the secret button 5 times
 document.getElementById("secret-button").addEventListener('click', (e) => {
     let isPowerUser = false;
     let numClicks = parseInt(e.target.getAttribute('data-clicks'));
 
     numClicks++;
-    //console.log(numClicks);
 
     if (numClicks === 5) {
         isPowerUser = true;
@@ -50,7 +75,8 @@ document.getElementById("secret-button").addEventListener('click', (e) => {
         e.target.setAttribute('data-clicks', `${numClicks}`);
         isPowerUser = false;
     }
-    //toggle button display based off of power user status
+
+    //toggle whether elements are hidden or not based off of power user status
     if (isPowerUser == true) {
         document.getElementById("upload-btn").style.display = "block";
         document.getElementById("request-btn").style.display = "none";
@@ -74,9 +100,9 @@ async function getSite(credentials = {}) {
     return currInfo.siteID;
 }
 
-//Request item
+//open a modal that allows you to make an item request
 document.getElementById("request-btn").addEventListener('click', () => {
-
+    //show request item modal
     let requestModal = new bootstrap.Modal(document.getElementById("requestModal"));
     requestModal.toggle();
 
@@ -152,8 +178,8 @@ document.getElementById("manu-name").addEventListener('click', (e) => {
 //download email file when submit button is pressed
 document.getElementById("submit-btn").addEventListener('click', submitMail, false);
 
+//opens email file in default mail client
 function submitMail() {
-
     //checking required fields are filled
     if (document.getElementById("manu-name").value == "Other") {
 
@@ -249,32 +275,42 @@ Content-Type: text/html; boundary=--boundary_text_string
     //requestModal.toggle();
 }
 
-//Infinite scroll
+/* Infinite scroll
+
+Allows elements to load as the user scrolls down the page,
+drastically decreasing loading times and making UI smoother.
+*/
+//listen for a scroll event. if the bottom of the results table is less than 100px below the bottom of the viewport, load more items 
 document.getElementById("everything").addEventListener('scroll', () => {
     //dont add items to the list if the accordion is collapsed
     if (document.getElementById("related-items-accordion-btn").classList.contains("collapsed") || relatedResults.results.length == 0) {
         return;
     }
 
-    let element = document.getElementById("related-items");
+    let searchResultsTable = document.getElementById("related-items");
 
-    let domRect = element.getBoundingClientRect();
+    let domRect = searchResultsTable.getBoundingClientRect();
     let spaceBelow = document.getElementById("everything").offsetHeight - domRect.bottom;
-    //console.log(spaceBelow);
+
     if (spaceBelow > -100) {
         //load more items if the bottom of the table is less than 100px below the bottom of the viewport
         loadRelated();
     }
 })
-//Image upload
+
+//Generate UI when files are selected by user
 document.getElementById("imgInput").addEventListener("change", async (e) => {
     let progressBar = new ProgressBar();
 
+    //reset UI
     document.getElementById("imgList").innerHTML = ``;
+    //get files from file picker
     let files = document.getElementById("imgInput").files;
     imgsToUpload = files;
+    //make a comma separated string of all the item numbers that are to be uploaded
     let nums = '';
 
+    //if no files were selected, return
     if (files.length == 0 || !files) {
         return;
     }
@@ -283,12 +319,12 @@ document.getElementById("imgInput").addEventListener("change", async (e) => {
 
     progressBar.update(0, 'Loading Images...');
 
-
+    //for each image, add list item to HTML list
     for (let i = 0; i < files.length; i++) {
         let file = files[i];
         let completion = (i + 1) / files.length * 100;
 
-        nums += file.name.slice(0, 7) + ',';
+        nums += file.name.slice(0, 7) + ','; //get first 7 characters of file name
         progressBar.updateProgressBar(completion);
 
         imgList.innerHTML += `
@@ -301,34 +337,41 @@ document.getElementById("imgInput").addEventListener("change", async (e) => {
 </li>`;
     }
 
+    //generate a link to open items that are being uploaded to in maximo
     let url = `https://prod.manage.prod.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
     document.getElementById("img-upload-status-text").innerHTML = `<a href=${url} id="imgs-link">Selected Items:</a>`;
     document.getElementById("imgs-link").addEventListener('click', function (e) {
         e.preventDefault();
         shell.openExternal(url);
-        // TODO move this to main
     });
 
     progressBar.update(100, 'Ready to Upload!');
 });
 
+//clear the file picker each time it is clicked
 document.getElementById("imgInput").addEventListener("click", () => {
     document.getElementById("img-clear-btn").dispatchEvent(new Event('click'));
 });
+
 document.getElementById("img-clear-btn").addEventListener("click", () => {
+    //reset all related components
     let progressBar = new ProgressBar();
     document.getElementById("imgList").innerHTML = ``;
     progressBar.update(100, 'Ready!');
+    //empty list of images to upload
     imgsToUpload = [];
+    //empty file picker
     document.getElementById("imgInput").value = null;
-    document.getElementById("img-upload-status-text").innerHTML = 'Select Images to Continue...';
-    //
+
+    document.getElementById("img-upload-status-text").innerHTML = 'Select Images to Continue...'
 });
 document.getElementById("img-upload-btn").addEventListener("click", () => {
     let progressBar = new ProgressBar();
+
     let clearBtn = document.getElementById('img-clear-btn');
     let uploadBtn = document.getElementById('img-upload-btn');
 
+    //return if user has picked no images
     if (imgsToUpload.length == 0) {
         new Toast('No Images Selected!');
         return;
@@ -336,6 +379,9 @@ document.getElementById("img-upload-btn").addEventListener("click", () => {
 
     let finishedItems = 0;
 
+    //disable the clear and upload buttons while upload is taking place so the
+    //user can't send duplicate requests or accidentally clear the image upload list
+    //while its uploading
     clearBtn.disabled = true;
     uploadBtn.disabled = true;
 
@@ -343,16 +389,21 @@ document.getElementById("img-upload-btn").addEventListener("click", () => {
 
     progressBar.update(0, 'Uploading Images...');
 
+    //upload all images and update UI
     worker.work(['uploadImages', imgsToUpload], (result) => {
         if (result[0] == 'success') {
+            //if success, display checkmark
             document.getElementById(`img-${result[1]}-status`).innerHTML = `done`;
         } else if (result[0] == 'fail') {
+            //if fail, display 'x' (cross)
             document.getElementById(`img-${result[1]}-status`).innerHTML = `close`;
         } else if (result[0] == 'done') {
             progressBar.update(100, 'Upload Complete!');
             clearBtn.disabled = false;
             uploadBtn.disabled = false;
         } else if (result[0] == 'warning') {
+            //if warning, display triangle with exclamation point in it. This only occurs if you try 
+            //to upload an image to an item that already has an image
             document.getElementById(`img-${result[1]}-status`).innerHTML = `warning`;
         } else if (result[0] == 'total failure') {
             finishedItems = imgsToUpload.length;
@@ -365,10 +416,9 @@ document.getElementById("img-upload-btn").addEventListener("click", () => {
         if (result != 'done') {
             finishedItems++;
         }
-
+        
+        //update progressbar when each image is uploaded/fails upload
         progressBar.updateProgressBar(finishedItems * 100 / imgsToUpload.length);
-
-        //console.log(result);
     });
 });
 
@@ -519,7 +569,6 @@ function loadItem() {
 }
 
 function auto_grow(elementID) {
-    debugger;
     const element = document.getElementById(elementID);
     element.style.height = "5px";
     element.style.height = (element.scrollHeight) + "px";
@@ -611,6 +660,7 @@ function openFile(pathElement) {
     }
 }
 
+//Deprecated function, unused.
 function openSettings() {
     ipcRenderer.send('openSettings');
     //sendsync blocks parent window...
@@ -637,7 +687,8 @@ function openExcel() {
 /**
  * Reads a table and generates items from it
  *
- * @returns an array of items
+ * @param {string} tableId the HTML id of the table to read
+ * @returns {Array<Item>} an array of Items
  */
 function getItemsFromTable(tableId) {
     colLoc = {
@@ -736,7 +787,7 @@ function getItemsFromTable(tableId) {
     return items;
 }
 /**
- * Uploads an item from item information accordion dropdown
+ * Uploads an item from item information accordion dropdown (single item upload)
  *
  */
 async function uploadItem() {
@@ -772,13 +823,16 @@ async function uploadItem() {
 /**
  * Uploads an array of items
  *
+ * @param {Array<Item>} items
  */
 async function batchUploadItems(items) {
     const worker = new WorkerHandler();
+    //disable clear and upload buttons while uploading items to prevent duplicate requests
     let btn = document.getElementById("batch-upload-btn");
     let clearBtn = document.getElementById("clear-batch-items-btn");
     clearBtn.disabled = true;
     btn.disabled = true;
+    //upload all items
     worker.work(['uploadItems', items, true], (e) => {
         let finishText = `Upload Finished! ${e[2]} items uploaded. `;
         clearBtn.disabled = false;
@@ -804,15 +858,22 @@ async function batchUploadItems(items) {
     });
 }
 /**
- * Gets a list of newly generated item nums and updates the table with them
+ * Gets a list of newly generated item nums and updates the table with them.
+ * 
+ * If an item has just been uploaded, populates item num cell with new number.
  *
+ * @param {int[][]} arr array of pairs of item nums and table row indexes
  */
 function updateItemNums(arr) {
     for (const pair of arr) {
-        let num = pair[0];
-        let itemindex = pair[1];
-        let cell = document.getElementById(`${itemindex + 1}-${colLoc.maximo}`);
-        cell.innerHTML = num;
+        let itemNum = pair[0];
+        let itemRowIndex = pair[1];
+
+        //update item number cell
+        let cell = document.getElementById(`${itemRowIndex + 1}-${colLoc.maximo}`);
+        cell.innerHTML = itemNum;
+
+        //highlight the item number yellow to signify that it was newly uploaded
         cell.classList.add("table-alert");
     }
 }
@@ -1060,6 +1121,13 @@ function calcConfidence(data) {
     }
 }
 
+/**
+ * Initializes search results table and populates relatedResults object
+ * with search results.
+ * 
+ * @param {Array< Map<int, Array<int>>,Map<int, Array<String>,String>} result array of [array of item nums of all search results, map of item nums to descriptions, and search query with words separated by commas]
+ * @param {bool} isExtended whether the user has clicked extended search
+ */
 async function showRelated(result, isExtended = false) {
     let bar = new ProgressBar();
     if (!result[0]) {
@@ -1067,11 +1135,14 @@ async function showRelated(result, isExtended = false) {
         return false;
     }
 
-    //reverse results
+    //reverse results to get newest items first.
+    //technically this isn't the best way to do 
+    //this because results aren't guaranteed
+    //to be in order of oldest to newest.
     for (const [key, value] of Object.entries(result[0])) {
         result[0][key] = result[0][key].reverse();
     }
-
+    //populate global variable with search results (bad practice, but it works)
     relatedResults = {
         idx: 0,
         curKey: 0,
@@ -1088,7 +1159,7 @@ async function showRelated(result, isExtended = false) {
             relatedTable.classList.remove(`isExt`);
         }
     }
-
+    //Add headings to the search results table
     relatedTable.innerHTML = `
 <table class="table table-bordered">
     <thead>
@@ -1106,91 +1177,112 @@ async function showRelated(result, isExtended = false) {
     <tbody id="related-items"></tbody>
 </table>
     `;
-    //load a couple of items and ensure at least 2 items load
+    
+    //expand the search results accordion
     document.getElementById('related-items-accordion-btn').classList.remove('collapsed');
+    //load a couple of items
     loadRelated();
     html = new bootstrap.Collapse(document.getElementById('accordion-relatedItem'), { toggle: false });
     html.show();
     bar.update(100, 'Done!');
-
-
 }
 
 function loadRelated() {
+    //check if user clicked extended search
     const isExtended = document.getElementById('related-table').classList.contains('isExt');
-    //console.log(relatedResults);
+    
+    //a map with percent match as key (in decimal form) and array of items as value
+    //for example, if the key is 1, the list of items match with the search query 100%. If the key is 0.5, the list of items match with the search query 50%.
     const scores = relatedResults.results[0];
-    //kill function if end of results has been reached
+
+    //relatedResults.idx is like a bookmark. It keeps track of how many items have been loaded from the array of items associated with the current key in scores.
+    //relatedResults.curKey is the number of the current key that is being loaded if you were to iterate thru the keys in scores. 
+    //For example, the first key's number would be 0, second key 1, etc.
     if (relatedResults.curKey >= Object.entries(scores).length) {
+        //If curKey is equal or larger than the number of keys in scores, then there are no more items to load, so return 
         return;
     } else if (Object.entries(scores)[relatedResults.curKey][1].length == 0) {
-        //if no results for current key, move to next key and call function again
-        relatedResults.curKey++;
-        relatedResults.idx = 0;
+        //If there are no items associated with the current key, then move to the next key and try loading items again.
+        relatedResults.curKey++; //increment curKey so that the next time the function runs, it will try to load items from the next key
+        relatedResults.idx = 0; //reset idx so that it starts from the beginning of the array
         loadRelated();
-        return;
+        return; //return so we don't do make an infinite loop
     }
 
-    let step = 20; //number of items to load at once
+    let step = 20; //number of items to load at once.
+
     //get arrs from results obj
-    const itemNames = relatedResults.results[1];
-    const searchWords = relatedResults.results[2].split(',');
-    let html = '', color = '';
-    let itemName;
+    const itemNames = relatedResults.results[1]; //a map with the 9-series number of the item as the key and the item info as value. Item info is an array with 4 items: [description, gl class, uom, commodity group]
+    const searchWords = relatedResults.results[2].split(','); //an array of the search query split by commas. For example, if the search query is "test, item, description", then searchWords would be ["test", "item", "description"]
+    
+    let html = '', color = ''; //html is the html that will be added to the search results table. color is the color of the row in the table.
+    
+    let itemDescription;
+
+    //formatting options for percent match. Converts decimal to percent and rounds to nearest whole number.
     const option = {
         style: 'percent',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
     };
+
     const formatter = new Intl.NumberFormat("en-US", option);
     // technically this is bad practise since object order might not be guarenteed 
     // https://stackoverflow.com/questions/983267/how-to-access-the-first-property-of-a-javascript-object
 
-    let key = Object.entries(scores)[relatedResults.curKey][0]; //get the current key
-    let value = Object.entries(scores)[relatedResults.curKey][1]; //get the array of items associated with key
-    let sliced;
+    let percentMatch = Object.entries(scores)[relatedResults.curKey][0]; //get the percent match (name of the current key)
+    let itemNumList = Object.entries(scores)[relatedResults.curKey][1]; //get the array of items associated with key
+    let itemsToLoad; //array of items to load
 
-    if (relatedResults.idx + step >= value.length) {
-        sliced = value.slice(relatedResults.idx, undefined);
+    if (relatedResults.idx + step >= itemNumList.length) {
+        //if there are less than 20 items to load, load the remaining items in value and increment curKey and reset idx
+        //this way, the next time the function is called, the next key will be loaded instead
+        itemsToLoad = itemNumList.slice(relatedResults.idx, undefined); //get array of items from idx to end of array
         relatedResults.curKey++;
         relatedResults.idx = 0;
     } else {
-        sliced = value.slice(relatedResults.idx, relatedResults.idx + step);
+        itemsToLoad = itemNumList.slice(relatedResults.idx, relatedResults.idx + step);
         relatedResults.idx += step;
     }
 
     // iterate thru each item in value array
-    for (let item of sliced) {
-        itemName = itemNames[item][0];
-        if (itemName) {
+    for (let itemNum of itemsToLoad) {
+        itemDescription = itemNames[itemNum][0];
+        if (itemDescription) {
+            //Bold all words in item description that match the search query
             for (let word of searchWords) {
                 split = word.split(' ');
                 for (let smallWord of split) {
                     if (smallWord.length > 0) {
-                        itemName = itemName.replace(
+                        itemDescription = itemDescription.replace(
                             new RegExp(`${smallWord}`, 'i'),
-                            `<b>${itemName.match(new RegExp(`${smallWord}`, 'i'))?.[0]}</b>`
+                            `<b>${itemDescription.match(new RegExp(`${smallWord}`, 'i'))?.[0]}</b>`
                         );
                     }
                 }
 
-            } /// data-theme="${document.documentElement.getAttribute("data-bs-theme")}" 
-            if (key > 0.7) {
-                color = 'table-success';
-            } else if (key > 0.4) {
-                color = 'table-warning';
-            } else {
-                color = 'table-danger';
             }
-
+            //set row color based on percent match
+            if (percentMatch > 0.7) {
+                color = 'table-success'; //green
+            } else if (percentMatch > 0.4) {
+                color = 'table-warning'; //yellow
+            } else {
+                color = 'table-danger';  //red
+            }
+            
+            //create HTML row.
+            //In extended search, the vendor info is split from the item description by a | (pipe character).
+            //All info after the pipe character is put into another column.
+            //If the item description does not have a pipe character, then the second column is not loaded.
             html = `${html}\n<tr class="${color}">
-            <td>${formatter.format(key)}</td>
-            <td>${item}</td>
-            ${(isExtended ? `<td>${itemName.substring(0, itemName.indexOf("|"))}</td>` : `<td>${itemName}</td>`)}
-            ${(isExtended ? `<td>${itemName.slice(itemName.indexOf("|") + 1)}</td>` : '')}
-            <td>${itemNames[item][2]}</td>
-            <td>${itemNames[item][3]}</td>
-            <td>${itemNames[item][1]}</td>
+            <td>${formatter.format(percentMatch)}</td>
+            <td>${itemNum}</td>
+            ${(isExtended ? `<td>${itemDescription.substring(0, itemDescription.indexOf("|"))}</td>` : `<td>${itemDescription}</td>`)}
+            ${(isExtended ? `<td>${itemDescription.slice(itemDescription.indexOf("|") + 1)}</td>` : '')}
+            <td>${itemNames[itemNum][2]}</td>
+            <td>${itemNames[itemNum][3]}</td>
+            <td>${itemNames[itemNum][1]}</td>
             <td><i class="material-icons pointer sm-size"> add_task</i></td></tr>`;
         } else {
             html = `<tr class="table-danger"><td>0</td>\n<td>xxxxxxx</td>\n<td>No Related Items Found</td></tr>`;
@@ -1202,11 +1294,12 @@ function loadRelated() {
     relatedTable.innerHTML += html;
 
     //if less than 5 items loaded, load more
-    if (sliced.length < 5) {
+    if (itemsToLoad.length < 5) {
         document.getElementById("everything").dispatchEvent(new Event('scroll'));
     }
 }
 
+//unused function (was used to copy item validation): probably remove this
 function copyResult(copy) {
     if (copy === 'single') {
         let content = document.getElementById('result-single').innerText;

@@ -162,6 +162,11 @@ class Maximo {
         }
     }
 
+    /**
+     * 
+     * @param {string} numSeries item series (99, 98, 91)
+     * @returns {number} latest item number
+     */
     async getCurItemNumber(numSeries) {
         let response;
         try {
@@ -172,12 +177,12 @@ class Maximo {
                 }});
 
         } catch (err) {
-            postMessage(['debug', 'Failed to fetch data from Maximo, please check network (1)']);
+            postMessage(['debug', 'Failed to fetch data from Maximo, please check network (1)']); //this likely doesnt work, probably remove it
             throw new Error('Failed to fetch data from Maximo, please check network (1)');
         }
         let content = await response.json();
         if (content["Error"]) { //content["Error"]["message"]
-            postMessage(['debug', 'Failed to fetch Data from Maximo, Please Check Network (2)']);
+            postMessage(['debug', 'Failed to fetch Data from Maximo, Please Check Network (2)']); //this likely doesnt work, probably remove it
             throw new Error('Failed to fetch data from Maximo, please check network (2)');
         } else {
             try {
@@ -258,15 +263,20 @@ class Maximo {
         //console.log(content);
         return parseInt(content.validdoc);
     }
-
+    /**
+     * Uploads an image to maximo
+     * 
+     * @param {File} image
+     * @returns {string[]} [status, (message if upload is unsuccessful)]
+     */
     async uploadImageToMaximo(image){
         //check valid image type
         if(image.type !== "image/jpeg" && image.type !== "image/png"){
             return ['fail', 'Image type not jpeg or png'];
         }
 
-        //check valid item number        
-        let itemnum = image.name.slice(0,7);
+        //check if item number exists in maximo        
+        let itemnum = image.name.slice(0,7); //itemnum is first 7 digits of image name
         let response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem?oslc.where=itemnum=${itemnum}`, {
             method: "GET",
             headers: {
@@ -278,7 +288,7 @@ class Maximo {
             return ['fail', 'Item number not found'];
         }
 
-        //get item id
+        //get item id - item id is a code that lets you access information about the item through the API
         let itemId = content["rdfs:member"][0]["rdf:resource"];
         itemId = itemId.slice(38);
         //console.log("item id " + itemId);
