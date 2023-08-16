@@ -1,4 +1,4 @@
-# IKO MRO Items
+# EAM Spare Parts
 
 **GUI tool for validating item descriptions**
 
@@ -41,3 +41,6 @@ git push --follow-tags
 When linking css to an html file, use style.css as the only stylesheet. If you make another stylesheet, import it into style.css.
 ### Live editing:
 Use ```npm start``` to open the application (make sure you've installed all dependencies using ```npm install``` at least once). Once you make any changes, hit ```ctrl+r``` in the app to refresh the page. To restart the app, enter ```rs``` in the terminal. Opening the html file in a browser directly will prevent the JS from loading.
+
+App Icon
+<a href="https://www.flaticon.com/free-icons/repair" title="repair icons">Repair icons created by Ayub Irawan - Flaticon</a>

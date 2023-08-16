@@ -56,19 +56,19 @@ class Logging {
     }
 
     warning(msg) {
-        let row = this.logTable.insertRow();
+        let row = this.logTable.insertRow(0);
         row.innerHTML = `<td>WARNING</td><td>${msg}</td>`;
         row.classList.add("table-warning");
     }
 
     error(msg) {
-        let row = this.logTable.insertRow();
+        let row = this.logTable.insertRow(0);
         row.innerHTML = `<td>ERROR</td><td>${msg}</td>`;
         row.classList.add("table-danger");
     }
 
     info(msg) {
-        let row = this.logTable.insertRow();
+        let row = this.logTable.insertRow(0);
         row.innerHTML = `<td>INFO</td><td>${msg}</td>`;
         row.classList.add("table-primary");
     }
@@ -195,7 +195,7 @@ function loadTheme(){
     }
 
     document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('theme'));
-    console.log('i have run');
+    //console.log('i have run');
 }
     //upload item related
 function getNextNumThenUpdate(series){
@@ -229,6 +229,20 @@ function updateItemInfo(curItemNum){
 
     document.getElementById("confirm-btn").innerHTML = "Upload Item";
     document.getElementById("confirm-btn").disabled = false;
+}
+
+function poppulateModal()
+{
+    let desc = document.getElementById("maximo-desc");
+    let uom = document.getElementById("uom-field");
+    let commGroup = document.getElementById("com-group");
+    let glclass = document.getElementById("gl-class");
+   
+    document.getElementById("item-descr").value=desc.value;
+    document.getElementById("issue-unit").value=uom.value;
+    document.getElementById("comm-grp").value=commGroup.value;
+    document.getElementById("gl-class-new").value=glclass.value;
+
 }
 
 function sanitizeString(str){

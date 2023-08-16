@@ -1,7 +1,7 @@
 {
   "name": "iko_utility",
-  "productName": "IKO Reliability Tool",
-  "version": "3.5.0",
+  "productName": "EAM Spare Parts",
+  "version": "3.6.1",
   "description": "Tool to help automate various Reliability Processes",
   "main": "main.js",
   "scripts": {
@@ -22,11 +22,11 @@
     "@electron-forge/maker-squirrel": "^6.2.1",
     "@electron-forge/maker-zip": "^6.2.1",
     "@electron-forge/publisher-github": "^6.2.1",
-    "electron": "^25.1.1"
+    "electron": "^25.4.0"
   },
   "dependencies": {
-    "better-sqlite3": "^8.4.0",
-    "bootstrap": "^5.3.0",
+    "better-sqlite3": "^8.5.0",
+    "bootstrap": "^5.3.1",
     "electron-squirrel-startup": "^1.0.0",
     "exceljs": "^4.3.0",
     "lodash": "^4.17.0",
@@ -35,14 +35,14 @@
   "config": {
     "forge": {
       "packagerConfig": {
-        "icon": "renderer/iko_logo.ico"
+        "icon": "AppIcon.ico"
       },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
             "name": "iko_utility",
-            "setupIcon": "renderer/iko_logo.ico"
+            "setupIcon": "AppIcon.ico"
           }
         },
         {
