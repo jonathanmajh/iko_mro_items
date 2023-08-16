@@ -55,19 +55,19 @@ class Logging {
     }
 
     warning(msg) {
-        let row = this.logTable.insertRow();
+        let row = this.logTable.insertRow(0);
         row.innerHTML = `<td>WARNING</td><td>${msg}</td>`;
         row.classList.add("table-warning");
     }
 
     error(msg) {
-        let row = this.logTable.insertRow();
+        let row = this.logTable.insertRow(0);
         row.innerHTML = `<td>ERROR</td><td>${msg}</td>`;
         row.classList.add("table-danger");
     }
 
     info(msg) {
-        let row = this.logTable.insertRow();
+        let row = this.logTable.insertRow(0);
         row.innerHTML = `<td>INFO</td><td>${msg}</td>`;
         row.classList.add("table-primary");
     }
@@ -190,7 +190,7 @@ function loadTheme(){
     }
 
     document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('theme'));
-    console.log('i have run');
+    //console.log('i have run');
 }
     //upload item related
 function getNextNumThenUpdate(series){
@@ -226,6 +226,20 @@ function updateItemInfo(curItemNum){
     document.getElementById("confirm-btn").disabled = false;
 }
 
+function poppulateModal()
+{
+    let desc = document.getElementById("maximo-desc");
+    let uom = document.getElementById("uom-field");
+    let commGroup = document.getElementById("com-group");
+    let glclass = document.getElementById("gl-class");
+   
+    document.getElementById("item-descr").value=desc.value;
+    document.getElementById("issue-unit").value=uom.value;
+    document.getElementById("comm-grp").value=commGroup.value;
+    document.getElementById("gl-class-new").value=glclass.value;
+
+}
+
 function sanitizeString(str){
     let badChars = ['<','>'];
     for(const badChar of badChars){
@@ -242,6 +256,11 @@ function convertToTable(pastedInput,id="")
     let numCols=0;
     let bodyRows = [];
     let diff = 0;
+    if(!pastedInput.toUpperCase().includes("MAXIMO")){
+        numRows++;
+        let firstRow = ("Maximo\tDescription\tIssue Unit\tCommodity Group\tGL Class");
+        rawRows = [firstRow,...rawRows];
+    }
     rawRows.forEach((rawRow, idx) => {
         let rawRowArray = rawRow.split("\t");
         if (rawRow==0) {

@@ -11,7 +11,7 @@ const { debug } = require('console');
 
 class Database {
     constructor() {
-        this.db = new sql(`${process.env.APPDATA}/IKO Reliability Tool/program.db`);//, { verbose: console.log });
+        this.db = new sql(`${process.env.APPDATA}/EAM Spare Parts/program.db`);//, { verbose: console.log });
     }
 
     createTables() {

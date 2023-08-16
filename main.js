@@ -1,6 +1,7 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain, screen, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, dialog, shell } = require('electron');
 const path = require('path');
+const fs = require('fs');
 const { appUpdater } = require('./assets/autoupdater');
 let mainWindow;
 let settingWindow;
@@ -8,6 +9,33 @@ let settingWindow;
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
+//Write eml file 
+ipcMain.on('write-file', (event, emailData) => {
+  const pathToFile = path.resolve(__dirname, 'downloadedFile.eml');
+  fs.writeFile(pathToFile, emailData, (err) => {
+    if (err) {
+      console.error(`Error writing file: ${err}`);
+    } else {
+      shell.openPath(pathToFile)
+        .then(() => {
+          sleep(2000).then(() => {
+            // Delete the file after opening
+            fs.unlink(pathToFile, (err) => {
+              if (err) {
+                console.error(`Error deleting file: ${err}`);
+              } else {
+                console.log('File deleted successfully');
+              }
+            });
+          }
+          )
+            .catch((err) => {
+              console.error(`Error opening file: ${err}`);
+            });
+        })
+    }
+  })
+});
 
 ipcMain.on('openSettings', (event, arg) => {
   settingWindow = new BrowserWindow({
