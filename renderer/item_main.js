@@ -57,8 +57,6 @@ Power user mode shows all upload elements and allows the user to upload items an
 
 Created for the purpose of hiding upload functionality from people who shouldn't be
 uploading items (a.k.a. everyone except for reliability team).
-
-@authors: H4mzaCode
 */
 //set the user to a power user if they have clicked the secret button 5 times
 document.getElementById("secret-button").addEventListener('click', (e) => {
@@ -281,8 +279,6 @@ Content-Type: text/html; boundary=--boundary_text_string
 
 Allows elements to load as the user scrolls down the page,
 drastically decreasing loading times and making UI smoother.
-
-@authors: officialpranav
 */
 //listen for a scroll event. if the bottom of the results table is less than 100px below the bottom of the viewport, load more items 
 document.getElementById("everything").addEventListener('scroll', () => {
