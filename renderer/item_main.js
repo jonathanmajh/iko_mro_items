@@ -569,7 +569,6 @@ function loadItem() {
 }
 
 function auto_grow(elementID) {
-    debugger;
     const element = document.getElementById(elementID);
     element.style.height = "5px";
     element.style.height = (element.scrollHeight) + "px";
@@ -1143,7 +1142,6 @@ async function showRelated(result, isExtended = false) {
     for (const [key, value] of Object.entries(result[0])) {
         result[0][key] = result[0][key].reverse();
     }
-    debugger;
     //populate global variable with search results (bad practice, but it works)
     relatedResults = {
         idx: 0,
