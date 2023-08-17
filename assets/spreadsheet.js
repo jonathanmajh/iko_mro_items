@@ -39,7 +39,6 @@ class ExcelReader {
             row[5] = ws3.getCell(`F${i}`).text;
             row[6] = ws3.getCell(`G${i}`).text;
             if (row[2].length > 0 || row[3].length > 0 || row[4].length > 0 || row[5].length > 0 || row[6].length > 0) {
-                debugger
                 if (inventory_data.has(row[0])) {
                     for (let j = 2; j <= 6; j++) {
                         if (row[j] > 0 && row[j] != "NULL") {
