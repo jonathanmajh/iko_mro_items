@@ -306,7 +306,7 @@ document.getElementById("imgInput").addEventListener("change", async (e) => {
     }
 
 
-    let url = `https://prod.manage.prod.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
+    let url = `https://test.manage.test.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
     document.getElementById("img-upload-status-text").innerHTML = `<a href=${url} id="imgs-link">Selected Items:</a>`;
     document.getElementById("imgs-link").addEventListener('click', function (e) {
         e.preventDefault();
@@ -731,17 +731,7 @@ if(colLoc.siteID!=-1 || colLoc.storeroom!=-1 || colLoc.vendor!=-1 || colLoc.catN
                     console.log(property);
                     missingColArr.push(property.toLowerCase());
                 }
-    if (validParams < 5) {
-        let missingCols = "";
-        let missingColArr = [];
-
-        for (const property in colLoc) {
-            if (colLoc[property] == -1) {
-                console.log(property);
-
-                missingColArr.push(property.toLowerCase());
             }
-        }
             missingCols = missingColArr.join(', ');
             document.getElementById("batch-upload-status-text").innerHTML=`Table is missing ${5-validParams} column(s): (${missingCols}). Table will not be uploaded!`;
             return;
@@ -883,7 +873,7 @@ async function batchUploadItems(items) {
             nums += document.getElementById(`${i}-${colLoc.maximo}`).innerHTML ? (document.getElementById(`${i}-${colLoc.maximo}`).innerHTML + ",") : "";
         }
         if (e[2] > 0) {
-            let itemUrl = `https://prod.manage.prod.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
+            let itemUrl = `https://test.manage.test.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
             finishText += `<a id="batch-link" href="${itemUrl}">Click to view:</a>`
             document.getElementById("batch-upload-status-text").innerHTML = finishText;
             document.getElementById("batch-link").addEventListener('click', function (e) {
