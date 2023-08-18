@@ -452,6 +452,8 @@ async function uploadAllItems(items,doUpdate = false){ //NOTE: the current imple
                 postMessage(['runCallback','failure',`Failed Inventory upload of ${item.description}. ${err}`]);
                 //Adds error to log
                 postMessage(['fail',`Failed Inventory upload of ${item.description}. ${err}`]);
+                //updates item status to 'warning'
+                postMessage(['update',"partial",rowIndex]);
                 console.error(`Failed inventory upload of \"${item.description}\", ${err}`);
             }
         }

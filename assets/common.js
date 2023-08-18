@@ -355,6 +355,8 @@ function updateItemStatus(status,itemindex){
         statusimg.innerHTML = `<div class="spinner-border mt-1 mb-1" style="width: 24px; height: 24px;" role="status"></div>`;
     } else if(status=="error"){
         statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">error</i>`;
+    } else if(status=="partial"){
+        statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">warning</i>`;
     } else {
         statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">pending</i>`;
     }
