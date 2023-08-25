@@ -97,8 +97,8 @@ onmessage = function (e) {
             getCurItemNum(e.data[1]);
             break;
         case 'uploadItems':
-            e.data[2] ? uploadAllItems(e.data[1],e.data[2]) : uploadAllItems(e.data[1]);
-            break;     
+            e.data[2] ? uploadAllItems(e.data[1], e.data[2]) : uploadAllItems(e.data[1]);
+            break;
         case 'translateItem':
             const trans = new Translation();
             result = trans.contextTranslate(e.data[1], e.data[2], e.data[3]);
@@ -113,7 +113,7 @@ onmessage = function (e) {
             uploadImages(e.data[1]);
             break;
         default:
-        console.log(`Unimplimented work ${e.data[0]}`);
+            console.log(`Unimplimented work ${e.data[0]}`);
     }
 };
 
@@ -133,12 +133,12 @@ async function saveProgress(params) {
 async function getCurItemNum(series) {
     const maximo = new Maximo();
     let num;
-    try{
+    try {
         num = await maximo.getCurItemNumber(series);
-        postMessage(['result',1,num]);
-    } catch (err){
-        postMessage(['fail',err]);
-        postMessage(['result',0,'Unable to get number'])
+        postMessage(['result', 1, num]);
+    } catch (err) {
+        postMessage(['fail', err]);
+        postMessage(['result', 0, 'Unable to get number'])
     }
 }
 
@@ -368,24 +368,24 @@ async function checkItemCache(version) {
  * @param {boolean} doUpdate - Whether or not to update item status. Item status is not updated for single item upload, but is updated for batch upload
  * @postmessage list of new item numbers and item upload statistics
  */
-async function uploadAllItems(items,doUpdate = false){ //NOTE: the current implementation of this function means that "9S" series numbers aren't supported
+async function uploadAllItems(items, doUpdate = false) { //NOTE: the current implementation of this function means that "9S" series numbers aren't supported
     const maximo = new Maximo();
     //row index of the current item in the table (the first row has an index of 1, initializing to 0 because it gets incremented in the loop)
     let rowIndex = 0;
     //newNums is a list of new item numbers and their corresponding row index
     let newNums = [];
-    //num is the current item number, numFails is the number of items that failed to upload, numSuccesses is the number of items that successfully uploaded
-    let num,numFails=0,numSuccesses=0;
-    
-    for(const item of items){
+    //num is the current item number, numFails is the number of items that failed to upload, numSuccesses is the number of items that successfully uploaded, numStoreroomSuccesses is the number of items that were successfully added to a storeroom
+    let num, numFails = 0, numSuccesses = 0, numStoreroomSuccesses = 0;
+
+    for (const item of items) {
         let needsNewNum = false; //by default the item does not need a new item number
         rowIndex++; //for each item increment rowindex
-        try{
+        try {
             //if item is an empty string, it is invalid, therefore skip it
-            if(item===''){
+            if (item === '') {
                 continue;
             }
-            if(item.itemnumber === 0 || item.itemnumber.length != 7){
+            if (item.itemnumber === 0 || item.itemnumber.length != 7) {
                 //if the item number is 0 or is not 7 characters long, assign a new item number
                 needsNewNum = true;
                 //get latest item number
@@ -393,68 +393,102 @@ async function uploadAllItems(items,doUpdate = false){ //NOTE: the current imple
                 //increment it by 1 to get an unused item number
                 num++; //since we are incrementing nums, we can't use a 9S series number because it will be a string, not a number
                 //push the new item number and the row index to newNums
-                newNums.push([num,rowIndex]);
+                newNums.push([num, rowIndex]);
                 //set itemnumber property of the item to the new item number
                 item.itemnumber = num;
             }
-        } catch (err){
+        } catch (err) {
             //if theres an error, remove the new item num from newNums as it wont be used for the failed item.
-            if(needsNewNum) newNums.pop();
+            if (needsNewNum) newNums.pop();
             numFails++;
             console.log(err + ", Item Upload Failed");
-            if(doUpdate) postMessage(['update','fail',rowIndex])
-            postMessage(['fail',err]);
+            if (doUpdate) postMessage(['update', 'fail', rowIndex])
+            postMessage(['fail', err]);
             continue;
         }
 
-        try{
+        try {
             let result = await maximo.uploadToMaximo(item);
-            if(!result){
-                if(doUpdate) postMessage(['update','fail',rowIndex]);
+            if (!result) {
+                if (doUpdate) postMessage(['update', 'fail', rowIndex]);
                 throw new Error('Upload Failed');
             } else {
-                if(doUpdate) postMessage(['update','success',rowIndex]);
-                postMessage(['debug',`Upload of ${item.description} succeeded`]);
+                if (doUpdate) postMessage(['update', 'success', rowIndex]);
+                postMessage(['debug', `Upload of ${item.description} succeeded`]);
                 console.log("Upload of " + item.description + " success");
                 numSuccesses++;
             }
-        } catch (err){
-            if(needsNewNum) newNums.pop();
+        } catch (err) {
+            if (needsNewNum) newNums.pop();
             numFails++;
-            postMessage(['fail',`Failed upload of ${item.description}`]);
+            postMessage(['fail', `Failed upload of ${item.description}`]);
             console.error(`Failed upload of \"${item.description}\", ${err}`);
         }
+
+        //Does inventory upload of the item if any of the inventory fields are filled in
+        if (item.storeroomname != "" || item.siteID != "" || item.cataloguenum != "" || item.vendorname != "") {
+            try {
+                let result = await maximo.uploadToInventory(item);
+                //Cases of result are listed in maximo.js
+                if (result == 0) {
+                    throw new Error('Unable to upload');
+                } else if (result == 1) {
+                    postMessage(['debug', `Inventory upload of ${item.description} succeeded`]);
+                    console.log("Adding to " + item.storeroomname + " success");
+                    numStoreroomSuccesses++;
+                } else if (result == 2) {
+                    throw (['Invalid Vendor', 'vendor']);
+                } else if (result == 3) {
+                    throw (['Invalid Site', 'siteID']);
+                } else {
+                    throw (['Invalid Storeroom', 'storeroom']);
+                }
+
+            } catch (err) {
+                numFails++;
+                //highlight the cells that have invalid values to red
+                postMessage(['updateColors', rowIndex + 1, err[1]]);
+                //Creates toast for the error
+                postMessage(['runCallback', 'failure', `Failed Inventory upload of ${item.description}. ${err}`]);
+                //Adds error to log
+                postMessage(['fail', `Failed Inventory upload of ${item.description}. ${err}`]);
+                //updates item status to 'warning'
+                postMessage(['update', "partial", rowIndex]);
+                console.error(`Failed inventory upload of \"${item.description}\", ${err}`);
+            }
+        }
+        //console.log(rowIndex);
     }
-    postMessage(['result',newNums,numFails,numSuccesses]);
+    postMessage(['result', newNums, numFails, numSuccesses, numStoreroomSuccesses]);
 }
 /**
  * Uploads images to Maximo at the item master level
  * @param {File[]} images 
  */
-async function uploadImages(images){
-    try{
+async function uploadImages(images) {
+    try {
         const maximo = new Maximo();
-        for(let i = 0; i < images.length; i++){
+        for (let i = 0; i < images.length; i++) {
             let img = images[i];
             //try to upload the image
             let data = await maximo.uploadImageToMaximo(img);
             let result = data[0];
-            
+
             //handle result of upload
-            postMessage(['runCallback',result,i]);
-            
+            postMessage(['runCallback', result, i]);
+
             //log result
-            if(result== 'success'){
-                postMessage(['debug',`${img.name} upload success`]);
-            } else if (result == 'fail' || result == 'warning'){
-                postMessage(['fail',`${img.name} upload fail; ${data[1]}`]);
+            if (result == 'success') {
+                postMessage(['debug', `${img.name} upload success`]);
+            } else if (result == 'fail' || result == 'warning') {
+                postMessage(['fail', `${img.name} upload fail; ${data[1]}`]);
             }
         }
-        postMessage(['result','done']);
+        postMessage(['result', 'done']);
     }
-    catch(err){
+    catch (err) {
         console.log(err);
-        postMessage(['result','total failure',err]);
+        postMessage(['result', 'total failure', err]);
     }
 }
 

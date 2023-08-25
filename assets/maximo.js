@@ -18,7 +18,8 @@ class Maximo {
                 response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/iko_meter?lean=1&pageno=${pageno}&oslc.pageSize=100&oslc.select=*&oslc.where=domainid%3D%22M-%25%22`, {
                     headers: {
                         "apikey": this.login.userid,
-                    }});
+                    }
+                });
             } catch (err) {
                 postMessage(['error', 'Failed to fetch Data from Maximo, Please Check Network', err]);
                 return false;
@@ -52,7 +53,8 @@ class Maximo {
                 response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/iko_alndomain?lean=1&pageno=${pageno}&oslc.where=domainid%3D%22M-%25%22&oslc.pageSize=100&oslc.select=alndomain%2Cdomainid%2Cdescription`, {
                     headers: {
                         "apikey": this.login.userid,
-                    }});
+                    }
+                });
             } catch (err) {
                 postMessage(['error', 'Failed to fetch Data from Maximo, Please Check Network', err]);
                 return false;
@@ -93,7 +95,8 @@ class Maximo {
             response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=in22>"${date}" and itemnum="9%25"&oslc.select=itemnum,in22,description,issueunit,commoditygroup,externalrefid,status`, {
                 headers: {
                     "apikey": this.login.userid,
-                }});
+                }
+            });
         } catch (err) {
             postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (1)', err]);
             return false;
@@ -132,7 +135,8 @@ class Maximo {
             response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/IKO_COMPMASTER?lean=1&oslc.where=type="M" and changedate>"${date}"&oslc.select=company,name,homepage,changedate`, {
                 headers: {
                     "apikey": this.login.userid,
-                }});
+                }
+            });
         } catch (err) {
             postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (1)', err]);
             return false;
@@ -174,7 +178,8 @@ class Maximo {
             response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=status="active" and itemnum="${numSeries}%25"&_lid=${this.login.userid}&_lpwd=${this.login.password}&oslc.select=itemnum&oslc.pageSize=1&oslc.orderBy=-itemnum`, {
                 headers: {
                     "apikey": this.login.userid,
-                }});
+                }
+            });
 
         } catch (err) {
             postMessage(['debug', 'Failed to fetch data from Maximo, please check network (1)']); //this likely doesnt work, probably remove it
@@ -222,61 +227,111 @@ class Maximo {
             this.login.userid = userid;
             postMessage(['debug', `Successfully logged in to Maximo as: ${content.displayName}`]);
             postMessage(['result', 0, 'Successfully logged in to Maximo']);
-            return {siteID, status};
+            return { siteID, status };
         }
     }
 
-    async uploadToMaximo(item){
-        let xmldoc =     
-    `<?xml version="1.0" encoding="UTF-8"?>
-    <SyncIKO_ITEMMASTER xmlns="http://www.ibm.com/maximo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <IKO_ITEMMASTERSet>
-        <ITEM>
-            <COMMODITYGROUP>${item.commoditygroup}</COMMODITYGROUP>
-            <DESCRIPTION>${item.description.replaceAll('&','&amp;')}</DESCRIPTION>
-            <DESCRIPTION_LONGDESCRIPTION>${item.longdescription.replaceAll('&','&amp;')}</DESCRIPTION_LONGDESCRIPTION>
-            <EXTERNALREFID>${item.glclass}</EXTERNALREFID>
-            <IKO_ASSETPREFIX>${item.assetprefix}</IKO_ASSETPREFIX>
-            <IKO_ASSETSEED>${item.assetseed}</IKO_ASSETSEED>
-            <IKO_JPNUM>${item.jpnum}</IKO_JPNUM>
-            <INSPECTIONREQUIRED>${item.inspectionrequired}</INSPECTIONREQUIRED>
-            <ISIMPORT>${item.isimport}</ISIMPORT>
-            <ISSUEUNIT>${item.issueunit}</ISSUEUNIT>
-            <ITEMNUM>${item.itemnumber}</ITEMNUM>
-            <ITEMSETID>ITEMSET1</ITEMSETID>
-            <ROTATING>${item.rotating}</ROTATING>
-            <STATUS>ACTIVE</STATUS>
-        </ITEM>
-    </IKO_ITEMMASTERSet>
-    </SyncIKO_ITEMMASTER>`;
-    
+    async uploadToMaximo(item) {
+        let xmldoc =
+            `<?xml version="1.0" encoding="UTF-8"?>
+        <SyncIKO_ITEMMASTER xmlns="http://www.ibm.com/maximo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <IKO_ITEMMASTERSet>
+            <ITEM>
+                <COMMODITYGROUP>${item.commoditygroup}</COMMODITYGROUP>
+                <DESCRIPTION>${item.description.replaceAll('&', '&amp;')}</DESCRIPTION>
+                <DESCRIPTION_LONGDESCRIPTION>${item.longdescription.replaceAll('&', '&amp;')}</DESCRIPTION_LONGDESCRIPTION>
+                <EXTERNALREFID>${item.glclass}</EXTERNALREFID>
+                <IKO_ASSETPREFIX>${item.assetprefix}</IKO_ASSETPREFIX>
+                <IKO_ASSETSEED>${item.assetseed}</IKO_ASSETSEED>
+                <IKO_JPNUM>${item.jpnum}</IKO_JPNUM>
+                <INSPECTIONREQUIRED>${item.inspectionrequired}</INSPECTIONREQUIRED>
+                <ISIMPORT>${item.isimport}</ISIMPORT>
+                <ISSUEUNIT>${item.issueunit}</ISSUEUNIT>
+                <ITEMNUM>${item.itemnumber}</ITEMNUM>
+                <ITEMSETID>ITEMSET1</ITEMSETID>
+                <ROTATING>${item.rotating}</ROTATING>
+                <STATUS>ACTIVE</STATUS>
+            </ITEM>
+        </IKO_ITEMMASTERSet>
+        </SyncIKO_ITEMMASTER>`;
         let response = await fetch('https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/IKO_ITEMMASTER?action=importfile', {
             method: "POST",
             headers: {
-                "filetype":"XML",
+                "filetype": "XML",
                 "apikey": this.login.userid,
-                //"preview": "1"
+                // "preview": "1"
             },
             body: xmldoc,
         });
         let content = await response.json();
-        //console.log(content);
+        // console.log(content);
         return parseInt(content.validdoc);
     }
+
+    //Uploads item to inventory
+    async uploadToInventory(item) {
+        let xmldoc =
+            `<?xml version="1.0" encoding="UTF-8"?>
+        <SyncIKO_INVENTORY xmlns="http://www.ibm.com/maximo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <IKO_INVENTORYSet>
+            <INVENTORY>
+              <CATALOGCODE>${item.cataloguenum}</CATALOGCODE>
+              <ISSUEUNIT>${item.issueunit}</ISSUEUNIT>
+              <ITEMNUM>${item.itemnumber}</ITEMNUM>
+              <ITEMSETID>ITEMSET1</ITEMSETID>
+              <LOCATION>${item.storeroomname}</LOCATION>
+              <SITEID>${item.siteID}</SITEID>
+              <VENDOR>${item.vendorname}</VENDOR>
+            </INVENTORY>
+          </IKO_INVENTORYSet>
+        </SyncIKO_INVENTORY>`;
+        let response = await fetch('https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/IKO_INVENTORY?action=importfile', {
+            method: "POST",
+            headers: {
+                "filetype": "XML",
+                "apikey": this.login.userid,
+                // "preview": "1"
+            },
+            body: xmldoc,
+        });
+        let content = await response.json();
+        //if upload to storeroom succeeded
+        if (parseInt(content.validdoc) == 1) {
+            return 1;
+        } //failure due to invalid vendor name
+        else if (content["oslc:Error"]["oslc:message"].includes("Company is not valid")) {
+            console.log(content["oslc:Error"]["oslc:message"]);
+            return 2;
+        } //failure due to invalid site id
+        else if (content["oslc:Error"]["oslc:message"].includes("is not a valid site")) {
+            console.log(content["oslc:Error"]["oslc:message"]);
+            return 3;
+        } //failure due to invalid storeroom
+        else if (content["oslc:Error"]["oslc:message"].includes("is not a valid inventory location")) {
+            console.log(content["oslc:Error"]["oslc:message"]);
+            return 4;
+        } //failure due to other reason i.e. item already has inventory fields filled in on Maximo
+        else {
+            console.log(content["oslc:Error"]["oslc:message"]);
+            return 0;
+        }
+    }
+
     /**
      * Uploads an image to maximo
      * 
      * @param {File} image
      * @returns {string[]} [status, (message if upload is unsuccessful)]
      */
-    async uploadImageToMaximo(image){
+
+    async uploadImageToMaximo(image) {
         //check valid image type
-        if(image.type !== "image/jpeg" && image.type !== "image/png"){
+        if (image.type !== "image/jpeg" && image.type !== "image/png") {
             return ['fail', 'Image type not jpeg or png'];
         }
 
         //check if item number exists in maximo        
-        let itemnum = image.name.slice(0,7); //itemnum is first 7 digits of image name
+        let itemnum = image.name.slice(0, 7); //itemnum is first 7 digits of image name
         let response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem?oslc.where=itemnum=${itemnum}`, {
             method: "GET",
             headers: {
@@ -284,7 +339,7 @@ class Maximo {
             }
         })
         let content = await response.json();
-        if(content["rdfs:member"] == 0 || content['oslc:Error']){
+        if (content["rdfs:member"] == 0 || content['oslc:Error']) {
             return ['fail', 'Item number not found'];
         }
 
@@ -294,7 +349,7 @@ class Maximo {
         //console.log("item id " + itemId);
 
         //check for existing image
-        response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}`,{
+        response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}`, {
             method: "GET",
             headers: {
                 "apikey": this.login.userid,
@@ -303,7 +358,7 @@ class Maximo {
         content = await response.json();
 
         //if image exists
-        if(content["_imagelibref"]){
+        if (content["_imagelibref"]) {
             //console.log("image exists");
 
             //code to delete existing image
@@ -314,7 +369,7 @@ class Maximo {
                     "apikey": this.login.userid,
                 }
             });*/
-            
+
             //dont upload image
             return ['warning', 'Image already exists for item number'];
         }
@@ -323,10 +378,10 @@ class Maximo {
         response = await fetch(`https://prod.manage.prod.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}?action=system:addimage`, {
             method: "POST",
             headers: {
-                "x-method-override":"PATCH",
-                "Slug":`${itemnum}.jpg`,
-                "Content-type":"image/jpeg",
-                "custom-encoding":"base",
+                "x-method-override": "PATCH",
+                "Slug": `${itemnum}.jpg`,
+                "Content-type": "image/jpeg",
+                "custom-encoding": "base",
                 "apikey": this.login.userid,
             },
             body: image

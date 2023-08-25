@@ -17,19 +17,19 @@
 <body class="d-flex flex-column h-100">
 
   <!-- popup for requesting items-->
-<div class="modal fade" id="requestModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title" id="requestModalLabel">Request Template</h4>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
+  <div class="modal fade" id="requestModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="requestModalLabel">Request Template</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
           <div class="row">
-            <div class="col-md">
-              <h6 class="title">Fields marked with "*" are compulsory</h6>
-<!--Input fields-->
+            <div class="row">
+              <div class="col-md">
+                <h6 class="title">Fields marked with "*" are compulsory</h6>
+                <!--Input fields-->
                 <div class="row">
                   <div class="col-md">
                     <div class="form-floating">
@@ -48,7 +48,8 @@
                 <div class="row">
                   <div class="col-md">
                     <div class="form-floating input-group">
-                      <input type="text" class="form-control" id="item-descr" placeholder="Maximo Description" disabled readonly required>
+                      <input type="text" class="form-control" id="item-descr" placeholder="Maximo Description" disabled
+                        readonly required>
                       <label for="item-descr">Maximo Description*</label>
                     </div>
                   </div>
@@ -181,14 +182,15 @@
                         <option value="N/A">N/A</option>
                         <option value="Generic">Generic</option>
                         <option value="Other">Other</option>
-                      </select>   
+                      </select>
                       <label for="manu-name">Preferred Manufacturer</label>
                     </div>
-                    <input type="text" class="form-control" id="pref-manu" style="display: none" placeholder="Manufacturer Name">
+                    <input type="text" class="form-control" id="pref-manu" style="display: none"
+                      placeholder="Manufacturer Name">
                   </div>
                 </div>
 
-                <div class="row" id="part-form"  style="display: none;">
+                <div class="row" id="part-form" style="display: none;">
                   <div class="col-md">
                     <div class="form-floating input-group">
                       <input type="text" class="form-control" id="part-num" style="display: block;" required>
@@ -214,20 +216,20 @@
                     </div>
                   </div>
                 </div>
+              </div>
             </div>
           </div>
         </div>
-      </div> 
-      <!--footer buttons and confirmation-->
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <a download="request.eml" class="btn btn-danger" id="submit-btn">
-          Submit Request
-        </a>
+        <!--footer buttons and confirmation-->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <a download="request.eml" class="btn btn-danger" id="submit-btn">
+            Submit Request
+          </a>
+        </div>
       </div>
     </div>
   </div>
-</div> 
 
   <!-- popup for uploading items -->
   <div class="modal fade" id="confirmModal" tabindex="-1">
@@ -239,87 +241,86 @@
         </div>
         <div class="modal-body">
           <div class="row">
-              <div class="row">
-                <div class="col-md">
-                  <div class="form-floating input-group">
-                    <input type="text" class="form-control" id="item-itemnum" placeholder="Maximo Description" disabled
-                      readonly>
-                    <label for="item-itemnum">Item Number</label>
-                  </div>
+            <div class="row">
+              <div class="col-md">
+                <div class="form-floating input-group">
+                  <input type="text" class="form-control" id="item-itemnum" placeholder="Maximo Description" disabled
+                    readonly>
+                  <label for="item-itemnum">Item Number</label>
                 </div>
               </div>
+            </div>
 
-              <div class="row">
-                <div class="col-md">
-                  <div class="form-floating input-group">
-                    <input type="text" class="form-control" id="item-desc" placeholder="Maximo Description" disabled
-                      readonly>
-                    <label for="item-desc">Maximo Description</label>
-                  </div>
+            <div class="row">
+              <div class="col-md">
+                <div class="form-floating input-group">
+                  <input type="text" class="form-control" id="item-desc" placeholder="Maximo Description" disabled
+                    readonly>
+                  <label for="item-desc">Maximo Description</label>
                 </div>
               </div>
+            </div>
 
-              <div class="row">
-                <div class="col-md">
-                  <div class="input-group form-floating">
-                    <input type="text" class="form-control" id="result-triple-main" placeholder="JDE Description1"
-                      disabled readonly>
-                    <label for="result-triple-main">JDE Description</label>
+            <div class="row">
+              <div class="col-md">
+                <div class="input-group form-floating">
+                  <input type="text" class="form-control" id="result-triple-main" placeholder="JDE Description1"
+                    disabled readonly>
+                  <label for="result-triple-main">JDE Description</label>
 
-                    <input type="text" class="form-control" id="result-triple-ext1" placeholder="JDE Description2"
-                      disabled readonly>
+                  <input type="text" class="form-control" id="result-triple-ext1" placeholder="JDE Description2"
+                    disabled readonly>
 
-                    <input type="text" class="form-control" id="result-triple-ext2" placeholder="JDE Manufacturer"
-                      disabled readonly>
-                  </div>
+                  <input type="text" class="form-control" id="result-triple-ext2" placeholder="JDE Manufacturer"
+                    disabled readonly>
                 </div>
               </div>
+            </div>
 
-              <div class="row">
-                <div class="col-md">
-                  <div class="form-floating input-group">
-                    <input type="text" class="form-control" id="item-commgroup" placeholder="Maximo Description"
-                      disabled readonly>
-                    <label for="item-commgroup">Commodity Group:</label>
-                  </div>
-                </div>
-                <div class="col-md">
-                  <div class="form-floating input-group">
-                    <input type="text" class="form-control" id="item-uom" placeholder="Maximo Description" disabled
-                      readonly>
-                    <label for="item-uom">Unit of Measure:</label>
-                  </div>
+            <div class="row">
+              <div class="col-md">
+                <div class="form-floating input-group">
+                  <input type="text" class="form-control" id="item-commgroup" placeholder="Maximo Description" disabled
+                    readonly>
+                  <label for="item-commgroup">Commodity Group:</label>
                 </div>
               </div>
-
-              <div class="row">
-                <div class="col-md">
-                  <div class="form-floating input-group">
-                    <input type="text" class="form-control" id="item-glclass" placeholder="Maximo Description" disabled
-                      readonly>
-                    <label for="item-glclass">Gl Class:</label>
-                  </div>
+              <div class="col-md">
+                <div class="form-floating input-group">
+                  <input type="text" class="form-control" id="item-uom" placeholder="Maximo Description" disabled
+                    readonly>
+                  <label for="item-uom">Unit of Measure:</label>
                 </div>
               </div>
+            </div>
 
-              <div class="row">
-                <div class="col-md">
-                  <div class="form-floating">
-                    <textarea class="form-control" placeholder="Optional" id="long-desc"
-                      style="height: 100px"></textarea>
-                    <label for="long-desc">Details: (Optional)</label>
-                  </div>
+            <div class="row">
+              <div class="col-md">
+                <div class="form-floating input-group">
+                  <input type="text" class="form-control" id="item-glclass" placeholder="Maximo Description" disabled
+                    readonly>
+                  <label for="item-glclass">Gl Class:</label>
                 </div>
               </div>
+            </div>
 
-              <div class="row">
-                <div class="col-md">
-                  <div class="form-floating input-group" style="height: 200px;overflow-y: auto;">
-                    <textarea class="form-control" id="valid-description" placeholder="Analysis" disabled
-                      readonly style="height: 200px;"></textarea>
-                    <label for="valid-description">Analysis</label>
-                  </div>
+            <div class="row">
+              <div class="col-md">
+                <div class="form-floating">
+                  <textarea class="form-control" placeholder="Optional" id="long-desc" style="height: 100px"></textarea>
+                  <label for="long-desc">Details: (Optional)</label>
                 </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md">
+                <div class="form-floating input-group" style="height: 200px;overflow-y: auto;">
+                  <textarea class="form-control" id="valid-description" placeholder="Analysis" disabled readonly
+                    style="height: 200px;"></textarea>
+                  <label for="valid-description">Analysis</label>
+                </div>
+              </div>
             </div>
           </div>
           <ul class="list-group">
@@ -355,11 +356,12 @@
         </div>
         <h1 class="col">Item Standardizer</h1>
         <div class="col d-flex align-items-center justify-content-end">
-          <i id="secret-button" data-clicks='0' class="material-icons pointer md-size" style="text-align: right; padding-right: 20px; opacity: 0;" >question_mark</i>
+          <i id="secret-button" data-clicks='0' class="material-icons pointer md-size"
+            style="text-align: right; padding-right: 20px; opacity: 0;">question_mark</i>
           <div class="form-check form-switch" style="padding-right: 20px; padding-top: 2px;">
             <input class="form-check-input" type="checkbox" id="dark-mode-switch" title="Toggle Dark Mode" checked>
           </div>
-          <i id="settings" class="material-icons pointer md-size" style="text-align: right; display:none" >settings</i>
+          <i id="settings" class="material-icons pointer md-size" style="text-align: right; display:none">settings</i>
         </div>
       </div>
 
@@ -404,8 +406,10 @@
                       <input type="text" class="form-control" id="maximo-desc" placeholder="Item Description"
                         maxlength="100" required>
                       <label for="maximo-desc">Item Description</label>
-                      <button class="btn btn-danger material-icons" type="button" id="valid-single" title="Search">search</button>
-                      <button class="btn btn-danger material-icons" type="button" id="valid-single-ext" title="Extended Search">travel_explore</button>
+                      <button class="btn btn-danger material-icons" type="button" id="valid-single"
+                        title="Search">search</button>
+                      <button class="btn btn-danger material-icons" type="button" id="valid-single-ext"
+                        title="Extended Search">travel_explore</button>
                     </div>
                   </div>
                   <!-- <i id="triple-paste" class="material-icons pointer col-1">content_paste</i> -->
@@ -522,7 +526,8 @@
                     <button class="btn btn-danger flex-grow-1" style="display: none;" type="button" id="upload-btn">
                       <strong>Upload Item</strong>
                     </button>
-                    <button class="btn btn-danger flex-grow-1" style="display: block; text-align: center;" type="button" id="request-btn">
+                    <button class="btn btn-danger flex-grow-1" style="display: block; text-align: center;" type="button"
+                      id="request-btn">
                       <strong>Request Item</strong>
                     </button>
                   </div>
