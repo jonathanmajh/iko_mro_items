@@ -470,15 +470,21 @@ document.getElementById("clear-batch-items-btn").addEventListener("click", () =>
 })
 
 document.getElementById("batch-copy-nums").addEventListener("click", () => {
+    let maximoCol = -1;
     try {
-        let result = getItemsFromTable("batch-items-table");
-        if (result == undefined || result == null || result == 0) {
-            throw ('Table missing columns');
+        for(let i = 1; i < parseInt(document.getElementById("batch-items-table").getAttribute("data-cols")); i++){
+            if(document.getElementById(`1-${i}`).innerHTML.toUpperCase() == "MAXIMO"){
+                maximoCol = i;
+                break;
+            }
+        }
+        if(maximoCol === -1){
+            throw("Maximo column not found");
         }
         let rows = parseInt(document.getElementById("batch-items-table").getAttribute("data-rows")) - 1;
         let nums = "";
         for (let i = 2; i <= rows + 1; i++) {
-            nums += document.getElementById(`${i}-${colLoc.maximo}`).innerHTML ? (document.getElementById(`${i}-${colLoc.maximo}`).innerHTML + "\n") : "";
+            nums += document.getElementById(`${i}-${maximoCol}`).innerHTML ? (document.getElementById(`${i}-${maximoCol}`).innerHTML + "\n") : "\n";
         }
         navigator.clipboard.writeText(nums);
         new Toast('Item Numbers Copied to Clipboard!');
@@ -754,6 +760,7 @@ function getItemsFromTable(tableId) {
     }
 
     //Checking if mandatory columns are filled
+    //current implementation is bad because it doesnt check if normal upload columns exist
     if (colLoc.siteID != -1 || colLoc.storeroom != -1 || colLoc.vendor != -1 || colLoc.catNum != -1) {
         if (colLoc.siteID == -1 || colLoc.storeroom == -1) {
             let numMissing = 0;
