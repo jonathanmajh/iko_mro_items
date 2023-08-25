@@ -1,10 +1,10 @@
 
-(function() {
-    if(!(localStorage.getItem('theme'))){
-        localStorage.setItem('theme','dark');
+(function () {
+    if (!(localStorage.getItem('theme'))) {
+        localStorage.setItem('theme', 'dark');
     }
 
-    document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('theme'));
+    document.documentElement.setAttribute('data-bs-theme', localStorage.getItem('theme'));
 })();
 
 //classes
@@ -35,13 +35,13 @@ class WorkerHandler {
                 log.info(e.data[1]);
             } else if (e.data[0] === 'debug') {
                 log.info(e.data[1]);
-            } else if (e.data[0] === 'fail'){
+            } else if (e.data[0] === 'fail') {
                 log.error(e.data[1]);
-            } else if (e.data[0] === 'update'){
-                updateItemStatus(e.data[1],e.data[2]);
-            } else if (e.data[0] === 'updateColors'){
-                updateTableColors(e.data[1],e.data[2]);
-            } else if (e.data[0] === 'runCallback'){
+            } else if (e.data[0] === 'update') {
+                updateItemStatus(e.data[1], e.data[2]);
+            } else if (e.data[0] === 'updateColors') {
+                updateTableColors(e.data[1], e.data[2]);
+            } else if (e.data[0] === 'runCallback') {
                 callback(e.data.slice(1,));
             } else {
                 console.log(`Unimplemented worker message ${e.data}`);
@@ -75,7 +75,7 @@ class Logging {
 }
 
 class ProgressBar {
-    constructor(barId = "progress-bar",textId = "progress-text") {
+    constructor(barId = "progress-bar", textId = "progress-text") {
         this.progressBar = document.getElementById("progress-bar");
         this.progressText = document.getElementById("progress-text");
         this.currentProgress = this.progressBar.getAttribute('style');
@@ -139,9 +139,9 @@ class Toast {
 
 class Item {
     //add more properties later (e.g manufacturer, part num, etc.)
-    constructor(itemnumber=0, description, issueunit, commoditygroup, glclass, siteID = "", storeroomname = "", vendorname = "", cataloguenum = "", series=91, longdescription = "", assetprefix = "", assetseed = "", jpnum = "", inspectionrequired = 0, isimport = 0, rotating = 0){
+    constructor(itemnumber = 0, description, issueunit, commoditygroup, glclass, siteID = "", storeroomname = "", vendorname = "", cataloguenum = "", series = 91, longdescription = "", assetprefix = "", assetseed = "", jpnum = "", inspectionrequired = 0, isimport = 0, rotating = 0) {
         this.itemnumber = itemnumber;
-        this.series=series;
+        this.series = series;
         this.description = description;
         this.issueunit = issueunit;
         this.commoditygroup = commoditygroup;
@@ -160,8 +160,8 @@ class Item {
     }
 }
 //functions
-    //general
-function fixSwitch(){
+//general
+function fixSwitch() {
     document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
 }
 
@@ -174,116 +174,114 @@ function toEnd() {
     let element = document.getElementsByTagName("main");
     element[0].scrollTop = element[0].scrollHeight; // For Chrome, Firefox, IE and Opera
 }
-    //theme related
-function toggleTheme(){
+//theme related
+function toggleTheme() {
     setTheme(localStorage.getItem('theme') === 'dark' ? 'light' : 'dark');
 }
 
-function setTheme(newTheme){
+function setTheme(newTheme) {
     //safety
-    if(localStorage.getItem('theme')===newTheme){
+    if (localStorage.getItem('theme') === newTheme) {
         return;
     }
 
     localStorage.setItem('theme', `${newTheme}`);
-    document.documentElement.setAttribute("data-bs-theme",newTheme);
+    document.documentElement.setAttribute("data-bs-theme", newTheme);
 }
 
-function loadTheme(){
-    if(!(localStorage.getItem('theme'))){
-        localStorage.setItem('theme','dark');
+function loadTheme() {
+    if (!(localStorage.getItem('theme'))) {
+        localStorage.setItem('theme', 'dark');
     }
 
-    document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('theme'));
+    document.documentElement.setAttribute('data-bs-theme', localStorage.getItem('theme'));
     //console.log('i have run');
 }
-    //upload item related
-function getNextNumThenUpdate(series){
-        document.getElementById("error").innerHTML = "Waiting for confirm...";
-        const worker = new WorkerHandler();
-        document.getElementById("confirm-btn").innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span> Loading...</span>';
-        document.getElementById("confirm-btn").disabled = true;
-        document.getElementById("item-itemnum").innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span> Retreiving the latest item number...</span>';
-        worker.work(['getCurItemNumber',series], updateItemInfo);
-        console.log("Getting new number from server")
+//upload item related
+function getNextNumThenUpdate(series) {
+    document.getElementById("error").innerHTML = "Waiting for confirm...";
+    const worker = new WorkerHandler();
+    document.getElementById("confirm-btn").innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span> Loading...</span>';
+    document.getElementById("confirm-btn").disabled = true;
+    document.getElementById("item-itemnum").innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span> Retreiving the latest item number...</span>';
+    worker.work(['getCurItemNumber', series], updateItemInfo);
+    console.log("Getting new number from server")
 }
 
-function updateItemInfo(curItemNum){
+function updateItemInfo(curItemNum) {
     console.log(curItemNum);
 
-    if(curItemNum[0]===0){
+    if (curItemNum[0] === 0) {
         throw new Error(curItemNum[1]);
     }
 
     let itemnum = document.getElementById("interact-num");
-        itemnum.value = curItemNum[1] + 1;
+    itemnum.value = curItemNum[1] + 1;
     let desc = document.getElementById("maximo-desc");
     let uom = document.getElementById("uom-field");
     let commGroup = document.getElementById("com-group");
     let glclass = document.getElementById("gl-class");
-    document.getElementById("item-itemnum").value=itemnum.value;
-    document.getElementById("item-desc").value=desc.value;
-    document.getElementById("item-uom").value=uom.value;
-    document.getElementById("item-commgroup").value=commGroup.value;
-    document.getElementById("item-glclass").value=glclass.value;
+    document.getElementById("item-itemnum").value = itemnum.value;
+    document.getElementById("item-desc").value = desc.value;
+    document.getElementById("item-uom").value = uom.value;
+    document.getElementById("item-commgroup").value = commGroup.value;
+    document.getElementById("item-glclass").value = glclass.value;
 
     document.getElementById("confirm-btn").innerHTML = "Upload Item";
     document.getElementById("confirm-btn").disabled = false;
 }
 
-function poppulateModal()
-{
+function poppulateModal() {
     let desc = document.getElementById("maximo-desc");
     let uom = document.getElementById("uom-field");
     let commGroup = document.getElementById("com-group");
     let glclass = document.getElementById("gl-class");
-   
-    document.getElementById("item-descr").value=desc.value;
-    document.getElementById("issue-unit").value=uom.value;
-    document.getElementById("comm-grp").value=commGroup.value;
-    document.getElementById("gl-class-new").value=glclass.value;
+
+    document.getElementById("item-descr").value = desc.value;
+    document.getElementById("issue-unit").value = uom.value;
+    document.getElementById("comm-grp").value = commGroup.value;
+    document.getElementById("gl-class-new").value = glclass.value;
 
 }
 
-function sanitizeString(str){
-    let badChars = ['<','>'];
-    for(const badChar of badChars){
-        str = str.replaceAll(badChar,"");
+function sanitizeString(str) {
+    let badChars = ['<', '>'];
+    for (const badChar of badChars) {
+        str = str.replaceAll(badChar, "");
     }
     str = str.replaceAll(/&nbsp;/g, " ").replaceAll(/\u00A0/g, " ");
     return str;
 }
 
-function convertToTable(pastedInput,id="")
-{
+function convertToTable(pastedInput, id = "") {
     let rawRows = pastedInput.split("\n");
-    let numRows=rawRows.length;
-    let numCols=0;
+    let numRows = rawRows.length;
+    let numCols = 0;
     let bodyRows = [];
     let diff = 0;
-    if(!pastedInput.toUpperCase().includes("MAXIMO")){
+    if (!pastedInput.toUpperCase().includes("MAXIMO")) {
         numRows++;
         let firstRow = ("Maximo\tDescription\tIssue Unit\tCommodity Group\tGL Class");
-        rawRows = [firstRow,...rawRows];
+        rawRows = [firstRow, ...rawRows];
     }
     rawRows.forEach((rawRow, idx) => {
         let rawRowArray = rawRow.split("\t");
-        if (rawRow==0) {
+        if (rawRow == 0) {
             diff--;
             numRows--;
         } else {
-            if(rawRowArray.length>numCols){
-                numCols=rawRowArray.length;
+            if (rawRowArray.length > numCols) {
+                numCols = rawRowArray.length;
             }
             bodyRows.push(`<tr>\n`);
-            rawRowArray.forEach(function(value,index){
-                bodyRows.push(`\t<td id="${(idx+diff+1) + '-' + (index+1)}">${value}</td>\n`);
+            rawRowArray.forEach(function (value, index) {
+                bodyRows.push(`\t<td id="${(idx + diff + 1) + '-' + (index + 1)}">${value}</td>\n`);
             })
-            if(idx==0){
+            if (idx == 0) {
                 bodyRows.push(`<td style="border-left: 2px solid;" contentEditable="false"></td>`);
             } else {
 
-                bodyRows.push(`<td id="item-${idx+diff}-status" contentEditable="false" style="border-left: 2px solid; width:0.1%; white-space: nowrap;"><i class="material-symbols-outlined mt-2">pending</i></td>`);
+                bodyRows.push(`<td id="item-${idx + diff}-status" contentEditable="false" style="border-left: 2px solid; width:0.1%; white-space: nowrap;"><i class="material-symbols-outlined mt-2">pending</i></td>`);
             }
             bodyRows.push(`</tr>\n`);
         }
@@ -293,11 +291,11 @@ function convertToTable(pastedInput,id="")
 ${bodyRows.join("")}
 </table>
     `;
-    
+
     return table;
 }
 //Highlights cells red for any cell with invalid data
-function updateTableColors(itemindex,category){
+function updateTableColors(itemindex, category) {
     let colLoc = {
         description: -1,
         uom: -1,
@@ -309,53 +307,53 @@ function updateTableColors(itemindex,category){
         catNum: -1,
         siteID: -1,
     }
-    let table=document.getElementById("batch-items-table");
+    let table = document.getElementById("batch-items-table");
     //Assign column locations
     let cols = parseInt(table.getAttribute("data-cols"));
     //go through first row to find headings.
-    for(let i = 1; i<=cols; i++){
+    for (let i = 1; i <= cols; i++) {
         //get a cell in the table by its id
-        let cell = document.getElementById("1-"+i);
+        let cell = document.getElementById("1-" + i);
         //see if cell value matches any of the required parameters to create an item object
-        if(cell.innerHTML.toUpperCase()==='DESCRIPTION'){
-            colLoc.description=i;
-        } else if(cell.innerHTML.toUpperCase()==='UOM'||cell.innerHTML.toUpperCase()==='ISSUE UNIT'){
-            colLoc.uom=i;
-        } else if(cell.innerHTML.toUpperCase()==='COMMODITY GROUP' || cell.innerHTML.toUpperCase()==='COMM GROUP'){
-            colLoc.commGroup=i;
-        } else if(cell.innerHTML.toUpperCase()==='GL CLASS'){
-            colLoc.glClass=i;
-        } else if(cell.innerHTML.toUpperCase()==='SITEID' || cell.innerHTML.toUpperCase()==='SITE'){
-            colLoc.siteID=i;
-        } else if(cell.innerHTML.toUpperCase()==='STOREROOM' || cell.innerHTML.toUpperCase()==='STOREROOM'){
-            colLoc.storeroom=i;
-        } else if(cell.innerHTML.toUpperCase()==='VENDOR' || cell.innerHTML.toUpperCase()==='VENDOR NUMBER'){
-            colLoc.vendor=i;
-        } else if(cell.innerHTML.toUpperCase()==='CAT NUMBER' || cell.innerHTML.toUpperCase()==='CATALOG NUMBER' || cell.innerHTML.toUpperCase()==='CATALOGUE NUMBER'){
-            colLoc.catNum=i;
-        } else if(cell.innerHTML.toUpperCase()==='MAXIMO' || cell.innerHTML.toUpperCase()==='ITEM NUMBER'){
-            colLoc.maximo=i;
+        if (cell.innerHTML.toUpperCase() === 'DESCRIPTION') {
+            colLoc.description = i;
+        } else if (cell.innerHTML.toUpperCase() === 'UOM' || cell.innerHTML.toUpperCase() === 'ISSUE UNIT') {
+            colLoc.uom = i;
+        } else if (cell.innerHTML.toUpperCase() === 'COMMODITY GROUP' || cell.innerHTML.toUpperCase() === 'COMM GROUP') {
+            colLoc.commGroup = i;
+        } else if (cell.innerHTML.toUpperCase() === 'GL CLASS') {
+            colLoc.glClass = i;
+        } else if (cell.innerHTML.toUpperCase() === 'SITEID' || cell.innerHTML.toUpperCase() === 'SITE') {
+            colLoc.siteID = i;
+        } else if (cell.innerHTML.toUpperCase() === 'STOREROOM' || cell.innerHTML.toUpperCase() === 'STOREROOM') {
+            colLoc.storeroom = i;
+        } else if (cell.innerHTML.toUpperCase() === 'VENDOR' || cell.innerHTML.toUpperCase() === 'VENDOR NUMBER') {
+            colLoc.vendor = i;
+        } else if (cell.innerHTML.toUpperCase() === 'CAT NUMBER' || cell.innerHTML.toUpperCase() === 'CATALOG NUMBER' || cell.innerHTML.toUpperCase() === 'CATALOGUE NUMBER') {
+            colLoc.catNum = i;
+        } else if (cell.innerHTML.toUpperCase() === 'MAXIMO' || cell.innerHTML.toUpperCase() === 'ITEM NUMBER') {
+            colLoc.maximo = i;
         }
     }
-        let colNum = colLoc[category];
-        let cell = document.getElementById(`${itemindex}-${colNum}`);
-        //change color of cell
-        cell.classList.add("table-danger");
-        
+    let colNum = colLoc[category];
+    let cell = document.getElementById(`${itemindex}-${colNum}`);
+    //change color of cell
+    cell.classList.add("table-danger");
+
 }
 
-function updateItemStatus(status,itemindex){
+function updateItemStatus(status, itemindex) {
     //Changes item status column to reflect status
     let statusimg = document.getElementById(`item-${itemindex}-status`);
-    if(status=="fail"){
+    if (status == "fail") {
         statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">close</i>`;
-    } else if(status=="success"){
+    } else if (status == "success") {
         statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">done</i>`;
-    } else if(status=="loading"){
+    } else if (status == "loading") {
         statusimg.innerHTML = `<div class="spinner-border mt-1 mb-1" style="width: 24px; height: 24px;" role="status"></div>`;
-    } else if(status=="error"){
+    } else if (status == "error") {
         statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">error</i>`;
-    } else if(status=="partial"){
+    } else if (status == "partial") {
         statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">warning</i>`;
     } else {
         statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">pending</i>`;
@@ -364,13 +362,13 @@ function updateItemStatus(status,itemindex){
 
 function fileBase64(file) {
     return new Promise((resolve, reject) => {
-      let reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = function() {
-        resolve(reader.result);
-      };
-      reader.onerror = function(error) {
-        reject(error);
-      };
+        let reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function () {
+            resolve(reader.result);
+        };
+        reader.onerror = function (error) {
+            reject(error);
+        };
     });
-  }
+}

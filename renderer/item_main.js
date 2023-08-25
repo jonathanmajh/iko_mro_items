@@ -39,7 +39,7 @@ let relatedResults = {
 //a function that is called immediately after the window has been loaded
 window.onload = function () {
     //set the darkmode toggle to the correct position by retreiving information from the local storage
-    document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false); 
+    document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
 
     //change the UI based on whether the user is a "power user". show all upload elements if they are a power user, else hide it.
     if (localStorage.getItem('powerUser') === 'true') {
@@ -343,7 +343,7 @@ document.getElementById("imgInput").addEventListener("change", async (e) => {
 
     //generate a link to open items that are being uploaded to in maximo
 
-    let url = `https://test.manage.test.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
+    let url = `https://prod.manage.prod.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
     document.getElementById("img-upload-status-text").innerHTML = `<a href=${url} id="imgs-link">Selected Items:</a>`;
     document.getElementById("imgs-link").addEventListener('click', function (e) {
         e.preventDefault();
@@ -421,7 +421,7 @@ document.getElementById("img-upload-btn").addEventListener("click", () => {
         if (result != 'done') {
             finishedItems++;
         }
-        
+
         //update progressbar when each image is uploaded/fails upload
         progressBar.updateProgressBar(finishedItems * 100 / imgsToUpload.length);
     });
@@ -734,92 +734,92 @@ function getItemsFromTable(tableId) {
             colLoc.glClass = i;
             validParams++;
 
-        } else if(cell.innerHTML.toUpperCase()==='SITEID' || cell.innerHTML.toUpperCase()==='SITE'){
-            colLoc.siteID=i;
+        } else if (cell.innerHTML.toUpperCase() === 'SITEID' || cell.innerHTML.toUpperCase() === 'SITE') {
+            colLoc.siteID = i;
             validParams++;
-        } else if(cell.innerHTML.toUpperCase()==='STOREROOM' || cell.innerHTML.toUpperCase()==='STOREROOM'){
-            colLoc.storeroom=i;
+        } else if (cell.innerHTML.toUpperCase() === 'STOREROOM' || cell.innerHTML.toUpperCase() === 'STOREROOM') {
+            colLoc.storeroom = i;
             validParams++;
-        } else if(cell.innerHTML.toUpperCase()==='VENDOR' || cell.innerHTML.toUpperCase()==='VENDOR NUMBER'){
-            colLoc.vendor=i;
+        } else if (cell.innerHTML.toUpperCase() === 'VENDOR' || cell.innerHTML.toUpperCase() === 'VENDOR NUMBER') {
+            colLoc.vendor = i;
             validParams++;
-        } else if(cell.innerHTML.toUpperCase()==='CAT NUMBER' || cell.innerHTML.toUpperCase()==='CATALOG NUMBER' || cell.innerHTML.toUpperCase()==='CATALOGUE NUMBER'){
-            colLoc.catNum=i;
+        } else if (cell.innerHTML.toUpperCase() === 'CAT NUMBER' || cell.innerHTML.toUpperCase() === 'CATALOG NUMBER' || cell.innerHTML.toUpperCase() === 'CATALOGUE NUMBER') {
+            colLoc.catNum = i;
             validParams++;
-        } else if(cell.innerHTML.toUpperCase()==='MAXIMO' || cell.innerHTML.toUpperCase()==='ITEM NUMBER'){
-            colLoc.maximo=i;
+        } else if (cell.innerHTML.toUpperCase() === 'MAXIMO' || cell.innerHTML.toUpperCase() === 'ITEM NUMBER') {
+            colLoc.maximo = i;
             validParams++;
         }
         // console.log(validParams)
     }
 
-//Checking if mandatory columns are filled
-if(colLoc.siteID!=-1 || colLoc.storeroom!=-1 || colLoc.vendor!=-1 || colLoc.catNum!=-1){
-    if(colLoc.siteID==-1 || colLoc.storeroom==-1){
-       let numMissing = 0;
-       let missingCols = "";
-       let missingColArr = [];
-   console.log("missing params");
-       for(const property in colLoc){
-           if(colLoc[property] == -1 && property != "vendor" && property != "catNum"){
-               console.log(property);
-               numMissing++;
-               missingColArr.push(property.toLowerCase());
-           }
-       }
-       missingCols = missingColArr.join(', ');
-       document.getElementById("batch-upload-status-text").innerHTML=`Table is missing ${numMissing} column(s): (${missingCols}). Table will not be uploaded!`;
-       return;
-   }
-    }
-    else{
-        if(validParams<5){
+    //Checking if mandatory columns are filled
+    if (colLoc.siteID != -1 || colLoc.storeroom != -1 || colLoc.vendor != -1 || colLoc.catNum != -1) {
+        if (colLoc.siteID == -1 || colLoc.storeroom == -1) {
+            let numMissing = 0;
             let missingCols = "";
             let missingColArr = [];
-        console.log("missing params");
-            for(const property in colLoc){
-                if(colLoc[property] == -1 && property != "siteID" && property != "storeroom" && property != "vendor" && property != "catNum"){
+            console.log("missing params");
+            for (const property in colLoc) {
+                if (colLoc[property] == -1 && property != "vendor" && property != "catNum") {
+                    console.log(property);
+                    numMissing++;
+                    missingColArr.push(property.toLowerCase());
+                }
+            }
+            missingCols = missingColArr.join(', ');
+            document.getElementById("batch-upload-status-text").innerHTML = `Table is missing ${numMissing} column(s): (${missingCols}). Table will not be uploaded!`;
+            return;
+        }
+    }
+    else {
+        if (validParams < 5) {
+            let missingCols = "";
+            let missingColArr = [];
+            console.log("missing params");
+            for (const property in colLoc) {
+                if (colLoc[property] == -1 && property != "siteID" && property != "storeroom" && property != "vendor" && property != "catNum") {
                     console.log(property);
                     missingColArr.push(property.toLowerCase());
                 }
             }
             missingCols = missingColArr.join(', ');
-            document.getElementById("batch-upload-status-text").innerHTML=`Table is missing ${5-validParams} column(s): (${missingCols}). Table will not be uploaded!`;
+            document.getElementById("batch-upload-status-text").innerHTML = `Table is missing ${5 - validParams} column(s): (${missingCols}). Table will not be uploaded!`;
             return;
         }
 
     }
-    let invalidItems=0;
-//Make item for request that includes inventory upload
-    if(validParams>5){
+    let invalidItems = 0;
+    //Make item for request that includes inventory upload
+    if (validParams > 5) {
         let site = undefined;
         let storeroom = undefined;
         let vendor = undefined;
         let catNum = undefined;
-        for(let i=2; i<=rows; i++){
-            let desc = sanitizeString(document.getElementById(i + "-"+colLoc.description).innerHTML);
-            let uom = sanitizeString(document.getElementById(i+"-"+colLoc.uom).innerHTML).toUpperCase();
-            let commGroup = sanitizeString(document.getElementById(i+"-"+colLoc.commGroup).innerHTML);
-            let glclass = sanitizeString(document.getElementById(i+"-"+colLoc.glClass).innerHTML).toUpperCase();
-            if(colLoc.siteID!=-1){site = sanitizeString(document.getElementById(i+"-"+colLoc.siteID).innerHTML).toUpperCase();} 
-            if(colLoc.storeroom!=-1){storeroom = sanitizeString(document.getElementById(i+"-"+colLoc.storeroom).innerHTML).toUpperCase();}
-            if(colLoc.vendor!=-1){vendor = sanitizeString(document.getElementById(i+"-"+colLoc.vendor).innerHTML);}
-            if(colLoc.catNum!=-1){catNum = sanitizeString(document.getElementById(i+"-"+colLoc.catNum).innerHTML);}
-            let maximo = sanitizeString(document.getElementById(i+"-"+colLoc.maximo).innerHTML);
+        for (let i = 2; i <= rows; i++) {
+            let desc = sanitizeString(document.getElementById(i + "-" + colLoc.description).innerHTML);
+            let uom = sanitizeString(document.getElementById(i + "-" + colLoc.uom).innerHTML).toUpperCase();
+            let commGroup = sanitizeString(document.getElementById(i + "-" + colLoc.commGroup).innerHTML);
+            let glclass = sanitizeString(document.getElementById(i + "-" + colLoc.glClass).innerHTML).toUpperCase();
+            if (colLoc.siteID != -1) { site = sanitizeString(document.getElementById(i + "-" + colLoc.siteID).innerHTML).toUpperCase(); }
+            if (colLoc.storeroom != -1) { storeroom = sanitizeString(document.getElementById(i + "-" + colLoc.storeroom).innerHTML).toUpperCase(); }
+            if (colLoc.vendor != -1) { vendor = sanitizeString(document.getElementById(i + "-" + colLoc.vendor).innerHTML); }
+            if (colLoc.catNum != -1) { catNum = sanitizeString(document.getElementById(i + "-" + colLoc.catNum).innerHTML); }
+            let maximo = sanitizeString(document.getElementById(i + "-" + colLoc.maximo).innerHTML);
             //if all required parameters are not available, don't create the item and move to next row
-            if(desc==''||uom==''||commGroup==''||glclass==''||desc==0||uom==0||commGroup==0||glclass==0||site==''||storeroom==''){
-                updateItemStatus('error',(i-1));
+            if (desc == '' || uom == '' || commGroup == '' || glclass == '' || desc == 0 || uom == 0 || commGroup == 0 || glclass == 0 || site == '' || storeroom == '') {
+                updateItemStatus('error', (i - 1));
                 items.push('');
                 invalidItems++;
                 continue;
             }
-            
-            let item = new Item(undefined,desc,uom,commGroup,glclass,site,storeroom,vendor,catNum);
-            if(colLoc.maximo!=-1 && maximo!=0 && maximo.toString().length === 7){
+
+            let item = new Item(undefined, desc, uom, commGroup, glclass, site, storeroom, vendor, catNum);
+            if (colLoc.maximo != -1 && maximo != 0 && maximo.toString().length === 7) {
                 item.itemnumber = maximo;
-            } else if(desc.toUpperCase().includes("DWG")){
+            } else if (desc.toUpperCase().includes("DWG")) {
                 item.series = 98;
-            } else if(commGroup == "490" && glclass == "PLS"){
+            } else if (commGroup == "490" && glclass == "PLS") {
                 //Change when when item num reachs 9920000
                 item.series = 991;
             }
@@ -829,42 +829,42 @@ if(colLoc.siteID!=-1 || colLoc.storeroom!=-1 || colLoc.vendor!=-1 || colLoc.catN
         }
     }
     //Make item for request that doesn't need inventory upload
-    else{
-        for(let i=2; i<=rows; i++){
-            let desc = sanitizeString(document.getElementById(i + "-"+colLoc.description).innerHTML);
-            let uom = sanitizeString(document.getElementById(i+"-"+colLoc.uom).innerHTML).toUpperCase();
-            let commGroup = sanitizeString(document.getElementById(i+"-"+colLoc.commGroup).innerHTML);
-            let glclass = sanitizeString(document.getElementById(i+"-"+colLoc.glClass).innerHTML).toUpperCase();
-            let maximo = sanitizeString(document.getElementById(i+"-"+colLoc.maximo).innerHTML);
+    else {
+        for (let i = 2; i <= rows; i++) {
+            let desc = sanitizeString(document.getElementById(i + "-" + colLoc.description).innerHTML);
+            let uom = sanitizeString(document.getElementById(i + "-" + colLoc.uom).innerHTML).toUpperCase();
+            let commGroup = sanitizeString(document.getElementById(i + "-" + colLoc.commGroup).innerHTML);
+            let glclass = sanitizeString(document.getElementById(i + "-" + colLoc.glClass).innerHTML).toUpperCase();
+            let maximo = sanitizeString(document.getElementById(i + "-" + colLoc.maximo).innerHTML);
             //if all required parameters are not available, don't create the item and move to next row
-            if(desc==''||uom==''||commGroup==''||glclass==''||desc==0||uom==0||commGroup==0||glclass==0){
-                updateItemStatus('error',(i-1));
+            if (desc == '' || uom == '' || commGroup == '' || glclass == '' || desc == 0 || uom == 0 || commGroup == 0 || glclass == 0) {
+                updateItemStatus('error', (i - 1));
                 items.push('');
                 invalidItems++;
                 continue;
             }
-            let item = new Item(undefined,desc,uom,commGroup,glclass);
-            if(colLoc.maximo!=-1 && maximo!=0 && maximo.toString().length === 7){
+            let item = new Item(undefined, desc, uom, commGroup, glclass);
+            if (colLoc.maximo != -1 && maximo != 0 && maximo.toString().length === 7) {
                 item.itemnumber = maximo;
-            } else if(desc.toUpperCase().includes("DWG")){
+            } else if (desc.toUpperCase().includes("DWG")) {
                 item.series = 98;
-            } else if(commGroup == "490" && glclass == "PLS"){
+            } else if (commGroup == "490" && glclass == "PLS") {
                 //Change when when item num reachs 9920000
                 item.series = 991;
             }
             // console.log(item);
             //add the item to the array
             items.push(item);
-         }
-       }
-   
-    if(invalidItems>0){
-        document.getElementById("batch-upload-status-text").innerHTML=`Warning! ${invalidItems} invalid items will not be uploaded`;
+        }
+    }
+
+    if (invalidItems > 0) {
+        document.getElementById("batch-upload-status-text").innerHTML = `Warning! ${invalidItems} invalid items will not be uploaded`;
     }
     //return the item array
     return items;
 }
-  
+
 /**
  * Uploads an item from item information accordion dropdown (single item upload)
  *
@@ -891,7 +891,7 @@ async function uploadItem() {
         document.getElementById("error").innerHTML = "Upload Success"
         document.getElementById("confirm-btn").innerHTML = "Upload Item";
         document.getElementById("confirm-btn").disabled = false;
-        let itemUrl = `https://test.manage.test.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
+        let itemUrl = `https://prod.manage.prod.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
         document.getElementById("error").innerHTML = `Item Upload Successful! <a id="item-link" href = "${itemUrl}"> (Click to view item) </a>`;
         document.getElementById("item-link").addEventListener('click', function (e) {
             e.preventDefault();
@@ -912,11 +912,11 @@ async function batchUploadItems(items) {
     clearBtn.disabled = true;
     btn.disabled = true;
 
-    worker.work(['uploadItems',items,true],(e)=>{
-        let finishText=`Upload Finished! ${e[2]} items uploaded, ${e[3]} items added to inventory. `;
-        if(e[0]=="failure"){
-                    new Toast(`Invalid! ${e[1]}}!`);
-                }
+    worker.work(['uploadItems', items, true], (e) => {
+        let finishText = `Upload Finished! ${e[2]} items uploaded, ${e[3]} items added to inventory. `;
+        if (e[0] == "failure") {
+            new Toast(`Invalid! ${e[1]}}!`);
+        }
         clearBtn.disabled = false;
         btn.disabled = false;
         updateItemNums(e[0]);
@@ -926,7 +926,7 @@ async function batchUploadItems(items) {
             nums += document.getElementById(`${i}-${colLoc.maximo}`).innerHTML ? (document.getElementById(`${i}-${colLoc.maximo}`).innerHTML + ",") : "";
         }
         if (e[2] > 0) {
-            let itemUrl = `https://test.manage.test.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
+            let itemUrl = `https://prod.manage.prod.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
             finishText += `<a id="batch-link" href="${itemUrl}">Click to view:</a>`
             document.getElementById("batch-upload-status-text").innerHTML = finishText;
             document.getElementById("batch-link").addEventListener('click', function (e) {
@@ -1259,7 +1259,7 @@ async function showRelated(result, isExtended = false) {
     <tbody id="related-items"></tbody>
 </table>
     `;
-    
+
     //expand the search results accordion
     document.getElementById('related-items-accordion-btn').classList.remove('collapsed');
     //load a couple of items
@@ -1272,7 +1272,7 @@ async function showRelated(result, isExtended = false) {
 function loadRelated() {
     //check if user clicked extended search
     const isExtended = document.getElementById('related-table').classList.contains('isExt');
-    
+
     //a map with percent match as key (in decimal form) and array of items as value
     //for example, if the key is 1, the list of items match with the search query 100%. If the key is 0.5, the list of items match with the search query 50%.
     const scores = relatedResults.results[0];
@@ -1296,9 +1296,9 @@ function loadRelated() {
     //get arrs from results obj
     const itemNames = relatedResults.results[1]; //a map with the 9-series number of the item as the key and the item info as value. Item info is an array with 4 items: [description, gl class, uom, commodity group]
     const searchWords = relatedResults.results[2].split(','); //an array of the search query split by commas. For example, if the search query is "test, item, description", then searchWords would be ["test", "item", "description"]
-    
+
     let html = '', color = ''; //html is the html that will be added to the search results table. color is the color of the row in the table.
-    
+
     let itemDescription;
 
     //formatting options for percent match. Converts decimal to percent and rounds to nearest whole number.
@@ -1352,7 +1352,7 @@ function loadRelated() {
             } else {
                 color = 'table-danger';  //red
             }
-            
+
             //create HTML row.
             //In extended search, the vendor info is split from the item description by a | (pipe character).
             //All info after the pipe character is put into another column.
