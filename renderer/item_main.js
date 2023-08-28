@@ -1088,9 +1088,9 @@ function showResult(result, isExtended = false) {
     const translate = document.getElementById("translateSelect").checked;
     calcConfidence(result[0][3]);
     document.getElementById("validate-badge").innerHTML = "New";
-    if (translate) {
+    /*if (translate) {
         translationDescription(result[0][3]);
-    }
+    }*/
     if (related) {
         findRelated(result[0], isExtended);
     }
