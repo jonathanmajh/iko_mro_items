@@ -385,7 +385,7 @@ async function uploadAllItems(items, doUpdate = false) { //NOTE: the current imp
             if (item === '') {
                 continue;
             }
-            if (item.itemnumber === 0 || item.itemnumber.length != 7) {
+            if (item.itemnumber === 0 || item.itemnumber.length != 7 || !(/^(9[0-9]{6})$/.test(item.itemnumber))) {
                 //if the item number is 0 or is not 7 characters long, assign a new item number
                 needsNewNum = true;
                 //get latest item number
