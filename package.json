@@ -30,7 +30,7 @@
     "electron-squirrel-startup": "^1.0.0",
     "exceljs": "^4.3.0",
     "lodash": "^4.17.0",
-    "luxon": "^3.3.0"
+    "luxon": "^3.4.3"
   },
   "config": {
     "forge": {
