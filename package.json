@@ -22,10 +22,10 @@
     "@electron-forge/maker-squirrel": "^6.2.1",
     "@electron-forge/maker-zip": "^6.2.1",
     "@electron-forge/publisher-github": "^6.2.1",
-    "electron": "^25.4.0"
+    "electron": "^27.0.4"
   },
   "dependencies": {
-    "better-sqlite3": "^8.5.0",
+    "better-sqlite3": "^9.1.1",
     "bootstrap": "^5.3.1",
     "electron-squirrel-startup": "^1.0.0",
     "exceljs": "^4.3.0",
