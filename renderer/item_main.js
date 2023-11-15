@@ -1233,6 +1233,7 @@ async function showRelated(result, isExtended = false) {
 
     //reset table after called
     const relatedTable = document.getElementById('related-table');
+    const numResultsText = document.getElementById('num-results');
 
     if (isExtended) {
         relatedTable.classList.add(`isExt`);
@@ -1259,6 +1260,8 @@ async function showRelated(result, isExtended = false) {
     <tbody id="related-items"></tbody>
 </table>
     `;
+
+    numResultsText.innerHTML = `Found ${Object.entries(result[1]).length} results`;
 
     //expand the search results accordion
     document.getElementById('related-items-accordion-btn').classList.remove('collapsed');
