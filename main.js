@@ -1,15 +1,15 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain, screen, dialog, shell } = require('electron');
+const {app, BrowserWindow, ipcMain, screen, dialog, shell} = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { appUpdater } = require('./assets/autoupdater');
+const {appUpdater} = require('./assets/autoupdater');
 let mainWindow;
 let settingWindow;
 
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
-//Write eml file 
+// Write eml file
 ipcMain.on('write-file', (event, emailData) => {
   const pathToFile = path.resolve(__dirname, 'downloadedFile.eml');
   fs.writeFile(pathToFile, emailData, (err) => {
@@ -17,24 +17,24 @@ ipcMain.on('write-file', (event, emailData) => {
       console.error(`Error writing file: ${err}`);
     } else {
       shell.openPath(pathToFile)
-        .then(() => {
-          sleep(2000).then(() => {
+          .then(() => {
+            sleep(2000).then(() => {
             // Delete the file after opening
-            fs.unlink(pathToFile, (err) => {
-              if (err) {
-                console.error(`Error deleting file: ${err}`);
-              } else {
-                console.log('File deleted successfully');
-              }
-            });
-          }
-          )
-            .catch((err) => {
-              console.error(`Error opening file: ${err}`);
-            });
-        })
+              fs.unlink(pathToFile, (err) => {
+                if (err) {
+                  console.error(`Error deleting file: ${err}`);
+                } else {
+                  console.log('File deleted successfully');
+                }
+              });
+            },
+            )
+                .catch((err) => {
+                  console.error(`Error opening file: ${err}`);
+                });
+          });
     }
-  })
+  });
 });
 
 ipcMain.on('openSettings', (event, arg) => {
@@ -46,8 +46,8 @@ ipcMain.on('openSettings', (event, arg) => {
     webPreferences: {
       nodeIntegration: true,
       nodeIntegrationInWorker: true,
-      contextIsolation: false
-    }
+      contextIsolation: false,
+    },
   });
 
   settingWindow.loadFile(path.join('renderer', 'setting.html'));
@@ -64,40 +64,40 @@ ipcMain.on('getVersion', (event, arg) => {
 });
 
 ipcMain.handle('select-to-be-translated', async (event, arg) => {
-  let result = await dialog.showOpenDialog(mainWindow, {
-    title: "Select Spreadsheet",
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: 'Select Spreadsheet',
     filters: [
-      { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb'] },
+      {name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb']},
     ],
     properties: [
-      'openFile'
-    ]
+      'openFile',
+    ],
   });
   return result;
 });
 
 ipcMain.handle('select-excel-file', async (event, arg) => {
-  let result = await dialog.showOpenDialog(mainWindow, {
-    title: "Select Excel Spreadsheet",
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: 'Select Excel Spreadsheet',
     filters: [
-      { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb'] },
+      {name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb']},
     ],
     properties: [
-      'openFile'
-    ]
+      'openFile',
+    ],
   });
   return result;
 });
 
 ipcMain.handle('select-translations', async (event, arg) => {
-  let result = await dialog.showOpenDialog(mainWindow, {
-    title: "Select Translation Definition Spreadsheet",
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: 'Select Translation Definition Spreadsheet',
     filters: [
-      { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb'] },
+      {name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb']},
     ],
     properties: [
-      'openFile'
-    ]
+      'openFile',
+    ],
   });
   return result;
 });
@@ -128,7 +128,7 @@ ipcMain.on('start_asset_translate', (event, arg) => {
 
 function createWindow() {
   // Create the browser window.
-  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+  const {width, height} = screen.getPrimaryDisplay().workAreaSize;
   mainWindow = new BrowserWindow({
     width: width / 2,
     height: height,
@@ -138,8 +138,8 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       nodeIntegrationInWorker: true,
-      contextIsolation: false
-    }
+      contextIsolation: false,
+    },
   });
 
   // and load the index.html of the app.
@@ -151,7 +151,7 @@ function createWindow() {
   const page = mainWindow.webContents;
 
   page.once('did-frame-finish-load', () => {
-    console.log("checking for updates");
+    console.log('checking for updates');
     appUpdater();
   });
   mainWindow.show();
@@ -163,7 +163,7 @@ function createWindow() {
 app.whenReady().then(() => {
   createWindow();
 
-  app.on('activate', function () {
+  app.on('activate', function() {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -173,6 +173,6 @@ app.whenReady().then(() => {
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on('window-all-closed', function () {
+app.on('window-all-closed', function() {
   if (process.platform !== 'darwin') app.quit();
 });

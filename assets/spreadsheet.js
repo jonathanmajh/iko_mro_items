@@ -2,261 +2,270 @@ const Exceljs = require('exceljs');
 const fs = require('fs');
 const dt = require('luxon');
 
+/**
+  * class for reading data from excel item cache
+  */
 class ExcelReader {
-    constructor(filePath) {
-        this.filePath = filePath;
-    }
+  constructor(filePath) {
+    this.filePath = filePath;
+  }
 
-    // the version number of the workbook is saved in a cell for tracking purposes
-    async getVersion() {
-        const wb = new Exceljs.Workbook();
-        await wb.xlsx.readFile(this.filePath);
-        const ws = wb.getWorksheet('Sheet2');
-        let version = dt.DateTime.fromSeconds(
-            (parseFloat(ws.getCell('A2').text) - 25569) * 86400 + 14400
-        ).toFormat('yyyy-LL-dd HH:mm:ss');
-        return version;
-    }
+  // the version number of the workbook is saved in a cell for tracking purposes
+  async getVersion() {
+    const wb = new Exceljs.Workbook();
+    await wb.xlsx.readFile(this.filePath);
+    const ws = wb.getWorksheet('Sheet2');
+    const version = dt.DateTime.fromSeconds(
+        (parseFloat(ws.getCell('A2').text) - 25569) * 86400 + 14400,
+    ).toFormat('yyyy-LL-dd HH:mm:ss');
+    return version;
+  }
 
-    // read information about the item database (an initial file is included for
-    // faster startup rather than fetching all 100k+ items from maximo directly)
-    async getItemCache() {
-        const wb = new Exceljs.Workbook();
-        await wb.xlsx.readFile(this.filePath);
+  // read information about the item database (an initial file is included for
+  // faster startup rather than fetching all 100k+ items from maximo directly)
+  /**
+  * read the item cache file
+  */
+  async getItemCache() {
+    const wb = new Exceljs.Workbook();
+    await wb.xlsx.readFile(this.filePath);
 
-        // read inventory data which will be appended to ext_search_text
-        const ws3 = wb.getWorksheet('Sheet3');
-        let lastRow = ws3.lastRow.number;
-        const inventory_data = new Map();
-        let row = Array();
-        for (let i = 2; i <= lastRow; i++) {
-            row = new Array();
-            row[0] = ws3.getCell(`A${i}`).text;
-            row[1] = ws3.getCell(`B${i}`).text;
-            row[2] = ws3.getCell(`C${i}`).text;
-            row[3] = ws3.getCell(`D${i}`).text;
-            row[4] = ws3.getCell(`E${i}`).text;
-            row[5] = ws3.getCell(`F${i}`).text;
-            row[6] = ws3.getCell(`G${i}`).text;
-            if (row[2].length > 0 || row[3].length > 0 || row[4].length > 0 || row[5].length > 0 || row[6].length > 0) {
-                if (inventory_data.has(row[0])) {
-                    for (let j = 2; j <= 6; j++) {
-                        if (row[j] > 0 && row[j] != "NULL") {
-                            inventory_data.get(row[0])[j] = inventory_data.get(row[0])[j] + '|' + row[j];
-                        }
-                    }
-                } else {
-                    for (let j = 2; j <= 6; j++) {
-                        if (row[j] == "NULL") {
-                            row[j] = '';
-                        }
-                    }
-                    inventory_data.set(row[0], row)
-                }
+    // read inventory data which will be appended to ext_search_text
+    const ws3 = wb.getWorksheet('Sheet3');
+    let lastRow = ws3.lastRow.number;
+    const inventoryData = new Map();
+    const allInventory = [];
+    for (let i = 2; i <= lastRow; i++) {
+      const row = [];
+      row[0] = ws3.getCell(`A${i}`).text;
+      row[1] = ws3.getCell(`B${i}`).text;
+      row[2] = ws3.getCell(`C${i}`).text;
+      row[3] = ws3.getCell(`D${i}`).text;
+      row[4] = ws3.getCell(`E${i}`).text;
+      row[5] = ws3.getCell(`F${i}`).text;
+      row[6] = ws3.getCell(`G${i}`).text;
+      row[7] = ws3.getCell(`I${i}`).text;
+      allInventory.push([...row, ws3.getCell(`H${i}`).text]);
+      if (row[2].length > 0 || row[3].length > 0 || row[4].length > 0 || row[5].length > 0 || row[6].length > 0) {
+        if (inventoryData.has(row[0])) {
+          for (let j = 1; j <= 7; j++) {
+            if (row[j].length > 0 && row[j] != 'NULL') {
+              inventoryData.get(row[0])[j] = inventoryData.get(row[0])[j] + '|' + row[j];
             }
-        }
-        // read item master data
-        const ws = wb.getWorksheet('Sheet1'); //alternatively (fetch by ID): getWorksheet(1);
-        lastRow = ws.lastRow.number; //last cell row in range
-        const data = []; //empty list
-        for (let i = 2; i <= lastRow; i++) {
-            try {
-                data.push([
-                    ws.getCell(`A${i}`).text,
-                    ws.getCell(`B${i}`).text,
-                    dt.DateTime.fromSeconds(
-                        (parseFloat(ws.getCell(`C${i}`).text) - 25569) * 86400 + 14400
-                    ).toFormat('yyyy-LL-dd HH:mm:ss'),
-                    ws.getCell(`D${i}`).text,
-                    ws.getCell(`E${i}`).text,
-                    ws.getCell(`F${i}`).text,
-                    ws.getCell(`H${i}`).text,
-                    inventory_data.get(ws.getCell(`A${i}`).text),
-                ]);
-            } catch (error) {
-                console.log(error);
-                console.log(`row number: ${i}`);
+          }
+        } else {
+          for (let j = 2; j <= 7; j++) {
+            if (row[j] == 'NULL') {
+              row[j] = '';
             }
+          }
+          inventoryData.set(row[0], row);
         }
-        const ws2 = wb.getWorksheet('Sheet2');
-        return [
-            data,
-            dt.DateTime.fromSeconds(
-                (parseFloat(ws2.getCell('A2').text) - 25569) * 86400 + 14400
-            ).toFormat('yyyy-LL-dd HH:mm:ss'),
-        ];
-        // to convert excel datetime in number format to string
+      }
     }
+    // read item master data
+    const ws = wb.getWorksheet('Sheet1'); // alternatively (fetch by ID): getWorksheet(1);
+    lastRow = ws.lastRow.number; // last cell row in range
+    const data = []; // empty list
+    for (let i = 2; i <= lastRow; i++) {
+      try {
+        data.push([
+          ws.getCell(`A${i}`).text,
+          ws.getCell(`B${i}`).text,
+          dt.DateTime.fromSeconds(
+              (parseFloat(ws.getCell(`C${i}`).text) - 25569) * 86400 + 14400,
+          ).toFormat('yyyy-LL-dd HH:mm:ss'),
+          ws.getCell(`D${i}`).text,
+          ws.getCell(`E${i}`).text,
+          ws.getCell(`F${i}`).text,
+          ws.getCell(`H${i}`).text,
+          inventoryData.get(ws.getCell(`A${i}`).text),
+        ]);
+      } catch (error) {
+        console.log(error);
+        console.log(`row number: ${i}`);
+      }
+    }
+    const ws2 = wb.getWorksheet('Sheet2');
+    return [
+      data,
+      dt.DateTime.fromSeconds(
+          (parseFloat(ws2.getCell('A2').text) - 25569) * 86400 + 14400,
+      ).toFormat('yyyy-LL-dd HH:mm:ss'),
+      allInventory,
+    ];
+    // to convert excel datetime in number format to string
+  }
 
-    // get inital list of manufacturers from the workbook
-    async getManufactures() {
-        let workbook = new Exceljs.Workbook();
-        await workbook.xlsx.readFile(this.filePath);
-        let worksheet = workbook.getWorksheet('Manufacturers');
-        let lastrow = worksheet.lastRow.number;
-        let data = [];
-        for (let i = 2; i <= lastrow; i++) {
-            if (worksheet.getCell(`A${i}`).text) {
-                data.push([
-                    worksheet.getCell(`A${i}`).text,
-                    dt.DateTime.fromSeconds(
-                        (parseFloat(worksheet.getCell(`B${i}`).text) - 25569) * 86400 + 14400).toFormat('yyyy-LL-dd HH:mm:ss'),
-                    worksheet.getCell(`C${i}`).text,
-                    worksheet.getCell(`D${i}`).text,
-                ]);
-            }
+  // get inital list of manufacturers from the workbook
+  async getManufactures() {
+    const workbook = new Exceljs.Workbook();
+    await workbook.xlsx.readFile(this.filePath);
+    const worksheet = workbook.getWorksheet('Manufacturers');
+    const lastrow = worksheet.lastRow.number;
+    const data = [];
+    for (let i = 2; i <= lastrow; i++) {
+      if (worksheet.getCell(`A${i}`).text) {
+        data.push([
+          worksheet.getCell(`A${i}`).text,
+          dt.DateTime.fromSeconds(
+              (parseFloat(worksheet.getCell(`B${i}`).text) - 25569) * 86400 + 14400).toFormat('yyyy-LL-dd HH:mm:ss'),
+          worksheet.getCell(`C${i}`).text,
+          worksheet.getCell(`D${i}`).text,
+        ]);
+      }
+    }
+    return data;
+  }
+
+  // get initial list of abbreviations from the workbook
+  async getAbbreviations() {
+    const workbook = new Exceljs.Workbook();
+    await workbook.xlsx.readFile(this.filePath);
+    const worksheet = workbook.getWorksheet('Replacements');
+    const lastrow = worksheet.lastRow.number;
+    const data = [];
+    for (let i = 3; i <= lastrow; i++) {
+      if (worksheet.getCell(`D${i}`).text) {
+        data.push([worksheet.getCell(`D${i}`).text, worksheet.getCell(`B${i}`).text]);
+      }
+    }
+    return data;
+  }
+
+  // read item information from workbook being processed
+  async getDescriptions(params) {
+    const workbook = new Exceljs.Workbook();
+    await workbook.xlsx.readFile(this.filePath);
+    fs.copyFileSync(this.filePath, `${this.filePath}.backup`);
+    postMessage(['info', `Backing up file as: "${this.filePath}.backup"`]);
+    const wsNames = workbook.worksheets.map(function(ele) {
+      return ele.name;
+    });
+    if (!wsNames.includes(params.wsName)) {
+      postMessage(['info', 'Workbook has the following worksheets:']);
+      postMessage(['info', `${wsNames}`]);
+      postMessage([
+        'error',
+        `"${params.wsName} does not exist, Please check spelling & captitalization"`,
+      ]);
+      return false;
+    }
+    const worksheet = workbook.getWorksheet(params.wsName);
+    const lastrow = worksheet.lastRow.number;
+    const data = [];
+    let row = [];
+    for (let i = params.startRow; i <= lastrow; i++) {
+      row = [];
+      for (let j = 0; j < params.inDesc.length; j++) {
+        if (worksheet.getCell(`${params.inDesc[j]}${i}`).text) {
+          row.push(worksheet.getCell(`${params.inDesc[j]}${i}`).text);
         }
-        return data;
+      }
+      data.push([i, row.join()]);
     }
+    return data;
+  }
 
-    //get initial list of abbreviations from the workbook
-    async getAbbreviations() {
-        let workbook = new Exceljs.Workbook();
-        await workbook.xlsx.readFile(this.filePath);
-        let worksheet = workbook.getWorksheet('Replacements');
-        let lastrow = worksheet.lastRow.number;
-        let data = [];
-        for (let i = 3; i <= lastrow; i++) {
-            if (worksheet.getCell(`D${i}`).text) {
-                data.push([worksheet.getCell(`D${i}`).text, worksheet.getCell(`B${i}`).text]);
-            }
-        }
-        return data;
+  // write validated item information to the workbook
+  // not used
+  async writeDescriptions(descriptions, savePath) {
+    const workbook = xlsx.readFile(this.filePath, {cellStyles: true, bookVBA: true});
+    const worksheet = workbook.Sheets['Validate'];
+    descriptions.forEach((description) => {
+      worksheet[`E${description.row}`] = {t: `s`, v: description.result[3], w: undefined}; // maximo description
+      worksheet[`F${description.row}`] = {t: `s`, v: description.result[0], w: undefined}; // main description
+      worksheet[`G${description.row}`] = {t: `s`, v: description.result[1], w: undefined}; // ext1
+      worksheet[`H${description.row}`] = {t: `s`, v: description.result[2], w: undefined}; // ext2
+      worksheet[`I${description.row}`] = {t: `s`, v: description.messages, w: undefined}; // msg
+    });
+    try {
+      xlsx.writeFile(workbook, savePath);
+    } catch (error) {
+      console.log(error);
+      const suffix = Date.now();
+      savePath = savePath.split(`.`);
+      savePath = `${savePath[0]}${suffix}.${savePath[1]}`;
+      xlsx.writeFile(workbook, savePath);
     }
+    return savePath;
+  }
 
-    // read item information from workbook being processed
-    async getDescriptions(params) {
-        let workbook = new Exceljs.Workbook();
-        await workbook.xlsx.readFile(this.filePath);
-        fs.copyFileSync(this.filePath, `${this.filePath}.backup`);
-        postMessage(['info', `Backing up file as: "${this.filePath}.backup"`]);
-        const wsNames = workbook.worksheets.map(function (ele) {
-            return ele.name;
-        });
-        if (!wsNames.includes(params.wsName)) {
-            postMessage(['info', 'Workbook has the following worksheets:']);
-            postMessage(['info', `${wsNames}`]);
-            postMessage([
-                'error',
-                `"${params.wsName} does not exist, Please check spelling & captitalization"`,
-            ]);
-            return false;
-        }
-        let worksheet = workbook.getWorksheet(params.wsName);
-        let lastrow = worksheet.lastRow.number;
-        let data = [];
-        let row = [];
-        for (let i = params.startRow; i <= lastrow; i++) {
-            row = [];
-            for (let j = 0; j < params.inDesc.length; j++) {
-                if (worksheet.getCell(`${params.inDesc[j]}${i}`).text) {
-                    row.push(worksheet.getCell(`${params.inDesc[j]}${i}`).text);
-                }
-            }
-            data.push([i, row.join()]);
-        }
-        return data;
-    }
+  async saveDescription(parmas) {
+    const workbook = new Exceljs.Workbook();
+    await workbook.xlsx.readFile(this.filePath);
+    const worksheet = workbook.getWorksheet(parmas[0].wsName);
+    worksheet.getCell(`${parmas[0].outItemDesc[0]}${parmas[0].outRow}`).value = parmas[1][0]; // description1
+    worksheet.getCell(`${parmas[0].outItemDesc[1]}${parmas[0].outRow}`).value = parmas[1][1]; // description2
+    worksheet.getCell(`${parmas[0].outItemDesc[2]}${parmas[0].outRow}`).value = parmas[1][2]; // manufacturer
+    worksheet.getCell(`${parmas[0].outUOM}${parmas[0].outRow}`).value = parmas[0].uom; // uom
+    worksheet.getCell(`${parmas[0].outComm}${parmas[0].outRow}`).value = parmas[0].commGroup; // c-group
+    // worksheet.getCell(`${parmas[0].outItemDesc[2]}${parmas[0].outRow}`).value = parmas[1][2]; //c-code
+    worksheet.getCell(`${parmas[0].outGL}${parmas[0].outRow}`).value = parmas[0].glClass; // gl-class
+    worksheet.getCell(`${parmas[0].outTranslate}${parmas[0].outRow}`).value =
+            'placeholder-translated'; // translated
+    worksheet.getCell(`${parmas[0].outMissing}${parmas[0].outRow}`).value =
+            'placeholder-missing'; // missing
+    // worksheet.getCell(`${parmas[0].outItemDesc[2]}${parmas[0].outRow}`).value = parmas[1][2]; //question
+    await this.saveWorkbook(workbook, this.filePath);
+  }
 
-    // write validated item information to the workbook
-    // not used
-    async writeDescriptions(descriptions, savePath) {
-        let workbook = xlsx.readFile(this.filePath, { cellStyles: true, bookVBA: true });
-        let worksheet = workbook.Sheets['Validate'];
-        descriptions.forEach((description) => {
-            worksheet[`E${description.row}`] = { t: `s`, v: description.result[3], w: undefined }; //maximo description
-            worksheet[`F${description.row}`] = { t: `s`, v: description.result[0], w: undefined }; //main description
-            worksheet[`G${description.row}`] = { t: `s`, v: description.result[1], w: undefined }; //ext1
-            worksheet[`H${description.row}`] = { t: `s`, v: description.result[2], w: undefined }; //ext2
-            worksheet[`I${description.row}`] = { t: `s`, v: description.messages, w: undefined }; //msg
-        });
-        try {
-            xlsx.writeFile(workbook, savePath);
-        } catch (error) {
-            console.log(error);
-            const suffix = Date.now();
-            savePath = savePath.split(`.`);
-            savePath = `${savePath[0]}${suffix}.${savePath[1]}`;
-            xlsx.writeFile(workbook, savePath);
-        }
-        return savePath;
-    }
+  async saveNumber(parmas) {
+    const workbook = new Exceljs.Workbook();
+    await workbook.xlsx.readFile(this.filePath);
+    const worksheet = workbook.getWorksheet(parmas[1]);
+    worksheet.getCell(`${parmas[3]}${parmas[2]}`).value = parmas[4];
+    return await this.saveWorkbook(workbook, this.filePath);
+  }
 
-    async saveDescription(parmas) {
-        let workbook = new Exceljs.Workbook();
-        await workbook.xlsx.readFile(this.filePath);
-        let worksheet = workbook.getWorksheet(parmas[0].wsName);
-        worksheet.getCell(`${parmas[0].outItemDesc[0]}${parmas[0].outRow}`).value = parmas[1][0]; //description1
-        worksheet.getCell(`${parmas[0].outItemDesc[1]}${parmas[0].outRow}`).value = parmas[1][1]; //description2
-        worksheet.getCell(`${parmas[0].outItemDesc[2]}${parmas[0].outRow}`).value = parmas[1][2]; //manufacturer
-        worksheet.getCell(`${parmas[0].outUOM}${parmas[0].outRow}`).value = parmas[0].uom; //uom
-        worksheet.getCell(`${parmas[0].outComm}${parmas[0].outRow}`).value = parmas[0].commGroup; //c-group
-        // worksheet.getCell(`${parmas[0].outItemDesc[2]}${parmas[0].outRow}`).value = parmas[1][2]; //c-code
-        worksheet.getCell(`${parmas[0].outGL}${parmas[0].outRow}`).value = parmas[0].glClass; //gl-class
-        worksheet.getCell(`${parmas[0].outTranslate}${parmas[0].outRow}`).value =
-            'placeholder-translated'; //translated
-        worksheet.getCell(`${parmas[0].outMissing}${parmas[0].outRow}`).value =
-            'placeholder-missing'; //missing
-        // worksheet.getCell(`${parmas[0].outItemDesc[2]}${parmas[0].outRow}`).value = parmas[1][2]; //question
-        await this.saveWorkbook(workbook, this.filePath);
-    }
-
-    async saveNumber(parmas) {
-        let workbook = new Exceljs.Workbook();
-        await workbook.xlsx.readFile(this.filePath);
-        let worksheet = workbook.getWorksheet(parmas[1]);
-        worksheet.getCell(`${parmas[3]}${parmas[2]}`).value = parmas[4];
-        return await this.saveWorkbook(workbook, this.filePath);
-    }
-
-    async saveNonInteractive(parmas, data) {
-        // convert to batch mode, individually it is too slow
-        let workbook = new Exceljs.Workbook();
-        await workbook.xlsx.readFile(this.filePath);
-        let worksheet = workbook.getWorksheet(parmas[0].wsName);
-        for (const item of data) {
-            item.analysis = JSON.parse(item.analysis);
-            if (item.analysis.related) {
-                worksheet.getCell(`${parmas[0].outItemNum}${item.row}`).value =
+  async saveNonInteractive(parmas, data) {
+    // convert to batch mode, individually it is too slow
+    const workbook = new Exceljs.Workbook();
+    await workbook.xlsx.readFile(this.filePath);
+    const worksheet = workbook.getWorksheet(parmas[0].wsName);
+    for (const item of data) {
+      item.analysis = JSON.parse(item.analysis);
+      if (item.analysis.related) {
+        worksheet.getCell(`${parmas[0].outItemNum}${item.row}`).value =
                     item.analysis.related; // itemnum
-                worksheet.getCell(`${parmas[0].outItemDesc[0]}${item.row}`).value =
+        worksheet.getCell(`${parmas[0].outItemDesc[0]}${item.row}`).value =
                     item.description;
-            }
-            if (item.analysis.translate) {
-                worksheet.getCell(`${parmas[0].outTranslate}${item.row}`).value =
+      }
+      if (item.analysis.translate) {
+        worksheet.getCell(`${parmas[0].outTranslate}${item.row}`).value =
                     item.analysis.translate.description; // translated description
-                worksheet.getCell(`${parmas[0].outMissing}${item.row}`).value =
+        worksheet.getCell(`${parmas[0].outMissing}${item.row}`).value =
                     item.analysis.translate.missing.join('|'); // missing translations windows wants \r\n instead of just \n
-            }
-            // worksheet.getCell(`${parmas[0].outItemDesc}${item.row}`).value = parmas[2]; // en description
-        }
-
-        return await this.saveWorkbook(workbook, this.filePath);
+      }
+      // worksheet.getCell(`${parmas[0].outItemDesc}${item.row}`).value = parmas[2]; // en description
     }
 
-    async saveWorkbook(workbook, savePath) {
-        try {
-            await workbook.xlsx.writeFile(savePath);
-        } catch (error) {
-            console.log(error);
-            postMessage([`error`, `Cannot edit old file make sure it is closed`]);
-        }
-        return savePath;
-    }
+    return await this.saveWorkbook(workbook, this.filePath);
+  }
 
-    async getColumnByName(name){
-        const wb = new Exceljs.Workbook();
-        await wb.xlsx.readFile(this.filePath);
-        const ws = wb.getWorksheet('Sheet1');
-
-        let match;
-        ws.eachRow(row => row.eachCell(cell => {
-            if (cell.names.find(n => n === name)) {
-                match = cell;
-            }
-        }))
-        return match;
+  async saveWorkbook(workbook, savePath) {
+    try {
+      await workbook.xlsx.writeFile(savePath);
+    } catch (error) {
+      console.log(error);
+      postMessage([`error`, `Cannot edit old file make sure it is closed`]);
     }
+    return savePath;
+  }
+
+  async getColumnByName(name) {
+    const wb = new Exceljs.Workbook();
+    await wb.xlsx.readFile(this.filePath);
+    const ws = wb.getWorksheet('Sheet1');
+
+    let match;
+    ws.eachRow((row) => row.eachCell((cell) => {
+      if (cell.names.find((n) => n === name)) {
+        match = cell;
+      }
+    }));
+    return match;
+  }
 }
 
 module.exports = ExcelReader;
