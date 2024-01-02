@@ -29,7 +29,6 @@ class SharedDatabase {
       stmt = this.db.prepare(`INSERT INTO settings(key, value) VALUES ('version', '${curVersion}')`);
       stmt.run();
     }
-    return false;
     return (lastVersion == curVersion);
   }
 

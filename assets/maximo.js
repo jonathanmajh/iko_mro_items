@@ -172,7 +172,6 @@ class Maximo {
           previousDate = [new Date(newDate), newDate];
         }
       });
-      debugger;
       return [items, previousDate[1]];
     }
   }
