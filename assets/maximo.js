@@ -311,8 +311,14 @@ class Maximo {
       body: xmldoc,
     });
     const content = await response.json();
-    // console.log(content);
-    return parseInt(content.validdoc);
+    const statuscode = response.status;
+    if(statuscode == 200) {
+
+      return parseInt(content.validdoc);
+    }
+    else {
+      throw new Error(parseInt(statuscode));
+    }
   }
 
   // Uploads item to inventory
