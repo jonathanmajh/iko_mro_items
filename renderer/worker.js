@@ -10,7 +10,7 @@ const TranslationDatabase = require('../assets/item_translation/item-translation
 const path = require('path');
 const Translation = require('../assets/item_translation/item-translation');
 const fs = require('fs');
-
+const CONSTANTS = require('../assets/constants.js');
 /**
  * Handles messages from the WorkerHandler
  *
@@ -305,6 +305,7 @@ async function writeItemNum(data) {
 async function checkUser(credentials = {}) {
   postMessage(['debug', `Checking Maximo Login`]);
   const maximo = new Maximo();
+  console.log(`logging in to https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/whoami?lean=1`);
   const currStatus = await maximo.checkLogin(credentials?.userid, credentials?.password);
   const validUser = currStatus.status;
   if (validUser) {
