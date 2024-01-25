@@ -2,8 +2,8 @@
 const {app, BrowserWindow, ipcMain, screen, dialog, shell} = require('electron');
 const path = require('path');
 const fs = require('fs');
-const {appUpdater} = require('./src/misc/autoupdater.js');
-const CONSTANTS = require('./src/misc/constants.js');
+const {appUpdater} = require('./misc/autoupdater.js');
+const CONSTANTS = require('./misc/constants.js');
 require('electron-reload')(__dirname);
 let mainWindow;
 let settingWindow;

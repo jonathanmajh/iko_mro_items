@@ -3,7 +3,7 @@
   "productName": "EAM Spare Parts",
   "version": "3.6.1",
   "description": "Tool to help automate various Reliability Processes",
-  "main": "main.js",
+  "main": "built/main.js",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
@@ -22,6 +22,7 @@
     "@electron-forge/maker-squirrel": "^6.2.1",
     "@electron-forge/maker-zip": "^6.2.1",
     "@electron-forge/publisher-github": "^6.2.1",
+    "@types/electron": "^1.6.10",
     "electron": "^27.0.4",
     "eslint": "^8.53.0",
     "eslint-config-google": "^0.14.0"
@@ -34,6 +35,8 @@
     "exceljs": "^4.3.0",
     "lodash": "^4.17.0",
     "luxon": "^3.3.0",
+    "source-map-loader": "^5.0.0",
+    "ts-loader": "^9.5.1",
     "typescript": "^5.3.3"
   },
   "config": {
