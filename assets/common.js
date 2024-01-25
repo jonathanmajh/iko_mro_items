@@ -43,6 +43,10 @@ class WorkerHandler {
         updateTableColors(e.data[1], e.data[2]);
       } else if (e.data[0] === 'runCallback') {
         callback(e.data.slice(1));
+      } else if (e.data[0] === 'upload-error') {
+        new Toast(`${e.data[1]} error. Upload failed.`, 'bg-danger')
+        worker.terminate();
+        callback(e.data[2]);
       } else {
         console.log(`Unimplemented worker message ${e.data}`);
       }
@@ -118,14 +122,14 @@ class ProgressBar {
 
 class Toast {
   // popup thingy in top right corner
-  constructor(newMessage, color = 'bg-primary') {
+  constructor(newMessage, color = 'bg-primary') { //uses Bootstrap 4 colors 
     this.toastContainer = document.getElementById('toastPlacement');
     this.newToast(newMessage, color);
   }
 
   newToast(message, color) {
     const toast = document.createElement('div');
-    toast.setAttribute('class', `toast d-flex align-items-center border-0 text-white ${color}`);
+    toast.setAttribute('class', `toast d-flex align-items-center border-0 text-white  ${color}`);
     toast.innerHTML = `<div class="toast-body">${message}</div><button type="button" class="btn-close ms-auto me-2" data-bs-dismiss="toast"></button>`;
     const bsToast = new bootstrap.Toast(toast);
     this.toastContainer.appendChild(toast);
@@ -208,7 +212,7 @@ function getNextNumThenUpdate(series) {
 }
 
 function updateItemInfo(curItemNum) {
-  console.log(curItemNum);
+console.log(curItemNum);
 
   if (curItemNum[0] === 0) {
     throw new Error(curItemNum[1]);

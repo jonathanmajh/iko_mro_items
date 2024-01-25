@@ -10,7 +10,7 @@ const TranslationDatabase = require('../assets/item_translation/item-translation
 const path = require('path');
 const Translation = require('../assets/item_translation/item-translation');
 const fs = require('fs');
-
+const CONSTANTS = require('../assets/constants.js');
 /**
  * Handles messages from the WorkerHandler
  *
@@ -305,6 +305,7 @@ async function writeItemNum(data) {
 async function checkUser(credentials = {}) {
   postMessage(['debug', `Checking Maximo Login`]);
   const maximo = new Maximo();
+  console.log(`logging in to https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/whoami?lean=1`);
   const currStatus = await maximo.checkLogin(credentials?.userid, credentials?.password);
   const validUser = currStatus.status;
   if (validUser) {
@@ -446,11 +447,42 @@ async function uploadAllItems(items, doUpdate = false) { // NOTE: the current im
         console.log('Upload of ' + item.description + ' success');
         numSuccesses++;
       }
-    } catch (err) {
+  } catch ({err, message}) { 
       if (needsNewNum) newNums.pop();
       numFails++;
       postMessage(['fail', `Failed upload of ${item.description}`]);
       console.error(`Failed upload of \"${item.description}\", ${err}`);
+      if (items.length == 1) { //single item upload failed
+        switch (message) {
+          case "400":
+            //invalid item error
+            postMessage(['upload-error', message, "An error occured due to the item's format. Please review the item."]);
+            break;
+          case "401":
+            //not logged in error
+            postMessage(['upload-error', message, "Upload rejected as user is not logged in. Please login and try again."]);
+            break;
+          case "403":
+            //not authorized error
+            postMessage(['upload-error', message, "User is not authorized to upload items. Please contact Corporate Reliability."]);
+            break;
+          case "502":
+            //bad gateway error
+            postMessage(['upload-error', message, "Connection error. Please try agian later."]);
+            break;
+          case "503":
+            //service unavailable error
+            postMessage(['upload-error', message, "Something went wrong with the server. Please try agian later."]);
+            break;
+          default:
+            if(message.length == 3 && parseInt(message) >= 400 && parseInt(message) < 600) {
+              postMessage(['upload-error', message, `${message} error.`]);
+            } else {
+              postMessage(['upload-error', "Unidentified", "An unidentified error occured"]);
+            }
+        }
+        continue;
+      }
     }
 
     // Does inventory upload of the item if any of the inventory fields are filled in

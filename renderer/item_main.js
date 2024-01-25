@@ -6,6 +6,7 @@ const Database = require('../assets/indexDB');
 const SharedDatabase = require('../assets/sharedDB');
 const Validate = require('../assets/validators');
 const Maximo = require('../assets/maximo');
+const CONSTANTS = require('../assets/constants.js');
 //stores items that are to be uploaded through the "batch upload" accordion.
 let itemsToUpload = [];
 
@@ -343,7 +344,7 @@ document.getElementById("imgInput").addEventListener("change", async (e) => {
 
     //generate a link to open items that are being uploaded to in maximo
 
-    let url = `https://prod.manage.prod.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
+    let url = `https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
     document.getElementById("img-upload-status-text").innerHTML = `<a href=${url} id="imgs-link">Selected Items:</a>`;
     document.getElementById("imgs-link").addEventListener('click', function (e) {
         e.preventDefault();
@@ -888,15 +889,25 @@ async function uploadItem() {
 
 
     worker.work(['uploadItems', [item]], (e) => {
-        document.getElementById("error").innerHTML = "Upload Success"
-        document.getElementById("confirm-btn").innerHTML = "Upload Item";
-        document.getElementById("confirm-btn").disabled = false;
-        let itemUrl = `https://prod.manage.prod.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
-        document.getElementById("error").innerHTML = `Item Upload Successful! <a id="item-link" href = "${itemUrl}"> (Click to view item) </a>`;
-        document.getElementById("item-link").addEventListener('click', function (e) {
-            e.preventDefault();
-            shell.openExternal(itemUrl);
-        });
+        console.log(e);
+        if(e === undefined || typeof e != 'string' || e == 200) {    
+            document.getElementById("error").innerHTML = "Upload Success";
+            document.getElementById("confirm-btn").innerHTML = "Upload Item";
+            document.getElementById("confirm-btn").disabled = false;
+            new Toast("Upload Complete!", 'bg-success');
+            let itemUrl = `https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
+            document.getElementById("error").innerHTML = `Item Upload Successful! <a id="item-link" href = "${itemUrl}"> (Click to view item) </a>`;
+            document.getElementById("item-link").addEventListener('click', function (x) {
+                x.preventDefault();
+                shell.openExternal(itemUrl);
+            });
+        } else {
+            document.getElementById("error").innerHTML = "Upload Fail";
+            document.getElementById("confirm-btn").innerHTML = "Upload Item";
+            document.getElementById("confirm-btn").disabled = false;
+            //TODO: fail messages
+            document.getElementById("error").innerHTML = `Item Upload Failed! ${e}`;
+        }   
     });
 }
 /**
@@ -926,7 +937,7 @@ async function batchUploadItems(items) {
             nums += document.getElementById(`${i}-${colLoc.maximo}`).innerHTML ? (document.getElementById(`${i}-${colLoc.maximo}`).innerHTML + ",") : "";
         }
         if (e[2] > 0) {
-            let itemUrl = `https://prod.manage.prod.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
+            let itemUrl = `https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
             finishText += `<a id="batch-link" href="${itemUrl}">Click to view:</a>`
             document.getElementById("batch-upload-status-text").innerHTML = finishText;
             document.getElementById("batch-link").addEventListener('click', function (e) {
