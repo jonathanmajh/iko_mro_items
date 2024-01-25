@@ -8,48 +8,52 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain, screen, dialog, shell } = require('electron');
-const path = require('path');
-const fs = require('fs');
-const { appUpdater } = require('./misc/autoupdater.js');
-const CONSTANTS = require('./misc/constants.js');
+const electron_1 = require("electron");
+const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
+const autoupdater_js_1 = require("./misc/autoupdater.js");
+const constants_js_1 = __importDefault(require("./misc/constants.js"));
 require('electron-reload')(__dirname);
 let mainWindow;
 let settingWindow;
 if (require('electron-squirrel-startup')) {
-    app.quit();
+    electron_1.app.quit();
 }
 // Write eml file
-ipcMain.on('write-file', (event, emailData) => {
-    const pathToFile = path.resolve(__dirname, 'downloadedFile.eml');
-    fs.writeFile(pathToFile, emailData, (err) => {
+electron_1.ipcMain.on('write-file', (event, emailData) => {
+    const pathToFile = path_1.default.resolve(__dirname, 'downloadedFile.eml');
+    fs_1.default.writeFile(pathToFile, emailData, (err) => {
         if (err) {
             console.error(`Error writing file: ${err}`);
         }
         else {
-            shell.openPath(pathToFile)
-                .then(() => {
-                sleep(2000).then(() => {
-                    // Delete the file after opening
-                    fs.unlink(pathToFile, (err) => {
-                        if (err) {
-                            console.error(`Error deleting file: ${err}`);
-                        }
-                        else {
-                            console.log('File deleted successfully');
-                        }
-                    });
-                })
-                    .catch((err) => {
-                    console.error(`Error opening file: ${err}`);
-                });
-            });
+            electron_1.shell.openPath(pathToFile);
+            // .then(() => {
+            //   sleep(2000).then(() => {
+            //   // Delete the file after opening
+            //     fs.unlink(pathToFile, (err: any) => {
+            //       if (err) {
+            //         console.error(`Error deleting file: ${err}`);
+            //       } else {
+            //         console.log('File deleted successfully');
+            //       }
+            //     });
+            //   },
+            //   )
+            //       .catch((err: any) => {
+            //         console.error(`Error opening file: ${err}`);
+            //       });
+            // });
         }
     });
 });
-ipcMain.on('openSettings', (event, arg) => {
-    settingWindow = new BrowserWindow({
+electron_1.ipcMain.on('openSettings', (event, arg) => {
+    settingWindow = new electron_1.BrowserWindow({
         parent: mainWindow,
         width: 800,
         height: 600,
@@ -60,21 +64,21 @@ ipcMain.on('openSettings', (event, arg) => {
             contextIsolation: false,
         },
     });
-    settingWindow.loadFile(path.join('src', 'renderer', 'setting.html'));
+    settingWindow.loadFile(path_1.default.join('src', 'renderer', 'setting.html'));
     settingWindow.show();
     settingWindow.on('closed', () => {
         mainWindow.show();
         settingWindow = null;
     });
-    if (CONSTANTS.OPEN_DEV_TOOLS) {
+    if (constants_js_1.default.OPEN_DEV_TOOLS) {
         settingWindow.webContents.openDevTools();
     }
 });
-ipcMain.on('getVersion', (event, arg) => {
-    event.returnValue = app.getVersion();
+electron_1.ipcMain.on('getVersion', (event, arg) => {
+    event.returnValue = electron_1.app.getVersion();
 });
-ipcMain.handle('select-to-be-translated', (event, arg) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield dialog.showOpenDialog(mainWindow, {
+electron_1.ipcMain.handle('select-to-be-translated', (event, arg) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield electron_1.dialog.showOpenDialog(mainWindow, {
         title: 'Select Spreadsheet',
         filters: [
             { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb'] },
@@ -85,8 +89,8 @@ ipcMain.handle('select-to-be-translated', (event, arg) => __awaiter(void 0, void
     });
     return result;
 }));
-ipcMain.handle('select-excel-file', (event, arg) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield dialog.showOpenDialog(mainWindow, {
+electron_1.ipcMain.handle('select-excel-file', (event, arg) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield electron_1.dialog.showOpenDialog(mainWindow, {
         title: 'Select Excel Spreadsheet',
         filters: [
             { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb'] },
@@ -97,8 +101,8 @@ ipcMain.handle('select-excel-file', (event, arg) => __awaiter(void 0, void 0, vo
     });
     return result;
 }));
-ipcMain.handle('select-translations', (event, arg) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield dialog.showOpenDialog(mainWindow, {
+electron_1.ipcMain.handle('select-translations', (event, arg) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield electron_1.dialog.showOpenDialog(mainWindow, {
         title: 'Select Translation Definition Spreadsheet',
         filters: [
             { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb'] },
@@ -109,28 +113,28 @@ ipcMain.handle('select-translations', (event, arg) => __awaiter(void 0, void 0, 
     });
     return result;
 }));
-ipcMain.on('getPath', (event, arg) => {
-    event.returnValue = app.getPath('userData');
+electron_1.ipcMain.on('getPath', (event, arg) => {
+    event.returnValue = electron_1.app.getPath('userData');
 });
-ipcMain.on('loading', (event, arg) => {
-    mainWindow.loadFile(path.join('src', 'renderer', 'item_main.html'));
+electron_1.ipcMain.on('loading', (event, arg) => {
+    mainWindow.loadFile(path_1.default.join('src', 'renderer', 'item_main.html'));
 });
-ipcMain.on('start_item_module', (event, arg) => {
-    mainWindow.loadFile(path.join('src', 'renderer', 'item_loading.html'));
+electron_1.ipcMain.on('start_item_module', (event, arg) => {
+    mainWindow.loadFile(path_1.default.join('src', 'renderer', 'item_loading.html'));
 });
-ipcMain.on('start_observation_template', (event, arg) => {
-    mainWindow.loadFile(path.join('src', 'renderer', 'observation_template.html'));
+electron_1.ipcMain.on('start_observation_template', (event, arg) => {
+    mainWindow.loadFile(path_1.default.join('src', 'renderer', 'observation_template.html'));
 });
-ipcMain.on('start_item_translate', (event, arg) => {
-    mainWindow.loadFile(path.join('src', 'renderer', 'item_translation.html'));
+electron_1.ipcMain.on('start_item_translate', (event, arg) => {
+    mainWindow.loadFile(path_1.default.join('src', 'renderer', 'item_translation.html'));
 });
-ipcMain.on('start_asset_translate', (event, arg) => {
-    mainWindow.loadFile(path.join('src', 'renderer', 'asset_translation.html'));
+electron_1.ipcMain.on('start_asset_translate', (event, arg) => {
+    mainWindow.loadFile(path_1.default.join('src', 'renderer', 'asset_translation.html'));
 });
 function createWindow() {
     // Create the browser window.
-    const { width, height } = screen.getPrimaryDisplay().workAreaSize;
-    mainWindow = new BrowserWindow({
+    const { width, height } = electron_1.screen.getPrimaryDisplay().workAreaSize;
+    mainWindow = new electron_1.BrowserWindow({
         width: width / 2,
         height: height,
         x: 0,
@@ -143,34 +147,34 @@ function createWindow() {
         },
     });
     // and load the index.html of the app.
-    mainWindow.loadFile(path.join('src', 'renderer', 'start_page.html'));
+    mainWindow.loadFile(path_1.default.join('src', 'renderer', 'start_page.html'));
     // Open the DevTools.
-    if (CONSTANTS.OPEN_DEV_TOOLS) {
+    if (constants_js_1.default.OPEN_DEV_TOOLS) {
         mainWindow.webContents.openDevTools();
     }
     const page = mainWindow.webContents;
     page.once('did-frame-finish-load', () => {
         console.log('checking for updates');
-        appUpdater();
+        (0, autoupdater_js_1.appUpdater)();
     });
     mainWindow.show();
 }
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
+electron_1.app.whenReady().then(() => {
     createWindow();
-    app.on('activate', function () {
+    electron_1.app.on('activate', function () {
         // On macOS it's common to re-create a window in the app when the
         // dock icon is clicked and there are no other windows open.
-        if (BrowserWindow.getAllWindows().length === 0)
+        if (electron_1.BrowserWindow.getAllWindows().length === 0)
             createWindow();
     });
 });
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on('window-all-closed', function () {
+electron_1.app.on('window-all-closed', function () {
     if (process.platform !== 'darwin')
-        app.quit();
+        electron_1.app.quit();
 });
