@@ -1,6 +1,6 @@
 @charset "UTF-8";
 @import "table_style.css";
-@import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
+@import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 
 /*
 --> custom styles for elements
@@ -23,7 +23,7 @@ text-align: left;
   box-shadow: none;
   transition:all 0.2s ease-in-out;
   transform: scale(2);
-  background-image: url("sun.png"); 
+  background-image: url("../../assets/moon.png"); 
   background-color: #cfe2ff;
   outline-offset: -1px;
   outline: 2px solid #cfe2ff;
@@ -34,7 +34,7 @@ text-align: left;
   background-color: #212529;
   outline: 2px solid #212529;
   border-color: #212529;
-  background-image: url("moon.png");
+  background-image: url("../../assets/moon.png");
 }
 
 input {
@@ -63,14 +63,14 @@ textarea {
   font-family: "Material Icons";
   font-style: normal;
   font-weight: 100 700;
-  src: url(./MaterialIcons.woff2) format("woff2");
+  src: url(../../assets/MaterialIcons.woff2) format("woff2");
 }
 
 @font-face {
   font-family: 'Material Symbols Outlined';
   font-style: normal;
   font-weight: 300;
-  src: url(./MaterialIcons.woff2) format("woff2");
+  src: url(../../assets/MaterialIcons.woff2) format("woff2");
 }
 
 .material-icons {

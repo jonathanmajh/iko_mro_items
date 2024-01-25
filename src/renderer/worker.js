@@ -1,16 +1,16 @@
-const Validate = require('../assets/validators');
-const ExcelReader = require('../assets/spreadsheet');
-const Spreadsheet = require('../assets/exceljs');
-const Database = require('../assets/indexDB');
-const SharedDatabase = require('../assets/sharedDB');
-const Maximo = require('../assets/maximo');
-const AssetTranslate = require('../assets/asset_translation/asset_translation_main.js');
-const ObservationDatabase = require('../assets/better-sqlite');
-const TranslationDatabase = require('../assets/item_translation/item-translation-sqlite');
+const Validate = require('../misc/validators');
+const ExcelReader = require('../misc/spreadsheet');
+const Spreadsheet = require('../misc/exceljs');
+const Database = require('../misc/indexDB');
+const SharedDatabase = require('../misc/sharedDB');
+const Maximo = require('../misc/maximo');
+const AssetTranslate = require('../asset_translation/asset_translation_main.js');
+const ObservationDatabase = require('../misc/better-sqlite');
+const TranslationDatabase = require('../item_translation/item-translation-sqlite');
 const path = require('path');
-const Translation = require('../assets/item_translation/item-translation');
+const Translation = require('../item_translation/item-translation');
 const fs = require('fs');
-const CONSTANTS = require('../assets/constants.js');
+const CONSTANTS = require('../misc/constants.js');
 /**
  * Handles messages from the WorkerHandler
  *
@@ -330,7 +330,7 @@ async function checkItemCache(version) {
   if (!(await shareDB.checkVersion(version))) {
     db.createTables();
     const filePath = path.join(
-        require('path').resolve(__dirname).replace('renderer', 'assets'),
+        require('path').resolve(__dirname).replace('src\\renderer', 'assets'),
         'item_information.xlsx',
     );
     const excel = new ExcelReader(filePath);

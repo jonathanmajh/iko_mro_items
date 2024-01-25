@@ -2,9 +2,9 @@
 const {app, BrowserWindow, ipcMain, screen, dialog, shell} = require('electron');
 const path = require('path');
 const fs = require('fs');
-const {appUpdater} = require('./assets/autoupdater');
-const CONSTANTS = require('./assets/constants.js');
-require('electron-reload')(__dirname)
+const {appUpdater} = require('./src/misc/autoupdater.js');
+const CONSTANTS = require('./src/misc/constants.js');
+require('electron-reload')(__dirname);
 let mainWindow;
 let settingWindow;
 
@@ -52,7 +52,7 @@ ipcMain.on('openSettings', (event, arg) => {
     },
   });
 
-  settingWindow.loadFile(path.join('renderer', 'setting.html'));
+  settingWindow.loadFile(path.join('src', 'renderer', 'setting.html'));
   settingWindow.show();
   settingWindow.on('closed', () => {
     mainWindow.show();
@@ -111,23 +111,23 @@ ipcMain.on('getPath', (event, arg) => {
 });
 
 ipcMain.on('loading', (event, arg) => {
-  mainWindow.loadFile(path.join('renderer', 'item_main.html'));
+  mainWindow.loadFile(path.join('src', 'renderer', 'item_main.html'));
 });
 
 ipcMain.on('start_item_module', (event, arg) => {
-  mainWindow.loadFile(path.join('renderer', 'item_loading.html'));
+  mainWindow.loadFile(path.join('src', 'renderer', 'item_loading.html'));
 });
 
 ipcMain.on('start_observation_template', (event, arg) => {
-  mainWindow.loadFile(path.join('renderer', 'observation_template.html'));
+  mainWindow.loadFile(path.join('src', 'renderer', 'observation_template.html'));
 });
 
 ipcMain.on('start_item_translate', (event, arg) => {
-  mainWindow.loadFile(path.join('renderer', 'item_translation.html'));
+  mainWindow.loadFile(path.join('src', 'renderer', 'item_translation.html'));
 });
 
 ipcMain.on('start_asset_translate', (event, arg) => {
-  mainWindow.loadFile(path.join('renderer', 'asset_translation.html'));
+  mainWindow.loadFile(path.join('src', 'renderer', 'asset_translation.html'));
 });
 
 function createWindow() {
@@ -147,7 +147,7 @@ function createWindow() {
   });
   
   // and load the index.html of the app.
-  mainWindow.loadFile(path.join('renderer', 'start_page.html'));
+  mainWindow.loadFile(path.join('src', 'renderer', 'start_page.html'));
 
   // Open the DevTools.
   if(CONSTANTS.OPEN_DEV_TOOLS) {
