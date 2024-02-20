@@ -1,5 +1,5 @@
 const { dialog } = require('electron').remote
-const ObservationDatabase = require('../assets/better-sqlite');
+const ObservationDatabase = require('../misc/better-sqlite');
 
 // Debug stuff
 // document.getElementById("selected_output").innerHTML = 'C:\\Users\\majona\\Documents\\observationList\\results.xlsx'

@@ -1,5 +1,5 @@
 const TransDB = require('./item-translation-sqlite');
-const Database = require('../indexDB');
+const Database = require('../misc/indexDB');
 
 class TranslateDescription {
     contextTranslate(description, lang_code, result) {

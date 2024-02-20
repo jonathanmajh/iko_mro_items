@@ -1,11 +1,11 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow, ipcMain, screen, dialog, shell} = require('electron');
-const path = require('path');
-const fs = require('fs');
-const {appUpdater} = require('./assets/autoupdater');
-const CONSTANTS = require('./assets/constants.js');
-require('electron-reload')(__dirname)
-let mainWindow;
+import {app, BrowserWindow, ipcMain, screen, dialog, shell} from 'electron';
+import path from 'path';
+import fs from 'fs';
+import { appUpdater } from './misc/autoupdater.js';
+import CONSTANTS from './misc/constants.js';
+require('electron-reload')(__dirname);
+let mainWindow: Electron.BrowserWindow;
 let settingWindow;
 
 if (require('electron-squirrel-startup')) {
@@ -14,27 +14,27 @@ if (require('electron-squirrel-startup')) {
 // Write eml file
 ipcMain.on('write-file', (event, emailData) => {
   const pathToFile = path.resolve(__dirname, 'downloadedFile.eml');
-  fs.writeFile(pathToFile, emailData, (err) => {
+  fs.writeFile(pathToFile, emailData, (err: any) => {
     if (err) {
       console.error(`Error writing file: ${err}`);
     } else {
       shell.openPath(pathToFile)
-          .then(() => {
-            sleep(2000).then(() => {
-            // Delete the file after opening
-              fs.unlink(pathToFile, (err) => {
-                if (err) {
-                  console.error(`Error deleting file: ${err}`);
-                } else {
-                  console.log('File deleted successfully');
-                }
-              });
-            },
-            )
-                .catch((err) => {
-                  console.error(`Error opening file: ${err}`);
-                });
-          });
+          // .then(() => {
+          //   sleep(2000).then(() => {
+          //   // Delete the file after opening
+          //     fs.unlink(pathToFile, (err: any) => {
+          //       if (err) {
+          //         console.error(`Error deleting file: ${err}`);
+          //       } else {
+          //         console.log('File deleted successfully');
+          //       }
+          //     });
+          //   },
+          //   )
+          //       .catch((err: any) => {
+          //         console.error(`Error opening file: ${err}`);
+          //       });
+          // });
     }
   });
 });
@@ -52,7 +52,7 @@ ipcMain.on('openSettings', (event, arg) => {
     },
   });
 
-  settingWindow.loadFile(path.join('renderer', 'setting.html'));
+  settingWindow.loadFile(path.join('src', 'renderer', 'setting.html'));
   settingWindow.show();
   settingWindow.on('closed', () => {
     mainWindow.show();
@@ -111,23 +111,23 @@ ipcMain.on('getPath', (event, arg) => {
 });
 
 ipcMain.on('loading', (event, arg) => {
-  mainWindow.loadFile(path.join('renderer', 'item_main.html'));
+  mainWindow.loadFile(path.join('src', 'renderer', 'item_main.html'));
 });
 
 ipcMain.on('start_item_module', (event, arg) => {
-  mainWindow.loadFile(path.join('renderer', 'item_loading.html'));
+  mainWindow.loadFile(path.join('src', 'renderer', 'item_loading.html'));
 });
 
 ipcMain.on('start_observation_template', (event, arg) => {
-  mainWindow.loadFile(path.join('renderer', 'observation_template.html'));
+  mainWindow.loadFile(path.join('src', 'renderer', 'observation_template.html'));
 });
 
 ipcMain.on('start_item_translate', (event, arg) => {
-  mainWindow.loadFile(path.join('renderer', 'item_translation.html'));
+  mainWindow.loadFile(path.join('src', 'renderer', 'item_translation.html'));
 });
 
 ipcMain.on('start_asset_translate', (event, arg) => {
-  mainWindow.loadFile(path.join('renderer', 'asset_translation.html'));
+  mainWindow.loadFile(path.join('src', 'renderer', 'asset_translation.html'));
 });
 
 function createWindow() {
@@ -147,7 +147,7 @@ function createWindow() {
   });
   
   // and load the index.html of the app.
-  mainWindow.loadFile(path.join('renderer', 'start_page.html'));
+  mainWindow.loadFile(path.join('src', 'renderer', 'start_page.html'));
 
   // Open the DevTools.
   if(CONSTANTS.OPEN_DEV_TOOLS) {

@@ -1,5 +1,5 @@
 const Sql = require('better-sqlite3');
-const utils = require('../assets/utils');
+const utils = require('./utils');
 const intersection = require('lodash/intersection');
 // https://lodash.com/docs/4.17.15#intersection
 // fast library for intersection of arrays

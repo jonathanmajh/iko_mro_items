@@ -1,6 +1,6 @@
 // various functions for fetching data from maximo rest api
-const SharedDatabase = require('../assets/sharedDB');
-const CONSTANTS = require('../assets/constants.js');
+const SharedDatabase = require('./sharedDB');
+const CONSTANTS = require('./constants.js');
 
 
 /**
@@ -313,11 +313,9 @@ class Maximo {
     });
     const content = await response.json();
     const statuscode = response.status;
-    if(statuscode == 200) {
-
+    if (statuscode == 200) {
       return parseInt(content.validdoc);
-    }
-    else {
+    } else {
       throw new Error(parseInt(statuscode));
     }
   }
