@@ -94,23 +94,11 @@ document.getElementById('secret-button').addEventListener('click', (e) => {
   }
 });
 
-// gets user site information
-async function getSite(credentials = {}) {
-  const maximo = new Maximo();
-  const currInfo = await maximo.checkLogin(credentials?.userid, credentials?.password);
-  return currInfo.siteID;
-}
-
 // open a modal that allows you to make an item request
 document.getElementById('request-btn').addEventListener('click', () => {
   // show request item modal
   const requestModal = new bootstrap.Modal(document.getElementById('requestModal'));
   requestModal.toggle();
-
-  const currPass = new SharedDatabase().getPassword();
-  const userid = currPass.userid;
-  let siteID;
-
   const sites = {
     'AA': ['AAG: Brampton B2 Storeroom', 'AAL: Brampton B2/B4 Maintenance Storeroom', 'AAO: Brampton B4 Oxidizer Storeroom'],
     'ANT': ['AN1: Antwerp Mod Line Storeroom', 'AN2: Antwerp Coating Line Storeroom'],
@@ -136,28 +124,23 @@ document.getElementById('request-btn').addEventListener('click', () => {
     'RAM': ['RA6: IKO Alconbury Maintenance Storeroom'],
     // Add more sites and storerooms as needed...
   };
+  const siteID = localStorage.getItem('userSite');
 
-  const userSite = getSite({userid: userid, password: currPass.password});
-  userSite.then((response) => {
-    siteID = response;
+  const storeroomSelect = document.getElementById('storeroom');
+  // poppulate correct user storerooms in modal
+  function updateStoreroomOptions() {
+    storeroomSelect.options.length = 1;
 
-    const storeroomSelect = document.getElementById('storeroom');
-    // poppulate correct user storerooms in modal
-    function updateStoreroomOptions() {
-      storeroomSelect.options.length = 1;
-
-      // Add new options
-      const neededStorerooms = sites[siteID];
-      for (const storeroom of neededStorerooms) {
-        const option = document.createElement('option');
-        option.value = storeroom;
-        option.text = storeroom;
-        storeroomSelect.add(option);
-      }
+    // Add new options
+    const neededStorerooms = sites[siteID];
+    for (const storeroom of neededStorerooms) {
+      const option = document.createElement('option');
+      option.value = storeroom;
+      option.text = storeroom;
+      storeroomSelect.add(option);
     }
-    updateStoreroomOptions();
-  })
-      .catch((error) => console.error(`Error: ${error}`));
+  }
+  updateStoreroomOptions();
 
   poppulateModal();
 });

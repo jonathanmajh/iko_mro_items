@@ -284,7 +284,7 @@ class Maximo {
       this.login.password = password;
       this.login.userid = userid;
       postMessage(['debug', `Successfully logged in to Maximo as: ${content.displayName}`]);
-      postMessage(['result', 0, 'Successfully logged in to Maximo']);
+      postMessage(['result', 0, 'Successfully logged in to Maximo', siteID]);
       return {siteID, status};
     }
   }

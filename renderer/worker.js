@@ -306,13 +306,7 @@ async function checkUser(credentials = {}) {
   postMessage(['debug', `Checking Maximo Login`]);
   const maximo = new Maximo();
   console.log(`logging in to https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/whoami?lean=1`);
-  const currStatus = await maximo.checkLogin(credentials?.userid, credentials?.password);
-  const validUser = currStatus.status;
-  if (validUser) {
-    postMessage(['result', true]);
-  } else {
-    postMessage(['result', false]);
-  }
+  maximo.checkLogin(credentials?.userid, credentials?.password);
 }
 /**
  * Check cache of item information
