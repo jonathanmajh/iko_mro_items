@@ -1,4 +1,4 @@
-const { clipboard, ipcRenderer, shell } = require('electron');
+const {clipboard, ipcRenderer, shell} = require('electron');
 const fs = require('fs');
 const path = require('path');
 // const { dialog } = require('electron').remote;
@@ -38,7 +38,7 @@ let relatedResults = {
 };
 
 // a function that is called immediately after the window has been loaded
-window.onload = function () {
+window.onload = function() {
   // set the darkmode toggle to the correct position by retreiving information from the local storage
   document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
 
@@ -140,7 +140,7 @@ document.getElementById('request-btn').addEventListener('click', () => {
     // Add more sites and storerooms as needed...
   };
 
-  const userSite = getSite({ userid: userid, password: currPass.password });
+  const userSite = getSite({userid: userid, password: currPass.password});
   userSite.then((response) => {
     siteID = response;
 
@@ -160,7 +160,7 @@ document.getElementById('request-btn').addEventListener('click', () => {
     }
     updateStoreroomOptions();
   })
-    .catch((error) => console.error(`Error: ${error}`));
+      .catch((error) => console.error(`Error: ${error}`));
 
   poppulateModal();
 });
@@ -339,7 +339,7 @@ document.getElementById('imgInput').addEventListener('change', async (e) => {
 
   const url = `https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
   document.getElementById('img-upload-status-text').innerHTML = `<a href=${url} id="imgs-link">Selected Items:</a>`;
-  document.getElementById('imgs-link').addEventListener('click', function (e) {
+  document.getElementById('imgs-link').addEventListener('click', function(e) {
     e.preventDefault();
     shell.openExternal(url);
   });
@@ -539,7 +539,7 @@ document.getElementById('batch-upload-btn').addEventListener('click', () => {
 });
 document.getElementById('batch-paste-btn').addEventListener('click', async () => {
   const text = await navigator.clipboard.readText();
-  const pasteEvent = new Event('paste', { 'bubbles': true, 'cancelable': false });
+  const pasteEvent = new Event('paste', {'bubbles': true, 'cancelable': false});
   const textinput = document.getElementById('batch-items-textinput');
 
   textinput.value = text;
@@ -555,7 +555,7 @@ document.getElementById('dark-mode-switch').addEventListener('click', toggleThem
 // Infinite scroll
 
 // listener for enter key on search field
-document.getElementById('maximo-desc').addEventListener('keyup', function (event) {
+document.getElementById('maximo-desc').addEventListener('keyup', function(event) {
   // Number 13 is the "Enter" key on the keyboard
   if (event.key === 'Enter') {
     // Cancel the default action, if needed
@@ -565,7 +565,7 @@ document.getElementById('maximo-desc').addEventListener('keyup', function (event
   }
 });
 
-document.getElementById('interact-num').addEventListener('keyup', function (event) {
+document.getElementById('interact-num').addEventListener('keyup', function(event) {
   // Number 13 is the "Enter" key on the keyboard
   if (event.key === 'Enter') {
     // Cancel the default action, if needed
@@ -892,11 +892,11 @@ async function uploadItem() {
   document.getElementById('confirm-btn').disabled = true;
   const worker = new WorkerHandler();
   const item = new Item(
-    sanitizeString(document.getElementById('interact-num').value),
-    sanitizeString(document.getElementById('maximo-desc').value),
-    sanitizeString(document.getElementById('uom-field').value),
-    sanitizeString(document.getElementById('com-group').value),
-    sanitizeString(document.getElementById('gl-class').value),
+      sanitizeString(document.getElementById('interact-num').value),
+      sanitizeString(document.getElementById('maximo-desc').value),
+      sanitizeString(document.getElementById('uom-field').value),
+      sanitizeString(document.getElementById('com-group').value),
+      sanitizeString(document.getElementById('gl-class').value),
   );
 
   if (document.getElementById('long-desc').value.length > 0) {
@@ -913,7 +913,7 @@ async function uploadItem() {
       new Toast('Upload Complete!', 'bg-success');
       const itemUrl = `https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
       document.getElementById('error').innerHTML = `Item Upload Successful! <a id="item-link" href = "${itemUrl}"> (Click to view item) </a>`;
-      document.getElementById('item-link').addEventListener('click', function (x) {
+      document.getElementById('item-link').addEventListener('click', function(x) {
         x.preventDefault();
         shell.openExternal(itemUrl);
       });
@@ -956,7 +956,7 @@ async function batchUploadItems(items) {
       const itemUrl = `https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
       finishText += `<a id="batch-link" href="${itemUrl}">Click to view:</a>`;
       document.getElementById('batch-upload-status-text').innerHTML = finishText;
-      document.getElementById('batch-link').addEventListener('click', function (e) {
+      document.getElementById('batch-link').addEventListener('click', function(e) {
         e.preventDefault();
         shell.openExternal(itemUrl);
       });
@@ -1294,7 +1294,7 @@ async function showRelated(result, isExtended = false) {
   document.getElementById('related-items-accordion-btn').classList.remove('collapsed');
   // load a couple of items
   loadRelated();
-  html = new bootstrap.Collapse(document.getElementById('accordion-relatedItem'), { toggle: false });
+  html = new bootstrap.Collapse(document.getElementById('accordion-relatedItem'), {toggle: false});
   html.show();
   bar.update(100, 'Done!');
 }
@@ -1367,8 +1367,8 @@ function loadRelated() {
         for (const smallWord of split) {
           if (smallWord.length > 0) {
             itemDescription = itemDescription.replace(
-              new RegExp(`${smallWord}`, 'i'),
-              `<b>${itemDescription.match(new RegExp(`${smallWord}`, 'i'))?.[0]}</b>`,
+                new RegExp(`${smallWord}`, 'i'),
+                `<b>${itemDescription.match(new RegExp(`${smallWord}`, 'i'))?.[0]}</b>`,
             );
           }
         }
