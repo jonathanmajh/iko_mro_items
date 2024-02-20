@@ -98,39 +98,49 @@ class Maximo {
   */
   async getNewInventory(rowstamp) {
     let response;
-    try {
-      response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/iko_inventory?lean=1&oslc.select=vendor,vendor.name,manufacturer,siteid,modelnum,itemnum,catalogcode,location&fetchmodedelta=1&lastfetchts=${rowstamp}`, {
-        headers: {
-          'apikey': this.login.userid,
-        },
-      });
-    } catch (err) {
-      postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (1)', err]);
-      return false;
-    }
-    const content = await response.json();
+    let nextpage = true;
+    let pageno = 1;
+    let newRowStamp = 0;
     const inventory = [];
-    if (content['Error']) { // content["Error"]["message"]
-      postMessage(['warning', content['Error']]);
-      postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (2)']);
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-    } else {
-      const newRowStamp = response.headers.get('maxrowstamp');
-      content['member'].forEach((item) => {
-        inventory.push([
-          item['itemnum'],
-          item['siteid'],
-          item['catalogcode'] ?? '',
-          item['modelnum'] ?? '',
-          item['$alias_this_attr$vendor'] ?? '',
-          item['manufacturer'] ?? '',
-          item['vendor']['name'] ?? '',
-          item['location'] ?? '',
-          newRowStamp,
-        ]);
-      });
-      return [inventory, newRowStamp];
+    while (nextpage) {
+      try {
+        response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/iko_inventory?lean=1&oslc.select=vendor,vendor.name,manufacturer,siteid,modelnum,itemnum,catalogcode,location&fetchmodedelta=1&lastfetchts=${rowstamp}&oslc.pageSize=1000&pageno=${pageno}`, {
+          headers: {
+            'apikey': this.login.userid,
+          },
+        });
+      } catch (err) {
+        postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (1)', err]);
+        return false;
+      }
+      const content = await response.json();
+      if (content['responseInfo']['nextPage']) {
+        pageno = pageno + 1;
+      } else {
+        nextpage = false;
+      }
+      if (content['Error']) { // content["Error"]["message"]
+        postMessage(['warning', content['Error']]);
+        postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (2)']);
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+      } else {
+        newRowStamp = response.headers.get('maxrowstamp');
+        content['member'].forEach((item) => {
+          inventory.push([
+            item['itemnum'],
+            item['siteid'],
+            item['catalogcode'] ?? '',
+            item['modelnum'] ?? '',
+            item['$alias_this_attr$vendor'] ?? '',
+            item['manufacturer'] ?? '',
+            item['vendor']['name'] ?? '',
+            item['location'] ?? '',
+            newRowStamp,
+          ]);
+        });
+      }
     }
+    return [inventory, newRowStamp];
   }
 
   /**
@@ -313,11 +323,9 @@ class Maximo {
     });
     const content = await response.json();
     const statuscode = response.status;
-    if(statuscode == 200) {
-
+    if (statuscode == 200) {
       return parseInt(content.validdoc);
-    }
-    else {
+    } else {
       throw new Error(parseInt(statuscode));
     }
   }
