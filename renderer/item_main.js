@@ -1233,11 +1233,11 @@ function calcConfidence(data) {
 /**
  * Initializes search results table and populates relatedResults object
  * with search results.
- *
  * @param {Array< Map<int, Array<int>>,Map<int, Array<String>,String>} result array of [array of item nums of all search results, map of item nums to descriptions, and search query with words separated by commas]
  * @param {bool} isExtended whether the user has clicked extended search
  */
 async function showRelated(result, isExtended = false) {
+  const isPowerUser = localStorage.getItem('powerUser') === 'true';
   const bar = new ProgressBar();
   if (!result[0]) {
     bar.update(100, 'Done!');
@@ -1279,9 +1279,9 @@ async function showRelated(result, isExtended = false) {
         <th>Item Description</th>
         ${(isExtended ? '<th>More Info</th>' : '')}
         <th>UOM</th>
-        <th>C_Group</th>
-        <th>GL_Class</th>
-        <th></th>
+        ${(isPowerUser ? '<th>C_Group</th>' : '')}
+        ${(isPowerUser ? '<th>GL_Class</th>' : '')}
+        <th>Storeroom</th>
         </tr>
     </thead>
     <tbody id="related-items"></tbody>
@@ -1299,9 +1299,14 @@ async function showRelated(result, isExtended = false) {
   bar.update(100, 'Done!');
 }
 
+/**
+ * take related item results and convert to table format
+ * also called when user has scrolled to end of table and more results are needed
+ */
 function loadRelated() {
   // check if user clicked extended search
   const isExtended = document.getElementById('related-table').classList.contains('isExt');
+  const isPowerUser = localStorage.getItem('powerUser') === 'true';
 
   // a map with percent match as key (in decimal form) and array of items as value
   // for example, if the key is 1, the list of items match with the search query 100%. If the key is 0.5, the list of items match with the search query 50%.
@@ -1365,7 +1370,7 @@ function loadRelated() {
       for (const word of searchWords) {
         split = word.split(' ');
         for (const smallWord of split) {
-          if (smallWord.length > 0) {
+          if (smallWord.length > 1) { // single characters aren't searched for
             itemDescription = itemDescription.replace(
                 new RegExp(`${smallWord}`, 'i'),
                 `<b>${itemDescription.match(new RegExp(`${smallWord}`, 'i'))?.[0]}</b>`,
@@ -1392,9 +1397,9 @@ function loadRelated() {
             ${(isExtended ? `<td>${itemDescription.substring(0, itemDescription.indexOf('|'))}</td>` : `<td>${itemDescription}</td>`)}
             ${(isExtended ? `<td>${itemDescription.slice(itemDescription.indexOf('|') + 1)}</td>` : '')}
             <td>${itemNames[itemNum][2]}</td>
-            <td>${itemNames[itemNum][3]}</td>
-            <td>${itemNames[itemNum][1]}</td>
-            <td><i class="material-icons pointer sm-size"> add_task</i></td></tr>`;
+            ${(isPowerUser ? `<td>${itemNames[itemNum][3]}</td>` : '')} 
+            ${(isPowerUser ? `<td>${itemNames[itemNum][1]}</td>` : '')} 
+            ${(isPowerUser ? '' : '<td>storeroom</td>')}`;
     } else {
       html = `<tr class="table-danger"><td>0</td>\n<td>xxxxxxx</td>\n<td>No Related Items Found</td></tr>`;
     }
