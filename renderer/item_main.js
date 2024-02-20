@@ -1,6 +1,4 @@
 const {clipboard, ipcRenderer, shell} = require('electron');
-const fs = require('fs');
-const path = require('path');
 // const { dialog } = require('electron').remote;
 const Database = require('../assets/indexDB');
 const SharedDatabase = require('../assets/sharedDB');
@@ -1399,7 +1397,7 @@ function loadRelated() {
             <td>${itemNames[itemNum][2]}</td>
             ${(isPowerUser ? `<td>${itemNames[itemNum][3]}</td>` : '')} 
             ${(isPowerUser ? `<td>${itemNames[itemNum][1]}</td>` : '')} 
-            ${(isPowerUser ? '' : '<td>storeroom</td>')}`;
+            <td>${itemNames[itemNum][4] === null ? '' : itemNames[itemNum][4]}</td>`;
     } else {
       html = `<tr class="table-danger"><td>0</td>\n<td>xxxxxxx</td>\n<td>No Related Items Found</td></tr>`;
     }

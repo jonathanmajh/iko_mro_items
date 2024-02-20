@@ -412,9 +412,9 @@ class Database {
     postMessage(['debug', `Getting item from cache: "${phrase}"`]);
     let stmt;
     if (ext) {
-      stmt = this.db.prepare(`SELECT * from itemCache where ext_search_text like ?`);
+      stmt = this.db.prepare(`SELECT *, (select group_concat(location) from inventoryCache where siteid = 'AA' and inventoryCache.itemnum = itemCache.itemnum) storeroom from itemCache where ext_search_text like ?`);
     } else {
-      stmt = this.db.prepare(`SELECT * from itemCache where search_text like ?`);
+      stmt = this.db.prepare(`SELECT *, (select group_concat(location) from inventoryCache where siteid = 'AA' and inventoryCache.itemnum = itemCache.itemnum) storeroom from itemCache where search_text like ?`);
     }
 
     const result = stmt.all(`%${phrase}%`);
@@ -434,9 +434,9 @@ class Database {
           desc = item.description + '|';
         }
 
-        itemDict[item.itemnum] = [desc, item.gl_class, item.uom, item.commodity_group];
+        itemDict[item.itemnum] = [desc, item.gl_class, item.uom, item.commodity_group, item.storeroom];
       } else {
-        itemDict[item.itemnum] = [item.description, item.gl_class, item.uom, item.commodity_group];
+        itemDict[item.itemnum] = [item.description, item.gl_class, item.uom, item.commodity_group, item.storeroom];
       }
     });
     return itemNums;
