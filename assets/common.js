@@ -44,7 +44,7 @@ class WorkerHandler {
       } else if (e.data[0] === 'runCallback') {
         callback(e.data.slice(1));
       } else if (e.data[0] === 'upload-error') {
-        new Toast(`${e.data[1]} error. Upload failed.`, 'bg-danger')
+        new Toast(`${e.data[1]} error. Upload failed.`, 'bg-danger');
         worker.terminate();
         callback(e.data[2]);
       } else {
@@ -122,7 +122,7 @@ class ProgressBar {
 
 class Toast {
   // popup thingy in top right corner
-  constructor(newMessage, color = 'bg-primary') { //uses Bootstrap 4 colors 
+  constructor(newMessage, color = 'bg-primary') { // uses Bootstrap 4 colors
     this.toastContainer = document.getElementById('toastPlacement');
     this.newToast(newMessage, color);
   }
@@ -212,7 +212,7 @@ function getNextNumThenUpdate(series) {
 }
 
 function updateItemInfo(curItemNum) {
-console.log(curItemNum);
+  console.log(curItemNum);
 
   if (curItemNum[0] === 0) {
     throw new Error(curItemNum[1]);
