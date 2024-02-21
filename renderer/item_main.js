@@ -96,6 +96,7 @@ window.onload = function() {
     document.getElementById('batch-upld-btn').style.display = 'block';
     document.getElementById('img-upld-toggle').style.display = 'block';
     document.getElementById('batch-mode-toggle').style.display = 'block';
+    document.getElementById('gl-commodity').style.display = 'flex';
     return;
   }
 };
@@ -134,12 +135,14 @@ document.getElementById('secret-button').addEventListener('click', (e) => {
     document.getElementById('batch-upld-btn').style.display = 'block';
     document.getElementById('img-upld-toggle').style.display = 'block';
     document.getElementById('batch-mode-toggle').style.display = 'block';
+    document.getElementById('gl-commodity').style.display = 'flex';
   } else {
     document.getElementById('upload-btn').style.display = 'none';
     document.getElementById('request-btn').style.display = 'block';
     document.getElementById('batch-upld-btn').style.display = 'none';
     document.getElementById('img-upld-toggle').style.display = 'none';
     document.getElementById('batch-mode-toggle').style.display = 'none';
+    document.getElementById('gl-commodity').style.display = 'none';
   }
 });
 
