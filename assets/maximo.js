@@ -103,6 +103,7 @@ class Maximo {
     let newRowStamp = 0;
     const inventory = [];
     while (nextpage) {
+      postMessage(['debug', `Loading inventory data page: ${pageno}`]);
       try {
         response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/iko_inventory?lean=1&oslc.select=vendor,vendor.name,manufacturer,siteid,modelnum,itemnum,catalogcode,location&fetchmodedelta=1&lastfetchts=${rowstamp}&oslc.pageSize=1000&pageno=${pageno}`, {
           headers: {

@@ -220,7 +220,7 @@ function updateItemInfo(curItemNum) {
 
   const itemnum = document.getElementById('interact-num');
   itemnum.value = curItemNum[1] + 1;
-  const desc = document.getElementById('maximo-desc');
+  const desc = document.getElementById('request-desc');
   const uom = document.getElementById('uom-field');
   const commGroup = document.getElementById('com-group');
   const glclass = document.getElementById('gl-class');
@@ -235,7 +235,7 @@ function updateItemInfo(curItemNum) {
 }
 
 function poppulateModal() {
-  const desc = document.getElementById('maximo-desc');
+  const desc = document.getElementById('request-desc');
   const uom = document.getElementById('uom-field');
   const commGroup = document.getElementById('com-group');
   const glclass = document.getElementById('gl-class');

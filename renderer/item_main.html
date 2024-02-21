@@ -16,6 +16,67 @@
 
 <body class="d-flex flex-column h-100">
 
+  <!-- popup for adding item to storeroom -->
+  <div class="modal fade" id="storeroomModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Add Item to Storeroom</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="row">
+              <div class="col-md">
+                <div class="form-floating input-group">
+                  <input type="text" class="form-control" id="storeroom-item-itemnum" placeholder="Maximo Description" disabled
+                    readonly>
+                  <label for="item-itemnum">Item Number</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md">
+                <div class="form-floating input-group">
+                  <input type="text" class="form-control" id="storeroom-item-desc" placeholder="Maximo Description" disabled
+                    readonly>
+                  <label for="item-desc">Maximo Description</label>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md">
+                <div class="form-floating input-group">
+                  <input type="text" class="form-control" id="storeroom-item-uom" placeholder="Maximo Description" disabled
+                    readonly>
+                  <label for="item-uom">Unit of Measure:</label>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md">
+                <div class="form-floating input-group">
+                  <select class="form-select" id="storeroom-storeroom" required>
+                    <option value="">Select Storeroom</option>
+                  </select>
+                  <label for="storeroom">Storeroom</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--footer buttons and confirmation-->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-warning" id="storeroom-btn">
+            Add
+            </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- popup for requesting items-->
   <div class="modal fade" id="requestModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -40,7 +101,7 @@
                         <option value="991">99#####: Supply</option>
                         <option value="9S">9S#####: Service</option>
                       </select>
-                      <label for="number-type">Item Type (Series)*</label>
+                      <label for="number-type">Request Item Type (Series)*</label>
                     </div>
                   </div>
                 </div>
@@ -343,7 +404,7 @@
   <!-- nicest fucking progress bar youve ever seen -->
   <nav class="navbar navbar-border" style="padding: 0px">
     <div id="progress-text">Ready!</div>
-    <div class="progress bg-dark" style="height: 40px; width: 100%">
+    <div class="progress bg-dark" style="height: 25px; width: 100%">
       <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar"
         style="width: 100%" id="progress-bar">
       </div>
@@ -351,7 +412,7 @@
   </nav>
   <main class="flex-shrink-1" id="everything">
     <div class="container-fluid" id="main">
-      <div class="row bg-danger text-light" style="padding-top: 20px">
+      <div class="row bg-danger text-light" style="padding-top: 5px; padding-bottom: 5px;">
         <div class="col-auto" style="padding-top: 6px"><a href="start_page.html"><img src="AppIcon.png" /></a>
         </div>
         <h1 class="col">Item Standardizer</h1>
@@ -364,24 +425,35 @@
           <i id="settings" class="material-icons pointer md-size" style="text-align: right; display:none">settings</i>
         </div>
       </div>
-
-      <div class="row" style="padding-top: 20px">
+      <div class="row" style="padding-top: 15px">
+        <div class="col-md">
+          <div class="form-floating input-group">
+            <input type="text" class="form-control" id="maximo-desc" placeholder="Item Description" maxlength="100"
+              required>
+            <label for="maximo-desc">Search for Item</label>
+            <button class="btn btn-danger material-icons" type="button" id="valid-single" title="Search">search</button>
+            <button class="btn btn-danger material-icons" type="button" id="valid-single-ext"
+              title="Extended Search">travel_explore</button>
+          </div>
+        </div>
+      </div>
+      <div class="row">
         <div class="accordion">
           <div class="accordion-item">
             <h2 class="accordion-header">
-              <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                data-bs-target="#accordian-iteminfo">
-                Item Information
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#accordian-iteminfo" id="request-items-accordion-btn">
+                Request Item
               </button>
             </h2>
-            <div id="accordian-iteminfo" class="accordion-collapse collapse show">
+            <div id="accordian-iteminfo" class="accordion-collapse collapse">
               <div class="accordion-body">
                 <div class="row">
                   <div class="col-md">
                     <div class="form-floating input-group">
                       <input type="text" class="form-control" id="interact-num" title="Look Up Existing Item Number"
                         placeholder="Item Number" maxlength="7">
-                      <label for="interact-num">Item Number</label>
+                      <label for="interact-num">Reference Item Number</label>
                       <button class="btn btn-danger" type="button" id="load-item">Load</button>
                     </div>
                   </div>
@@ -395,7 +467,7 @@
                         <option value="9S">9S#####: Service</option>
                         <!-- ^ probably dont want this -->
                       </select>
-                      <label for="num-type">Item Type (Series)</label>
+                      <label for="num-type">Request Item Type (Series)</label>
                     </div>
                   </div>
                 </div>
@@ -403,16 +475,11 @@
                 <div class="row">
                   <div class="col-md">
                     <div class="form-floating input-group">
-                      <input type="text" class="form-control" id="maximo-desc" placeholder="Item Description"
+                      <input type="text" class="form-control" id="request-desc" placeholder="Item Description"
                         maxlength="100" required>
-                      <label for="maximo-desc">Item Description</label>
-                      <button class="btn btn-danger material-icons" type="button" id="valid-single"
-                        title="Search">search</button>
-                      <button class="btn btn-danger material-icons" type="button" id="valid-single-ext"
-                        title="Extended Search">travel_explore</button>
+                      <label for="request-desc">Request Item Description</label>
                     </div>
                   </div>
-                  <!-- <i id="triple-paste" class="material-icons pointer col-1">content_paste</i> -->
                 </div>
 
                 <div class="row">
@@ -447,7 +514,7 @@
                         <option value="Y2">Y2: Yard,Square</option>
                         <option value="YD">YD: Yard</option>
                       </select>
-                      <label for="uom-field">Unit of Measure</label>
+                      <label for="uom-field">Request Unit of Measure</label>
                     </div>
                   </div>
                   <div class="col-md">
@@ -476,12 +543,12 @@
                         <option value="860">860: Janitorial</option>
                         <option value="870">870: Electronic Equipment</option>
                       </select>
-                      <label for="com-group">Commodity Group</label>
+                      <label for="com-group">Request Commodity Group</label>
                     </div>
                   </div>
                 </div>
 
-                <div class="row">
+                <div class="row" style="display: none;">
                   <div class="col-md">
                     <div class="form-floating">
                       <select class="form-select" id="gl-class" required>

@@ -161,16 +161,18 @@ class Database {
           inventoryData.set(inventory.itemnum, row);
         }
       });
-      updatedData.push([
-        itemDetails.itemnum,
-        itemDetails.description,
-        itemDetails.changed_date,
-        itemDetails.gl_class,
-        itemDetails.uom,
-        itemDetails.commodity_group,
-        itemDetails.details,
-        inventoryData.get(key),
-      ]);
+      if (itemDetails !== undefined) {
+        updatedData.push([
+          itemDetails.itemnum,
+          itemDetails.description,
+          itemDetails.changed_date,
+          itemDetails.gl_class,
+          itemDetails.uom,
+          itemDetails.commodity_group,
+          itemDetails.details,
+          inventoryData.get(key),
+        ]);
+      }
     }
     return updatedData;
   }
@@ -370,7 +372,7 @@ class Database {
     return result;
   }
 
-  findRelated(data, ext = false, postmessage) {
+  findRelated(data, ext = false, postmessage, siteID) {
     const itemDict = {};
     for (const char of utils.STRINGCLEANUP) {
       data = data.replaceAll(char, ',');
@@ -380,7 +382,7 @@ class Database {
     postMessage(['progress', 25, 'Getting Item Descriptions From Maximo']);
     for (let i = 0; i < phrases.length; i++) {
       if (phrases[i].length > 1) { // ignore single characters searches since they add too much time
-        result.push(this.fetchAndObjectify(phrases[i], ext, itemDict));
+        result.push(this.fetchAndObjectify(phrases[i], ext, itemDict, siteID));
         postMessage(['progress', 75, 'Processing Item Descriptions From Maximo']); // change this to per phrase
       }
     }
@@ -407,17 +409,17 @@ class Database {
     }
   }
 
-  fetchAndObjectify(phrase, ext, itemDict) {
+  fetchAndObjectify(phrase, ext, itemDict, siteID) {
     phrase = phrase.toUpperCase();
     postMessage(['debug', `Getting item from cache: "${phrase}"`]);
     let stmt;
     if (ext) {
-      stmt = this.db.prepare(`SELECT *, (select group_concat(location) from inventoryCache where siteid = 'AA' and inventoryCache.itemnum = itemCache.itemnum) storeroom from itemCache where ext_search_text like ?`);
+      stmt = this.db.prepare(`SELECT *, (select group_concat(location) from inventoryCache where siteid = ? and inventoryCache.itemnum = itemCache.itemnum) storeroom from itemCache where ext_search_text like ?`);
     } else {
-      stmt = this.db.prepare(`SELECT *, (select group_concat(location) from inventoryCache where siteid = 'AA' and inventoryCache.itemnum = itemCache.itemnum) storeroom from itemCache where search_text like ?`);
+      stmt = this.db.prepare(`SELECT *, (select group_concat(location) from inventoryCache where siteid = ? and inventoryCache.itemnum = itemCache.itemnum) storeroom from itemCache where search_text like ?`);
     }
 
-    const result = stmt.all(`%${phrase}%`);
+    const result = stmt.all(siteID, `%${phrase}%`);
     const itemNums = [];
     result.forEach((item) => {
       itemNums.push(item.itemnum);

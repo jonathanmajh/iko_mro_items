@@ -16,7 +16,7 @@ const CONSTANTS = require('../assets/constants.js');
  *
  * @param {Array} e
  */
-onmessage = function(e) {
+onmessage = function (e) {
   let valid;
   let maximo;
   let result;
@@ -45,7 +45,7 @@ onmessage = function(e) {
       break;
     case 'findRelated':
       maximo = new Database();
-      maximo.findRelated(e.data[1], e.data[2], true);
+      maximo.findRelated(e.data[1], e.data[2], true, e.data[3]);
       break;
     case 'interactive':
       interactive(e);
@@ -96,7 +96,7 @@ onmessage = function(e) {
       getCurItemNum(e.data[1]);
       break;
     case 'uploadItems':
-            e.data[2] ? uploadAllItems(e.data[1], e.data[2]) : uploadAllItems(e.data[1]);
+      e.data[2] ? uploadAllItems(e.data[1], e.data[2]) : uploadAllItems(e.data[1]);
       break;
     case 'translateItem':
       const trans = new Translation();
@@ -111,10 +111,23 @@ onmessage = function(e) {
     case 'uploadImages':
       uploadImages(e.data[1]);
       break;
+    case 'uploadInventory':
+      uploadInventory(e.data[1]);
+      break;
     default:
       console.log(`Unimplimented work ${e.data[0]}`);
   }
 };
+
+/**
+ * upload item to inventory
+ * @param {*} item data regarding uploaded item
+ */
+async function uploadInventory(item) {
+  const maximo = new Maximo();
+  console.log(await maximo.uploadToInventory(item));
+}
+
 
 async function saveProgress(params) {
   const db = new Database();
@@ -164,7 +177,7 @@ function nonInteractiveSave(params) {
       params[1] = trans.contextTranslate(params[2], params[3], 'return');
     }
     const db = new Database();
-    db.saveDescriptionAnalysis({related: params[0], translate: params[1]}, params[5]);
+    db.saveDescriptionAnalysis({ related: params[0], translate: params[1] }, params[5]);
     // number of rows should be shown and that should be used to determine when to save / finsih
     // also need stop / cancel button
   } finally {
@@ -187,7 +200,7 @@ async function batchTranslate(params) {
   for (const desc of descs) {
     translated = desc;
     for (const lang of langs) {
-      result = trans.translate({lang: lang, description: desc.description});
+      result = trans.translate({ lang: lang, description: desc.description });
       translated[lang] = result.description;
       missing = missing.concat(result.missing);
     }
@@ -197,7 +210,7 @@ async function batchTranslate(params) {
   console.log(missing);
   fs.copyFileSync(params.filePath, `${params.filePath}.backup`);
   const writeExcel = new Spreadsheet(params.filePath);
-  writeExcel.saveTranslations({langs: langs, item: allTranslated, missing: missing});
+  writeExcel.saveTranslations({ langs: langs, item: allTranslated, missing: missing });
 }
 
 async function interactive(e) {
@@ -281,10 +294,10 @@ async function compareObservLists(data, savePath, jobTaskPath) {
 
   const excelW = new Spreadsheet(savePath);
   await excelW.saveObserListChanges({
-    domainDef: {changes: newMeters, delete: removeOldMeters},
-    domainVal: {changes: newObservations, delete: removeOldObservations},
-    meter: {changes: newMaximoMeters, delete: removeOldMaximoMeters},
-    jobTask: {changes: newJobTasks, delete: removeJobTasks},
+    domainDef: { changes: newMeters, delete: removeOldMeters },
+    domainVal: { changes: newObservations, delete: removeOldObservations },
+    meter: { changes: newMaximoMeters, delete: removeOldMaximoMeters },
+    jobTask: { changes: newJobTasks, delete: removeJobTasks },
   });
 }
 
@@ -324,8 +337,8 @@ async function checkItemCache(version) {
   if (!(await shareDB.checkVersion(version))) {
     db.createTables();
     const filePath = path.join(
-        require('path').resolve(__dirname).replace('renderer', 'assets'),
-        'item_information.xlsx',
+      require('path').resolve(__dirname).replace('renderer', 'assets'),
+      'item_information.xlsx',
     );
     const excel = new ExcelReader(filePath);
     postMessage(['debug', `10%: Loading cache data from file`]);
@@ -441,7 +454,7 @@ async function uploadAllItems(items, doUpdate = false) { // NOTE: the current im
         console.log('Upload of ' + item.description + ' success');
         numSuccesses++;
       }
-    } catch ({err, message}) {
+    } catch ({ err, message }) {
       if (needsNewNum) newNums.pop();
       numFails++;
       postMessage(['fail', `Failed upload of ${item.description}`]);
