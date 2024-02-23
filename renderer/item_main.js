@@ -218,7 +218,7 @@ function submitMail() {
     '/' +
     (currentdate.getMonth() + 1) +
     '/' +
-    (currentdate.getDay() + 1) +
+    (currentdate.getDate() + 1) +
     ' @ ' +
     currentdate.getHours() +
     ':' +
