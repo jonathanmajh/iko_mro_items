@@ -233,70 +233,70 @@ Content-Type: text/html; boundary=--boundary_text_string
 
 <html>
 <h2>Item Request</h2> 
-<table>
-<tr style="border: 0.01cm solid black;">
-  <td style="border: 0.01cm solid black;">Item number type:</td>
-  <td id="number-type2" style="border: 0.01cm solid black;">${document.getElementById('number-type').value
+<table style="border: 1px solid black; border-collapse: collapse;">
+<tr>
+  <td>Item number type:</td>
+  <td id="number-type2">${document.getElementById('number-type').value
 }XXXXX</td>
 </tr>
-<tr style="border: 0.01cm solid black;">
-  <td style="border: 0.01cm solid black;">Item description:</td>
-  <td id="item-descr2" style="border: 0.01cm solid black;">${document.getElementById('request-desc').value
+<tr>
+  <td>Item description:</td>
+  <td id="item-descr2">${document.getElementById('request-desc').value
 }</td>
 </tr>
-<tr style="border: 0.01cm solid black;">
-  <td style="border: 0.01cm solid black;">Commodity group:</td>
-  <td id="comm-grp2" style="border: 0.01cm solid black;">${document.getElementById('com-group').value
+<tr>
+  <td>Commodity group:</td>
+  <td id="comm-grp2">${document.getElementById('com-group').value
 }</td>
 </tr>
-<tr style="border: 0.01cm solid black;">
-  <td style="border: 0.01cm solid black;">Issue Unit:</td>
-  <td id="issue-unit2" style="border: 0.01cm solid black;">${document.getElementById('uom-field').value
+<tr>
+  <td>Issue Unit:</td>
+  <td id="issue-unit2">${document.getElementById('uom-field').value
 }</td>
 </tr>
-<tr style="border: 0.01cm solid black;">
-  <td style="border: 0.01cm solid black;">GL class:</td>
-  <td id="gl-class2" style="border: 0.01cm solid black;">${document.getElementById('gl-class-new').value
+<tr>
+  <td>GL class:</td>
+  <td id="gl-class2">${document.getElementById('gl-class-new').value
 }</td>
 </tr>
-<tr style="border: 0.01cm solid black;">
-  <td style="border: 0.01cm solid black;">Storeroom:</td>
-  <td id="storeroom2" style="border: 0.01cm solid black;">${document.getElementById('storeroom').value
+<tr>
+  <td>Storeroom:</td>
+  <td id="storeroom2">${document.getElementById('storeroom').value
 }</td>
 </tr>
-<tr style="border: 0.01cm solid black;">
-  <td style="border: 0.01cm solid black;">Vendor number:</td>
-  <td id="ven-num2" style="border: 0.01cm solid black;">${document.getElementById('ven-num').value
+<tr>
+  <td>Vendor number:</td>
+  <td id="ven-num2">${document.getElementById('ven-num').value
 }</td>
 </tr>
-<tr style="border: 0.01cm solid black;">
-  <td style="border: 0.01cm solid black;">Catalog number:</td>
-  <td id="cat-num2" style="border: 0.01cm solid black;">${document.getElementById('cat-num').value
+<tr>
+  <td>Catalog number:</td>
+  <td id="cat-num2">${document.getElementById('cat-num').value
 }</td>
 </tr>
-<tr style="border: 0.01cm solid black;">
-  <td style="border: 0.01cm solid black;">Manufacturer type:</td>
-  <td id="manu-type2" style="border: 0.01cm solid black;">${document.getElementById('manu-name').value
+<tr>
+  <td>Manufacturer type:</td>
+  <td id="manu-type2">${document.getElementById('manu-name').value
 }</td>
 </tr>
-<tr style="border: 0.01cm solid black;">
-  <td style="border: 0.01cm solid black;">Manufacturer name:</td>
-  <td id="manu-name2" style="border: 0.01cm solid black;">${document.getElementById('pref-manu').value
+<tr>
+  <td>Manufacturer name:</td>
+  <td id="manu-name2">${document.getElementById('pref-manu').value
 }</td>
 </tr>
-<tr style="border: 0.01cm solid black;">
-  <td style="border: 0.01cm solid black;">Part number:</td>
-  <td id="part-num2" style="border: 0.01cm solid black;">${document.getElementById('part-num').value
+<tr>
+  <td>Part number:</td>
+  <td id="part-num2">${document.getElementById('part-num').value
 }</td>
 </tr>
-<tr style="border: 0.01cm solid black;">
-  <td style="border: 0.01cm solid black;">Spare parts asset number:</td>
-  <td id="asset-num2" style="border: 0.01cm solid black;">${document.getElementById('asset-num').value
+<tr>
+  <td>Spare parts asset number:</td>
+  <td id="asset-num2">${document.getElementById('asset-num').value
 }</td>
 </tr>
-<tr style="border: 0.01cm solid black;">
-  <td style="border: 0.01cm solid black;">Website link:</td>
-  <td id="web-link2" style="border: 0.01cm solid black;">${document.getElementById('web-link').value
+<tr>
+  <td>Website link:</td>
+  <td id="web-link2">${document.getElementById('web-link').value
 }</td>
 </tr>
 </table>
