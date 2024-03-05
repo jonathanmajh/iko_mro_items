@@ -225,7 +225,7 @@ function updateItemInfo(curItemNum) {
   const commGroup = document.getElementById('com-group');
   const glclass = document.getElementById('gl-class');
   document.getElementById('item-itemnum').value = itemnum.value;
-  document.getElementById('item-desc').value = desc.value;
+  document.getElementById('item-desc').value = sanitizeString(desc.value);
   document.getElementById('item-uom').value = uom.value;
   document.getElementById('item-commgroup').value = commGroup.value;
   document.getElementById('item-glclass').value = glclass.value;
@@ -246,12 +246,30 @@ function poppulateModal() {
   document.getElementById('gl-class-new').value = glclass.value;
 }
 
+/**
+ * Replaces illegal characters in the raw item description with legal equivalents
+ * @param {String} raw_str - the original string to process
+ * @returns {String} the processed string
+ */
+function replaceChars(raw_str) {
+for (const [key] in CONSTANTS.REPLACEMENTS) {
+raw_str = raw_str.replaceAll(key, CONSTANTS.REPLACEMENTS[key]);
+}
+console.log(raw_str)
+return raw_str;
+}
+/**
+ * Removes and replaces illegal characters for strings used in Maximo item entries.
+ * @param {String} str - the string to sanitize 
+ * @returns the sanitized string
+ */
 function sanitizeString(str) {
   const badChars = ['<', '>'];
   for (const badChar of badChars) {
     str = str.replaceAll(badChar, '');
   }
   str = str.replaceAll(/&nbsp;/g, ' ').replaceAll(/\u00A0/g, ' ');
+  str = replaceChars(str)
   return str;
 }
 
