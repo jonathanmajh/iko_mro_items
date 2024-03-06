@@ -4,9 +4,6 @@ const path = require('path');
 const fs = require('fs');
 const {appUpdater} = require('./assets/autoupdater');
 const CONSTANTS = require('./assets/constants.js');
-if (CONSTANTS.OPEN_DEV_TOOLS) {
-  require('electron-reload')(__dirname);
-}
 let mainWindow;
 let settingWindow;
 
