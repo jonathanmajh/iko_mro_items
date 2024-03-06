@@ -1,7 +1,7 @@
 {
   "name": "iko_utility",
   "productName": "EAM Spare Parts",
-  "version": "3.6.1",
+  "version": "3.7.0",
   "description": "Tool to help automate various Reliability Processes",
   "main": "main.js",
   "scripts": {
