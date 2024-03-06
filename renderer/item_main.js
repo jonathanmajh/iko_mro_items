@@ -1360,7 +1360,7 @@ function translationDescription(description) {
         displayTranslation,
     );
   } else {
-    new Toast('Currently translation into English is not supported');
+    // new Toast('Currently translation into English is not supported');
   }
 }
 
