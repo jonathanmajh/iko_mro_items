@@ -7,6 +7,10 @@ const CONSTANTS = require('./assets/constants.js');
 let mainWindow;
 let settingWindow;
 
+if (CONSTANTS.OPEN_DEV_TOOLS) {
+  require('electron-reload')(__dirname);
+}
+
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
