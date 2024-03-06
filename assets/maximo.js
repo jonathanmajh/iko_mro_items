@@ -158,7 +158,7 @@ class Maximo {
         },
       });
     } catch (err) {
-      postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (1)', err]);
+      postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (6)', err]);
       return false;
     }
     const content = await response.json();
@@ -167,7 +167,7 @@ class Maximo {
     let newDate = '';
     if (content['Error']) { // content["Error"]["message"]
       postMessage(['warning', content['Error']]);
-      postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (2)']);
+      postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (3)']);
       await new Promise((resolve) => setTimeout(resolve, 5000));
     } else {
       content['member'].forEach((item) => {
@@ -199,7 +199,7 @@ class Maximo {
         },
       });
     } catch (err) {
-      postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (1)', err]);
+      postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (7)', err]);
       return false;
     }
     const content = await response.json();
@@ -208,7 +208,7 @@ class Maximo {
     let newDate = '';
     if (content['Error']) { // content["Error"]["message"]
       postMessage(['warning', content['Error']['message'] ?? content['Error']]);
-      postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (2)']);
+      postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (4)']);
       await new Promise((resolve) => setTimeout(resolve, 5000));
     } else {
       content['member'].forEach((item) => {
@@ -242,13 +242,13 @@ class Maximo {
         },
       });
     } catch (err) {
-      postMessage(['debug', 'Failed to fetch data from Maximo, please check network (1)']); // this likely doesnt work, probably remove it
-      throw new Error('Failed to fetch data from Maximo, please check network (1)');
+      postMessage(['debug', 'Failed to fetch data from Maximo, please check network (8)']); // this likely doesnt work, probably remove it
+      throw new Error('Failed to fetch data from Maximo, please check network (8)');
     }
     const content = await response.json();
     if (content['Error']) { // content["Error"]["message"]
-      postMessage(['debug', 'Failed to fetch Data from Maximo, Please Check Network (2)']); // this likely doesnt work, probably remove it
-      throw new Error('Failed to fetch data from Maximo, please check network (2)');
+      postMessage(['debug', 'Failed to fetch Data from Maximo, Please Check Network (5)']); // this likely doesnt work, probably remove it
+      throw new Error('Failed to fetch data from Maximo, please check network (5)');
     } else {
       try {
         let number = content['member'][0]['itemnum'];
@@ -269,7 +269,7 @@ class Maximo {
         },
       });
     } catch (err) {
-      postMessage(['result', 1, 'Failed to fetch Data from Maximo, Please Check Network (1)']);
+      postMessage(['result', 1, 'Failed to fetch Data from Maximo, Please Check Network (9)']);
       return false;
     }
     const content = await response.json();
