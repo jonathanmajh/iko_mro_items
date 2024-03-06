@@ -1,6 +1,7 @@
 const Database = require('./indexDB');
 const ExcelReader = require('./spreadsheet');
 const utils = require('./utils');
+const CONSTANTS = require('./constants')
 
 class ManufacturerValidator {
     constructor() {
@@ -54,6 +55,7 @@ class PhraseReplacer {
 }
 
 class Validate {
+
     async validateSingle(raw_desc) {
         raw_desc = raw_desc.split(',');
         let split_desc = [];
