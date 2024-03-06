@@ -4,7 +4,9 @@ const path = require('path');
 const fs = require('fs');
 const {appUpdater} = require('./assets/autoupdater');
 const CONSTANTS = require('./assets/constants.js');
-require('electron-reload')(__dirname)
+if (CONSTANTS.OPEN_DEV_TOOLS) {
+  require('electron-reload')(__dirname);
+}
 let mainWindow;
 let settingWindow;
 
@@ -58,8 +60,8 @@ ipcMain.on('openSettings', (event, arg) => {
     mainWindow.show();
     settingWindow = null;
   });
-  if(CONSTANTS.OPEN_DEV_TOOLS) {
-    settingWindow.webContents.openDevTools()
+  if (CONSTANTS.OPEN_DEV_TOOLS) {
+    settingWindow.webContents.openDevTools();
   }
 });
 
@@ -145,13 +147,13 @@ function createWindow() {
       contextIsolation: false,
     },
   });
-  
+
   // and load the index.html of the app.
   mainWindow.loadFile(path.join('renderer', 'start_page.html'));
 
   // Open the DevTools.
-  if(CONSTANTS.OPEN_DEV_TOOLS) {
-    mainWindow.webContents.openDevTools()
+  if (CONSTANTS.OPEN_DEV_TOOLS) {
+    mainWindow.webContents.openDevTools();
   }
 
   const page = mainWindow.webContents;

@@ -1,4 +1,4 @@
-//for global constants. used for debugging
+// for global constants. used for debugging
 
 const CONSTANTS = Object.freeze({
     ENV: true ? 'prod.manage.prod' : 'test.manage.test', //set true to use production environment and set false for test environment.

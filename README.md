@@ -17,6 +17,7 @@ cd iko_mro_items
 npm install
 # Run the app
 npm start
+npm run make
 ```
 Note: Better-sqlite3 does not include prebuilt binaries for windows, this will have to be complied see [Better-Sqlite](https://github.com/JoshuaWise/better-sqlite3/blob/master/docs/troubleshooting.md) and [Working with Electron](https://github.com/JoshuaWise/better-sqlite3/issues/126)
 
