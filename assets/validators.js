@@ -41,8 +41,9 @@ class PhraseReplacer {
             }
             // look for replacement for individual words
             let word_split = utils.inOrderCombinations(split_desc[i].split(' '));
+            debugger;
             replacement = false;
-            for (let j=word_split.length-1; j>0; j--) {
+            for (let j=word_split.length-1; j>=0; j--) {
                 replacement = this.db.isAbbreviation(word_split[j].join(' ').replace('-', ' '));
                 if(replacement) {
                     postMessage(['debug', `Replacing: "${word_split[j].join(' ')} with: ${replacement.replace_text}"`]);
