@@ -292,7 +292,7 @@ class Maximo {
 
   async uploadToMaximo(item) {
     const xmldoc =
-            `<?xml version="1.0" encoding="UTF-8"?>
+      `<?xml version="1.0" encoding="UTF-8"?>
         <SyncIKO_ITEMMASTER xmlns="http://www.ibm.com/maximo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <IKO_ITEMMASTERSet>
             <ITEM>
@@ -331,52 +331,60 @@ class Maximo {
     }
   }
 
-  // Uploads item to inventory
+  /**
+       * Upload item to inventory
+       * @param {object} item information regarding item to be added to storeroom
+       * @return {number} status message
+       */
   async uploadToInventory(item) {
-    const xmldoc =
-            `<?xml version="1.0" encoding="UTF-8"?>
-        <SyncIKO_INVENTORY xmlns="http://www.ibm.com/maximo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <IKO_INVENTORYSet>
-            <INVENTORY>
-              <CATALOGCODE>${item.cataloguenum}</CATALOGCODE>
-              <ISSUEUNIT>${item.issueunit}</ISSUEUNIT>
-              <ITEMNUM>${item.itemnumber}</ITEMNUM>
-              <ITEMSETID>ITEMSET1</ITEMSETID>
-              <LOCATION>${item.storeroomname}</LOCATION>
-              <SITEID>${item.siteID}</SITEID>
-              <VENDOR>${item.vendorname}</VENDOR>
-            </INVENTORY>
-          </IKO_INVENTORYSet>
-        </SyncIKO_INVENTORY>`;
-    const response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/IKO_INVENTORY?action=importfile`, {
-      method: 'POST',
-      headers: {
-        'filetype': 'XML',
-        'apikey': this.login.userid,
-        // "preview": "1"
-      },
-      body: xmldoc,
-    });
-    const content = await response.json();
-    // if upload to storeroom succeeded
-    if (parseInt(content.validdoc) == 1) {
-      return 1;
-    } // failure due to invalid vendor name
-    else if (content['oslc:Error']['oslc:message'].includes('Company is not valid')) {
-      console.log(content['oslc:Error']['oslc:message']);
-      return 2;
-    } // failure due to invalid site id
-    else if (content['oslc:Error']['oslc:message'].includes('is not a valid site')) {
-      console.log(content['oslc:Error']['oslc:message']);
-      return 3;
-    } // failure due to invalid storeroom
-    else if (content['oslc:Error']['oslc:message'].includes('is not a valid inventory location')) {
-      console.log(content['oslc:Error']['oslc:message']);
-      return 4;
-    } // failure due to other reason i.e. item already has inventory fields filled in on Maximo
-    else {
-      console.log(content['oslc:Error']['oslc:message']);
+    try {
+      let xmldoc =
+        `{
+  "issueunit": "${item.issueunit}",
+  "itemnum": "${item.itemnumber}",
+  "itemsetid": "ITEMSET1",
+  "siteid": "${item.siteID}",
+  "storeroom": "${item.storeroomname}",
+  "savenow": true,
+  "istool": false,`;
+
+      if (item.vendorname.length > 0) {
+        xmldoc = xmldoc + `"vendor": "${item.vendorname}",}`;
+      } else {
+        xmldoc = xmldoc + '}';
+      }
+
+      const storeroom = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/iko_location?lean=1&oslc.where=location="${item.storeroomname}"&oslc.select=*`, {
+        method: 'GET',
+        headers: {
+          'content-type': 'application/json',
+          'apikey': this.login.userid,
+          // "preview": "1"
+        },
+      });
+      const location = await storeroom.json();
+
+      const response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/iko_location/${location.member[0].href.split('/').slice(-1)[0]}?internalvalues=1&lean=1&action=wsmethod%3AaddAnItemToStoreroom&domainmeta=1&querylocalized=1`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'apikey': this.login.userid,
+          'x-method-override': 'PATCH',
+          // "preview": "1"
+        },
+        body: xmldoc,
+      });
+      const content = await response.json();
+      // if upload to storeroom succeeded
+      if (response.status == 200) {
+        postMessage(['info', 'Item added to inventory']);
+        return 1;
+      } else {
+        postMessage(['error', content['Error']['message']]);
+      }
       return 0;
+    } catch (error) {
+      postMessage(['error', 'Failed to add item to inventory']);
     }
   }
 
@@ -388,7 +396,7 @@ class Maximo {
        */
 
   async uploadImageToMaximo(image) {
-    // check valid image type
+  // check valid image type
     if (image.type !== 'image/jpeg' && image.type !== 'image/png') {
       return ['fail', 'Image type not jpeg or png'];
     }
@@ -422,16 +430,16 @@ class Maximo {
 
     // if image exists
     if (content['_imagelibref']) {
-      // console.log("image exists");
+    // console.log("image exists");
 
       // code to delete existing image
       /* response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}?action=system:deleteimage`, {
-                      method: "POST",
-                      headers: {
-                          "x-method-override":"PATCH",
-                          "apikey": this.login.userid,
-                      }
-                  });*/
+                    method: "POST",
+                    headers: {
+                        "x-method-override":"PATCH",
+                        "apikey": this.login.userid,
+                    }
+                });*/
 
       // dont upload image
       return ['warning', 'Image already exists for item number'];

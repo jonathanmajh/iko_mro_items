@@ -1,8 +1,8 @@
-const {ipcRenderer} = require('electron');
+const { ipcRenderer } = require('electron');
 let selected = '';
-const popupAlert = new bootstrap.Modal(document.getElementById('popupAlert'), {toggle: false});
+const popupAlert = new bootstrap.Modal(document.getElementById('popupAlert'), { toggle: false });
 
-window.onload = function() {
+window.onload = function () {
   document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
   tryLoginItem();
 };
