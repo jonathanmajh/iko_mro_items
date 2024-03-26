@@ -347,13 +347,14 @@ class Maximo {
   "storeroom": "${item.storeroomname}",
   "savenow": true,
   "istool": false,`;
-
+      debugger;
       if (item.vendorname.length > 0) {
-        xmldoc = xmldoc + `"vendor": "${item.vendorname}",}`;
-      } else {
-        xmldoc = xmldoc + '}';
+        xmldoc = xmldoc + `"VENDOR": "${item.vendorname}",`;
       }
-
+      if (item.cataloguenum.length > 0) {
+        xmldoc = xmldoc + `"CATALOGCODE": "${item.cataloguenum}",`;
+      }
+      xmldoc = xmldoc + '}';
       const storeroom = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/iko_location?lean=1&oslc.where=location="${item.storeroomname}"&oslc.select=*`, {
         method: 'GET',
         headers: {
