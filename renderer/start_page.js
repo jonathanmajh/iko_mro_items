@@ -8,11 +8,11 @@ window.onload = function () {
 };
 
 
-function openItem() {
+function openItem(login) {
   const worker = new WorkerHandler();
 
   version = ipcRenderer.sendSync('getVersion');
-  worker.work(['checkItemCache', version], openMain);
+  worker.work(['checkItemCache', version, login], openMain);
 
   function openMain() {
     ipcRenderer.send('loading', 'finished');
@@ -38,7 +38,7 @@ function checkLogin(status) {
     postMessage(['debug', `Successfully logged in to Maximo`]);
     switch (selected) {
       case 'openItem':
-        openItem();
+        openItem(true);
         break;
       default:
         console.log('no default action set');
@@ -66,7 +66,7 @@ function noMaximo() {
   popupAlert.hide();
   switch (selected) {
     case 'openItem':
-      openItem();
+      openItem(false);
       break;
     default:
       console.log('no default action set');

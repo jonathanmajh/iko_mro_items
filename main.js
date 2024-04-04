@@ -1,8 +1,8 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow, ipcMain, screen, dialog, shell} = require('electron');
+const { app, BrowserWindow, ipcMain, screen, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const {appUpdater} = require('./assets/autoupdater');
+const { appUpdater } = require('./assets/autoupdater');
 const CONSTANTS = require('./assets/constants.js');
 let mainWindow;
 let settingWindow;
@@ -22,22 +22,22 @@ ipcMain.on('write-file', (event, emailData) => {
       console.error(`Error writing file: ${err}`);
     } else {
       shell.openPath(pathToFile)
-          .then(() => {
-            sleep(2000).then(() => {
+        .then(() => {
+          sleep(2000).then(() => {
             // Delete the file after opening
-              fs.unlink(pathToFile, (err) => {
-                if (err) {
-                  console.error(`Error deleting file: ${err}`);
-                } else {
-                  console.log('File deleted successfully');
-                }
-              });
-            },
-            )
-                .catch((err) => {
-                  console.error(`Error opening file: ${err}`);
-                });
-          });
+            fs.unlink(pathToFile, (err) => {
+              if (err) {
+                console.error(`Error deleting file: ${err}`);
+              } else {
+                console.log('File deleted successfully');
+              }
+            });
+          },
+          )
+            .catch((err) => {
+              console.error(`Error opening file: ${err}`);
+            });
+        });
     }
   });
 });
@@ -74,7 +74,7 @@ ipcMain.handle('select-to-be-translated', async (event, arg) => {
   const result = await dialog.showOpenDialog(mainWindow, {
     title: 'Select Spreadsheet',
     filters: [
-      {name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb']},
+      { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb'] },
     ],
     properties: [
       'openFile',
@@ -87,7 +87,7 @@ ipcMain.handle('select-excel-file', async (event, arg) => {
   const result = await dialog.showOpenDialog(mainWindow, {
     title: 'Select Excel Spreadsheet',
     filters: [
-      {name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb']},
+      { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb'] },
     ],
     properties: [
       'openFile',
@@ -100,7 +100,7 @@ ipcMain.handle('select-translations', async (event, arg) => {
   const result = await dialog.showOpenDialog(mainWindow, {
     title: 'Select Translation Definition Spreadsheet',
     filters: [
-      {name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb']},
+      { name: 'Spreadsheet', extensions: ['xls', 'xlsx', 'xlsm', 'xlsb'] },
     ],
     properties: [
       'openFile',
@@ -135,7 +135,7 @@ ipcMain.on('start_asset_translate', (event, arg) => {
 
 function createWindow() {
   // Create the browser window.
-  const {width, height} = screen.getPrimaryDisplay().workAreaSize;
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
   mainWindow = new BrowserWindow({
     width: width / 2,
     height: height,
@@ -170,9 +170,16 @@ function createWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  if (process.platform == 'darwin') {
+    const dirpath = process.env.HOME + '/Library/Preferences/EAM Spare Parts';
+    if (!fs.existsSync(dirpath)) {
+      fs.mkdirSync(dirpath, { recursive: true });
+    }
+  }
+
   createWindow();
 
-  app.on('activate', function() {
+  app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -182,6 +189,6 @@ app.whenReady().then(() => {
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on('window-all-closed', function() {
+app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit();
 });

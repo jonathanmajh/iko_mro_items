@@ -57,7 +57,7 @@ onmessage = function (e) {
       writeItemNum(e.data[1]);
       break;
     case 'checkItemCache':
-      checkItemCache(e.data[1]);
+      checkItemCache(e.data[1], e.data[2]);
       break;
     case 'processObservationList':
       const excel = new Spreadsheet(e.data[1][0]);
@@ -326,7 +326,7 @@ async function checkUser(credentials = {}) {
  * Update with new items from Maximo
  * @param {String} version current app version
  */
-async function checkItemCache(version) {
+async function checkItemCache(version, login) {
   // check internal cache of item information and update with new items in maximo
   postMessage(['debug', `Loading Item Module`]);
   const maximo = new Maximo();
@@ -354,6 +354,7 @@ async function checkItemCache(version) {
     db.populateAbbr(abbr);
     db.saveManufacturers(manu);
   }
+  if (!login) postMessage(['result', 'done']);
   let curVersion;
   curVersion = db.getVersion('inventory');
   curVersion = curVersion[0].rowstamp;
