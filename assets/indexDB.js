@@ -3,6 +3,7 @@ const utils = require('../assets/utils');
 const intersection = require('lodash/intersection');
 // https://lodash.com/docs/4.17.15#intersection
 // fast library for intersection of arrays
+const dbPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Preferences' : process.env.HOME + "/.local/share")
 
 /**
  * Database Class containing more Database functions
@@ -12,7 +13,7 @@ class Database {
  * Open default db file
  */
   constructor() {
-    this.db = new Sql(`${process.env.APPDATA}/EAM Spare Parts/program.db`);// , { verbose: console.log });
+    this.db = new Sql(`${dbPath}/EAM Spare Parts/program.db`);// , { verbose: console.log });
   }
 
   createTables() {
