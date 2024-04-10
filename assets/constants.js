@@ -17,6 +17,15 @@ const CONSTANTS = Object.freeze({
     '–': '-',
     '−': '-',
   }),
+  FIREBASECONFIG: {
+    apiKey: 'AIzaSyArfJMEQvf1K2HEhlBixj-6CA_DqNC04bs',
+    authDomain: 'iko-reliability.firebaseapp.com',
+    projectId: 'iko-reliability',
+    storageBucket: 'iko-reliability.appspot.com',
+    messagingSenderId: '36956740284',
+    appId: '1:36956740284:web:561e9a73a0f3f4b08fceb9',
+    measurementId: 'G-112KCDJT5G',
+  },
 });
 
 module.exports = CONSTANTS;
