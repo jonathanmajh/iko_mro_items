@@ -218,7 +218,7 @@ function submitMail() {
     '/' +
     (currentdate.getMonth() + 1) +
     '/' +
-    (currentdate.getDate() + 1) +
+    (currentdate.getDate()) +
     ' @ ' +
     currentdate.getHours() +
     ':' +
@@ -1519,7 +1519,6 @@ function loadRelated() {
   // check if user clicked extended search
   const isExtended = document.getElementById('related-table').classList.contains('isExt');
   const isPowerUser = localStorage.getItem('powerUser') === 'true';
-
   // a map with percent match as key (in decimal form) and array of items as value
   // for example, if the key is 1, the list of items match with the search query 100%. If the key is 0.5, the list of items match with the search query 50%.
   const scores = relatedResults.results[0];
@@ -1630,7 +1629,7 @@ function loadRelated() {
   relatedTable.innerHTML += html;
 
   // if less than 5 items loaded, load more
-  if (itemsToLoad.length < 5) {
+  if (itemsToLoad.length < step) {
     document.getElementById('everything').dispatchEvent(new Event('scroll'));
   }
 }
