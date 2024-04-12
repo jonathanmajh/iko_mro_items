@@ -512,15 +512,20 @@ document.getElementById('storeroom-btn').addEventListener('click', () => {
     return;
   }
   const worker = new WorkerHandler();
-  const upload = {
-    cataloguenum: '',
-    issueunit: document.getElementById('storeroom-item-uom').value,
-    itemnumber: document.getElementById('storeroom-item-itemnum').value,
-    storeroomname: document.getElementById('storeroom-storeroom').value,
-    siteID: localStorage.getItem('userSite'),
-    vendorname: '',
-  };
-  worker.work(['uploadInventory', upload]);
+    const upload = {
+      cataloguenum: '',
+      issueunit: document.getElementById('storeroom-item-uom').value,
+      itemnumber: document.getElementById('storeroom-item-itemnum').value,
+      storeroomname: document.getElementById('storeroom-storeroom').value,
+      siteID: localStorage.getItem('userSite'),
+      vendorname: '',
+    };
+    worker.work(['uploadInventory', upload, true], (result) => {
+      //log in firestore if upload is successful
+      if(result[0] == 1) {
+        ipcRenderer.send("firestore-log", {event: CONSTANTS.FIRESTORE_EVENT_ADDTOINVENTORY})
+      }
+    });
 });
 
 // Other

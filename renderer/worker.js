@@ -112,7 +112,11 @@ onmessage = function (e) {
       uploadImages(e.data[1]);
       break;
     case 'uploadInventory':
-      uploadInventory(e.data[1]);
+      if(e.data.length > 2){ //only adding to storeroom
+        uploadInventory(e.data[1], e.data[2]).then((statuscode) => this.postMessage(['result', statuscode]));
+      } else { //other uses
+        uploadInventory(e.data[1]);
+      }
       break;
     default:
       console.log(`Unimplimented work ${e.data[0]}`);
@@ -122,10 +126,19 @@ onmessage = function (e) {
 /**
  * upload item to inventory
  * @param {*} item data regarding uploaded item
+ * @param {boolean | undefined} [rtrn] optional parameter used to return information on whether adding to inventory was successful
+ * @returns {boolean | void} returns the status code if rtrn is true, else returns void
  */
-async function uploadInventory(item) {
+async function uploadInventory(item, rtrn) {
   const maximo = new Maximo();
-  console.log(await maximo.uploadToInventory(item));
+  const statusCode = await maximo.uploadToInventory(item);
+  try{
+    if(rtrn == true) {
+      return statusCode;
+    }
+  } catch (err){
+    console.error(err);
+  }
 }
 
 
