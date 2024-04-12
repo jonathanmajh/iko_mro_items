@@ -306,6 +306,8 @@ Content-Type: text/html; boundary=--boundary_text_string
   // Send string to main process to write file
   ipcRenderer.send('write-file', mailText);
   // requestModal.toggle();
+  //log in firestore
+  ipcRenderer.send('firestore-log', {event: CONSTANTS.FIRESTORE_EVENT_REQUESTITEM});
 }
 
 /* Infinite scroll
