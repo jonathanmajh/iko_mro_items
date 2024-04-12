@@ -16,6 +16,7 @@ class Firestore {
   constructor(){
     this.#fireApp = initializeApp(CONSTANTS.FIREBASECONFIG);
     this.#fireDB = getFirestore(this.#fireApp);
+    console.log("firestore initialized");
   }
 
 
@@ -29,10 +30,14 @@ class Firestore {
       console.log("firestore is not initialized");
       return;
     }
+    try{
     const fireRef = await addDoc(collection(this.#fireDB, 'events'), {
-      time: Date.now(), user: process.env.USERNAME, ...data,
+      time: Date.now(), user: process.env.USERNAME  || process.env.USER , ...data,
     });
     console.log("added: " + fireRef.id);
+  } catch(e) {
+    console.error(e);
+  }
   }
 }
 
