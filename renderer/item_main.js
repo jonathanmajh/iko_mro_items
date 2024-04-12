@@ -306,6 +306,8 @@ Content-Type: text/html; boundary=--boundary_text_string
   // Send string to main process to write file
   ipcRenderer.send('write-file', mailText);
   // requestModal.toggle();
+  //log in firestore
+  ipcRenderer.send('firestore-log', {event: CONSTANTS.FIRESTORE_EVENT_REQUESTITEM});
 }
 
 /* Infinite scroll
@@ -512,15 +514,20 @@ document.getElementById('storeroom-btn').addEventListener('click', () => {
     return;
   }
   const worker = new WorkerHandler();
-  const upload = {
-    cataloguenum: '',
-    issueunit: document.getElementById('storeroom-item-uom').value,
-    itemnumber: document.getElementById('storeroom-item-itemnum').value,
-    storeroomname: document.getElementById('storeroom-storeroom').value,
-    siteID: localStorage.getItem('userSite'),
-    vendorname: '',
-  };
-  worker.work(['uploadInventory', upload]);
+    const upload = {
+      cataloguenum: '',
+      issueunit: document.getElementById('storeroom-item-uom').value,
+      itemnumber: document.getElementById('storeroom-item-itemnum').value,
+      storeroomname: document.getElementById('storeroom-storeroom').value,
+      siteID: localStorage.getItem('userSite'),
+      vendorname: '',
+    };
+    worker.work(['uploadInventory', upload, true], (result) => {
+      //log in firestore if upload is successful
+      if(result[0] == 1) {
+        ipcRenderer.send("firestore-log", {event: CONSTANTS.FIRESTORE_EVENT_ADDTOINVENTORY})
+      }
+    });
 });
 
 // Other
@@ -1297,6 +1304,7 @@ function validSingle(isExtended = false) {
   worker.work(['validSingle', raw_desc], (result) => {
     showResult(result, isExtended);
   });
+  ipcRenderer.send('firestore-log',{event: CONSTANTS.FIRESTORE_EVENT_SEARCH})
 }
 
 function showResult(result, isExtended = false) {
