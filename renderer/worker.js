@@ -11,6 +11,7 @@ const path = require('path');
 const Translation = require('../assets/item_translation/item-translation');
 const fs = require('fs');
 const CONSTANTS = require('../assets/constants.js');
+const {fslog} = require('../assets/firestore.js');
 /**
  * Handles messages from the WorkerHandler
  *
@@ -27,6 +28,7 @@ onmessage = function (e) {
       valid.validateSingle(e.data[1]).then((result) => {
         postMessage(['result', result]);
       });
+      fslog({event: CONSTANTS.FIRESTORE_EVENT_SEARCH});
       break;
     case 'validBatch':
       valid = new Validate();
