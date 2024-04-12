@@ -1297,6 +1297,7 @@ function validSingle(isExtended = false) {
   worker.work(['validSingle', raw_desc], (result) => {
     showResult(result, isExtended);
   });
+  ipcRenderer.send('firestore-log',{event: CONSTANTS.FIRESTORE_EVENT_SEARCH})
 }
 
 function showResult(result, isExtended = false) {

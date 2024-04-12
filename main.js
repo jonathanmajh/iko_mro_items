@@ -4,13 +4,16 @@ const path = require('path');
 const fs = require('fs');
 const {appUpdater} = require('./assets/autoupdater');
 const CONSTANTS = require('./assets/constants.js');
-const firestore = require('./assets/firestore.js');
+const {Firestore} = require('./assets/firestore.js');
 let mainWindow;
 let settingWindow;
 
-firestore.init();
-firestore.fslog({event: CONSTANTS.FIRESTORE_EVENT_STARTAPP});
+const firestore = new Firestore();
+firestore.log({event: CONSTANTS.FIRESTORE_EVENT_STARTAPP});
 
+ipcMain.on('firestore-log', (event, data) => {
+  firestore.log(data);
+})
 
 if (CONSTANTS.OPEN_DEV_TOOLS) {
   require('electron-reload')(__dirname);
