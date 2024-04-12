@@ -4,26 +4,13 @@ const path = require('path');
 const fs = require('fs');
 const {appUpdater} = require('./assets/autoupdater');
 const CONSTANTS = require('./assets/constants.js');
-const {initializeApp} = require('firebase/app');
-const {getFirestore, collection, addDoc} = require('firebase/firestore/lite');
+const firestore = require('./assets/firestore.js');
 let mainWindow;
 let settingWindow;
 
-const fireApp = initializeApp(CONSTANTS.FIREBASECONFIG);
-const fireDB = getFirestore(fireApp);
-fireStore({event: 'Start App'});
+firestore.init();
+firestore.fslog({event: CONSTANTS.FIRESTORE_EVENT_STARTAPP});
 
-/**
- * Add data to fireStore
- * userid + date is included by default
- * @param {data} data Data dictionary to be included
- */
-async function fireStore(data) {
-  const fireRef = await addDoc(collection(fireDB, 'events'), {
-    time: Date.now(), user: process.env.USERNAME, ...data,
-  });
-  console.log('added: ' + fireRef.id);
-};
 
 if (CONSTANTS.OPEN_DEV_TOOLS) {
   require('electron-reload')(__dirname);
