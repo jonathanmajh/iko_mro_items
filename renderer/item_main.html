@@ -29,8 +29,8 @@
             <div class="row">
               <div class="col-md">
                 <div class="form-floating input-group">
-                  <input type="text" class="form-control" id="storeroom-item-itemnum" placeholder="Maximo Description" disabled
-                    readonly>
+                  <input type="text" class="form-control" id="storeroom-item-itemnum" placeholder="Maximo Description"
+                    disabled readonly>
                   <label for="item-itemnum">Item Number</label>
                 </div>
               </div>
@@ -39,8 +39,8 @@
             <div class="row">
               <div class="col-md">
                 <div class="form-floating input-group">
-                  <input type="text" class="form-control" id="storeroom-item-desc" placeholder="Maximo Description" disabled
-                    readonly>
+                  <input type="text" class="form-control" id="storeroom-item-desc" placeholder="Maximo Description"
+                    disabled readonly>
                   <label for="item-desc">Maximo Description</label>
                 </div>
               </div>
@@ -48,8 +48,8 @@
             <div class="row">
               <div class="col-md">
                 <div class="form-floating input-group">
-                  <input type="text" class="form-control" id="storeroom-item-uom" placeholder="Maximo Description" disabled
-                    readonly>
+                  <input type="text" class="form-control" id="storeroom-item-uom" placeholder="Maximo Description"
+                    disabled readonly>
                   <label for="item-uom">Unit of Measure:</label>
                 </div>
               </div>
@@ -89,7 +89,7 @@
           <div class="row">
             <div class="row">
               <div class="col-md">
-                <h6 class="title">Fields marked with "*" are compulsory</h6>
+                <h6 class="title">Fields marked with "*" are mandatory</h6>
                 <!--Input fields-->
                 <div class="row">
                   <div class="col-md">
@@ -108,7 +108,7 @@
 
                 <div class="row">
                   <div class="col-md">
-                    <div class="form-floating input-group">
+                    <div class="form-floating">
                       <input type="text" class="form-control" id="item-descr" placeholder="Maximo Description" disabled
                         readonly required>
                       <label for="item-descr">Maximo Description*</label>
@@ -116,7 +116,7 @@
                   </div>
                 </div>
 
-                <div class="row">
+                <div class="row" style="display: none;">
                   <div class="col-md">
                     <div class="form-floating">
                       <select class="form-select" id="comm-grp" disabled readonly>
@@ -209,7 +209,7 @@
 
                 <div class="row">
                   <div class="col-md">
-                    <div class="form-floating input-group">
+                    <div class="form-floating">
                       <select class="form-select" id="storeroom" required>
                         <option value="">Select Storeroom</option>
                       </select>
@@ -220,27 +220,71 @@
 
                 <div class="row">
                   <div class="col-md">
-                    <div class="form-floating input-group">
+                    <div class="form-floating">
+                      <input type="text" class="form-control" id="asset-num">
+                      <label for="asset-num">Spare Part Asset Number</label>
+                    </div>
+                  </div>
+                  <div class="col-md">
+                    <div class="form-floating">
+                      <input type="text" class="form-control" id="asset-qty">
+                      <label for="asset-qty">Spare Part Quantity</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md">
+                    <div class="form-floating">
+                      <input type="text" class="form-control" id="abc-type">
+                      <label for="abc-type">ABC Type</label>
+                    </div>
+                  </div>
+                  <div class="col-md">
+                    <div class="form-floating">
+                      <input type="text" class="form-control" id="ccf-days">
+                      <label for="ccf-days">Cycle Count Frequency (Days)</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md">
+                    <div class="form-floating">
+                      <input type="text" class="form-control" id="web-link">
+                      <label for="web-link">Website link</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md">
+                    <div class="form-floating">
                       <input type="text" class="form-control" id="ven-num">
                       <label for="ven-num">Preferred Vendor Number</label>
                     </div>
                   </div>
-                </div>
-
-                <div class="row">
                   <div class="col-md">
-                    <div class="form-floating input-group">
-                      <input type="text" class="form-control" id="cat-num">
-                      <label for="cat-num">Catalog Number</label>
+                    <div class="form-floating">
+                      <input type="text" class="form-control" id="ven-cost">
+                      <label for="ven-cost">Vendor Cost</label>
                     </div>
                   </div>
                 </div>
 
                 <div class="row">
                   <div class="col-md">
-                    <div class="form-floating input-group">
+                    <div class="form-floating">
+                      <input type="text" class="form-control" id="cat-num">
+                      <label for="cat-num">Vendor Catalog Number</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md">
+                    <div class="form-floating">
                       <select class="form-select" id="manu-name">
-                        <option value="N/A">N/A</option>
                         <option value="Generic">Generic</option>
                         <option value="Other">Other</option>
                       </select>
@@ -253,7 +297,7 @@
 
                 <div class="row" id="part-form" style="display: none;">
                   <div class="col-md">
-                    <div class="form-floating input-group">
+                    <div class="form-floating">
                       <input type="text" class="form-control" id="part-num" style="display: block;" required>
                       <label for="part-num">Preferred Manufacturer Part Number*</label>
                     </div>
@@ -262,21 +306,13 @@
 
                 <div class="row">
                   <div class="col-md">
-                    <div class="form-floating input-group">
-                      <input type="text" class="form-control" id="asset-num">
-                      <label for="asset-num">Spare Part Asset Number</label>
+                    <div class="form-floating">
+                      <textarea type="text" class="form-control" id="long-desc" style="display: block; height: 100px;"></textarea>
+                      <label for="long-desc">Item Details (Long Description)</label>
                     </div>
                   </div>
                 </div>
 
-                <div class="row">
-                  <div class="col-md">
-                    <div class="form-floating input-group">
-                      <input type="text" class="form-control" id="web-link">
-                      <label for="web-link">Website link</label>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -284,7 +320,7 @@
         <!--footer buttons and confirmation-->
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <a download="request.eml" class="btn btn-danger" id="submit-btn" data-bs-dismiss="modal">
+          <a download="request.eml" class="btn btn-danger" id="submit-btn">
             Submit Request
           </a>
         </div>
@@ -369,624 +405,630 @@
               <div class="col-md">
                 <div class="form-floating">
                   <textarea class="form-control" placeholder="Optional" id="long-desc" style="height: 100px"></textarea>
-                  <label for="long-desc">Details: (Optional)</label>
+                      <label for="long-desc">Details: (Optional)</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md">
+                    <div class="form-floating input-group" style="height: 200px;overflow-y: auto;">
+                      <textarea class="form-control" id="valid-description" placeholder="Analysis" disabled readonly
+                        style="height: 200px;"></textarea>
+                      <label for="valid-description">Analysis</label>
+                    </div>
+                  </div>
                 </div>
               </div>
+              <ul class="list-group">
+                <li class="list-group-item" id="error">
+                  Waiting for confirm...
+                </li>
+              </ul>
+
             </div>
-
-            <div class="row">
-              <div class="col-md">
-                <div class="form-floating input-group" style="height: 200px;overflow-y: auto;">
-                  <textarea class="form-control" id="valid-description" placeholder="Analysis" disabled readonly
-                    style="height: 200px;"></textarea>
-                  <label for="valid-description">Analysis</label>
-                </div>
-              </div>
-            </div>
-          </div>
-          <ul class="list-group">
-            <li class="list-group-item" id="error">
-              Waiting for confirm...
-            </li>
-          </ul>
-
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-warning" id="confirm-btn">
-            Upload Item
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- nicest fucking progress bar youve ever seen -->
-  <nav class="navbar navbar-border" style="padding: 0px">
-    <div id="progress-text">Ready!</div>
-    <div class="progress bg-dark" style="height: 25px; width: 100%">
-      <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar"
-        style="width: 100%" id="progress-bar">
-      </div>
-    </div>
-  </nav>
-  <main class="flex-shrink-1" id="everything">
-    <div class="container-fluid" id="main">
-      <div class="row bg-danger text-light" style="padding-top: 5px; padding-bottom: 5px;">
-        <div class="col-auto" style="padding-top: 6px"><a href="start_page.html"><img src="AppIcon.png" /></a>
-        </div>
-        <h1 class="col">MRO Item Standardizer</h1>
-        <div class="col d-flex align-items-center justify-content-end">
-          <i id="secret-button" data-clicks='0' class="material-icons pointer md-size"
-            style="text-align: right; padding-right: 20px; opacity: 0;">question_mark</i>
-          <div class="form-check form-switch" style="padding-right: 20px; padding-top: 2px;">
-            <input class="form-check-input" type="checkbox" id="dark-mode-switch" title="Toggle Dark Mode" checked>
-          </div>
-          <i id="settings" class="material-icons pointer md-size" style="text-align: right; display:none">settings</i>
-        </div>
-      </div>
-      <div class="row" style="padding-top: 15px">
-        <div class="col-md">
-          <div class="form-floating input-group">
-            <input type="text" class="form-control" id="maximo-desc" placeholder="Item Description" maxlength="100"
-              required>
-            <label for="maximo-desc">Search for Item</label>
-            <button class="btn btn-danger material-icons" type="button" id="valid-single" title="Search">search</button>
-            <button class="btn btn-danger material-icons" type="button" id="valid-single-ext"
-              title="Extended Search">travel_explore</button>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="accordion">
-          <div class="accordion-item">
-            <h2 class="accordion-header">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                data-bs-target="#accordian-iteminfo" id="request-items-accordion-btn">
-                Request Item
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-warning" id="confirm-btn">
+                Upload Item
               </button>
-            </h2>
-            <div id="accordian-iteminfo" class="accordion-collapse collapse">
-              <div class="accordion-body">
-                <div class="row">
-                  <div class="col-md">
-                    <div class="form-floating input-group">
-                      <input type="text" class="form-control" id="interact-num" title="Look Up Existing Item Number"
-                        placeholder="Item Number" maxlength="7">
-                      <label for="interact-num">Reference Item Number</label>
-                      <button class="btn btn-danger" type="button" id="load-item">Load</button>
-                    </div>
-                  </div>
-                  <div class="col-md">
-                    <div class="form-floating">
-                      <select class="form-select" id="num-type">
-                        <option selected value="91">9######: Standard MRO</option>
-                        <!-- ^Update this value to 92 after 200k items have been created -->
-                        <option value="98">98#####: IKO Custom</option>
-                        <option value="991">99#####: Supply</option>
-                        <option value="9S">9S#####: Service</option>
-                        <!-- ^ probably dont want this -->
-                      </select>
-                      <label for="num-type">Request Item Type (Series)</label>
-                    </div>
-                  </div>
-                </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-                <div class="row">
-                  <div class="col-md">
-                    <div class="form-floating input-group">
-                      <input type="text" class="form-control" id="request-desc" placeholder="Item Description"
-                        maxlength="100" required>
-                      <label for="request-desc">Request Item Description</label>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-md">
-                    <div class="form-floating">
-                      <!-- consider doing a drop down select with filter -->
-                      <select class="form-select" id="uom-field" required>
-                        <option value="EA" selected>EA: Each</option>
-                        <option value="BG">BG: Bag</option>
-                        <option value="BT">BT: Bottle</option>
-                        <option value="BX">BX: Box</option>
-                        <option value="CN">CN: Can</option>
-                        <option value="CS">CS: Case</option>
-                        <option value="DR">DR: Drum</option>
-                        <option value="F2">F2: Feet,Square</option>
-                        <option value="F3">F3: Feet,Cubic</option>
-                        <option value="FT">FT: Feet,Linear</option>
-                        <option value="G">G: Gram</option>
-                        <option value="GA">GA: Gallons</option>
-                        <option value="IN">IN: Inches</option>
-                        <option value="KG">KG: Kilogram</option>
-                        <option value="L">L: Liter</option>
-                        <option value="LB">LB: Pounds</option>
-                        <option value="M">M: Meter,Linear</option>
-                        <option value="M2">M2: Meter,Square</option>
-                        <option value="M3">M3: Meter,Cubic</option>
-                        <option value="PK">PK: Pack</option>
-                        <option value="RL">RL: Roll</option>
-                        <option value="SH">SH: Sheets</option>
-                        <option value="T">T: Metric Tonne (1000kg)</option>
-                        <option value="TN">TN: Ton (2000lbs)</option>
-                        <option value="Y2">Y2: Yard,Square</option>
-                        <option value="YD">YD: Yard</option>
-                      </select>
-                      <label for="uom-field">Request Unit of Measure</label>
-                    </div>
-                  </div>
-                  <div class="col-md">
-                    <div class="form-floating">
-                      <select class="form-select" id="com-group" required>
-                        <option value="">Select Commodity Group</option>
-                        <option value="401">401: Electrical Devices and Components</option>
-                        <option value="402">402: Electrical Accessories (Accessories for the Devices)</option>
-                        <option value="403">403: Tools (Hand Tools, Air/Electric & Tool Attachments)</option>
-                        <option value="404">404: Steel Sections / General Stock Steel</option>
-                        <option value="405">405: Pipes, Hoses, and Related Fittings</option>
-                        <option value="406">406: Fasteners & Accessories, Brackets</option>
-                        <option value="407">407: Sealing Products / Adhesives / Tape</option>
-                        <option value="408">408: Transmission Parts</option>
-                        <option value="409">409: Pneumatic / Hydraulic Components & Accessories</option>
-                        <option value="415">415: Lubricant / Chemical</option>
-                        <option value="420">420: Fire/Safety Products and Supplies</option>
-                        <option value="425">425: Mobile Equipment Parts & Supplies</option>
-                        <option value="430">430: Water Treatment Supplies</option>
-                        <option value="490">490: Plant Supplies</option>
-                        <option value="500">500: Special - Machine Specific Parts</option>
-                        <option value="510">510: Special - Cones & Liners (Granule Plant)</option>
-                        <option value="511">511: Special - Screens (Granule Plant)</option>
-                        <option value="600">600: Raw Material Supplies</option>
-                        <option value="650">650: Non-capitalized Plant Equipment</option>
-                        <option value="860">860: Janitorial</option>
-                        <option value="870">870: Electronic Equipment</option>
-                      </select>
-                      <label for="com-group">Request Commodity Group</label>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="row" style="display: none;" id="gl-commodity">
-                  <div class="col-md">
-                    <div class="form-floating">
-                      <select class="form-select" id="gl-class" required>
-                        <option value="">Select GL Class</option>
-                        <option value="BRM">BRM: Building Repair & Maint</option>
-                        <option value="CLL">CLL: Comm Land Lines</option>
-                        <option value="ERM">ERM: Equipment Repair & Maint</option>
-                        <option value="FOL">FOL: Fuel Oil</option>
-                        <option value="HDW">HDW: Hardware (Computer)</option>
-                        <option value="LIC">LIC: Licenses</option>
-                        <option value="OFS">OFS: (Not to use) Office Supplies</option>
-                        <option value="PLM">PLM: Plant Machinery</option>
-                        <option value="PLS">PLS: Plant Supplies</option>
-                        <option value="RME">RME: Plant Auto R&M</option>
-                        <option value="SFS">SFS: Safety Supplies</option>
-                        <option value="WTR">WTR: Water</option>
-                      </select>
-                      <label for="gl-class">GL Class</label>
-                    </div>
-                  </div>
-                  <div class="col-md">
-                    <div class="form-floating">
-                      <input type="text" class="form-control" id="com-code" placeholder="Commodity Code">
-                      <label for="com-code">Commodity Code</label>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-md" style="display: none;">
-                    <div class="form-floating">
-                      <select class="form-select" name="language" id="selected-language">
-                        <option value="nl">Dutch</option>
-                        <option value="en" selected>English</option>
-                        <option value="fr">French</option>
-                        <option value="sk">Slovak</option>
-                      </select>
-                      <label for="selected-language">Translate to Language</label>
-                    </div>
-                  </div>
-                  <div class="col-md d-flex justify-content-center">
-                    <button class="btn btn-danger flex-grow-1" style="display: none;" type="button" id="upload-btn">
-                      <strong>Upload Item</strong>
-                    </button>
-                    <button class="btn btn-danger flex-grow-1" style="display: block; text-align: center;" type="button"
-                      id="request-btn">
-                      <strong>Request Item</strong>
-                    </button>
-                  </div>
-                </div>
+      <!-- nicest fucking progress bar youve ever seen -->
+      <nav class="navbar navbar-border" style="padding: 0px">
+        <div id="progress-text">Ready!</div>
+        <div class="progress bg-dark" style="height: 25px; width: 100%">
+          <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar"
+            style="width: 100%" id="progress-bar">
+          </div>
+        </div>
+      </nav>
+      <main class="flex-shrink-1" id="everything">
+        <div class="container-fluid" id="main">
+          <div class="row bg-danger text-light" style="padding-top: 5px; padding-bottom: 5px;">
+            <div class="col-auto" style="padding-top: 6px"><a href="start_page.html"><img src="AppIcon.png" /></a>
+            </div>
+            <h1 class="col">MRO Item Standardizer</h1>
+            <div class="col d-flex align-items-center justify-content-end">
+              <i id="secret-button" data-clicks='0' class="material-icons pointer md-size"
+                style="text-align: right; padding-right: 20px; opacity: 0;">question_mark</i>
+              <div class="form-check form-switch" style="padding-right: 20px; padding-top: 2px;">
+                <input class="form-check-input" type="checkbox" id="dark-mode-switch" title="Toggle Dark Mode" checked>
+              </div>
+              <i id="settings" class="material-icons pointer md-size"
+                style="text-align: right; display:none">settings</i>
+            </div>
+          </div>
+          <div class="row" style="padding-top: 15px">
+            <div class="col-md">
+              <div class="form-floating input-group">
+                <input type="text" class="form-control" id="maximo-desc" placeholder="Item Description" maxlength="100"
+                  required>
+                <label for="maximo-desc">Search for Item</label>
+                <button class="btn btn-danger material-icons" type="button" id="valid-single"
+                  title="Search">search</button>
+                <button class="btn btn-danger material-icons" type="button" id="valid-single-ext"
+                  title="Extended Search">travel_explore</button>
               </div>
             </div>
           </div>
-          <div class="accordion-item" style="display: none;">
-            <h2 class="accordion-header">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                data-bs-target="#accordion-validDescription">
-                Item Creation Validation&nbsp;<span class="badge bg-secondary" id="validate-badge"></span>
-              </button>
-            </h2>
-            <div id="accordion-validDescription" class="accordion-collapse collapse">
-              <div class="accordion-body">
-                <div class="row">
-                  <div class="col-md">
-                    <div class="form-floating input-group">
-                      <input type="text" class="form-control" id="trans-desc" placeholder="Translated Description"
-                        disabled readonly>
-                      <label for="trans-desc">Translated Description</label>
-                      <button class="btn btn-danger" type="button" id="trans-desc2"><i
-                          class="material-icons pointer">content_copy</i></button>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md">
-                    <div class="form-floating input-group">
-                      <textarea class="form-control" id="translation-description" placeholder="Translation Notes"
-                        disabled readonly></textarea>
-                      <label for="translation-description">Translation Notes</label>
-                      <button class="btn btn-danger" type="button" id="trans-notes"><i id="export-translation"
-                          class="material-icons pointer" data-bs-toggle="modal"
-                          data-bs-target="#popupAlert">ios_share</i></button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="accordion-item" id="batch-mode-toggle" style="display: none;">
-            <h2 class="accordion-header">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                data-bs-target="#accordion-batchMode">
-                Batch Mode
-              </button>
-            </h2>
-            <div id="accordion-batchMode" class="accordion-collapse collapse">
-              <div class="accordion-body">
-                <div class="input-group mb-3">
-                  <input type="text" class="form-control btn-outline-danger text-danger" value="Toggles" disabled />
-                  <div class="input-group-text btn-outline-danger">
-                    <div class="form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="modeSelect" checked />
-                      <label class="form-check-label" for="modeSelect">&nbsp;Interactive?</label>
-                    </div>
-                  </div>
-                  <div class="input-group-text btn-outline-danger">
-                    <div class="form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="translateSelect" checked />
-                      <label class="form-check-label" for="translateSelect">&nbsp;Translate?</label>
-                    </div>
-                  </div>
-                  <div class="input-group-text btn-outline-danger">
-                    <div class="form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="relatedSelect" checked />
-                      <label class="form-check-label" for="relatedSelect">&nbsp;Find Related?</label>
-                    </div>
-                  </div>
-
-                  <button class="btn btn-outline-danger" type="button" id="pauseAuto">Pause</button>
-                  <!-- this needs a binding / function (just toggle the interactive switch) -->
-                  <button class="btn btn-outline-danger" type="button" id="continueAuto">Resume</button>
-
-                  <button class="btn btn-outline-danger" type="button" id="save-desc"
-                    title="Save the description as a new item">
-                    Save as New Item
+          <div class="row">
+            <div class="accordion">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#accordian-iteminfo" id="request-items-accordion-btn">
+                    Request Item
                   </button>
-                  <button class="btn btn-outline-danger" type="button" id="save-num"
-                    title="Assign existing item number to this item">
-                    Assign Existing Number
-                  </button>
-                  <button class="btn btn-outline-danger" type="button" id="skip-row"
-                    title="Skip this row and read the next row">Next Row</button>
-                </div>
-                <div class="row">
-                  <div class="accordion col-md" id="batchAccordion">
-                    <div class="accordion-item">
-                      <h2 class="accordion-header">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                          data-bs-target="#accordion-batchInfo">
-                          Batch Information
-                        </button>
-                      </h2>
-                      <div id="accordion-batchInfo" class="accordion-collapse collapse show">
-                        <div class="accordion-body">
-                          <div class="row">
-                            <div class="input-group">
-                              <button class="btn btn-outline-secondary" type="button" id="interactive">Choose
-                                File</button>
-                              <input type="text" class="form-control btn-outline-secondary pointer" id="worksheet-path"
-                                value="No file chosen" readonly>
-                              <!-- probably need some kind of handler to override default action id="valid-file"-->
-                              <!-- might possibly also need to just emulate it with another button on the left -->
-                              <button class="btn btn-outline-secondary" type="button" id="openBatchFile">Open in
-                                Excel</button>
-                              <!-- this needs a binding / function  -->
-                            </div>
-                          </div>
-                          <div class="row">
-                            <div class="col">Current Row:</div><span class="col text-end" id="current-row">#</span>
-                          </div>
-                          <div class="row">
-                            <div class="col">Valid Rows:</div> <span class="col text-end" id="valid-row">#</span>
-                          </div>
-                          <div class="row">
-                            <div class="col">Total Rows:</div><span class="col text-end" id="total-row">#</span>
-                          </div>
+                </h2>
+                <div id="accordian-iteminfo" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    <div class="row">
+                      <div class="col-md">
+                        <div class="form-floating input-group">
+                          <input type="text" class="form-control" id="interact-num" title="Look Up Existing Item Number"
+                            placeholder="Item Number" maxlength="7">
+                          <label for="interact-num">Reference Item Number</label>
+                          <button class="btn btn-danger" type="button" id="load-item">Load</button>
+                        </div>
+                      </div>
+                      <div class="col-md">
+                        <div class="form-floating">
+                          <select class="form-select" id="num-type">
+                            <option selected value="91">9######: Standard MRO</option>
+                            <!-- ^Update this value to 92 after 200k items have been created -->
+                            <option value="98">98#####: IKO Custom</option>
+                            <option value="991">99#####: Supply</option>
+                            <option value="9S">9S#####: Service</option>
+                            <!-- ^ probably dont want this -->
+                          </select>
+                          <label for="num-type">Request Item Type (Series)</label>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div class="accordion col-md" id="settingAccordion">
 
-                    <div class="accordion-item">
-                      <h2 class="accordion-header">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                          data-bs-target="#accordion-batchSettings2">
-                          Settings
+                    <div class="row">
+                      <div class="col-md">
+                        <div class="form-floating input-group">
+                          <input type="text" class="form-control" id="request-desc" placeholder="Item Description"
+                            maxlength="100" required>
+                          <label for="request-desc">Request Item Description</label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md">
+                        <div class="form-floating">
+                          <!-- consider doing a drop down select with filter -->
+                          <select class="form-select" id="uom-field" required>
+                            <option value="EA" selected>EA: Each</option>
+                            <option value="BG">BG: Bag</option>
+                            <option value="BT">BT: Bottle</option>
+                            <option value="BX">BX: Box</option>
+                            <option value="CN">CN: Can</option>
+                            <option value="CS">CS: Case</option>
+                            <option value="DR">DR: Drum</option>
+                            <option value="F2">F2: Feet,Square</option>
+                            <option value="F3">F3: Feet,Cubic</option>
+                            <option value="FT">FT: Feet,Linear</option>
+                            <option value="G">G: Gram</option>
+                            <option value="GA">GA: Gallons</option>
+                            <option value="IN">IN: Inches</option>
+                            <option value="KG">KG: Kilogram</option>
+                            <option value="L">L: Liter</option>
+                            <option value="LB">LB: Pounds</option>
+                            <option value="M">M: Meter,Linear</option>
+                            <option value="M2">M2: Meter,Square</option>
+                            <option value="M3">M3: Meter,Cubic</option>
+                            <option value="PK">PK: Pack</option>
+                            <option value="RL">RL: Roll</option>
+                            <option value="SH">SH: Sheets</option>
+                            <option value="T">T: Metric Tonne (1000kg)</option>
+                            <option value="TN">TN: Ton (2000lbs)</option>
+                            <option value="Y2">Y2: Yard,Square</option>
+                            <option value="YD">YD: Yard</option>
+                          </select>
+                          <label for="uom-field">Request Unit of Measure</label>
+                        </div>
+                      </div>
+                      <div class="col-md">
+                        <div class="form-floating">
+                          <select class="form-select" id="com-group" required>
+                            <option value="">Select Commodity Group</option>
+                            <option value="401">401: Electrical Devices and Components</option>
+                            <option value="402">402: Electrical Accessories (Accessories for the Devices)</option>
+                            <option value="403">403: Tools (Hand Tools, Air/Electric & Tool Attachments)</option>
+                            <option value="404">404: Steel Sections / General Stock Steel</option>
+                            <option value="405">405: Pipes, Hoses, and Related Fittings</option>
+                            <option value="406">406: Fasteners & Accessories, Brackets</option>
+                            <option value="407">407: Sealing Products / Adhesives / Tape</option>
+                            <option value="408">408: Transmission Parts</option>
+                            <option value="409">409: Pneumatic / Hydraulic Components & Accessories</option>
+                            <option value="415">415: Lubricant / Chemical</option>
+                            <option value="420">420: Fire/Safety Products and Supplies</option>
+                            <option value="425">425: Mobile Equipment Parts & Supplies</option>
+                            <option value="430">430: Water Treatment Supplies</option>
+                            <option value="490">490: Plant Supplies</option>
+                            <option value="500">500: Special - Machine Specific Parts</option>
+                            <option value="510">510: Special - Cones & Liners (Granule Plant)</option>
+                            <option value="511">511: Special - Screens (Granule Plant)</option>
+                            <option value="600">600: Raw Material Supplies</option>
+                            <option value="650">650: Non-capitalized Plant Equipment</option>
+                            <option value="860">860: Janitorial</option>
+                            <option value="870">870: Electronic Equipment</option>
+                          </select>
+                          <label for="com-group">Request Commodity Group</label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row" style="display: none;" id="gl-commodity">
+                      <div class="col-md">
+                        <div class="form-floating">
+                          <select class="form-select" id="gl-class" required>
+                            <option value="">Select GL Class</option>
+                            <option value="BRM">BRM: Building Repair & Maint</option>
+                            <option value="CLL">CLL: Comm Land Lines</option>
+                            <option value="ERM">ERM: Equipment Repair & Maint</option>
+                            <option value="FOL">FOL: Fuel Oil</option>
+                            <option value="HDW">HDW: Hardware (Computer)</option>
+                            <option value="LIC">LIC: Licenses</option>
+                            <option value="OFS">OFS: (Not to use) Office Supplies</option>
+                            <option value="PLM">PLM: Plant Machinery</option>
+                            <option value="PLS">PLS: Plant Supplies</option>
+                            <option value="RME">RME: Plant Auto R&M</option>
+                            <option value="SFS">SFS: Safety Supplies</option>
+                            <option value="WTR">WTR: Water</option>
+                          </select>
+                          <label for="gl-class">GL Class</label>
+                        </div>
+                      </div>
+                      <div class="col-md">
+                        <div class="form-floating">
+                          <input type="text" class="form-control" id="com-code" placeholder="Commodity Code">
+                          <label for="com-code">Commodity Code</label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md" style="display: none;">
+                        <div class="form-floating">
+                          <select class="form-select" name="language" id="selected-language">
+                            <option value="nl">Dutch</option>
+                            <option value="en" selected>English</option>
+                            <option value="fr">French</option>
+                            <option value="sk">Slovak</option>
+                          </select>
+                          <label for="selected-language">Translate to Language</label>
+                        </div>
+                      </div>
+                      <div class="col-md d-flex justify-content-center">
+                        <button class="btn btn-danger flex-grow-1" style="display: none;" type="button" id="upload-btn">
+                          <strong>Upload Item</strong>
                         </button>
-                      </h2>
-                      <div id="accordion-batchSettings2" class="accordion-collapse collapse show">
-                        <div class="accordion-body">
-                          <div class="card">
-                            <div class="card-header">Input Settings</div>
-                            <div class="card-body">
-                              <div class="row">
-                                <div class="col-md">
-
-                                  <div class="form-floating">
-                                    <input type="text" class="form-control" id="ws-name"
-                                      placeholder="Worksheet Name (Case Sensitive)"
-                                      title="Name of the Worksheet: Case Sensitive!">
-                                    <label for="ws-name">Worksheet Name</label>
-                                  </div>
-                                </div>
-                                <div class="col-md">
-                                  <div class="form-floating">
-                                    <input type="text" class="form-control" id="input-col"
-                                      placeholder="Columns For Input"
-                                      title="These columns will be combined to form a description / search text">
-                                    <label for="input-col">Columns For Input</label>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="row">
-                                <div class="col-md">
-                                  <div class="form-floating">
-                                    <input type="text" class="form-control" id="start-row" placeholder="Starting Row">
-                                    <label for="start-row">Starting Row</label>
-                                  </div>
-                                </div>
-                                <div class="col-md">
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="card">
-                            <div class="card-header">Output Columns</div>
-                            <div class="card-body">
-                              <div class="row">
-                                <div class="col-md">
-                                  <div class="form-floating">
-                                    <input type="text" class="form-control" id="output-col" placeholder="Item Number">
-                                    <label for="output-col">Item Number</label>
-                                  </div>
-                                </div>
-                                <div class="col-md">
-                                  <div class="form-floating">
-                                    <input type="text" class="form-control" id="output-col-desc"
-                                      placeholder="Item Description"
-                                      title="These columns will be populated with: Description1, Description2, Manufacturer">
-                                    <label for="output-col-desc">Item Description</label>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div class="row">
-                                <div class="col-md">
-                                  <div class="form-floating">
-                                    <input type="text" class="form-control" id="output-col-translation"
-                                      placeholder="Translated Description"
-                                      title="This column will be populated with Translated Description in Selected Language">
-                                    <label for="output-col-translation">Translated Description</label>
-                                  </div>
-                                </div>
-                                <div class="col-md">
-                                  <div class="form-floating">
-                                    <input type="text" class="form-control" id="output-col-missing"
-                                      placeholder="Missing Translation"
-                                      title="This columns will be populated with words missing from translation table">
-                                    <label for="output-col-missing">Missing Translation</label>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="row">
-                                <div class="col-md">
-                                  <div class="form-floating">
-                                    <!-- consider doing a drop down select with filter -->
-                                    <input type="text" class="form-control" id="output-col-uom"
-                                      placeholder="Unit of Measure">
-                                    <label for="output-col-uom">Unit of Measure</label>
-                                  </div>
-                                </div>
-                                <div class="col-md">
-                                  <div class="form-floating">
-                                    <input type="text" class="form-control" id="output-col-com-group"
-                                      placeholder="Commodity Group">
-                                    <label for="output-col-com-group">Commodity Group</label>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div class="row">
-                                <div class="col-md">
-                                  <div class="form-floating">
-                                    <input type="text" class="form-control" id="output-col-gl-class"
-                                      placeholder="GL Class">
-                                    <label for="output-col-gl-class">GL Class</label>
-                                  </div>
-                                </div>
-                                <div class="col-md">
-                                  <div class="form-floating">
-                                    <input type="text" class="form-control" id="output-col-com-code"
-                                      placeholder="Commodity Code">
-                                    <label for="output-col-com-code">Commodity Code</label>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                        <button class="btn btn-danger flex-grow-1" style="display: block; text-align: center;"
+                          type="button" id="request-btn">
+                          <strong>Request Item</strong>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="accordion-item" style="display: none;">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#accordion-validDescription">
+                    Item Creation Validation&nbsp;<span class="badge bg-secondary" id="validate-badge"></span>
+                  </button>
+                </h2>
+                <div id="accordion-validDescription" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    <div class="row">
+                      <div class="col-md">
+                        <div class="form-floating input-group">
+                          <input type="text" class="form-control" id="trans-desc" placeholder="Translated Description"
+                            disabled readonly>
+                          <label for="trans-desc">Translated Description</label>
+                          <button class="btn btn-danger" type="button" id="trans-desc2"><i
+                              class="material-icons pointer">content_copy</i></button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md">
+                        <div class="form-floating input-group">
+                          <textarea class="form-control" id="translation-description" placeholder="Translation Notes"
+                            disabled readonly></textarea>
+                          <label for="translation-description">Translation Notes</label>
+                          <button class="btn btn-danger" type="button" id="trans-notes"><i id="export-translation"
+                              class="material-icons pointer" data-bs-toggle="modal"
+                              data-bs-target="#popupAlert">ios_share</i></button>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-          <div class="accordion-item" id="img-upld-toggle" style="display: none;">
-            <h2 class="accordion-header">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                data-bs-target="#imgUpload">
-                Image Upload
-              </button>
-            </h2>
-            <div id="imgUpload" class="accordion-collapse collapse">
-              <div class="accordion-body">
-                <div class="mb-3">
-                  <label for="imgInput" class="form-label">Select Images to Upload</label>
-                  <input class="form-control" type="file" id="imgInput" multiple>
-                </div>
-                <div class="d-flex justify-content-center">
-                  <div class="overflow-auto flex-fill" style="min-height: min-content; max-height: 500px;">
-                    <ul class="list-group" id="imgList">
+              <div class="accordion-item" id="batch-mode-toggle" style="display: none;">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#accordion-batchMode">
+                    Batch Mode
+                  </button>
+                </h2>
+                <div id="accordion-batchMode" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    <div class="input-group mb-3">
+                      <input type="text" class="form-control btn-outline-danger text-danger" value="Toggles" disabled />
+                      <div class="input-group-text btn-outline-danger">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="modeSelect" checked />
+                          <label class="form-check-label" for="modeSelect">&nbsp;Interactive?</label>
+                        </div>
+                      </div>
+                      <div class="input-group-text btn-outline-danger">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="translateSelect" checked />
+                          <label class="form-check-label" for="translateSelect">&nbsp;Translate?</label>
+                        </div>
+                      </div>
+                      <div class="input-group-text btn-outline-danger">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="relatedSelect" checked />
+                          <label class="form-check-label" for="relatedSelect">&nbsp;Find Related?</label>
+                        </div>
+                      </div>
 
-                    </ul>
-                  </div>
-                </div>
-                <div class="d-flex mt-1">
-                  <ul class="list-group flex-fill">
-                    <li class="list-group-item" id="img-upload-status-text" style="text-align: center;">Select Images to
-                      Continue...</li>
-                  </ul>
-                </div>
-                <div class="d-flex gap-1 mt-1">
-                  <button class="btn btn-secondary flex-fill" id="img-clear-btn" type="button"
-                    style="text-align: center;"><strong>Clear</strong></button>
-                  <button class="btn btn-danger flex-fill" id="img-upload-btn" type="button"
-                    style="text-align: center;"><strong>Upload</strong></button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="accordion-item" id="batch-upld-btn" style="display: none;">
-            <h2 class="accordion-header">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                data-bs-target="#accordion-batchUpload">
-                Batch Upload
-              </button>
-            </h2>
-            <div id="accordion-batchUpload" class="accordion-collapse collapse">
-              <div class="accordion-body d-flex flex-column gap-3">
-                <div class="d-flex flex-grow-1">Paste a table into the textbox below:</div>
-                <div class="input-group d-flex">
-                  <button class="btn btn-danger" type="button" id="batch-paste-btn">Paste</button>
-                  <textarea class="flex-fill" id="batch-items-textinput" rows="1"></textarea>
-                  <button class="btn btn-danger" type="button" id="batch-copy-headers-btn">Copy Headers</button>
-                </div>
-                <div class="card">
-                  <div class="overflow-auto flex-fill" style="min-height: min-content; max-height: 500px;">
-                    <div id="batch-items-table-div">
+                      <button class="btn btn-outline-danger" type="button" id="pauseAuto">Pause</button>
+                      <!-- this needs a binding / function (just toggle the interactive switch) -->
+                      <button class="btn btn-outline-danger" type="button" id="continueAuto">Resume</button>
+
+                      <button class="btn btn-outline-danger" type="button" id="save-desc"
+                        title="Save the description as a new item">
+                        Save as New Item
+                      </button>
+                      <button class="btn btn-outline-danger" type="button" id="save-num"
+                        title="Assign existing item number to this item">
+                        Assign Existing Number
+                      </button>
+                      <button class="btn btn-outline-danger" type="button" id="skip-row"
+                        title="Skip this row and read the next row">Next Row</button>
+                    </div>
+                    <div class="row">
+                      <div class="accordion col-md" id="batchAccordion">
+                        <div class="accordion-item">
+                          <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                              data-bs-target="#accordion-batchInfo">
+                              Batch Information
+                            </button>
+                          </h2>
+                          <div id="accordion-batchInfo" class="accordion-collapse collapse show">
+                            <div class="accordion-body">
+                              <div class="row">
+                                <div class="input-group">
+                                  <button class="btn btn-outline-secondary" type="button" id="interactive">Choose
+                                    File</button>
+                                  <input type="text" class="form-control btn-outline-secondary pointer"
+                                    id="worksheet-path" value="No file chosen" readonly>
+                                  <!-- probably need some kind of handler to override default action id="valid-file"-->
+                                  <!-- might possibly also need to just emulate it with another button on the left -->
+                                  <button class="btn btn-outline-secondary" type="button" id="openBatchFile">Open in
+                                    Excel</button>
+                                  <!-- this needs a binding / function  -->
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col">Current Row:</div><span class="col text-end" id="current-row">#</span>
+                              </div>
+                              <div class="row">
+                                <div class="col">Valid Rows:</div> <span class="col text-end" id="valid-row">#</span>
+                              </div>
+                              <div class="row">
+                                <div class="col">Total Rows:</div><span class="col text-end" id="total-row">#</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="accordion col-md" id="settingAccordion">
+
+                        <div class="accordion-item">
+                          <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                              data-bs-target="#accordion-batchSettings2">
+                              Settings
+                            </button>
+                          </h2>
+                          <div id="accordion-batchSettings2" class="accordion-collapse collapse show">
+                            <div class="accordion-body">
+                              <div class="card">
+                                <div class="card-header">Input Settings</div>
+                                <div class="card-body">
+                                  <div class="row">
+                                    <div class="col-md">
+
+                                      <div class="form-floating">
+                                        <input type="text" class="form-control" id="ws-name"
+                                          placeholder="Worksheet Name (Case Sensitive)"
+                                          title="Name of the Worksheet: Case Sensitive!">
+                                        <label for="ws-name">Worksheet Name</label>
+                                      </div>
+                                    </div>
+                                    <div class="col-md">
+                                      <div class="form-floating">
+                                        <input type="text" class="form-control" id="input-col"
+                                          placeholder="Columns For Input"
+                                          title="These columns will be combined to form a description / search text">
+                                        <label for="input-col">Columns For Input</label>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="row">
+                                    <div class="col-md">
+                                      <div class="form-floating">
+                                        <input type="text" class="form-control" id="start-row"
+                                          placeholder="Starting Row">
+                                        <label for="start-row">Starting Row</label>
+                                      </div>
+                                    </div>
+                                    <div class="col-md">
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="card">
+                                <div class="card-header">Output Columns</div>
+                                <div class="card-body">
+                                  <div class="row">
+                                    <div class="col-md">
+                                      <div class="form-floating">
+                                        <input type="text" class="form-control" id="output-col"
+                                          placeholder="Item Number">
+                                        <label for="output-col">Item Number</label>
+                                      </div>
+                                    </div>
+                                    <div class="col-md">
+                                      <div class="form-floating">
+                                        <input type="text" class="form-control" id="output-col-desc"
+                                          placeholder="Item Description"
+                                          title="These columns will be populated with: Description1, Description2, Manufacturer">
+                                        <label for="output-col-desc">Item Description</label>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div class="row">
+                                    <div class="col-md">
+                                      <div class="form-floating">
+                                        <input type="text" class="form-control" id="output-col-translation"
+                                          placeholder="Translated Description"
+                                          title="This column will be populated with Translated Description in Selected Language">
+                                        <label for="output-col-translation">Translated Description</label>
+                                      </div>
+                                    </div>
+                                    <div class="col-md">
+                                      <div class="form-floating">
+                                        <input type="text" class="form-control" id="output-col-missing"
+                                          placeholder="Missing Translation"
+                                          title="This columns will be populated with words missing from translation table">
+                                        <label for="output-col-missing">Missing Translation</label>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="row">
+                                    <div class="col-md">
+                                      <div class="form-floating">
+                                        <!-- consider doing a drop down select with filter -->
+                                        <input type="text" class="form-control" id="output-col-uom"
+                                          placeholder="Unit of Measure">
+                                        <label for="output-col-uom">Unit of Measure</label>
+                                      </div>
+                                    </div>
+                                    <div class="col-md">
+                                      <div class="form-floating">
+                                        <input type="text" class="form-control" id="output-col-com-group"
+                                          placeholder="Commodity Group">
+                                        <label for="output-col-com-group">Commodity Group</label>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div class="row">
+                                    <div class="col-md">
+                                      <div class="form-floating">
+                                        <input type="text" class="form-control" id="output-col-gl-class"
+                                          placeholder="GL Class">
+                                        <label for="output-col-gl-class">GL Class</label>
+                                      </div>
+                                    </div>
+                                    <div class="col-md">
+                                      <div class="form-floating">
+                                        <input type="text" class="form-control" id="output-col-com-code"
+                                          placeholder="Commodity Code">
+                                        <label for="output-col-com-code">Commodity Code</label>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div class="d-flex gap-1">
-                  <ul class="list-group flex-fill">
-                    <li class="list-group-item" id="batch-upload-status-text">Waiting for paste...</li>
-                  </ul>
-                  <button id="batch-copy-nums" class="btn btn-danger" style="text-align: center;" disabled>
-                    Copy Item Numbers
+              </div>
+              <div class="accordion-item" id="img-upld-toggle" style="display: none;">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#imgUpload">
+                    Image Upload
                   </button>
-                </div>
-                <div class="d-flex gap-1">
-                  <button class="btn btn-secondary flex-fill" style="text-align: center;"
-                    id="clear-batch-items-btn"><strong>Clear Table</strong></button>
-                  <button class="btn btn-danger flex-fill" style="text-align: center;"
-                    id="batch-upload-btn"><strong>Upload Items</strong></button>
-                </div>
-                <div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="accordion-item">
-            <h2 class="accordion-header">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                data-bs-target="#accordion-relatedItem" id="related-items-accordion-btn">
-                Related items
-              </button>
-            </h2>
-            <div id="accordion-relatedItem" class="accordion-collapse collapse">
-              <div class="accordion-body">
-                <i id="num-results" class="text-muted">Found 0 results</i>
-                <div id="related-table" class="table-responsive row">
-                  <table class="table table-bordered">
-                    <thead>
-                      <tr class="table-info" id="rel-items-heading">
-                        <th>Percent Match</th>
-                        <th>Item Number</th>
-                        <th>Item Description</th>
-                        <th>UOM</th>
-                        <th>C_Group</th>
-                        <th>GL_Class</th>
-                        <th></th>
-                      </tr>
-                    </thead>
-                    <tbody id="related-items"></tbody>
-                  </table>
+                </h2>
+                <div id="imgUpload" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    <div class="mb-3">
+                      <label for="imgInput" class="form-label">Select Images to Upload</label>
+                      <input class="form-control" type="file" id="imgInput" multiple>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                      <div class="overflow-auto flex-fill" style="min-height: min-content; max-height: 500px;">
+                        <ul class="list-group" id="imgList">
+
+                        </ul>
+                      </div>
+                    </div>
+                    <div class="d-flex mt-1">
+                      <ul class="list-group flex-fill">
+                        <li class="list-group-item" id="img-upload-status-text" style="text-align: center;">Select
+                          Images to Continue...</li>
+                      </ul>
+                    </div>
+                    <div class="d-flex gap-1 mt-1">
+                      <button class="btn btn-secondary flex-fill" id="img-clear-btn" type="button"
+                        style="text-align: center;"><strong>Clear</strong></button>
+                      <button class="btn btn-danger flex-fill" id="img-upload-btn" type="button"
+                        style="text-align: center;"><strong>Upload</strong></button>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-          <div class="accordion-item">
-            <h2 class="accordion-header">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                data-bs-target="#accordion-logs">
-                Logs
-              </button>
-            </h2>
-            <div id="accordion-logs" class="accordion-collapse collapse">
-              <div class="accordion-body">
-                <div class="row table-responsive" id="logs-container">
-                  <table class="table table-bordered table-striped">
-                    <thead>
-                      <tr class="table-primary">
-                        <th>Level</th>
-                        <!-- <th>Time</th> -->
-                        <th>Message</th>
-                      </tr>
-                    </thead>
-                    <tbody id="logs-table"></tbody>
-                  </table>
+              <div class="accordion-item" id="batch-upld-btn" style="display: none;">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#accordion-batchUpload">
+                    Batch Upload
+                  </button>
+                </h2>
+                <div id="accordion-batchUpload" class="accordion-collapse collapse">
+                  <div class="accordion-body d-flex flex-column gap-3">
+                    <div class="d-flex flex-grow-1">Paste a table into the textbox below:</div>
+                    <div class="input-group d-flex">
+                      <button class="btn btn-danger" type="button" id="batch-paste-btn">Paste</button>
+                      <textarea class="flex-fill" id="batch-items-textinput" rows="1"></textarea>
+                      <button class="btn btn-danger" type="button" id="batch-copy-headers-btn">Copy Headers</button>
+                    </div>
+                    <div class="card">
+                      <div class="overflow-auto flex-fill" style="min-height: min-content; max-height: 500px;">
+                        <div id="batch-items-table-div">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="d-flex gap-1">
+                      <ul class="list-group flex-fill">
+                        <li class="list-group-item" id="batch-upload-status-text">Waiting for paste...</li>
+                      </ul>
+                      <button id="batch-copy-nums" class="btn btn-danger" style="text-align: center;" disabled>
+                        Copy Item Numbers
+                      </button>
+                    </div>
+                    <div class="d-flex gap-1">
+                      <button class="btn btn-secondary flex-fill" style="text-align: center;"
+                        id="clear-batch-items-btn"><strong>Clear Table</strong></button>
+                      <button class="btn btn-danger flex-fill" style="text-align: center;"
+                        id="batch-upload-btn"><strong>Upload Items</strong></button>
+                    </div>
+                    <div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#accordion-relatedItem" id="related-items-accordion-btn">
+                    Related items
+                  </button>
+                </h2>
+                <div id="accordion-relatedItem" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    <i id="num-results" class="text-muted">Found 0 results</i>
+                    <div id="related-table" class="table-responsive row">
+                      <table class="table table-bordered">
+                        <thead>
+                          <tr class="table-info" id="rel-items-heading">
+                            <th>Percent Match</th>
+                            <th>Item Number</th>
+                            <th>Item Description</th>
+                            <th>UOM</th>
+                            <th>C_Group</th>
+                            <th>GL_Class</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody id="related-items"></tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#accordion-logs">
+                    Logs
+                  </button>
+                </h2>
+                <div id="accordion-logs" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    <div class="row table-responsive" id="logs-container">
+                      <table class="table table-bordered table-striped">
+                        <thead>
+                          <tr class="table-primary">
+                            <th>Level</th>
+                            <!-- <th>Time</th> -->
+                            <th>Message</th>
+                          </tr>
+                        </thead>
+                        <tbody id="logs-table"></tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </main>
+      </main>
 
-  <!-- notification thingy thats pops up and auto disappears -->
-  <div class="toast-container position-absolute p-3 top-0 end-0" id="toastPlacement"></div>
+      <!-- notification thingy thats pops up and auto disappears -->
+      <div class="toast-container position-absolute p-3 top-0 end-0" id="toastPlacement"></div>
 
-  <!-- goto top / bottom buttons -->
-  <button id="topButton" class="btn btn-danger material-icons pointer md-size" title="Go to top">arrow_upward</button>
-  <button id="endButton" class="btn btn-danger material-icons pointer md-size" title="Go to end">arrow_downward</button>
+      <!-- goto top / bottom buttons -->
+      <button id="topButton" class="btn btn-danger material-icons pointer md-size"
+        title="Go to top">arrow_upward</button>
+      <button id="endButton" class="btn btn-danger material-icons pointer md-size"
+        title="Go to end">arrow_downward</button>
 
-  <script src="./item_main.js"></script>
+      <script src="./item_main.js"></script>
 </body>
 
 </html>

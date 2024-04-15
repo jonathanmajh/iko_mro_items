@@ -233,6 +233,7 @@ Content-Type: text/html; boundary=--boundary_text_string
 
 <html>
 <h2>Item Request</h2> 
+<h4>Don't forget to include any relevant attachments</h4>
 <table style="border: 1px solid black; border-collapse: collapse;">
 <tr>
   <td style="border: 1px solid black;">Item number type:</td>
@@ -244,31 +245,45 @@ Content-Type: text/html; boundary=--boundary_text_string
   <td id="item-descr2" style="border: 1px solid black;">${document.getElementById('request-desc').value
 }</td>
 </tr>
+
 <tr>
-  <td style="border: 1px solid black;">Commodity group:</td>
-  <td id="comm-grp2" style="border: 1px solid black;">${document.getElementById('com-group').value
-}</td>
+  <td style="border: 1px solid black;">Commodity group: ${document.getElementById('com-group').value}</td>
+<td style="border: 1px solid black;">GL class: ${document.getElementById('gl-class-new').value}</td>
 </tr>
+
 <tr>
   <td style="border: 1px solid black;">Issue Unit:</td>
   <td style="border: 1px solid black;" id="issue-unit2">${document.getElementById('uom-field').value
 }</td>
 </tr>
-<tr>
-  <td style="border: 1px solid black;">GL class:</td>
-  <td style="border: 1px solid black;" id="gl-class2">${document.getElementById('gl-class-new').value
-}</td>
-</tr>
+
 <tr>
   <td style="border: 1px solid black;">Storeroom:</td>
   <td id="storeroom2" style="border: 1px solid black;">${document.getElementById('storeroom').value
 }</td>
 </tr>
+
 <tr>
-  <td style="border: 1px solid black;">Vendor number:</td>
-  <td id="ven-num2" style="border: 1px solid black;">${document.getElementById('ven-num').value
+  <td style="border: 1px solid black;">Spare Part Asset Number: ${document.getElementById('asset-num').value}</td>
+  <td style="border: 1px solid black;">Spare Part Quantity: ${document.getElementById('asset-qty').value}</td>
+</tr>
+
+<tr>
+  <td style="border: 1px solid black;">ABC Type: ${document.getElementById('abc-type').value}</td>
+  <td style="border: 1px solid black;">CCF: ${document.getElementById('ccf-days').value}</td>
+</tr>
+
+<tr>
+  <td style="border: 1px solid black;">Website link:</td>
+  <td id="web-link2" style="border: 1px solid black;">${document.getElementById('web-link').value
 }</td>
 </tr>
+
+<tr>
+  <td style="border: 1px solid black;">Vendor number: ${document.getElementById('ven-num').value}</td>
+  <td style="border: 1px solid black;">Vendor cost: ${document.getElementById('ven-cost').value}</td>
+</tr>
+
 <tr>
   <td style="border: 1px solid black;">Catalog number:</td>
   <td id="cat-num2" style="border: 1px solid black;">${document.getElementById('cat-num').value
@@ -289,16 +304,14 @@ Content-Type: text/html; boundary=--boundary_text_string
   <td id="part-num2" style="border: 1px solid black;">${document.getElementById('part-num').value
 }</td>
 </tr>
+
 <tr>
-  <td style="border: 1px solid black;">Spare parts asset number:</td>
-  <td id="asset-num2" style="border: 1px solid black;">${document.getElementById('asset-num').value
-}</td>
+  <td style="border: 1px solid black; ">Details:</td>
+  <td style="border: 1px solid black; ><p style="white-space: pre-wrap;">${document.getElementById('long-desc').value.replace(/(?:\r\n|\r|\n)/g, '<br>')}</p>
+  </td>
 </tr>
-<tr>
-  <td style="border: 1px solid black;">Website link:</td>
-  <td id="web-link2" style="border: 1px solid black;">${document.getElementById('web-link').value
-}</td>
-</tr>
+
+
 </table>
 </html>
 </textarea>`;

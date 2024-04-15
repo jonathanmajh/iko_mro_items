@@ -45,3 +45,5 @@ Use ```npm start``` to open the application (make sure you've installed all depe
 
 App Icon
 <a href="https://www.flaticon.com/free-icons/repair" title="repair icons">Repair icons created by Ayub Irawan - Flaticon</a>
+
+https://firebase.google.com/docs/app-check/web/recaptcha-provider#web-modular-api
