@@ -1,6 +1,7 @@
 // various functions for fetching data from maximo rest api
 const SharedDatabase = require('../assets/sharedDB');
 const CONSTANTS = require('../assets/constants.js');
+const Jimp = require('jimp');
 
 
 /**
@@ -397,13 +398,16 @@ class Maximo {
        */
 
   async uploadImageToMaximo(image) {
-  // check valid image type
+    // check valid image type
     if (image.type !== 'image/jpeg' && image.type !== 'image/png') {
       return ['fail', 'Image type not jpeg or png'];
     }
 
     // check if item number exists in maximo
     const itemnum = image.name.slice(0, 7); // itemnum is first 7 digits of image name
+    if(function(x){return typeof x != "number" || x < 9000000;}(Number(itemnum))) {
+      return['fail', `Not a item number: ${itemnum}`];
+    }
     let response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/mxitem?oslc.where=itemnum=${itemnum}`, {
       method: 'GET',
       headers: {
@@ -414,10 +418,9 @@ class Maximo {
     if (content['rdfs:member'] == 0 || content['oslc:Error']) {
       return ['fail', 'Item number not found'];
     }
-
     // get item id - item id is a code that lets you access information about the item through the API
     let itemId = content['rdfs:member'][0]['rdf:resource'];
-    itemId = itemId.slice(38);
+    itemId = itemId.slice(itemId.lastIndexOf("/") + 1);
     // console.log("item id " + itemId);
 
     // check for existing image
@@ -431,20 +434,22 @@ class Maximo {
 
     // if image exists
     if (content['_imagelibref']) {
-    // console.log("image exists");
+      // console.log("image exists");
 
       // code to delete existing image
       /* response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}?action=system:deleteimage`, {
-                    method: "POST",
-                    headers: {
-                        "x-method-override":"PATCH",
-                        "apikey": this.login.userid,
-                    }
-                });*/
+                      method: "POST",
+                      headers: {
+                          "x-method-override":"PATCH",
+                          "apikey": this.login.userid,
+                      }
+                  });*/
 
       // dont upload image
       return ['warning', 'Image already exists for item number'];
     }
+    //pad image into a square
+    image = await padImage(image);
 
     // upload new image
     response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/mxitem/${itemId}?action=system:addimage`, {
@@ -458,9 +463,37 @@ class Maximo {
       },
       body: image,
     });
-    // console.log(response['statusText']);
+
+    console.log(response['status']);
     return ['success'];
   }
+
+
 }
+
+  /**
+   * adds white space to the given image's border to make it a square
+   * @param {File} oImage - image to pad 
+   * @returns {File} - square image with padding
+   */
+  async function padImage(oImage){
+    const mimeType = oImage.type;
+    const oImgBuf = Buffer.from(await oImage.arrayBuffer()); 
+    const img = await new Promise((resolve, reject) => {
+        Jimp.read(oImgBuf)
+          .then((oImgJimp) => {
+            const largestDim = Math.max(oImgJimp.getWidth(), oImgJimp.getHeight());
+            new Jimp(largestDim, largestDim,  '#ffffffff', (err, image) => {
+              image.blit(oImgJimp, (largestDim - oImgJimp.getWidth())/2, (largestDim - oImgJimp.getHeight())/2);
+              image.getBufferAsync(mimeType)
+                .then((buffer) => {
+                  const newImg = new Blob([buffer], {type: mimeType});
+                  resolve(newImg);
+                });
+            }); 
+        });
+    });
+    return img;
+  }
 
 module.exports = Maximo;
