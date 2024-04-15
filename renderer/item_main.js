@@ -1,4 +1,4 @@
-const {clipboard, ipcRenderer, shell} = require('electron');
+const { clipboard, ipcRenderer, shell } = require('electron');
 // const { dialog } = require('electron').remote;
 const Database = require('../assets/indexDB');
 const Validate = require('../assets/validators');
@@ -84,7 +84,7 @@ let relatedResults = {
 };
 
 // a function that is called immediately after the window has been loaded
-window.onload = function() {
+window.onload = function () {
   // set the darkmode toggle to the correct position by retreiving information from the local storage
   document.getElementById('dark-mode-switch').checked =
     localStorage.getItem('theme') === 'dark' ? true : false;
@@ -237,72 +237,87 @@ Content-Type: text/html; boundary=--boundary_text_string
 <table style="border: 1px solid black; border-collapse: collapse;">
 <tr>
   <td style="border: 1px solid black;">Item number type:</td>
-  <td id="number-type2" style="border: 1px solid black;">${document.getElementById('number-type').value
-}XXXXX</td>
+  <td style="border: 1px solid black;">${document.getElementById('number-type').value}XXXXX</td>
 </tr>
 <tr>
   <td style="border: 1px solid black;">Item description:</td>
-  <td id="item-descr2" style="border: 1px solid black;">${document.getElementById('request-desc').value
-}</td>
+  <td style="border: 1px solid black;">${document.getElementById('request-desc').value}</td>
 </tr>
 
 <tr>
-  <td style="border: 1px solid black;">Commodity group: ${document.getElementById('com-group').value}</td>
-<td style="border: 1px solid black;">GL class: ${document.getElementById('gl-class-new').value}</td>
+  <td style="border: 1px solid black;">Commodity group:</td>
+  <td style="border: 1px solid black;">${document.getElementById('com-group').value}</td>
+</tr>
+
+<tr>
+  <td style="border: 1px solid black;">GL class:</td>
+  <td style="border: 1px solid black;">${document.getElementById('gl-class-new').value}</td>
 </tr>
 
 <tr>
   <td style="border: 1px solid black;">Issue Unit:</td>
-  <td style="border: 1px solid black;" id="issue-unit2">${document.getElementById('uom-field').value
-}</td>
+  <td style="border: 1px solid black;">${document.getElementById('uom-field').value}</td>
 </tr>
 
 <tr>
   <td style="border: 1px solid black;">Storeroom:</td>
-  <td id="storeroom2" style="border: 1px solid black;">${document.getElementById('storeroom').value
-}</td>
+  <td style="border: 1px solid black;">${document.getElementById('storeroom').value}</td>
 </tr>
 
 <tr>
-  <td style="border: 1px solid black;">Spare Part Asset Number: ${document.getElementById('asset-num').value}</td>
-  <td style="border: 1px solid black;">Spare Part Quantity: ${document.getElementById('asset-qty').value}</td>
+  <td style="border: 1px solid black;">Spare Part Asset Number:</td>
+  <td style="border: 1px solid black;">${document.getElementById('asset-num').value}</td>
 </tr>
 
 <tr>
-  <td style="border: 1px solid black;">ABC Type: ${document.getElementById('abc-type').value}</td>
-  <td style="border: 1px solid black;">CCF: ${document.getElementById('ccf-days').value}</td>
+  <td style="border: 1px solid black;">Spare Part Quantity:</td>
+  <td style="border: 1px solid black;">${document.getElementById('asset-qty').value}</td>
+</tr>
+
+<tr>
+  <td style="border: 1px solid black;">ABC Type:</td>
+  <td style="border: 1px solid black;">${document.getElementById('abc-type').value}</td>
+</tr>
+
+<tr>
+  <td style="border: 1px solid black;">CCF:</td>
+  <td style="border: 1px solid black;">${document.getElementById('ccf-days').value}</td>
 </tr>
 
 <tr>
   <td style="border: 1px solid black;">Website link:</td>
-  <td id="web-link2" style="border: 1px solid black;">${document.getElementById('web-link').value
-}</td>
+  <td style="border: 1px solid black;">${document.getElementById('web-link').value}</td>
 </tr>
 
 <tr>
-  <td style="border: 1px solid black;">Vendor number: ${document.getElementById('ven-num').value}</td>
-  <td style="border: 1px solid black;">Vendor cost: ${document.getElementById('ven-cost').value}</td>
+  <td style="border: 1px solid black;">Vendor number:</td> 
+  <td style="border: 1px solid black;">${document.getElementById('ven-num').value}</td>
+</tr>
+
+<tr>
+  <td style="border: 1px solid black;">Vendor cost:</td> 
+  <td style="border: 1px solid black;">${document.getElementById('ven-cost').value}</td>
 </tr>
 
 <tr>
   <td style="border: 1px solid black;">Catalog number:</td>
   <td id="cat-num2" style="border: 1px solid black;">${document.getElementById('cat-num').value
-}</td>
+    }</td>
 </tr>
 <tr>
   <td style="border: 1px solid black;">Manufacturer type:</td>
   <td id="manu-type2" style="border: 1px solid black;">${document.getElementById('manu-name').value
-}</td>
+    }</td>
 </tr>
 <tr>
   <td style="border: 1px solid black;">Manufacturer name:</td>
   <td id="manu-name2" style="border: 1px solid black;">${document.getElementById('pref-manu').value
-}</td>
+    }</td>
 </tr>
 <tr>
   <td style="border: 1px solid black;">Part number:</td>
   <td id="part-num2" style="border: 1px solid black;">${document.getElementById('part-num').value
-}</td>
+    }</td>
 </tr>
 
 <tr>
@@ -320,7 +335,7 @@ Content-Type: text/html; boundary=--boundary_text_string
   ipcRenderer.send('write-file', mailText);
   // requestModal.toggle();
   //log in firestore
-  ipcRenderer.send('firestore-log', {event: CONSTANTS.FIRESTORE_EVENT_REQUESTITEM});
+  ipcRenderer.send('firestore-log', { event: CONSTANTS.FIRESTORE_EVENT_REQUESTITEM });
 }
 
 /* Infinite scroll
@@ -392,9 +407,9 @@ document.getElementById('imgInput').addEventListener('change', async (e) => {
 
   const url = `https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
   document.getElementById(
-      'img-upload-status-text',
+    'img-upload-status-text',
   ).innerHTML = `<a href=${url} id="imgs-link">Selected Items:</a>`;
-  document.getElementById('imgs-link').addEventListener('click', function(e) {
+  document.getElementById('imgs-link').addEventListener('click', function (e) {
     e.preventDefault();
     shell.openExternal(url);
   });
@@ -463,7 +478,7 @@ document.getElementById('img-upload-btn').addEventListener('click', () => {
       finishedItems = imgsToUpload.length;
       progressBar.update(100, 'Error occurred while attempting upload!');
       document.getElementById(
-          'img-upload-status-text',
+        'img-upload-status-text',
       ).innerHTML = `Upload Failed: ${result[1]}}`;
       clearBtn.disabled = false;
       uploadBtn.disabled = false;
@@ -527,20 +542,20 @@ document.getElementById('storeroom-btn').addEventListener('click', () => {
     return;
   }
   const worker = new WorkerHandler();
-    const upload = {
-      cataloguenum: '',
-      issueunit: document.getElementById('storeroom-item-uom').value,
-      itemnumber: document.getElementById('storeroom-item-itemnum').value,
-      storeroomname: document.getElementById('storeroom-storeroom').value,
-      siteID: localStorage.getItem('userSite'),
-      vendorname: '',
-    };
-    worker.work(['uploadInventory', upload, true], (result) => {
-      //log in firestore if upload is successful
-      if(result[0] == 1) {
-        ipcRenderer.send("firestore-log", {event: CONSTANTS.FIRESTORE_EVENT_ADDTOINVENTORY})
-      }
-    });
+  const upload = {
+    cataloguenum: '',
+    issueunit: document.getElementById('storeroom-item-uom').value,
+    itemnumber: document.getElementById('storeroom-item-itemnum').value,
+    storeroomname: document.getElementById('storeroom-storeroom').value,
+    siteID: localStorage.getItem('userSite'),
+    vendorname: '',
+  };
+  worker.work(['uploadInventory', upload, true], (result) => {
+    //log in firestore if upload is successful
+    if (result[0] == 1) {
+      ipcRenderer.send("firestore-log", { event: CONSTANTS.FIRESTORE_EVENT_ADDTOINVENTORY })
+    }
+  });
 });
 
 // Other
@@ -634,7 +649,7 @@ document.getElementById('batch-upload-btn').addEventListener('click', () => {
   } catch (error) {
     itemsToUpload = [];
     document.getElementById(
-        'batch-upload-status-text',
+      'batch-upload-status-text',
     ).innerHTML = `Error, check table format! (${error})`;
     return;
   }
@@ -655,7 +670,7 @@ document.getElementById('batch-upload-btn').addEventListener('click', () => {
 });
 document.getElementById('batch-paste-btn').addEventListener('click', async () => {
   const text = await navigator.clipboard.readText();
-  const pasteEvent = new Event('paste', {bubbles: true, cancelable: false});
+  const pasteEvent = new Event('paste', { bubbles: true, cancelable: false });
   const textinput = document.getElementById('batch-items-textinput');
 
   textinput.value = text;
@@ -671,7 +686,7 @@ document.getElementById('dark-mode-switch').addEventListener('click', toggleThem
 // Infinite scroll
 
 // listener for enter key on search field
-document.getElementById('maximo-desc').addEventListener('keyup', function(event) {
+document.getElementById('maximo-desc').addEventListener('keyup', function (event) {
   // Number 13 is the "Enter" key on the keyboard
   if (event.key === 'Enter') {
     // Cancel the default action, if needed
@@ -681,7 +696,7 @@ document.getElementById('maximo-desc').addEventListener('keyup', function(event)
   }
 });
 
-document.getElementById('interact-num').addEventListener('keyup', function(event) {
+document.getElementById('interact-num').addEventListener('keyup', function (event) {
   // Number 13 is the "Enter" key on the keyboard
   if (event.key === 'Enter') {
     // Cancel the default action, if needed
@@ -741,8 +756,8 @@ function worksheetParams(path = false) {
     // output parameters
     outItemNum: document.getElementById('output-col').value.toUpperCase() || 'E',
     outItemDesc: (document.getElementById('output-col-desc').value || 'F,G,H')
-        .toUpperCase()
-        .split(','),
+      .toUpperCase()
+      .split(','),
     outComm: document.getElementById('interact-num').value.toUpperCase() || 'I', // commodity group out
     outGL: document.getElementById('interact-num').value.toUpperCase() || 'J', // gl class out
     outUOM: document.getElementById('interact-num').value.toUpperCase() || 'K', // uom out
@@ -805,11 +820,11 @@ function openSettings() {
 
 function openExcel() {
   document.getElementById('input-col').value = document
-      .getElementById('input-col')
-      .value.toUpperCase();
+    .getElementById('input-col')
+    .value.toUpperCase();
   document.getElementById('output-col').value = document
-      .getElementById('output-col')
-      .value.toUpperCase();
+    .getElementById('output-col')
+    .value.toUpperCase();
 
   ipcRenderer.invoke('select-to-be-translated', 'finished').then((result) => {
     if (!result.canceled) {
@@ -930,7 +945,7 @@ function getItemsFromTable(tableId) {
       }
       missingCols = missingColArr.join(', ');
       document.getElementById(
-          'batch-upload-status-text',
+        'batch-upload-status-text',
       ).innerHTML = `Table is missing ${numMissing} column(s): (${missingCols}). Table will not be uploaded!`;
       return;
     }
@@ -953,7 +968,7 @@ function getItemsFromTable(tableId) {
       }
       missingCols = missingColArr.join(', ');
       document.getElementById('batch-upload-status-text').innerHTML = `Table is missing ${5 - validParams
-      } column(s): (${missingCols}). Table will not be uploaded!`;
+        } column(s): (${missingCols}). Table will not be uploaded!`;
       return;
     }
   }
@@ -966,25 +981,25 @@ function getItemsFromTable(tableId) {
     let catNum = undefined;
     for (let i = 2; i <= rows; i++) {
       const desc = sanitizeString(
-          document.getElementById(i + '-' + colLoc.description).innerHTML,
+        document.getElementById(i + '-' + colLoc.description).innerHTML,
       );
       const uom = sanitizeString(
-          document.getElementById(i + '-' + colLoc.uom).innerHTML,
+        document.getElementById(i + '-' + colLoc.uom).innerHTML,
       ).toUpperCase();
       const commGroup = sanitizeString(
-          document.getElementById(i + '-' + colLoc.commGroup).innerHTML,
+        document.getElementById(i + '-' + colLoc.commGroup).innerHTML,
       );
       const glclass = sanitizeString(
-          document.getElementById(i + '-' + colLoc.glClass).innerHTML,
+        document.getElementById(i + '-' + colLoc.glClass).innerHTML,
       ).toUpperCase();
       if (colLoc.siteID != -1) {
         site = sanitizeString(
-            document.getElementById(i + '-' + colLoc.siteID).innerHTML,
+          document.getElementById(i + '-' + colLoc.siteID).innerHTML,
         ).toUpperCase();
       }
       if (colLoc.storeroom != -1) {
         storeroom = sanitizeString(
-            document.getElementById(i + '-' + colLoc.storeroom).innerHTML,
+          document.getElementById(i + '-' + colLoc.storeroom).innerHTML,
         ).toUpperCase();
       }
       if (colLoc.vendor != -1) {
@@ -994,7 +1009,7 @@ function getItemsFromTable(tableId) {
         catNum = sanitizeString(document.getElementById(i + '-' + colLoc.catNum).innerHTML);
       }
       const maximo = sanitizeString(
-          document.getElementById(i + '-' + colLoc.maximo).innerHTML,
+        document.getElementById(i + '-' + colLoc.maximo).innerHTML,
       );
       // if all required parameters are not available, don't create the item and move to next row
       if (
@@ -1016,15 +1031,15 @@ function getItemsFromTable(tableId) {
       }
 
       const item = new Item(
-          undefined,
-          desc,
-          uom,
-          commGroup,
-          glclass,
-          site,
-          storeroom,
-          vendor,
-          catNum,
+        undefined,
+        desc,
+        uom,
+        commGroup,
+        glclass,
+        site,
+        storeroom,
+        vendor,
+        catNum,
       );
       if (colLoc.maximo != -1 && maximo != 0 && maximo.toString().length === 7) {
         item.itemnumber = maximo;
@@ -1043,19 +1058,19 @@ function getItemsFromTable(tableId) {
   else {
     for (let i = 2; i <= rows; i++) {
       const desc = sanitizeString(
-          document.getElementById(i + '-' + colLoc.description).innerHTML,
+        document.getElementById(i + '-' + colLoc.description).innerHTML,
       );
       const uom = sanitizeString(
-          document.getElementById(i + '-' + colLoc.uom).innerHTML,
+        document.getElementById(i + '-' + colLoc.uom).innerHTML,
       ).toUpperCase();
       const commGroup = sanitizeString(
-          document.getElementById(i + '-' + colLoc.commGroup).innerHTML,
+        document.getElementById(i + '-' + colLoc.commGroup).innerHTML,
       );
       const glclass = sanitizeString(
-          document.getElementById(i + '-' + colLoc.glClass).innerHTML,
+        document.getElementById(i + '-' + colLoc.glClass).innerHTML,
       ).toUpperCase();
       const maximo = sanitizeString(
-          document.getElementById(i + '-' + colLoc.maximo).innerHTML,
+        document.getElementById(i + '-' + colLoc.maximo).innerHTML,
       );
       // if all required parameters are not available, don't create the item and move to next row
       if (
@@ -1090,7 +1105,7 @@ function getItemsFromTable(tableId) {
 
   if (invalidItems > 0) {
     document.getElementById(
-        'batch-upload-status-text',
+      'batch-upload-status-text',
     ).innerHTML = `Warning! ${invalidItems} invalid items will not be uploaded`;
   }
   // return the item array
@@ -1107,11 +1122,11 @@ async function uploadItem() {
   document.getElementById('confirm-btn').disabled = true;
   const worker = new WorkerHandler();
   const item = new Item(
-      sanitizeString(document.getElementById('interact-num').value),
-      sanitizeString(document.getElementById('request-desc').value),
-      sanitizeString(document.getElementById('uom-field').value),
-      sanitizeString(document.getElementById('com-group').value),
-      sanitizeString(document.getElementById('gl-class').value),
+    sanitizeString(document.getElementById('interact-num').value),
+    sanitizeString(document.getElementById('request-desc').value),
+    sanitizeString(document.getElementById('uom-field').value),
+    sanitizeString(document.getElementById('com-group').value),
+    sanitizeString(document.getElementById('gl-class').value),
   );
 
   if (document.getElementById('long-desc').value.length > 0) {
@@ -1127,9 +1142,9 @@ async function uploadItem() {
       new Toast('Upload Complete!', 'bg-success');
       const itemUrl = `https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
       document.getElementById(
-          'error',
+        'error',
       ).innerHTML = `Item Upload Successful! <a id="item-link" href = "${itemUrl}"> (Click to view item) </a>`;
-      document.getElementById('item-link').addEventListener('click', function(x) {
+      document.getElementById('item-link').addEventListener('click', function (x) {
         x.preventDefault();
         shell.openExternal(itemUrl);
       });
@@ -1175,7 +1190,7 @@ async function batchUploadItems(items) {
       const itemUrl = `https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
       finishText += `<a id="batch-link" href="${itemUrl}">Click to view:</a>`;
       document.getElementById('batch-upload-status-text').innerHTML = finishText;
-      document.getElementById('batch-link').addEventListener('click', function(e) {
+      document.getElementById('batch-link').addEventListener('click', function (e) {
         e.preventDefault();
         shell.openExternal(itemUrl);
       });
@@ -1240,8 +1255,8 @@ function finishLoadingBatch(params) {
       }
       document.getElementById('current-row').innerHTML = description.row;
       bar.update(
-          (msg.data[1] / params[2]) * 100,
-          `Processing Description. Row: ${msg.data[1]} of ${params[2]}`,
+        (msg.data[1] / params[2]) * 100,
+        `Processing Description. Row: ${msg.data[1]} of ${params[2]}`,
       );
       processBatch(worker, msg.data[1], description);
     } else if (msg.data[0] === 'saveComplete') {
@@ -1317,7 +1332,7 @@ function validSingle(isExtended = false) {
   worker.work(['validSingle', raw_desc], (result) => {
     showResult(result, isExtended);
   });
-  ipcRenderer.send('firestore-log',{event: CONSTANTS.FIRESTORE_EVENT_SEARCH})
+  ipcRenderer.send('firestore-log', { event: CONSTANTS.FIRESTORE_EVENT_SEARCH })
 }
 
 function showResult(result, isExtended = false) {
@@ -1366,19 +1381,19 @@ function translationDescription(description) {
     const worker = new WorkerHandler();
     if (document.getElementById('result-triple-ext1').value) {
       description = `${document.getElementById('result-triple-main').value},${document.getElementById('result-triple-ext1').value
-      }`;
+        }`;
     } else {
       description = document.getElementById('result-triple-main').value;
     }
 
     worker.work(
-        [
-          'translateItem',
-          description,
-          document.getElementById('selected-language').value,
-          'post',
-        ],
-        displayTranslation,
+      [
+        'translateItem',
+        description,
+        document.getElementById('selected-language').value,
+        'post',
+      ],
+      displayTranslation,
     );
   } else {
     // new Toast('Currently translation into English is not supported');
@@ -1388,7 +1403,7 @@ function translationDescription(description) {
 function displayTranslation(data) {
   document.getElementById('trans-desc').value = data[0];
   document.getElementById(
-      'translation-description',
+    'translation-description',
   ).value = `The following words do not have a translation:\n${data[1]}\nPlease check logs at bottom of page for details`;
   auto_grow('translation-description');
 }
@@ -1436,16 +1451,16 @@ function calcConfidence(data) {
             } else {
               if (analysis.count / parent >= 0.25) {
                 result = `${result}\n${description[j]
-                } is COMMONLY used as an item descriptor for ${tree}.\n${analysis.count
-                } of ${parent} = ${formatter.format(analysis.count / parent)}`;
+                  } is COMMONLY used as an item descriptor for ${tree}.\n${analysis.count
+                  } of ${parent} = ${formatter.format(analysis.count / parent)}`;
               } else if (analysis.count / parent >= 0.05) {
                 result = `${result}\n${description[j]
-                } is SOMETIMES used as an item descriptor for ${tree}.\n${analysis.count
-                } of ${parent} = ${formatter.format(analysis.count / parent)}`;
+                  } is SOMETIMES used as an item descriptor for ${tree}.\n${analysis.count
+                  } of ${parent} = ${formatter.format(analysis.count / parent)}`;
               } else {
                 result = `${result}\n${description[j]
-                } is an UNCOMMON item descriptor for ${tree}.\nPlease double check.\n${analysis.count
-                } of ${parent} = ${formatter.format(analysis.count / parent)}`;
+                  } is an UNCOMMON item descriptor for ${tree}.\nPlease double check.\n${analysis.count
+                  } of ${parent} = ${formatter.format(analysis.count / parent)}`;
               }
             }
             parent = analysis.count;
@@ -1606,8 +1621,8 @@ function loadRelated() {
           if (smallWord.length > 1) {
             // single characters aren't searched for
             itemDescription = itemDescription.replace(
-                new RegExp(`${smallWord}`, 'i'),
-                `<b>${itemDescription.match(new RegExp(`${smallWord}`, 'i'))?.[0]}</b>`,
+              new RegExp(`${smallWord}`, 'i'),
+              `<b>${itemDescription.match(new RegExp(`${smallWord}`, 'i'))?.[0]}</b>`,
             );
           }
         }
@@ -1631,11 +1646,11 @@ function loadRelated() {
             ${isExtended ?
           `<td>${itemDescription.substring(0, itemDescription.indexOf('|'))}</td>` :
           `<td>${itemDescription}</td>`
-}
+        }
             ${isExtended ?
           `<td>${itemDescription.slice(itemDescription.indexOf('|') + 1)}</td>` :
           ''
-}
+        }
             <td>${itemNames[itemNum][2]}</td>
             ${isPowerUser ? `<td>${itemNames[itemNum][3]}</td>` : ''} 
             ${isPowerUser ? `<td>${itemNames[itemNum][1]}</td>` : ''} 
