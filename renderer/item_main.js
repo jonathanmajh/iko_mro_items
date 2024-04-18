@@ -239,21 +239,21 @@ Content-Type: text/html; boundary=--boundary_text_string
 <h4>Don't forget to include any relevant attachments</h4>
 <table style="border: 1px solid black; border-collapse: collapse;">
 <tr>
-  <td style="border: 1px solid black;">Item number type:</td>
+  <td style="border: 1px solid black;">Item Number Type:</td>
   <td style="border: 1px solid black;">${document.getElementById('number-type').value}XXXXX</td>
 </tr>
 <tr>
-  <td style="border: 1px solid black;">Item description:</td>
+  <td style="border: 1px solid black;">Item Description:</td>
   <td style="border: 1px solid black;">${document.getElementById('request-desc').value}</td>
 </tr>
 
 <tr>
-  <td style="border: 1px solid black;">Commodity group:</td>
+  <td style="border: 1px solid black;">Commodity Group:</td>
   <td style="border: 1px solid black;">${document.getElementById('com-group').value}</td>
 </tr>
 
 <tr>
-  <td style="border: 1px solid black;">GL class:</td>
+  <td style="border: 1px solid black;">GL Class:</td>
   <td style="border: 1px solid black;">${document.getElementById('gl-class-new').value}</td>
 </tr>
 
@@ -288,37 +288,37 @@ Content-Type: text/html; boundary=--boundary_text_string
 </tr>
 
 <tr>
-  <td style="border: 1px solid black;">Website link:</td>
+  <td style="border: 1px solid black;">Website Link:</td>
   <td style="border: 1px solid black;">${document.getElementById('web-link').value}</td>
 </tr>
 
 <tr>
-  <td style="border: 1px solid black;">Vendor number:</td> 
+  <td style="border: 1px solid black;">Vendor Number:</td> 
   <td style="border: 1px solid black;">${document.getElementById('ven-num').value}</td>
 </tr>
 
 <tr>
-  <td style="border: 1px solid black;">Vendor cost:</td> 
+  <td style="border: 1px solid black;">Vendor Cost:</td> 
   <td style="border: 1px solid black;">${document.getElementById('ven-cost').value}</td>
 </tr>
 
 <tr>
-  <td style="border: 1px solid black;">Catalog number:</td>
+  <td style="border: 1px solid black;">Catalog Number:</td>
   <td id="cat-num2" style="border: 1px solid black;">${document.getElementById('cat-num').value
     }</td>
 </tr>
 <tr>
-  <td style="border: 1px solid black;">Manufacturer type:</td>
+  <td style="border: 1px solid black;">Manufacturer Type:</td>
   <td id="manu-type2" style="border: 1px solid black;">${document.getElementById('manu-name').value
     }</td>
 </tr>
 <tr>
-  <td style="border: 1px solid black;">Manufacturer name:</td>
+  <td style="border: 1px solid black;">Manufacturer Name:</td>
   <td id="manu-name2" style="border: 1px solid black;">${document.getElementById('pref-manu').value
     }</td>
 </tr>
 <tr>
-  <td style="border: 1px solid black;">Part number:</td>
+  <td style="border: 1px solid black;">Part Number:</td>
   <td id="part-num2" style="border: 1px solid black;">${document.getElementById('part-num').value
     }</td>
 </tr>
@@ -613,7 +613,7 @@ document.getElementById('clear-batch-items-btn').addEventListener('click', () =>
 
 document.getElementById('batch-copy-nums').addEventListener('click', () => {
   try {
-    const result = getItemsFromTable('batch-items-table');
+    const result = getItemsFromBatchUploadTable('batch-items-table');
     if (result == undefined || result == null || result == 0) {
       throw 'Table missing columns';
     }
@@ -637,7 +637,7 @@ document.getElementById('batch-items-textinput').addEventListener('paste', (e) =
   setTimeout(() => {
     const paste = e.target.value;
     const table = document.getElementById('batch-items-table-div');
-    table.innerHTML = convertToTable(paste, 'batch-items-table');
+    table.innerHTML = convertToBatchUploadTable(paste, 'batch-items-table');
 
     document.getElementById('batch-copy-nums').disabled = false;
 
@@ -648,7 +648,7 @@ document.getElementById('batch-items-textinput').addEventListener('paste', (e) =
 });
 document.getElementById('batch-upload-btn').addEventListener('click', () => {
   try {
-    itemsToUpload = getItemsFromTable('batch-items-table');
+    itemsToUpload = getItemsFromBatchUploadTable('batch-items-table');
   } catch (error) {
     itemsToUpload = [];
     document.getElementById(
@@ -684,6 +684,64 @@ document.getElementById('batch-copy-headers-btn').addEventListener('click', () =
   navigator.clipboard.writeText(copyText);
   new Toast('Table copied to clipboard!');
 });
+
+//template upload
+document.getElementById('clear-template-items-btn').addEventListener('click', () => {
+  document.getElementById('template-items-table').innerHTML = ``;
+  document.getElementById('template-copy-nums').disabled = true;
+  document.getElementById('template-upload-status-text').innerHTML = 'Waiting for paste...';
+});
+document.getElementById('template-items-textinput').addEventListener('paste', (e) => {
+  setTimeout(() => {
+    const paste = e.target.value;
+    const table = document.getElementById('template-items-table-div');
+    table.innerHTML = convertToTemplateUploadTable(paste, 'template-items-table');
+
+    document.getElementById('template-copy-nums').disabled = false;
+
+    document.getElementById('template-upload-status-text').innerHTML =
+      'Paste detected! Edit table if needed and click upload.';
+    e.target.value = '';
+  }, 0);
+});
+document.getElementById('template-upload-btn').addEventListener('click', () => { //TODO: multi upload
+  try {
+    itemsToUpload = getItemsFromTemplateUploadTable('template-items-table');
+  } catch (error) {
+    itemsToUpload = [];
+    document.getElementById(
+      'template-upload-status-text',
+    ).innerHTML = `Error, check table format! (${error})`;
+    return;
+  }
+
+  if (itemsToUpload.length > 0) {
+    itemsToUpload.forEach((value, idx) => {
+      if (value) {
+        updateItemStatus('loading', idx + 1);
+      }
+    });
+    batchUploadItems(itemsToUpload);
+    return;
+  } else {
+    document.getElementById('batch-upload-status-text').innerHTML = 'No valid items to upload!';
+  }
+
+  return;
+});
+document.getElementById('template-paste-btn').addEventListener('click', async () => {
+  const text = await navigator.clipboard.readText();
+  const pasteEvent = new Event('paste', { bubbles: true, cancelable: false });
+  const textinput = document.getElementById('template-items-textinput');
+  textinput.value = text;
+  textinput.dispatchEvent(pasteEvent);
+});
+document.getElementById('template-copy-headers-btn').addEventListener('click', () => {
+  const copyText = `Item number type:\t91XXXXX\nItem description:\t\nGL class:\t\nIssue Unit:\t\nStoreroom:\t\nSpare Part Asset Number:\t\nSpare Part Quantity:\t\nABC Type:\t\nCCF:\t\nWebsite link:\t\nVendor number:\t\nVendor cost:\t\nCatalog number:\t\nManufacturer type:\t\nManufacturer name:\t\nPart number:\t\nDetails:\t`
+  navigator.clipboard.writeText(copyText);
+  new Toast('Template copied to clipboard!');
+});
+
 // dark theme toggle
 document.getElementById('dark-mode-switch').addEventListener('click', toggleTheme);
 // Infinite scroll
@@ -848,7 +906,7 @@ function openExcel() {
  * @param {string} tableId the HTML id of the table to read
  * @return {Array<Item>} an array of Items
  */
-function getItemsFromTable(tableId) {
+function getItemsFromBatchUploadTable(tableId) {
   colLoc = {
     description: -1,
     uom: -1,
@@ -1033,17 +1091,17 @@ function getItemsFromTable(tableId) {
         continue;
       }
 
-      const item = new Item(
-        undefined,
-        desc,
-        uom,
-        commGroup,
-        glclass,
-        site,
-        storeroom,
-        vendor,
-        catNum,
-      );
+      const item = new Item({
+        itemnumber:undefined,
+        description:desc,
+        issueunit:uom,
+        commoditygroup:commGroup,
+        glclass:glclass,
+        siteID:site,
+        storeroomname:storeroom,
+        vendorname:vendor,
+        cataloguenum:catNum,
+    });
       if (colLoc.maximo != -1 && maximo != 0 && maximo.toString().length === 7) {
         item.itemnumber = maximo;
       } else if (desc.toUpperCase().includes('DWG')) {
@@ -1091,7 +1149,12 @@ function getItemsFromTable(tableId) {
         invalidItems++;
         continue;
       }
-      const item = new Item(undefined, desc, uom, commGroup, glclass);
+      const item = new Item({
+        itemnumber:undefined,
+        description:desc,
+        issueunit:uom,
+        commoditygroup:commGroup,
+        glclass:glclass});
       if (colLoc.maximo != -1 && maximo != 0 && maximo.toString().length === 7) {
         item.itemnumber = maximo;
       } else if (desc.toUpperCase().includes('DWG')) {
@@ -1115,6 +1178,15 @@ function getItemsFromTable(tableId) {
   return items;
 }
 
+//TEMPLATE UPLOAD FUNCTIONS
+/**
+ * 
+ * @param {*} id 
+ */
+function getItemsFromTemplateUploadTable(id='') {
+
+}
+
 /**
  * Uploads an item from item information accordion dropdown (single item upload)
  *
@@ -1124,13 +1196,13 @@ async function uploadItem() {
     '<span class="spinner-border spinner-border-sm" role="status"></span><span> Uploading...</span>';
   document.getElementById('confirm-btn').disabled = true;
   const worker = new WorkerHandler();
-  const item = new Item(
-    sanitizeString(document.getElementById('interact-num').value),
-    sanitizeString(document.getElementById('request-desc').value),
-    sanitizeString(document.getElementById('uom-field').value),
-    sanitizeString(document.getElementById('com-group').value),
-    sanitizeString(document.getElementById('gl-class').value),
-  );
+  const item = new Item({
+    itemnumber:sanitizeString(document.getElementById('interact-num').value),
+    description:sanitizeString(document.getElementById('request-desc').value),
+    issueunit:sanitizeString(document.getElementById('uom-field').value),
+    commoditygroup:sanitizeString(document.getElementById('com-group').value),
+    glclass:sanitizeString(document.getElementById('gl-class').value),
+});
 
   if (document.getElementById('long-desc').value.length > 0) {
     item.longdescription = document.getElementById('long-desc').value;

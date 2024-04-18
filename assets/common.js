@@ -140,26 +140,133 @@ class Toast {
   }
 }
 
+/**
+ * Class to represent an item to upload to Maximo
+ */
 class Item {
+  /**
+   * nine series number for the item to upload
+   * @type {Number}
+  */
+  itemnumber;
+  /**
+   * description of the item
+   * @type {String}
+   */
+  description;
+  /**
+   * issue unit code of the item 
+   * @type {String}
+   */
+  issueunit;
+  /**
+   * commodity group code of the item
+   * @type {String}
+   */
+  commoditygroup;
+  /**
+   * GL class code of the item 
+   * @type {String}
+   */
+  glclass;
+  /**
+   * the site (code) the item goes to
+   * @type {String}
+   */
+  siteID;
+  /**
+   * storeroom (code) to add the item to
+   * @type {String}
+   */
+  storeroomname;
+  /**
+   * vendor id (e.g. V#####)
+   * @type {String}
+   */
+  vendorname;
+  /**
+   * catalog number for the item (vendor part number) 
+   * @type {String}
+   */
+  cataloguenum;
+  /**
+   * manufacturer name (code) of the item
+   * @type {String}
+   */
+  manufacturername;
+  /**
+   * model/manufacturer part number/code
+   * @type {String}
+   */
+  modelnum;
+  /**
+   * type of maximo number (e.g. 91, 98, 99, etc) 
+   * @type {String}
+   */
+  series;
+  /**
+   * details field for the item
+   * @type {String}
+   */
+  longdescription;
+  assetprefix;
+  assetseed;
+  jpnum;
+  inspectionrequired;
+  isimport;
+  rotating;
+  /**
+   * array of assets to add the item as a spare part to
+   * @type {Array<{asset:String, quantity:Number}>}
+   */
+  assetInfo;
+  /**
+   * url of the item page on the vendor website
+   * @type {String}
+   */
+  websiteURL;
+  abctype;
+  ccf;
+
   // add more properties later (e.g manufacturer, part num, etc.)
-  constructor(itemnumber = 0, description, issueunit, commoditygroup, glclass, siteID = '', storeroomname = '', vendorname = '', cataloguenum = '', series = 91, longdescription = '', assetprefix = '', assetseed = '', jpnum = '', inspectionrequired = 0, isimport = 0, rotating = 0) {
-    this.itemnumber = itemnumber;
-    this.series = series;
-    this.description = description;
-    this.issueunit = issueunit;
-    this.commoditygroup = commoditygroup;
-    this.glclass = glclass;
-    this.longdescription = longdescription;
-    this.assetprefix = assetprefix;
-    this.assetseed = assetseed;
-    this.jpnum = jpnum;
-    this.inspectionrequired = inspectionrequired;
-    this.isimport = isimport;
-    this.rotating = rotating;
-    this.siteID = siteID;
-    this.storeroomname = storeroomname;
-    this.vendorname = vendorname;
-    this.cataloguenum = cataloguenum;
+  /**
+   * Create a new item object
+   * @param {{itemnumber:!Number,
+   * description:!String,
+   * issueunit:String,
+   * commoditygroup:String,
+   * glclass:String,
+   * siteID:String,
+   * storeroomname:String,
+   * vendorname:String,
+   * cataloguenum:String,
+   * manufacturername:String,
+   * modelnum:String,
+   * series:(Number|String),
+   * longdescription:String,
+   * assetprefix,
+   * assetseed,
+   * jpnum,
+   * inspectionrequired,
+   * isimport,
+   * rotating,
+   * assetInfo:Array<{asset:String, quantity:Number}>,
+   * websiteURL:String,
+   * abctype:String,
+   * ccf:String,}} iteminfo - object literal of the item's info 
+   */
+  constructor(iteminfo) {
+    for (var info in iteminfo) {
+      if (this.hasOwnProperty(info)){
+        if(iteminfo[info] != undefined && iteminfo[info] != null){
+          if(info == 'assetInfo') {//assetInfo needs to be deep cloned to prevent reassignment errors 
+            this[info] =  JSON.parse(JSON.stringify(iteminfo[info]))
+          } else {
+            this[info] = iteminfo[info];
+          }
+        }
+      }
+    }
   }
 }
 // functions
@@ -272,8 +379,13 @@ function sanitizeString(str) {
   str = replaceChars(str)
   return str;
 }
-
-function convertToTable(pastedInput, id = '') {
+/**
+ * Converts to batch upload paste to table
+ * @param {String} pastedInput - string representation of the pasted output
+ * @param {String} id - new id for the HTML table 
+ * @returns {String} string representation of the HTML table
+ */
+function convertToBatchUploadTable(pastedInput, id = '') {
   let rawRows = pastedInput.split('\n');
   let numRows = rawRows.length;
   let numCols = 0;
@@ -312,6 +424,62 @@ ${bodyRows.join('')}
     `;
 
   return table;
+}
+/**
+ * Converts to template upload paste to table
+ * TODO: catch improper paste types
+ * @param {String} pastedInput - string representation of the pasted output
+ * @param {String} id - new id for the HTML table 
+ * @returns {String} string representation of the HTML table
+ */
+function convertToTemplateUploadTable(pastedInput, id=''){
+  let rawRows = pastedInput.split('\n');
+  let numRows = rawRows.length;
+  let numCols = 0;
+  const tablebody = [];
+  let diff = 0;
+  const rowids = [];
+
+  for (const [idx, rawRow] of rawRows.entries()){
+    const rowArr = rawRow.split('\t');
+    if (rawRow == 0) {
+      diff--;
+      numRows--;
+    } else { 
+      if (rowArr.length > numCols) {
+        numCols = rowArr.length;
+      }
+      //calculate table row id
+      let rowid = rowArr[0].replace(' ','_').replace(':','');
+      if (rowids.includes(rowid)) {
+        console.log("blah");
+        return `
+        <table class="table table-primary table-striped" data-rows="1" data-cols="1" id="${id}" style="margin-bottom: 0px">
+          <tr>
+            <td>Improper Paste Format: First column cannot contain duplicate values</td>
+          </tr>
+        </table>
+        `;
+      } else {
+        rowids.push(rowid); 
+      }
+
+      tablebody.push(`<tr id="template-${rowid}">`);
+      rowArr.forEach((value, index) => {
+        if (index == 0){
+          tablebody.push(`\t<td id="${(idx + diff + 1) + '-' + (index + 1)}" style="border: 2px solid;" contentEditable="false">${value}</td>\n`)
+        } else {
+          tablebody.push(`\t<td id="${(idx + diff + 1) + '-' + (index + 1)}" style="border: 1px solid">${value}</td>\n`);
+        }
+      })
+      tablebody.push('</tr>\n');
+    }
+  }
+  return `
+  <table class="table table-primary table-striped" data-rows="${numRows}" data-cols="${numCols}" id="${id}" style="margin-bottom: 0px" contenteditable>
+  ${tablebody.join('')}
+  </table>
+      `;
 }
 // Highlights cells red for any cell with invalid data
 function updateTableColors(itemindex, category) {
