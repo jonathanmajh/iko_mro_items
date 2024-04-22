@@ -53,6 +53,23 @@ const sites = {
   // Add more sites and storerooms as needed...
 };
 
+/**
+ * Finds the storeroom string (from const sites) for a storeroom code
+ * @param {String} code - three character storeroom code 
+ * @returns {String} detailed storeroom string
+ */
+function getStoreroomStrFromCode(code){
+  const upperStr = code.toUpperCase();
+  for(const site in sites){
+    for(const storeroom of sites[site]){
+        if(storeroom.slice(0,3) === code) {
+          return storeroom
+        }
+    }
+  }
+  console.error(`${code} is not a valid storeroom code`);
+  return '';
+}
 // stores items that are to be uploaded through the "batch upload" accordion.
 let itemsToUpload = [];
 
@@ -718,10 +735,11 @@ document.getElementById('template-upload-btn').addEventListener('click', () => {
   if (itemsToUpload.length > 0) {
     itemsToUpload.forEach((value, idx) => {
       if (value) {
-        updateItemStatus('loading', idx + 1);
+        //TODO: show item upload status
       }
     });
-    batchUploadItems(itemsToUpload);
+    //TODO upload items
+    console.log(itemsToUpload);
     return;
   } else {
     document.getElementById('batch-upload-status-text').innerHTML = 'No valid items to upload!';
@@ -737,7 +755,7 @@ document.getElementById('template-paste-btn').addEventListener('click', async ()
   textinput.dispatchEvent(pasteEvent);
 });
 document.getElementById('template-copy-headers-btn').addEventListener('click', () => {
-  const copyText = `Item number type:\t91XXXXX\nItem description:\t\nGL class:\t\nIssue Unit:\t\nStoreroom:\t\nSpare Part Asset Number:\t\nSpare Part Quantity:\t\nABC Type:\t\nCCF:\t\nWebsite link:\t\nVendor number:\t\nVendor cost:\t\nCatalog number:\t\nManufacturer type:\t\nManufacturer name:\t\nPart number:\t\nDetails:\t`
+  const copyText = `Item Number Type:\t91XXXXX\nItem Description:\t\nGL Class:\t\nIssue Unit:\t\nStoreroom:\t\nSpare Part Asset Number:\t\nSpare Part Quantity:\t\nABC Type:\t\nCCF:\t\nWebsite link:\t\nVendor number:\t\nVendor cost:\t\nCatalog number:\t\nManufacturer type:\t\nManufacturer name:\t\nPart number:\t\nDetails:\t`
   navigator.clipboard.writeText(copyText);
   new Toast('Template copied to clipboard!');
 });
@@ -1180,11 +1198,104 @@ function getItemsFromBatchUploadTable(tableId) {
 
 //TEMPLATE UPLOAD FUNCTIONS
 /**
- * 
- * @param {*} id 
+ * TODO:muliple items upload, rn handles multiple items listed horizontally but not vertically 
+ * TODO: handle missing HTML element errors
+ * Reads the template upload table and creates a list of items to upload from the data
+ * @param {string} id - id of the template upload table
+ * @returns {Array<Item>} list of items to upload
  */
 function getItemsFromTemplateUploadTable(id='') {
-
+  const items = [];
+  /** @type {HTMLTableElement} */
+  var table = document.getElementById(id);
+  var numCols = table.rows[0].cells.length;
+  for(let itemNum = 1; itemNum < numCols; itemNum++){
+    var newItem = new Item({});
+    for(const row of table.rows){
+      var rowName = row.cells[0].innerHTML.toUpperCase().replace(":", '');
+      var rowValue = row.cells[itemNum].innerHTML.trim();
+      if (rowValue == undefined || rowValue == null || rowValue.length < 1) {
+        continue;
+      }
+      //TODO: move the checks and processing to Item class
+      switch (rowName) { 
+        case 'ITEM NUMBER TYPE':
+          newItem.series = rowValue.toUpperCase().split('X').join('');
+          break;
+        case 'ITEM DESCRIPTION':
+          newItem.description = rowValue;
+          break;
+        case 'GL CLASS':
+            //TODO: check if valid GL class
+            newItem.glclass = rowValue.toUpperCase();
+            break;
+        case 'ISSUE UNIT':
+          //TODO: check if valid issue unit
+          newItem.issueunit = rowValue.toUpperCase();
+          break;
+        case 'STOREROOM':
+          //TODO: check if valid storeroom code
+          //just 3 character storeroom code
+          if(rowValue.length == 3) { //if just storeroom code
+            newItem.storeroomname = rowValue.toUpperCase();
+          } else {
+            newItem.storeroomname = isolateStoreroomCode(rowValue);
+          }
+          break;
+        case 'SPARE PART ASSET NUMBER':
+          const assets = rowValue.toUpperCase().split(/AND|\s|,/).filter(asset => asset !== '');
+          newItem.setAssetInfo(assets, "asset");
+          break;
+        case 'SPARE PART QUANTITY':
+          const quantities = rowValue.toUpperCase().split(/AND|\s|,/).filter(qty => qty > 0).map((str) => {
+            var qty = parseInt(str);
+            return qty > 0 ? qty : 1;
+          });
+          newItem.setAssetInfo(quantities, "quantity");
+          break;
+        case 'ABC TYPE':
+          //TODO: ABC type check
+          newItem.abctype = rowValue;
+          break;
+        case 'CCF':
+          newItem.ccf = rowValue;
+          break;
+        case 'WEBSITE LINK':
+          newItem.websiteURL = rowValue;
+          break;
+        case 'VENDOR NUMBER':
+          newItem.vendorname = rowValue;
+          break;
+        case 'VENDOR COST':
+          break;
+        case 'CATALOG NUMBER':
+          newItem.cataloguenum = rowValue;
+          break;
+        case 'MANUFACTURER TYPE':
+          //TODO: determine which type should be default
+          if(rowValue.toUpperCase() == "GENERIC") {
+            newItem.manufacturertype = "Generic"
+          } else {
+            newItem.manufacturertype = "Other"
+          }
+          break;
+        case 'MANUFACTURER NAME':
+          newItem.manufacturername = rowValue;
+          break;
+        case 'PART NUMBER':
+          newItem.modelnum = rowValue;
+          break;
+        case 'DETAILS':
+          newItem.longdescription = rowValue;
+          break;
+        default:
+          console.log(`'${rowName}' is undefined`)
+          break;
+      }
+    }
+  items.push([newItem]);
+  }
+  return items; 
 }
 
 /**

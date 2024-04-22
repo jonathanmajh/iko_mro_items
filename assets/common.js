@@ -175,7 +175,7 @@ class Item {
    */
   siteID;
   /**
-   * storeroom (code) to add the item to
+   * storeroom (3 character code) to add the item to
    * @type {String}
    */
   storeroomname;
@@ -199,6 +199,11 @@ class Item {
    * @type {String}
    */
   modelnum;
+  /**
+   * type of manufacturer (specific or generic)
+   * @type {"Generic"|"Other"}
+   */
+  manufacturertype;
   /**
    * type of maximo number (e.g. 91, 98, 99, etc) 
    * @type {String}
@@ -242,6 +247,7 @@ class Item {
    * cataloguenum:String,
    * manufacturername:String,
    * modelnum:String,
+   * manufacturertype: "Generic"|"Other",
    * series:(Number|String),
    * longdescription:String,
    * assetprefix,
@@ -255,7 +261,7 @@ class Item {
    * abctype:String,
    * ccf:String,}} iteminfo - object literal of the item's info 
    */
-  constructor(iteminfo) {
+  constructor(iteminfo = {}) {
     for (var info in iteminfo) {
       if (this.hasOwnProperty(info)){
         if(iteminfo[info] != undefined && iteminfo[info] != null){
@@ -265,6 +271,37 @@ class Item {
             this[info] = iteminfo[info];
           }
         }
+      }
+    }
+    if(this.assetInfo === undefined) {
+      this.assetInfo = [];
+    }
+    if(this.manufacturertype === undefined) {
+      this.manufacturertype = "Generic";
+    }
+  }
+  
+  /**
+   * Modifies the asset spare part info according to a list. If the list is longer, increase the number of asset spare part entries accordingly.
+   * @param {Array<String>| Array<{asset:String, quantity:Number}>} data - data to change/add
+   * @param {'asset'|'quantity'|'both'} type - the type of data to change
+   */
+  setAssetInfo(data, type){
+    const sizeDiff = data.length - this.assetInfo.length;
+    for(let i  = 0; i < sizeDiff; i++){
+      this.assetInfo.push({asset: '', quantity:1});
+    }
+    if(type === 'asset') {
+      for(const[idx, value] of data.entries()){
+        this.assetInfo[idx].asset = value;
+      }
+    } else if (type === 'quantity') {
+      for(const[idx, value] of data.entries()){
+        this.assetInfo[idx].quantity = value;
+      }
+    } else if (type === 'both') {
+      for(const[idx, value] of data.entries()){
+        this.assetInfo[idx] = value;
       }
     }
   }
@@ -316,6 +353,21 @@ function getNextNumThenUpdate(series) {
   document.getElementById('item-itemnum').innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span> Retreiving the latest item number...</span>';
   worker.work(['getCurItemNumber', series], updateItemInfo);
   console.log('Getting new number from server');
+}
+
+/**
+ * Gets the storeroom code from a string in the form 'XXX: [Some] Storeroom'
+ * @param {String} storeroomStr - string in the form  'XXX: [Some] Storeroom'
+ * @returns {String} the storeroom code (XXX)
+ */
+function isolateStoreroomCode(storeroomStr) {
+  const upperStr = storeroomStr.toUpperCase();
+  const positions = [upperStr.indexOf(':'), upperStr.indexOf("STOREROOM")]
+  if(positions[0] != -1 && positions[1] != -1) {
+    return upperStr.slice(0, positions[0]) + upperStr.slice(positions[1] + 9);
+  } else { //string does not contain ": [Some] Storeroom"
+    return storeroomStr
+  }
 }
 
 function updateItemInfo(curItemNum) {
@@ -439,8 +491,8 @@ function convertToTemplateUploadTable(pastedInput, id=''){
   const tablebody = [];
   let diff = 0;
   const rowids = [];
-
-  for (const [idx, rawRow] of rawRows.entries()){
+  // create html row for each pasted line
+  for (const [idx, rawRow] of rawRows.entries()){ 
     const rowArr = rawRow.split('\t');
     if (rawRow == 0) {
       diff--;
@@ -451,8 +503,7 @@ function convertToTemplateUploadTable(pastedInput, id=''){
       }
       //calculate table row id
       let rowid = rowArr[0].replace(' ','_').replace(':','');
-      if (rowids.includes(rowid)) {
-        console.log("blah");
+      if (rowids.includes(rowid)) { //no duplicate table rows
         return `
         <table class="table table-primary table-striped" data-rows="1" data-cols="1" id="${id}" style="margin-bottom: 0px">
           <tr>
@@ -466,9 +517,9 @@ function convertToTemplateUploadTable(pastedInput, id=''){
 
       tablebody.push(`<tr id="template-${rowid}">`);
       rowArr.forEach((value, index) => {
-        if (index == 0){
-          tablebody.push(`\t<td id="${(idx + diff + 1) + '-' + (index + 1)}" style="border: 2px solid;" contentEditable="false">${value}</td>\n`)
-        } else {
+        if (index == 0){ //"header" col (on the left)
+          tablebody.push(`\t<td id="${(idx + diff + 1) + '-' + (index + 1)}" style="border: 2px solid; width:20%;" contentEditable="false">${value}</td>\n`)
+        } else { //"body" col
           tablebody.push(`\t<td id="${(idx + diff + 1) + '-' + (index + 1)}" style="border: 1px solid">${value}</td>\n`);
         }
       })
@@ -476,7 +527,7 @@ function convertToTemplateUploadTable(pastedInput, id=''){
     }
   }
   return `
-  <table class="table table-primary table-striped" data-rows="${numRows}" data-cols="${numCols}" id="${id}" style="margin-bottom: 0px" contenteditable>
+  <table class="table table-primary table-striped" data-rows="${numRows}" data-cols="${numCols}" id="${id}" style="margin-bottom: 0px; width:100%;" contenteditable>
   ${tablebody.join('')}
   </table>
       `;
