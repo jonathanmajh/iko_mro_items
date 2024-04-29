@@ -230,8 +230,31 @@ class Item {
    * @type {String}
    */
   websiteURL;
+  /**
+   * inventory abc type
+   * @type {"A"|"B"|"C"|null}
+   */
   abctype;
+  /**
+   * inventory cycle count frequency
+   * @type {Number}
+   */
   ccf;
+  /**
+   * inventory economic order quantity
+   * @type {Number}
+   */
+  orderqty;
+  /**
+   * inventory reorder point
+   * @type {Number}
+   */
+  reorderpnt;
+  /**
+   * code for the item's site's organization
+   * @type {"IKO-CAD"|"IKO-EU"|"IKO-UK"|"IKO-US"|null}
+   */
+  orgId;
 
   // add more properties later (e.g manufacturer, part num, etc.)
   /**
@@ -259,7 +282,9 @@ class Item {
    * assetInfo:Array<{asset:String, quantity:Number}>,
    * websiteURL:String,
    * abctype:String,
-   * ccf:String,}} iteminfo - object literal of the item's info 
+   * ccf:String,
+   * orderqty: Number,
+   * reorderpnt: Number}} iteminfo - object literal of the item's info 
    */
   constructor(iteminfo = {}) {
     for (var info in iteminfo) {
@@ -304,6 +329,34 @@ class Item {
         this.assetInfo[idx] = value;
       }
     }
+  }
+
+
+  /**
+   * Determines the item series type for a given 9 series number 
+   * @param {Number|String} itemnum -
+   * @returns {"91"|"98"|"99"|"9S"|null} string code of the item series type, null if input is not a valid item number
+   */
+  static determineSeries(itemnum){
+    if(typeof itemnum === 'string') {
+      if(Number(itemnum)) {
+        itemnum = Number(itemnum)
+      } else if (itemnum.length == 7 && itemnum.slice(0, 2).toUpperCase() === "9S" && Number.isInteger(Number(itemnum.slice(2)))) {
+        return "9S";
+      }
+    }
+    if(typeof itemnum === 'number'){
+      if(itemnum >= 9000000 && itemnum < 10000000){
+        if(itemnum >= 9900000){
+          return "99";
+        } else if (itemnum >= 9800000){
+          return "98";
+        } else {
+          return "91";
+        }
+      }
+    }
+    return null;
   }
 }
 // functions

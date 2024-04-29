@@ -69,7 +69,7 @@ const CONSTANTS = Object.freeze({
   SITES: ((obj) => { // use anonymous function so IntelliSense works
       Object.keys(obj).forEach((property) => {
         if(typeof obj[property] === "object" && !Object.isFrozen(obj[property])){
-        deepFreeze(obj[property]);
+        Object.freeze(obj[property]);
       }
       });
       return Object.freeze(obj);}) ({ // Add more sites and storerooms as needed...

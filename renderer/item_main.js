@@ -4,72 +4,7 @@ const Database = require('../assets/indexDB');
 const Validate = require('../assets/validators');
 const CONSTANTS = require('../assets/constants.js');
 
-const sites = {
-  AA: [
-    'AAG: Brampton B2 Storeroom',
-    'AAL: Brampton B2/B4 Maintenance Storeroom',
-    'AAO: Brampton B4 Oxidizer Storeroom',
-  ],
-  ANT: ['AN1: Antwerp Mod Line Storeroom', 'AN2: Antwerp Coating Line Storeroom'],
-  BA: ['BAL: IKO Calgary Maintenance Storeroom'],
-  BL: [
-    'BLC: Hagerstown TPO Storeroom',
-    'BLD: Hagerstown ISO Storeroom',
-    'BLL: Hagerstown Maintenance Storeroom(Shared)',
-  ],
-  CA: ['CAL: IKO Kankakee Maintenance Storeroom'],
-  CAM: ['C61: IKO Appley Bridge Maintenance Storeroom'],
-  COM: ['CB1: Combronde Maintenance Storeroom'],
-  GC: [
-    'GCL: Sumas Maintenance Storeroom',
-    'GCA: Sumas Shipping Storeroom',
-    'GCD: Sumas Shingle Storeroom',
-    'GCG: Sumas Mod Line Storeroom',
-    'GCJ: Sumas Crusher Storeroom',
-    'GCK: Sumas Tank Farm Storeroom',
-  ],
-  GE: ['GEL: Ashcroft Maintenance Storeroom'],
-  GH: ['GHL: IKO Hawkesbury Maintenance Storeroom'],
-  GI: ['GIL: IKO Madoc Maintenance Storeroom'],
-  GJ: ['GJL: CRC Toronto Maintenance Storeroom'],
-  GK: [
-    'GKA: IG Brampton B7 and B8 Storeroom',
-    'GKC: IG Brampton B6 and Laminator Storeroom',
-    'GKL: IG Brampton Maintenance Storeroom',
-  ],
-  GM: ['GML: IG High River Maintenance Storeroom'],
-  GP: ['GPL: CRC Brampton Maintenance Storeroom'],
-  GR: ['GRL: Bramcal Maintenance Storeroom'],
-  GS: ['GSL: Sylacauga Maintenance Storeroom'],
-  GV: ['GVL: IKO Hillsboro Maintenance Storeroom'],
-  GX: ['GXL: Maxi-Mix Maintenance Storeroom'],
-  KLU: [
-    'KD1: IKO Klundert Maintenance Storeroom',
-    'KD2: IKO Klundert Lab Storeroom',
-    'KD3: IKO Klundert Logistics Storeroom',
-  ],
-  PBM: ['PB6: Slovakia Maintenance Storeroom'],
-  RAM: ['RA6: IKO Alconbury Maintenance Storeroom'],
-  // Add more sites and storerooms as needed...
-};
 
-/**
- * Finds the storeroom string (from const sites) for a storeroom code
- * @param {String} code - three character storeroom code 
- * @returns {String} detailed storeroom string
- */
-function getStoreroomStrFromCode(code){
-  const upperStr = code.toUpperCase();
-  for(const site in sites){
-    for(const storeroom of sites[site]){
-        if(storeroom.slice(0,3) === code) {
-          return storeroom
-        }
-    }
-  }
-  console.error(`${code} is not a valid storeroom code`);
-  return '';
-}
 // stores items that are to be uploaded through the "batch upload" accordion.
 let itemsToUpload = [];
 
@@ -179,7 +114,7 @@ document.getElementById('request-btn').addEventListener('click', () => {
     storeroomSelect.options.length = 1;
 
     // Add new options
-    const neededStorerooms = sites[siteID];
+    const neededStorerooms = CONSTANTS.getAllStorerooms(siteID);
     for (const storeroom of neededStorerooms) {
       const option = document.createElement('option');
       option.value = storeroom;
@@ -544,7 +479,7 @@ document.getElementById('related-table').addEventListener('click', (event) => {
     const storeroomSelect = document.getElementById('storeroom-storeroom');
     storeroomSelect.options.length = 1;
     // Add new options
-    const neededStorerooms = sites[siteID];
+    const neededStorerooms = CONSTANTS.getAllStorerooms(siteID);
     for (const storeroom of neededStorerooms) {
       const option = document.createElement('option');
       option.value = storeroom.split(':')[0];
@@ -733,14 +668,14 @@ document.getElementById('template-upload-btn').addEventListener('click', () => {
   }
 
   if (itemsToUpload.length > 0) {
-    itemsToUpload.forEach((value, idx) => {
-      if (value) {
-        //TODO: show item upload status
+    itemsToUpload.forEach((item, idx) => { //handle each item from left to right
+      if (item) { //TODO: show item upload status throughout process
+        
+        
       }
     });
-    //TODO upload items
-    console.log(itemsToUpload);
-    return;
+    templateUploadItems(itemsToUpload);
+    //TODO: show results and show link to maximo item master 
   } else {
     document.getElementById('batch-upload-status-text').innerHTML = 'No valid items to upload!';
   }
@@ -755,7 +690,7 @@ document.getElementById('template-paste-btn').addEventListener('click', async ()
   textinput.dispatchEvent(pasteEvent);
 });
 document.getElementById('template-copy-headers-btn').addEventListener('click', () => {
-  const copyText = `Item Number Type:\t91XXXXX\nItem Description:\t\nGL Class:\t\nIssue Unit:\t\nStoreroom:\t\nSpare Part Asset Number:\t\nSpare Part Quantity:\t\nABC Type:\t\nCCF:\t\nWebsite link:\t\nVendor number:\t\nVendor cost:\t\nCatalog number:\t\nManufacturer type:\t\nManufacturer name:\t\nPart number:\t\nDetails:\t`
+  const copyText = `Item Number Type:\t91XXXXX\nItem Description:\t\nGL Class:\t\nCommodity Group:\t\nIssue Unit:\t\nStoreroom:\t\nSpare Part Asset Number:\t\nSpare Part Quantity:\t\nABC Type:\t\nCCF:\t\nWebsite link:\t\nVendor number:\t\nVendor cost:\t\nCatalog number:\t\nManufacturer type:\t\nManufacturer name:\t\nPart number:\t\nDetails:\t`
   navigator.clipboard.writeText(copyText);
   new Toast('Template copied to clipboard!');
 });
@@ -1220,15 +1155,25 @@ function getItemsFromTemplateUploadTable(id='') {
       //TODO: move the checks and processing to Item class
       switch (rowName) { 
         case 'ITEM NUMBER TYPE':
-          newItem.series = rowValue.toUpperCase().split('X').join('');
+          //check if actual 9 series number is given
+          let series = Item.determineSeries(rowValue);
+          if(series) {
+            newItem.itemnumber = Number(rowValue)? Number(rowValue) : rowValue;
+            newItem.series = series;
+          }
+          else newItem.series = rowValue.toUpperCase().split('X').join('');
           break;
         case 'ITEM DESCRIPTION':
           newItem.description = rowValue;
           break;
         case 'GL CLASS':
-            //TODO: check if valid GL class
-            newItem.glclass = rowValue.toUpperCase();
-            break;
+          //TODO: check if valid GL class
+          newItem.glclass = rowValue.toUpperCase();
+          break;
+        case 'COMMODITY GROUP':
+          //TODO: check if valid commodity group code
+          newItem.commoditygroup = rowValue;
+          break;
         case 'ISSUE UNIT':
           //TODO: check if valid issue unit
           newItem.issueunit = rowValue.toUpperCase();
@@ -1293,11 +1238,67 @@ function getItemsFromTemplateUploadTable(id='') {
           break;
       }
     }
-  items.push([newItem]);
+    //set site id
+    if(newItem.siteID === undefined && newItem.storeroomname != undefined){
+      newItem.siteID = CONSTANTS.findSiteOfStoreroom(newItem.storeroomname);
+      if(newItem.siteID === '') {
+        newItem.siteID = undefined;
+      }
+    }
+    items.push(newItem);
   }
   return items; 
 }
+/**
+ * Uploads an array of items (from template upload mode)
+ * @param {Array<Item>} items - array of items to upload
+ */
+async function templateUploadItems(items){
+  const worker = new WorkerHandler();
+  // disable clear and upload buttons while uploading items to prevent duplicate requests
+  const btn = document.getElementById('template-upload-btn');
+  const clearBtn = document.getElementById('clear-template-items-btn');
+  clearBtn.disabled = true;
+  btn.disabled = true;
 
+  //upload the items to maximo
+  worker.work(['uploadTemplate', items, true], (e) => {
+    let finishText = `Upload Finished! ${e[2]} items uploaded, ${e[3]} items added to inventory. `;
+    if (e[0] == 'failure') {
+      new Toast(`Invalid! ${e[1]}}!`);
+    }
+
+
+    //renable buttons
+    clearBtn.disabled = false;
+    btn.disabled = false;
+    /*
+    //TODO: modify HTML upload table to match upload status
+    updateItemNums(e[0]);
+    const rows =
+      parseInt(document.getElementById('template-items-table').getAttribute('data-rows')) - 1;
+    let nums = '';
+    for (let i = 2; i <= rows + 1; i++) {
+      nums += document.getElementById(`${i}-${colLoc.maximo}`).innerHTML ?
+        document.getElementById(`${i}-${colLoc.maximo}`).innerHTML + ',' :
+        '';
+    } */
+    /*
+    //TODO: show upload result message + maximo link
+    if (e[2] > 0) {
+      const itemUrl = `https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
+      finishText += `<a id="batch-link" href="${itemUrl}">Click to view:</a>`;
+      document.getElementById('template-upload-status-text').innerHTML = finishText;
+      document.getElementById('template-link').addEventListener('click', function (e) {
+        e.preventDefault();
+        shell.openExternal(itemUrl);
+      });
+    } else {
+      document.getElementById('batch-upload-status-text').innerHTML = finishText;
+    }*/
+    console.log('upload finished');
+  });
+}
 /**
  * Uploads an item from item information accordion dropdown (single item upload)
  *
@@ -1344,7 +1345,7 @@ async function uploadItem() {
   });
 }
 /**
- * Uploads an array of items
+ * Uploads an array of items (from batch upload mode)
  *
  * @param {Array<Item>} items
  */
