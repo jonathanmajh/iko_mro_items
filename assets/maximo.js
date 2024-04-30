@@ -331,11 +331,11 @@ class Maximo {
       throw new Error(parseInt(statuscode));
     }
   }
-
+  //TODO: also return maximo link to item in inventory
   /**
        * Upload item to inventory
        * @param {object} item information regarding item to be added to storeroom
-       * @return {number} status message
+       * @return {0|1} status message. 0 if failure and 1 if success (Note: why didn't we just use the HTTP codes?)
        */
   async uploadToInventory(item) {
     try {

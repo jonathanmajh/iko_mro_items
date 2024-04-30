@@ -133,7 +133,7 @@ async function uploadInventory(item, rtrn) {
   const maximo = new Maximo();
   const statusCode = await maximo.uploadToInventory(item);
   try{
-    if(rtrn == true) {
+    if(rtrn) {
       return statusCode;
     }
   } catch (err){
