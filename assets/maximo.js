@@ -228,11 +228,12 @@ class Maximo {
     }
   }
 
+  //TODO: for 91# numbers, this only works till 9199999! make it able to handle numbers from 9000000-9799999
   /**
-       *
-       * @param {string} numSeries item series (99, 98, 91)
-       * @return {number} latest item number
-       */
+   *
+   * @param {string} numSeries item series (99, 98, 91)
+   * @return {number} latest item number
+   */
   async getCurItemNumber(numSeries) {
     let response;
     try {
@@ -247,6 +248,7 @@ class Maximo {
       throw new Error('Failed to fetch data from Maximo, please check network (8)');
     }
     const content = await response.json();
+    
     if (content['Error']) { // content["Error"]["message"]
       postMessage(['debug', 'Failed to fetch Data from Maximo, Please Check Network (5)']); // this likely doesnt work, probably remove it
       throw new Error('Failed to fetch data from Maximo, please check network (5)');
@@ -353,7 +355,6 @@ class Maximo {
   "storeroom": "${item.storeroomname}",
   "savenow": true,
   "istool": false,`;
-      debugger;
       if(addVendorInfo) {
         if (item.vendorname.length > 0) {
           xmldoc = xmldoc + `"VENDOR": "${item.vendorname}",`;
@@ -414,7 +415,8 @@ class Maximo {
       //TODO: throw error
     }
     var invId = content["rdfs:member"][0]["rdf:resource"];
-    invId = invId.splice(invId.lastIndexOf("/") + 1);
+    console.log(invId);
+    invId = invId.slice(invId.lastIndexOf("/") + 1);
     
     //create request body
     var jsonBody = `{
@@ -472,7 +474,7 @@ class Maximo {
         },
         body: bodyJson
       });
-      const content = response.json();
+      const content = await response.json();
       //TODO: show results
     } catch(e) {
       //TODO: error handling  
@@ -531,7 +533,7 @@ class Maximo {
         },
         body: bodyJson
       });
-      content = response.json();
+      content = await response.json();
       if(response.status < 200 || response.status > 299) {
         console.log(`${response.status} Error: Unable to add item ${item.itemnumber} as a spare part for asset ${asset.asset}`);
         continue;

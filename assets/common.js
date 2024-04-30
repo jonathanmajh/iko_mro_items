@@ -311,7 +311,13 @@ class Item {
       jpnum: '',
       inspectionrequired: 0,
       isimport: 0,
-      rotating: 0
+      rotating: 0,
+      assetInfo: [],
+      orderqty: 0,
+      ccf: 0,
+      reorderpnt: -1,
+      websiteURL: '',
+      abctype: '',
     };
     for(const property in defaults){
       if(!iteminfo.hasOwnProperty(property)){
@@ -333,6 +339,7 @@ class Item {
    * @param {'asset'|'quantity'|'both'} type - the type of data to change
    */
   setAssetInfo(data, type){
+    if(!this.assetInfo) this.assetInfo = [];
     const sizeDiff = data.length - this.assetInfo.length;
     for(let i  = 0; i < sizeDiff; i++){
       this.assetInfo.push({asset: '', quantity:1});

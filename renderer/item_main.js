@@ -1149,10 +1149,10 @@ function getItemsFromTemplateUploadTable(id='') {
     for(const row of table.rows){
       var rowName = row.cells[0].innerHTML.toUpperCase().replace(":", '');
       var rowValue = row.cells[itemNum].innerHTML.trim();
-      if (rowValue == undefined || rowValue == null || rowValue.length < 1) {
+      if (!rowValue || rowValue.length < 1) {
         continue;
       }
-      //TODO: move the checks and processing to Item class
+            //TODO: move the checks and processing to Item class
       switch (rowName) { 
         case 'ITEM NUMBER TYPE':
           //check if actual 9 series number is given
@@ -1239,11 +1239,8 @@ function getItemsFromTemplateUploadTable(id='') {
       }
     }
     //set site id
-    if(newItem.siteID === undefined && newItem.storeroomname != undefined){
+    if(!newItem.siteID){
       newItem.siteID = CONSTANTS.findSiteOfStoreroom(newItem.storeroomname);
-      if(newItem.siteID === '') {
-        newItem.siteID = undefined;
-      }
     }
     items.push(newItem);
   }

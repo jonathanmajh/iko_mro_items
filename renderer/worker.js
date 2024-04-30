@@ -572,7 +572,7 @@ async function templateUpload(items){
   for(const item of succeededItems){
     //upload item to storeroom
     if (item.storeroomname != '' || item.siteID != '') {
-      ( async () => {try {
+    try {
         const result = await maximo.uploadToInventory(item, false);
         switch (result) { // Cases of result are listed in maximo.js
           case 0:
@@ -592,18 +592,15 @@ async function templateUpload(items){
           console.error(`Error: ${e}`);
           postMessage(['result', 'failure', e])
         }
-
+        console.log("inventory info");
         //upload inventory info
         //TODO: set it so that it only uploads if item is in storeroom (i.e. adding to storeroom succeeded or already exists)
         if(item.abctype || item.ccf) await maximo.uploadInventoryInfo(item); 
-      }) (); //use anonymous function so that uploading to inventory is asynchronous
-
       }
     //upload vendor info
-    if(item.manufacturername || item.vendorname || item.cataloguenum || item.modelnum || item.websiteURL) maximo.uploadVendorInfo(item);
-
+    if(item.manufacturername || item.vendorname || item.cataloguenum || item.modelnum || item.websiteURL) await maximo.uploadVendorInfo(item);
     //upload sparepart info
-    if(item.assetInfo && item.assetInfo.length > 0) maximo.uploadToAsset(item);
+    if(item.assetInfo && item.assetInfo.length > 0) await maximo.uploadToAsset(item);
   }
 
   postMessage(['result']);
