@@ -1,7 +1,7 @@
 // for global constants. used for debugging
 
 
-const devMode = true; //set to true for testing. Remember to set it back to false when committing!
+const devMode = false; //set to true for testing. Remember to set it back to false when committing!
 
 
 const CONSTANTS = Object.freeze({
