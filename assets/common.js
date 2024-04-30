@@ -298,11 +298,32 @@ class Item {
         }
       }
     }
-    if(this.assetInfo === undefined) {
-      this.assetInfo = [];
+    //set default values for properties that don't exist (can't use optional parameters for object literal arguments...)
+    const defaults = {
+      itemnumber: 0,
+      siteID: '',
+      storeroomname: '',
+      vendorname: '',
+      cataloguenum: '',
+      longdescription: '',
+      assetprefix: '',
+      assetseed: '',
+      jpnum: '',
+      inspectionrequired: 0,
+      isimport: 0,
+      rotating: 0
+    };
+    for(const property in defaults){
+      if(!iteminfo.hasOwnProperty(property)){
+        this[property] = defaults[property];
+      }
     }
-    if(this.manufacturertype === undefined) {
-      this.manufacturertype = "Generic";
+    if(!this.series) {
+      if(this.itemnumber){
+        this.series = Item.determineSeries(this.itemnumber);
+      } else {
+        this.series = 91;
+      }
     }
   }
   

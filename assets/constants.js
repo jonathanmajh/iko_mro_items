@@ -1,7 +1,7 @@
 // for global constants. used for debugging
 
 
-const devMode = false; //set to true for testing. Remember to set it back to false when committing!
+const devMode = true; //set to true for testing. Remember to set it back to false when committing!
 
 
 const CONSTANTS = Object.freeze({
@@ -157,7 +157,7 @@ const CONSTANTS = Object.freeze({
     if(!orgId) { //if no orgId given
       let sites = [];
       Object.keys(CONSTANTS.SITES).forEach((orgid) => {
-        sites = sites.concat(Object.keys(obj.prop[orgid]));
+        sites = sites.concat(Object.keys(CONSTANTS.SITES[orgid]));
       });
       return sites;
     } else if (CONSTANTS.SITES[orgId]) { //if valid orgId

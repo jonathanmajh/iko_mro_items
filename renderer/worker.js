@@ -450,7 +450,7 @@ async function uploadAllItems(items, doUpdate = false) { // NOTE: the current im
         newNums.push([num, rowIndex]);
         // set itemnumber property of the item to the new item number
         item.itemnumber = num;
-      }
+              }
     } catch (err) {
       // if theres an error, remove the new item num from newNums as it wont be used for the failed item.
       if (needsNewNum) newNums.pop();
@@ -463,7 +463,7 @@ async function uploadAllItems(items, doUpdate = false) { // NOTE: the current im
 
     try {
       const result = await maximo.uploadToMaximo(item);
-      if (!result) {
+            if (!result) {
         if (doUpdate) postMessage(['update', 'fail', rowIndex]);
         throw new Error('Upload Failed');
       } else {
