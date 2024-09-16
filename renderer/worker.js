@@ -11,6 +11,7 @@ const path = require('path');
 const Translation = require('../assets/item_translation/item-translation');
 const fs = require('fs');
 const CONSTANTS = require('../assets/constants.js');
+
 /**
  * Handles messages from the WorkerHandler
  *
@@ -97,6 +98,9 @@ onmessage = function (e) {
       break;
     case 'uploadItems':
       e.data[2] ? uploadAllItems(e.data[1], e.data[2]) : uploadAllItems(e.data[1]);
+      break;
+    case 'uploadTemplate':
+      templateUpload(e.data[1]);
       break;
     case 'translateItem':
       const trans = new Translation();
@@ -435,7 +439,7 @@ async function uploadAllItems(items, doUpdate = false) { // NOTE: the current im
       if (item === '') {
         continue;
       }
-      if (item.itemnumber === 0 || item.itemnumber.length != 7) {
+      if (typeof item.itemnumber !== "number" || item.itemnumber.length != 7) {
         // if the item number is 0 or is not 7 characters long, assign a new item number
         needsNewNum = true;
         // get latest item number
@@ -446,7 +450,7 @@ async function uploadAllItems(items, doUpdate = false) { // NOTE: the current im
         newNums.push([num, rowIndex]);
         // set itemnumber property of the item to the new item number
         item.itemnumber = num;
-      }
+              }
     } catch (err) {
       // if theres an error, remove the new item num from newNums as it wont be used for the failed item.
       if (needsNewNum) newNums.pop();
@@ -459,7 +463,7 @@ async function uploadAllItems(items, doUpdate = false) { // NOTE: the current im
 
     try {
       const result = await maximo.uploadToMaximo(item);
-      if (!result) {
+            if (!result) {
         if (doUpdate) postMessage(['update', 'fail', rowIndex]);
         throw new Error('Upload Failed');
       } else {
@@ -541,6 +545,67 @@ async function uploadAllItems(items, doUpdate = false) { // NOTE: the current im
   }
   postMessage(['result', newNums, numFails, numSuccesses, numStoreroomSuccesses]);
 }
+/**
+ * Uploads items and their inventory and spare part info to maximo (from email template input)
+ * @param {Array<Item>} items - array of items to upload
+ */
+async function templateUpload(items){
+  const maximo = new Maximo();
+  const succeededItems = [];
+  //upload item to maximo
+  for(const item of items){
+  //get a new 9 series number for items if they don't have one
+    if(!item.itemnumber) {
+      item.itemnumber = await maximo.getCurItemNumber(item.series) + 1; //TODO: handle item.series null/undefined error
+    }
+    //upload
+    const result = await maximo.uploadToMaximo(item);
+    if (!result) {
+      throw new Error('Upload Failed');
+    } else {
+    postMessage(['debug', `Upload of ${item.description} succeeded`]);
+    succeededItems.push(item);
+    console.log('Upload of ' + item.description + ' success');
+    }
+  }
+  //upload other info (don't use await so that API calls to maximo are concurrent)
+  for(const item of succeededItems){
+    //upload item to storeroom
+    if (item.storeroomname != '' || item.siteID != '') {
+    try {
+        const result = await maximo.uploadToInventory(item, false);
+        switch (result) { // Cases of result are listed in maximo.js
+          case 0:
+            throw new Error('Unable to upload');
+          case 1:
+            postMessage(['debug', `Inventory upload of ${item.description} succeeded`]);
+            console.log('Adding to ' + item.storeroomname + ' success');
+            break;
+          case 2:
+            throw new Error(['Invalid Vendor', 'vendor']);
+          case 3:
+            throw new Error(['Invalid Site', 'siteID']);
+          default:
+            throw new Error(['Invalid Storeroom', 'storeroom']);
+          }} catch (e) {
+          //TODO: handle errors
+          console.error(`Error: ${e}`);
+          postMessage(['result', 'failure', e])
+        }
+        console.log("inventory info");
+        //upload inventory info
+        //TODO: set it so that it only uploads if item is in storeroom (i.e. adding to storeroom succeeded or already exists)
+        if(item.abctype || item.ccf) await maximo.uploadInventoryInfo(item); 
+      }
+    //upload vendor info
+    if(item.manufacturername || item.vendorname || item.cataloguenum || item.modelnum || item.websiteURL) await maximo.uploadVendorInfo(item);
+    //upload sparepart info
+    if(item.assetInfo && item.assetInfo.length > 0) await maximo.uploadToAsset(item);
+  }
+
+  postMessage(['result']);
+}
+
 /**
  * Uploads images to Maximo at the item master level
  * @param {File[]} images
