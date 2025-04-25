@@ -106,7 +106,7 @@ class Maximo {
     while (nextpage) {
       postMessage(['debug', `Loading inventory data page: ${pageno}`]);
       try {
-        response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/iko_inventory?lean=1&oslc.select=vendor,vendor.name,manufacturer,siteid,modelnum,itemnum,catalogcode,location&fetchmodedelta=1&lastfetchts=${rowstamp}&oslc.pageSize=1000&pageno=${pageno}`, {
+        response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/iko_inventory?lean=1&oslc.select=vendor,vendor.name,manufacturer,siteid,modelnum,itemnum,catalogcode,location,binnum&fetchmodedelta=1&lastfetchts=${rowstamp}&oslc.pageSize=1000&pageno=${pageno}`, {
           headers: {
             'apikey': this.login.userid,
           },
@@ -136,8 +136,9 @@ class Maximo {
             item['$alias_this_attr$vendor'] ?? '',
             item['manufacturer'] ?? '',
             item['vendor']['name'] ?? '',
-            item['location'] ?? '',
             newRowStamp,
+            item['location'] ?? '',
+            item['binnum'] ?? '',
           ]);
         });
       }

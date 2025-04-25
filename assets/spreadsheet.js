@@ -30,7 +30,7 @@ class ExcelReader {
     const wb = new Exceljs.Workbook();
     await wb.xlsx.readFile(this.filePath);
 
-    // read inventory data which will be appended to ext_search_text
+    // read inventory data
     const ws3 = wb.getWorksheet('Sheet3');
     let lastRow = ws3.lastRow.number;
     const inventoryData = new Map();
@@ -44,8 +44,11 @@ class ExcelReader {
       row[4] = ws3.getCell(`E${i}`).text;
       row[5] = ws3.getCell(`F${i}`).text;
       row[6] = ws3.getCell(`G${i}`).text;
-      row[7] = ws3.getCell(`I${i}`).text;
+      row[7] = ws3.getCell(`H${i}`).text;
+      row[8] = ws3.getCell(`I${i}`).text;
+      row[9] = ws3.getCell(`J${i}`).text;
       allInventory.push([...row, ws3.getCell(`H${i}`).text]);
+      // add inventory data to ext_search_text
       if (row[2].length > 0 || row[3].length > 0 || row[4].length > 0 || row[5].length > 0 || row[6].length > 0) {
         if (inventoryData.has(row[0])) {
           for (let j = 1; j <= 7; j++) {

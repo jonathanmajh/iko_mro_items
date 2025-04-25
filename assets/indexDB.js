@@ -81,6 +81,7 @@ class Database {
             companyname TEXT COLLATE NOCASE,
             rowstamp TEXT,
             location TEXT NOT NULL COLLATE NOCASE,
+            binnum TEXT COLLATE NOCASE,
             PRIMARY KEY (itemnum, location)
         )`);
     const runQuery = this.db.transaction(() => {
@@ -111,14 +112,15 @@ class Database {
         vendor: data[i][4],
         manufacturer: data[i][5],
         companyname: data[i][6],
-        rowstamp: data[i][8],
-        location: data[i][7],
+        rowstamp: data[i][7],
+        location: data[i][8],
+        binnum: data[i][9],
       });
     }
     const insert = this.db.prepare(
       `insert or replace into inventoryCache (
-                itemnum, siteid, catalogcode, modelnum, vendor, manufacturer, companyname, rowstamp, location)
-                VALUES (@itemnum, @siteid, @catalogcode, @modelnum, @vendor, @manufacturer, @companyname, @rowstamp, @location)`,
+                itemnum, siteid, catalogcode, modelnum, vendor, manufacturer, companyname, rowstamp, location, binnum)
+                VALUES (@itemnum, @siteid, @catalogcode, @modelnum, @vendor, @manufacturer, @companyname, @rowstamp, @location, @binnum)`,
     );
     const insertMany = this.db.transaction((dataDB) => {
       for (const item of dataDB) insert.run(item);
@@ -415,9 +417,9 @@ class Database {
     postMessage(['debug', `Getting item from cache: "${phrase}"`]);
     let stmt;
     if (ext) {
-      stmt = this.db.prepare(`SELECT *, (select group_concat(location) from inventoryCache where siteid = ? and inventoryCache.itemnum = itemCache.itemnum) storeroom from itemCache where ext_search_text like ?`);
+      stmt = this.db.prepare(`SELECT *, (select group_concat(concat(location,'-',binnum)) from inventoryCache where siteid = ? and inventoryCache.itemnum = itemCache.itemnum) storeroom from itemCache where ext_search_text like ?`);
     } else {
-      stmt = this.db.prepare(`SELECT *, (select group_concat(location) from inventoryCache where siteid = ? and inventoryCache.itemnum = itemCache.itemnum) storeroom from itemCache where search_text like ?`);
+      stmt = this.db.prepare(`SELECT *, (select group_concat(concat(location,'-',binnum)) from inventoryCache where siteid = ? and inventoryCache.itemnum = itemCache.itemnum) storeroom from itemCache where search_text like ?`);
     }
 
     const result = stmt.all(siteID, `%${phrase}%`);
