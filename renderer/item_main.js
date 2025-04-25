@@ -519,6 +519,9 @@ document.getElementById('related-table').addEventListener('click', (event) => {
       event.target.parentElement.cells[2].textContent;
     document.getElementById('storeroom-item-uom').value =
       event.target.parentElement.cells[3].textContent;
+    document.getElementById('storeroom-log').value = 
+      "Select Storeroom...";
+    document.getElementById('storeroom-btn').disabled = false;
 
     const siteID = localStorage.getItem('userSite');
     const storeroomSelect = document.getElementById('storeroom-storeroom');
@@ -535,12 +538,22 @@ document.getElementById('related-table').addEventListener('click', (event) => {
   console.log('Col index is: ' + col + ' - Row index is: ' + row);
 });
 
+document.getElementById('storeroom-storeroom').addEventListener('change', () => {
+  if(document.getElementById('storeroom-storeroom').reportValidity()){
+    document.getElementById('storeroom-log').value = "Click Add...";
+  } else {
+    document.getElementById('storeroom-log').value = "Select Storeroom...";
+  }
+})
 document.getElementById('storeroom-btn').addEventListener('click', () => {
   if (!(
     document.getElementById('storeroom-storeroom').reportValidity())) {
     console.log('Required fields still empty');
+    document.getElementById('storeroom-log').value = "Required Fields Are Still Empty";
     return;
   }
+  document.getElementById('storeroom-btn').disabled = true;
+  document.getElementById("storeroom-log").value = "Adding item..."
   const worker = new WorkerHandler();
   const upload = {
     cataloguenum: '',
@@ -551,9 +564,13 @@ document.getElementById('storeroom-btn').addEventListener('click', () => {
     vendorname: '',
   };
   worker.work(['uploadInventory', upload, true], (result) => {
-    //log in firestore if upload is successful
     if (result[0] == 1) {
-      ipcRenderer.send("firestore-log", { event: CONSTANTS.FIRESTORE_EVENT_ADDTOINVENTORY })
+      //TODO: update database to show changes
+      ipcRenderer.send("firestore-log", { event: CONSTANTS.FIRESTORE_EVENT_ADDTOINVENTORY }); //log in firestore if upload is successful
+      document.getElementById("storeroom-log").value = "Added Item to Storeroom"; //Add maximo link
+    } else {
+      document.getElementById("storeroom-log").value = "Error: Couldn't Add Item to Storeroom" //TODO: error codes
+      document.getElementById('storeroom-btn').disabled = false;
     }
   });
 });
