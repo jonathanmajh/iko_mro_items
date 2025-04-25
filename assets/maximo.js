@@ -229,11 +229,12 @@ class Maximo {
     }
   }
 
+  //TODO: for 91# numbers, this only works till 9199999! make it able to handle numbers from 9000000-9799999
   /**
-       *
-       * @param {string} numSeries item series (99, 98, 91)
-       * @return {number} latest item number
-       */
+   *
+   * @param {string} numSeries item series (99, 98, 91)
+   * @return {number} latest item number
+   */
   async getCurItemNumber(numSeries) {
     let response;
     try {
@@ -248,6 +249,7 @@ class Maximo {
       throw new Error('Failed to fetch data from Maximo, please check network (8)');
     }
     const content = await response.json();
+    
     if (content['Error']) { // content["Error"]["message"]
       postMessage(['debug', 'Failed to fetch Data from Maximo, Please Check Network (5)']); // this likely doesnt work, probably remove it
       throw new Error('Failed to fetch data from Maximo, please check network (5)');
@@ -291,7 +293,11 @@ class Maximo {
       return {siteID, status};
     }
   }
-
+  /**
+   * Uploads an item to maximo
+   * @param {Item} item 
+   * @returns {Number} status code of the upload (POST) request
+   */
   async uploadToMaximo(item) {
     const xmldoc =
       `<?xml version="1.0" encoding="UTF-8"?>
@@ -335,10 +341,11 @@ class Maximo {
 
   /**
        * Upload item to inventory
-       * @param {object} item information regarding item to be added to storeroom
+       * @param {Item} item information regarding item to be added to storeroom
+       * @param {boolean} addVendorInfo - also adds vendorname and catalog code to maximo if true
        * @return {number} status message
        */
-  async uploadToInventory(item) {
+  async uploadToInventory(item, addVendorInfo = true) {
     try {
       let xmldoc =
         `{
@@ -349,12 +356,13 @@ class Maximo {
   "storeroom": "${item.storeroomname}",
   "savenow": true,
   "istool": false,`;
-      debugger;
-      if (item.vendorname.length > 0) {
-        xmldoc = xmldoc + `"VENDOR": "${item.vendorname}",`;
-      }
-      if (item.cataloguenum.length > 0) {
-        xmldoc = xmldoc + `"CATALOGCODE": "${item.cataloguenum}",`;
+      if(addVendorInfo) {
+        if (item.vendorname.length > 0) {
+          xmldoc = xmldoc + `"VENDOR": "${item.vendorname}",`;
+        }
+        if (item.cataloguenum.length > 0) {
+          xmldoc = xmldoc + `"CATALOGCODE": "${item.cataloguenum}",`;
+        }
       }
       xmldoc = xmldoc + '}';
       const storeroom = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/iko_location?lean=1&oslc.where=location="${item.storeroomname}"&oslc.select=*`, {
@@ -388,6 +396,150 @@ class Maximo {
       return 0;
     } catch (error) {
       postMessage(['error', 'Failed to add item to inventory']);
+    }
+  }
+  /**
+   * 
+   * @param {Item} item 
+   */
+  async uploadInventoryInfo(item){
+    //TODO: error handling and showing results
+    //get inventory id
+    var response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/iko_inventory?oslc.where=itemnum=${item.itemnumber},location=${item.storeroomname}`, {
+      method: 'GET',
+      headers: {
+        'apikey': this.login.userid
+      }
+    });
+    var content = await response.json();
+    if (response.status != 200){
+      //TODO: throw error
+    }
+    var invId = content["rdfs:member"][0]["rdf:resource"];
+    console.log(invId);
+    invId = invId.slice(invId.lastIndexOf("/") + 1);
+    
+    //create request body
+    var jsonBody = `{
+  "itemnum": "${item.itemnumber}",
+  "siteid": "${item.siteID}",
+  "location": "${item.storeroomname}"`;
+      if(item.manufacturername) jsonBody += `,\n\t"manufacturer": "${item.manufacturername}"`;
+      if(item.vendorname) jsonBody += `,\n\t"vendor": "${item.vendorname}"`;
+      if(item.modelnum) jsonBody += `,\n\t"modelnum": "${item.modelnum}"`;
+      if(item.cataloguenum) jsonBody += `,\n\t"catalogcode": "${item.cataloguenum}"`;
+      if(item.ccf) jsonBody += `,\n\t"ccf": ${item.ccf}`;
+      if(item.abctype) jsonBody += `,\n\t"abctype": "${item.abctype}"`;
+      if(item.orderqty) jsonBody += `,\n\t"orderqty": ${item.orderqty}`;
+      if(item.reorderpnt) jsonBody += `,\n\t"minlevel": ${item.reorderpnt}`;
+      jsonBody += "\n}";
+
+      //upload inventory info
+      response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/mxapiinventory/${invId}?lean=1`, {
+        method: 'POST',
+        headers: {
+          'apikey': this.login.userid,
+          'x-method-override': 'PATCH',
+          'patchtype': "MERGE"
+        },
+        body: jsonBody
+      });
+      if(response.status === 204 || response.status === 200){
+        //TODO: show results
+      } else {
+        //TODO: show error
+      }
+  }
+  /**
+   * Uploads vendor info (single) for an item
+   * @param {Item} item - item object containing vendor info
+   */
+  async uploadVendorInfo(item){
+    try{
+      var bodyJson = 
+      `{
+  "itemnum": "${item.itemnumber}",
+  "orgid": "${/*TODO: get organization id from site id*/ "IKO-CAD"}"`;
+      if(item.siteID) bodyJson += `,\n\t"siteid": "${item.siteID}"`;
+      if(item.vendorname) bodyJson += `,\n\t"vendor": "${item.vendorname}"`;
+      if(item.cataloguenum) bodyJson += `,\n\t"catalogcode": "${item.cataloguenum}"`;
+      if(item.manufacturername) bodyJson += `,\n\t"manufacturer": "${item.manufacturername}"`;
+      if(item.modelnum) bodyJson += `,\n\t"modelnum": "${item.modelnum}"`;
+      if(item.websiteURL) bodyJson += `,\n\t"catalogwebpage": "${item.websiteURL}"`;
+      bodyJson += "\n}";
+
+      const response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/mxapiinvvendor?lean=1&oslc.where=itemnum=${item.itemnumber}`, {
+        method: 'POST',
+        headers: {
+          'apikey': this.login.userid
+        },
+        body: bodyJson
+      });
+      const content = await response.json();
+      //TODO: show results
+    } catch(e) {
+      //TODO: error handling  
+    }
+  }
+
+  /**
+   * Adds the item as a spare part to assets in Maximo.
+   * @param {Item} item - item to add as a spare part. The assets and quantities to add it to is listed in item.assetInfo. Requires item.siteID
+   */
+  async uploadToAsset(item){ //TODO: Error handling
+    if(item.siteID === undefined){
+      postMessage(['error', 'Item has no site ID']);
+      return;
+    }
+    console.log(item.assetInfo);
+    for(const asset of item.assetInfo){
+      if(asset.asset === undefined){
+        continue;
+      }
+      //get api asset id
+      let response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/iko_sparepart?oslc.select=*&oslc.where=assetnum="${asset.asset}" and siteid="${item.siteID}"`, {
+        method: 'GET',
+        headers: {
+          'apikey': this.login.userid
+        }
+      });
+      let content = await response.json();
+      if(response.status != 200) {
+        console.log(`Cannot find asset ${asset.asset}`);
+        continue;
+      }
+      let assetId = content['rdfs:member'][0]['rdf:about'];
+      assetId = assetId.slice(assetId.lastIndexOf("/") + 1);
+
+      //create body JSON
+      let bodyJson = 
+        `{
+  "sparepart": [
+    {
+      "itemnum": "${item.itemnumber}",
+      "quantity": ${asset.quantity}
+    }
+  ],
+  "siteid": "${item.siteID}",
+  "assetnum": "${asset.asset}"
+}`;
+
+      //add item as sparepart to asset
+      response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/iko_sparepart/${assetId}?lean=1`, {
+        method: 'POST',
+        headers: {
+          'apikey': this.login.userid,
+          'x-method-override': 'PATCH',
+          'patchtype': 'MERGE' 
+        },
+        body: bodyJson
+      });
+      content = await response.json();
+      if(response.status < 200 || response.status > 299) {
+        console.log(`${response.status} Error: Unable to add item ${item.itemnumber} as a spare part for asset ${asset.asset}`);
+        continue;
+      }
+      //TODO: show upload success
     }
   }
 

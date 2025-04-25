@@ -140,26 +140,251 @@ class Toast {
   }
 }
 
+/**
+ * Class to represent an item to upload to Maximo
+ */
 class Item {
+  /**
+   * nine series number for the item to upload
+   * @type {Number}
+  */
+  itemnumber;
+  /**
+   * description of the item
+   * @type {String}
+   */
+  description;
+  /**
+   * issue unit code of the item 
+   * @type {String}
+   */
+  issueunit;
+  /**
+   * commodity group code of the item
+   * @type {String}
+   */
+  commoditygroup;
+  /**
+   * GL class code of the item 
+   * @type {String}
+   */
+  glclass;
+  /**
+   * the site (code) the item goes to
+   * @type {String}
+   */
+  siteID;
+  /**
+   * storeroom (3 character code) to add the item to
+   * @type {String}
+   */
+  storeroomname;
+  /**
+   * vendor id (e.g. V#####)
+   * @type {String}
+   */
+  vendorname;
+  /**
+   * catalog number for the item (vendor part number) 
+   * @type {String}
+   */
+  cataloguenum;
+  /**
+   * manufacturer name (code) of the item
+   * @type {String}
+   */
+  manufacturername;
+  /**
+   * model/manufacturer part number/code
+   * @type {String}
+   */
+  modelnum;
+  /**
+   * type of manufacturer (specific or generic)
+   * @type {"Generic"|"Other"}
+   */
+  manufacturertype;
+  /**
+   * type of maximo number (e.g. 91, 98, 99, etc) 
+   * @type {String}
+   */
+  series;
+  /**
+   * details field for the item
+   * @type {String}
+   */
+  longdescription;
+  assetprefix;
+  assetseed;
+  jpnum;
+  inspectionrequired;
+  isimport;
+  rotating;
+  /**
+   * array of assets to add the item as a spare part to
+   * @type {Array<{asset:String, quantity:Number}>}
+   */
+  assetInfo;
+  /**
+   * url of the item page on the vendor website
+   * @type {String}
+   */
+  websiteURL;
+  /**
+   * inventory abc type
+   * @type {"A"|"B"|"C"|null}
+   */
+  abctype;
+  /**
+   * inventory cycle count frequency
+   * @type {Number}
+   */
+  ccf;
+  /**
+   * inventory economic order quantity
+   * @type {Number}
+   */
+  orderqty;
+  /**
+   * inventory reorder point
+   * @type {Number}
+   */
+  reorderpnt;
+  /**
+   * code for the item's site's organization
+   * @type {"IKO-CAD"|"IKO-EU"|"IKO-UK"|"IKO-US"|null}
+   */
+  orgId;
+
   // add more properties later (e.g manufacturer, part num, etc.)
-  constructor(itemnumber = 0, description, issueunit, commoditygroup, glclass, siteID = '', storeroomname = '', vendorname = '', cataloguenum = '', series = 91, longdescription = '', assetprefix = '', assetseed = '', jpnum = '', inspectionrequired = 0, isimport = 0, rotating = 0) {
-    this.itemnumber = itemnumber;
-    this.series = series;
-    this.description = description;
-    this.issueunit = issueunit;
-    this.commoditygroup = commoditygroup;
-    this.glclass = glclass;
-    this.longdescription = longdescription;
-    this.assetprefix = assetprefix;
-    this.assetseed = assetseed;
-    this.jpnum = jpnum;
-    this.inspectionrequired = inspectionrequired;
-    this.isimport = isimport;
-    this.rotating = rotating;
-    this.siteID = siteID;
-    this.storeroomname = storeroomname;
-    this.vendorname = vendorname;
-    this.cataloguenum = cataloguenum;
+  /**
+   * Create a new item object
+   * @param {{itemnumber:!Number,
+   * description:!String,
+   * issueunit:String,
+   * commoditygroup:String,
+   * glclass:String,
+   * siteID:String,
+   * storeroomname:String,
+   * vendorname:String,
+   * cataloguenum:String,
+   * manufacturername:String,
+   * modelnum:String,
+   * manufacturertype: "Generic"|"Other",
+   * series:(Number|String),
+   * longdescription:String,
+   * assetprefix,
+   * assetseed,
+   * jpnum,
+   * inspectionrequired,
+   * isimport,
+   * rotating,
+   * assetInfo:Array<{asset:String, quantity:Number}>,
+   * websiteURL:String,
+   * abctype:String,
+   * ccf:String,
+   * orderqty: Number,
+   * reorderpnt: Number}} iteminfo - object literal of the item's info 
+   */
+  constructor(iteminfo = {}) {
+    for (var info in iteminfo) {
+      if (this.hasOwnProperty(info)){
+        if(iteminfo[info] != undefined && iteminfo[info] != null){
+          if(info == 'assetInfo') {//assetInfo needs to be deep cloned to prevent reassignment errors 
+            this[info] =  JSON.parse(JSON.stringify(iteminfo[info]))
+          } else {
+            this[info] = iteminfo[info];
+          }
+        }
+      }
+    }
+    //set default values for properties that don't exist (can't use optional parameters for object literal arguments...)
+    const defaults = {
+      itemnumber: 0,
+      siteID: '',
+      storeroomname: '',
+      vendorname: '',
+      cataloguenum: '',
+      longdescription: '',
+      assetprefix: '',
+      assetseed: '',
+      jpnum: '',
+      inspectionrequired: 0,
+      isimport: 0,
+      rotating: 0,
+      assetInfo: [],
+      orderqty: 0,
+      ccf: 0,
+      reorderpnt: -1,
+      websiteURL: '',
+      abctype: '',
+    };
+    for(const property in defaults){
+      if(!iteminfo.hasOwnProperty(property)){
+        this[property] = defaults[property];
+      }
+    }
+    if(!this.series) {
+      if(this.itemnumber){
+        this.series = Item.determineSeries(this.itemnumber);
+      } else {
+        this.series = 91;
+      }
+    }
+  }
+  
+  /**
+   * Modifies the asset spare part info according to a list. If the list is longer, increase the number of asset spare part entries accordingly.
+   * @param {Array<String>| Array<{asset:String, quantity:Number}>} data - data to change/add
+   * @param {'asset'|'quantity'|'both'} type - the type of data to change
+   */
+  setAssetInfo(data, type){
+    if(!this.assetInfo) this.assetInfo = [];
+    const sizeDiff = data.length - this.assetInfo.length;
+    for(let i  = 0; i < sizeDiff; i++){
+      this.assetInfo.push({asset: '', quantity:1});
+    }
+    if(type === 'asset') {
+      for(const[idx, value] of data.entries()){
+        this.assetInfo[idx].asset = value;
+      }
+    } else if (type === 'quantity') {
+      for(const[idx, value] of data.entries()){
+        this.assetInfo[idx].quantity = value;
+      }
+    } else if (type === 'both') {
+      for(const[idx, value] of data.entries()){
+        this.assetInfo[idx] = value;
+      }
+    }
+  }
+
+
+  /**
+   * Determines the item series type for a given 9 series number 
+   * @param {Number|String} itemnum -
+   * @returns {"91"|"98"|"99"|"9S"|null} string code of the item series type, null if input is not a valid item number
+   */
+  static determineSeries(itemnum){
+    if(typeof itemnum === 'string') {
+      if(Number(itemnum)) {
+        itemnum = Number(itemnum)
+      } else if (itemnum.length == 7 && itemnum.slice(0, 2).toUpperCase() === "9S" && Number.isInteger(Number(itemnum.slice(2)))) {
+        return "9S";
+      }
+    }
+    if(typeof itemnum === 'number'){
+      if(itemnum >= 9000000 && itemnum < 10000000){
+        if(itemnum >= 9900000){
+          return "99";
+        } else if (itemnum >= 9800000){
+          return "98";
+        } else {
+          return "91";
+        }
+      }
+    }
+    return null;
   }
 }
 // functions
@@ -209,6 +434,21 @@ function getNextNumThenUpdate(series) {
   document.getElementById('item-itemnum').innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span> Retreiving the latest item number...</span>';
   worker.work(['getCurItemNumber', series], updateItemInfo);
   console.log('Getting new number from server');
+}
+
+/**
+ * Gets the storeroom code from a string in the form 'XXX: [Some] Storeroom'
+ * @param {String} storeroomStr - string in the form  'XXX: [Some] Storeroom'
+ * @returns {String} the storeroom code (XXX)
+ */
+function isolateStoreroomCode(storeroomStr) {
+  const upperStr = storeroomStr.toUpperCase();
+  const positions = [upperStr.indexOf(':'), upperStr.indexOf("STOREROOM")]
+  if(positions[0] != -1 && positions[1] != -1) {
+    return upperStr.slice(0, positions[0]) + upperStr.slice(positions[1] + 9);
+  } else { //string does not contain ": [Some] Storeroom"
+    return storeroomStr
+  }
 }
 
 function updateItemInfo(curItemNum) {
@@ -272,8 +512,13 @@ function sanitizeString(str) {
   str = replaceChars(str)
   return str;
 }
-
-function convertToTable(pastedInput, id = '') {
+/**
+ * Converts to batch upload paste to table
+ * @param {String} pastedInput - string representation of the pasted output
+ * @param {String} id - new id for the HTML table 
+ * @returns {String} string representation of the HTML table
+ */
+function convertToBatchUploadTable(pastedInput, id = '') {
   let rawRows = pastedInput.split('\n');
   let numRows = rawRows.length;
   let numCols = 0;
@@ -312,6 +557,61 @@ ${bodyRows.join('')}
     `;
 
   return table;
+}
+/**
+ * Converts to template upload paste to table
+ * TODO: catch improper paste types
+ * @param {String} pastedInput - string representation of the pasted output
+ * @param {String} id - new id for the HTML table 
+ * @returns {String} string representation of the HTML table
+ */
+function convertToTemplateUploadTable(pastedInput, id=''){
+  let rawRows = pastedInput.split('\n');
+  let numRows = rawRows.length;
+  let numCols = 0;
+  const tablebody = [];
+  let diff = 0;
+  const rowids = [];
+  // create html row for each pasted line
+  for (const [idx, rawRow] of rawRows.entries()){ 
+    const rowArr = rawRow.split('\t');
+    if (rawRow == 0) {
+      diff--;
+      numRows--;
+    } else { 
+      if (rowArr.length > numCols) {
+        numCols = rowArr.length;
+      }
+      //calculate table row id
+      let rowid = rowArr[0].replace(' ','_').replace(':','');
+      if (rowids.includes(rowid)) { //no duplicate table rows
+        return `
+        <table class="table table-primary table-striped" data-rows="1" data-cols="1" id="${id}" style="margin-bottom: 0px">
+          <tr>
+            <td>Improper Paste Format: First column cannot contain duplicate values</td>
+          </tr>
+        </table>
+        `;
+      } else {
+        rowids.push(rowid); 
+      }
+
+      tablebody.push(`<tr id="template-${rowid}">`);
+      rowArr.forEach((value, index) => {
+        if (index == 0){ //"header" col (on the left)
+          tablebody.push(`\t<td id="${(idx + diff + 1) + '-' + (index + 1)}" style="border: 2px solid; width:20%;" contentEditable="false">${value}</td>\n`)
+        } else { //"body" col
+          tablebody.push(`\t<td id="${(idx + diff + 1) + '-' + (index + 1)}" style="border: 1px solid">${value}</td>\n`);
+        }
+      })
+      tablebody.push('</tr>\n');
+    }
+  }
+  return `
+  <table class="table table-primary table-striped" data-rows="${numRows}" data-cols="${numCols}" id="${id}" style="margin-bottom: 0px; width:100%;" contenteditable>
+  ${tablebody.join('')}
+  </table>
+      `;
 }
 // Highlights cells red for any cell with invalid data
 function updateTableColors(itemindex, category) {
