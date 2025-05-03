@@ -8,11 +8,21 @@
 })();
 
 // classes
+/**
+ * class to handle Worker processes. Run WorkerHandler.work for every Worker task
+ * 
+ */
 class WorkerHandler {
+  /**
+   * Create a new Worker process
+   * @param {Array} params - parameters for the Worker task. params[0] is the name of the task, all task names are listed in worker.js. params[1] and onwards are the arguments for the Worker task.  
+   * @param {function|undefined} callback - callback function for the Worker    
+   */
   async work(params, callback) {
     const worker = new Worker('./worker.js');
-    worker.postMessage(params);
-    worker.onmessage = (e) => {
+    worker.postMessage(params); //worker starts task
+    //handle message from worker
+    worker.onmessage = (e) => { 
       const log = new Logging();
       if (e.data[0] === 'result') {
         worker.terminate();
@@ -53,43 +63,70 @@ class WorkerHandler {
     };
   }
 }
-
+/**
+ * Class to handle logs. Logs in a table at the bottom of the application
+ */
 class Logging {
+  /**
+   * create a new table for the logs
+   */
   constructor() {
     this.logTable = document.getElementById('logs-table');
   }
-
+  /**
+   * Prints a warning message to the log table
+   * @param {String} msg - warning mesage to display 
+   */
   warning(msg) {
     const row = this.logTable.insertRow(0);
     row.innerHTML = `<td>WARNING</td><td>${msg}</td>`;
     row.classList.add('table-warning');
   }
-
+  /**
+   * Prints an error message to the log table
+   * @param {String} msg - error message to display
+   */
   error(msg) {
     const row = this.logTable.insertRow(0);
     row.innerHTML = `<td>ERROR</td><td>${msg}</td>`;
     row.classList.add('table-danger');
   }
-
+  /**
+   * Prints a message to the log table
+   * @param {String} msg - message to display 
+   */
   info(msg) {
     const row = this.logTable.insertRow(0);
     row.innerHTML = `<td>INFO</td><td>${msg}</td>`;
     row.classList.add('table-primary');
   }
 }
-
+/**
+ * Progress bar on the top of the application
+ */
 class ProgressBar {
+  /**
+   * Creates a new progress bar
+   */
   constructor(barId = 'progress-bar', textId = 'progress-text') {
     this.progressBar = document.getElementById('progress-bar');
     this.progressText = document.getElementById('progress-text');
     this.currentProgress = this.progressBar.getAttribute('style');
     this.currentProgress = this.currentProgress.slice(7, this.currentProgress.length - 2);
   }
-
+  /**
+   * Sets the current percentage of the progress bar
+   * @param {Number|String} percent - the percent to set the progress bar to (number only, i.e. to set to 50%, percent = 50 or "50") 
+   */
   updateProgressBar(percent) {
     this.progressBar.setAttribute('style', `width: ${percent}%;`);
   }
-
+  /**
+   * Change the progress bar
+   * @param {Number|String} percent - the percent to set the progress bar to (number only, i.e. to set to 50%, percent = 50 or "50")   
+   * @param {String} message - the message to put on the progress bar
+   * @param {String} color - the color to set the progress bar to (uses Bootstrap 4 colors) 
+   */
   update(percent, message, color = '') {
     this.updateProgressBar(percent);
     if (message) {
@@ -101,17 +138,27 @@ class ProgressBar {
       this.updateColor(color);
     }
   }
-
+  /**
+   * Change the color of the progress bar
+   * @param {String} color - the color to set the progress bar to (uses Bootstrap 4 color names) 
+   */
   updateColor(color) {
     color = color + ' ';
     const regx = new RegExp('\\b' + 'bg-' + '[^ ]*[ ]?\\b', 'g');
     this.progressBar.className = this.progressBar.className.replace(regx, color);
   }
-
+  /**
+   * Increases the current progress bar progress
+   * @param {Number} percent - the percentage to increase the progress bar by
+   * @param {String?} [message] - message to display
+   */
   addProgressBar(percent, message = null) {
     this.update(percent + this.currentProgress, message);
   }
-
+  /**
+   * 
+   * @returns {{'percent': Number, 'message':String}} the current status of the progress bar
+   */
   getProgress() {
     return {
       'percent': this.currentProgress,
@@ -120,9 +167,16 @@ class ProgressBar {
   }
 }
 
+/**
+ * popup thingy in the top right corner
+ */
 class Toast {
-  // popup thingy in top right corner
-  constructor(newMessage, color = 'bg-primary') { // uses Bootstrap 4 colors
+  /**
+   *  creates a Toast (popup thingy in top right corner).
+   * @param {string} newMessage - message to put on the Toast
+   * @param {string} [color = 'bg-primary'] - background color of the Toast. Uses Bootstrap 4 background colors
+   */
+  constructor(newMessage, color = 'bg-primary') {
     this.toastContainer = document.getElementById('toastPlacement');
     this.newToast(newMessage, color);
   }
@@ -140,6 +194,9 @@ class Toast {
   }
 }
 
+/**
+ * Class for a Maximo item
+ */
 class Item {
   // add more properties later (e.g manufacturer, part num, etc.)
   constructor(itemnumber = 0, description, issueunit, commoditygroup, glclass, siteID = '', storeroomname = '', vendorname = '', cataloguenum = '', series = 91, longdescription = '', assetprefix = '', assetseed = '', jpnum = '', inspectionrequired = 0, isimport = 0, rotating = 0) {
@@ -164,24 +221,41 @@ class Item {
 }
 // functions
 // general
+/**
+ * Updates the darkmode switch
+ */
 function fixSwitch() {
   document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
 }
 
+/**
+ * Scrolls application to the top
+ */
 function toTop() {
   const element = document.getElementsByTagName('main');
   element[0].scrollTop = 0; // For Chrome, Firefox, IE and Opera
 }
 
+/**
+ * Scrolls application to the bottom
+ */
 function toEnd() {
   const element = document.getElementsByTagName('main');
   element[0].scrollTop = element[0].scrollHeight; // For Chrome, Firefox, IE and Opera
 }
+
 // theme related
+/**
+ * Toggles the application between dark/light modes
+ */
 function toggleTheme() {
   setTheme(localStorage.getItem('theme') === 'dark' ? 'light' : 'dark');
 }
 
+/**
+ * Sets the theme of the application
+ * @param {'dark'|'light'} newTheme - the theme to set the application to
+ */
 function setTheme(newTheme) {
   // safety
   if (localStorage.getItem('theme') === newTheme) {
@@ -192,6 +266,9 @@ function setTheme(newTheme) {
   document.documentElement.setAttribute('data-bs-theme', newTheme);
 }
 
+/**
+ * Load the theme of the application to the UI. If localStorage does not have a theme, use dark mode by default
+ */
 function loadTheme() {
   if (!(localStorage.getItem('theme'))) {
     localStorage.setItem('theme', 'dark');
@@ -201,6 +278,10 @@ function loadTheme() {
   // console.log('i have run');
 }
 // upload item related
+/**
+ * Creates a WorkerHandler to get the current 9-series number (largest used) and updates the UI
+ * @param {"91"|"98"|"99"|"9S"} series - the type of 9-series number to get 
+ */
 function getNextNumThenUpdate(series) {
   document.getElementById('error').innerHTML = 'Waiting for confirm...';
   const worker = new WorkerHandler();
@@ -211,6 +292,10 @@ function getNextNumThenUpdate(series) {
   console.log('Getting new number from server');
 }
 
+/**
+ * Updates the information in the "Upload New Item" window
+ * @param {Array<Number>} curItemNum - length 2 list containing a status flag in position 0 (1 if success, 0 if error) and the current item number in position 1 (new item will use current item number + 1)
+ */
 function updateItemInfo(curItemNum) {
   console.log(curItemNum);
 
@@ -233,7 +318,9 @@ function updateItemInfo(curItemNum) {
   document.getElementById('confirm-btn').innerHTML = 'Upload Item';
   document.getElementById('confirm-btn').disabled = false;
 }
-
+/**
+ * Enters the Request Item info into the "Upload/Request New Item" popup
+ */
 function poppulateModal() {
   const desc = document.getElementById('request-desc');
   const uom = document.getElementById('uom-field');
@@ -272,7 +359,12 @@ function sanitizeString(str) {
   str = replaceChars(str)
   return str;
 }
-
+/**
+ * Converts the pasted input from the user into a table. For batch upload.
+ * @param {String} pastedInput - string representation of the pasted input 
+ * @param {String} id - the id for the HTML table created  
+ * @returns {String} the string representation of the HTML table created
+ */
 function convertToTable(pastedInput, id = '') {
   let rawRows = pastedInput.split('\n');
   let numRows = rawRows.length;
@@ -313,7 +405,11 @@ ${bodyRows.join('')}
 
   return table;
 }
-// Highlights cells red for any cell with invalid data
+/**
+ * Update the batch upload table's rows to red if unable to upload  
+ * @param {Number} itemindex - the row to highlight
+ * @param {String} category - the error message (? not sure, have to double check)
+ */
 function updateTableColors(itemindex, category) {
   const colLoc = {
     description: -1,
@@ -359,7 +455,11 @@ function updateTableColors(itemindex, category) {
   // change color of cell
   cell.classList.add('table-danger');
 }
-
+/**
+ * Update the status icon for a row in the batch upload table
+ * @param {String} status - the new status of the row (e.g. 'success', 'loading', 'error', etc) 
+ * @param {Number} itemindex - the row of the item in the batch upload table
+ */
 function updateItemStatus(status, itemindex) {
   // Changes item status column to reflect status
   const statusimg = document.getElementById(`item-${itemindex}-status`);
@@ -377,7 +477,11 @@ function updateItemStatus(status, itemindex) {
     statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">pending</i>`;
   }
 }
-
+/**
+ * Reads and returns the contents of a File object (base 64)
+ * @param {Blob|File} file - file object to read 
+ * @returns {Promise} contents of file
+ */
 function fileBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
