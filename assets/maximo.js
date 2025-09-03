@@ -329,7 +329,7 @@ class Maximo {
     if (statuscode == 200) {
       return parseInt(content.validdoc);
     } else {
-      throw new Error(parseInt(statuscode));
+      throw new Error(content.toString());
     }
   }
 
