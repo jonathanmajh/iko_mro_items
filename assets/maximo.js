@@ -153,42 +153,53 @@ class Maximo {
   async getNewItems(date) {
     date = date.replace(' ', 'T');
     let response;
-    try {
-      response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=in22>"${date}" and itemnum="9%25"&oslc.select=itemnum,in22,description,issueunit,commoditygroup,externalrefid,status,description_longdescription`, {
-        headers: {
-          'apikey': this.login.userid,
-        },
-      });
-    } catch (err) {
-      postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (6)', err]);
-      return false;
-    }
-    const content = await response.json();
+    let nextpage = true;
+    let pageno = 1;
     const items = [];
     let previousDate = [new Date('2000-01-01'), ''];
-    let newDate = '';
-    if (content['Error']) { // content["Error"]["message"]
-      postMessage(['warning', content['Error']]);
-      postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (3)']);
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-    } else {
-      content['member'].forEach((item) => {
-        newDate = item['in22'].replace('T', ' ').slice(0, -6);
-        items.push([
-          item['itemnum'],
-          item['description'],
-          newDate,
-          item['externalrefid'],
-          item['issueunit'],
-          item['commoditygroup'],
-          item['description_longdescription'],
-        ]);
-        if (previousDate[0] < new Date(newDate)) {
-          previousDate = [new Date(newDate), newDate];
-        }
-      });
-      return [items, previousDate[1]];
+    while (nextpage) {
+      console.log('debug', `Loading item data page: ${pageno}`);
+      try {
+        response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=in22>"${date}" and itemnum="9%25"&oslc.select=itemnum,in22,description,issueunit,commoditygroup,externalrefid,status,description_longdescription&oslc.pageSize=100&pageno=${pageno}`, {
+          headers: {
+            'apikey': this.login.userid,
+          },
+        });
+      } catch (err) {
+        postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (6)', err]);
+        return false;
+      }
+      const content = await response.json();
+      if (content['responseInfo']['nextPage']) {
+        pageno = pageno + 1;
+      } else {
+        nextpage = false;
+      }
+      const items = [];
+      let newDate = '';
+      if (content['Error']) { // content["Error"]["message"]
+        postMessage(['warning', content['Error']]);
+        postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (3)']);
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+      } else {
+        content['member'].forEach((item) => {
+          newDate = item['in22'].replace('T', ' ').slice(0, -6);
+          items.push([
+            item['itemnum'],
+            item['description'],
+            newDate,
+            item['externalrefid'],
+            item['issueunit'],
+            item['commoditygroup'],
+            item['description_longdescription'],
+          ]);
+          if (previousDate[0] < new Date(newDate)) {
+            previousDate = [new Date(newDate), newDate];
+          }
+        });
+      }
     }
+    return [items, previousDate[1]];
   }
 
   async getNewManufacturers(date) {
@@ -288,7 +299,7 @@ class Maximo {
       this.login.userid = userid;
       postMessage(['debug', `Successfully logged in to Maximo as: ${content.displayName}`]);
       postMessage(['result', 0, 'Successfully logged in to Maximo', siteID]);
-      return {siteID, status};
+      return { siteID, status };
     }
   }
 
@@ -406,8 +417,8 @@ class Maximo {
 
     // check if item number exists in maximo
     const itemnum = image.name.slice(0, 7); // itemnum is first 7 digits of image name
-    if(function(x){return typeof x != "number" || x < 9000000;}(Number(itemnum))) {
-      return['fail', `Not a item number: ${itemnum}`];
+    if (function (x) { return typeof x != "number" || x < 9000000; }(Number(itemnum))) {
+      return ['fail', `Not a item number: ${itemnum}`];
     }
     let response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/mxitem?oslc.where=itemnum=${itemnum}`, {
       method: 'GET',
@@ -472,29 +483,29 @@ class Maximo {
 
 }
 
-  /**
-   * adds white space to the given image's border to make it a square
-   * @param {File} oImage - image to pad 
-   * @returns {File} - square image with padding
-   */
-  async function padImage(oImage){
-    const mimeType = oImage.type;
-    const oImgBuf = Buffer.from(await oImage.arrayBuffer()); 
-    const img = await new Promise((resolve, reject) => {
-        Jimp.read(oImgBuf)
-          .then((oImgJimp) => {
-            const largestDim = Math.max(oImgJimp.getWidth(), oImgJimp.getHeight());
-            new Jimp(largestDim, largestDim,  '#ffffffff', (err, image) => {
-              image.blit(oImgJimp, (largestDim - oImgJimp.getWidth())/2, (largestDim - oImgJimp.getHeight())/2);
-              image.getBufferAsync(mimeType)
-                .then((buffer) => {
-                  const newImg = new Blob([buffer], {type: mimeType});
-                  resolve(newImg);
-                });
-            }); 
+/**
+ * adds white space to the given image's border to make it a square
+ * @param {File} oImage - image to pad 
+ * @returns {File} - square image with padding
+ */
+async function padImage(oImage) {
+  const mimeType = oImage.type;
+  const oImgBuf = Buffer.from(await oImage.arrayBuffer());
+  const img = await new Promise((resolve, reject) => {
+    Jimp.read(oImgBuf)
+      .then((oImgJimp) => {
+        const largestDim = Math.max(oImgJimp.getWidth(), oImgJimp.getHeight());
+        new Jimp(largestDim, largestDim, '#ffffffff', (err, image) => {
+          image.blit(oImgJimp, (largestDim - oImgJimp.getWidth()) / 2, (largestDim - oImgJimp.getHeight()) / 2);
+          image.getBufferAsync(mimeType)
+            .then((buffer) => {
+              const newImg = new Blob([buffer], { type: mimeType });
+              resolve(newImg);
+            });
         });
-    });
-    return img;
-  }
+      });
+  });
+  return img;
+}
 
 module.exports = Maximo;
