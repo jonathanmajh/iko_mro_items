@@ -37,6 +37,8 @@ npm version major/minor/patch
 
 git push --follow-tags
 
+npx npm-check-updates (-u)
+
 ## To edit
 ### Editing CSS:
 When linking css to an html file, use style.css as the only stylesheet. If you make another stylesheet, import it into style.css.
