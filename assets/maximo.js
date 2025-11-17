@@ -158,7 +158,7 @@ class Maximo {
     const items = [];
     let previousDate = [new Date('2000-01-01'), ''];
     while (nextpage) {
-      console.log('debug', `Loading item data page: ${pageno}`);
+      postMessage(['debug', `Loading item data page: ${pageno}`]);
       try {
         response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=in22>"${date}" and itemnum="9%25"&oslc.select=itemnum,in22,description,issueunit,commoditygroup,externalrefid,status,description_longdescription&oslc.pageSize=100&pageno=${pageno}`, {
           headers: {
@@ -175,7 +175,6 @@ class Maximo {
       } else {
         nextpage = false;
       }
-      const items = [];
       let newDate = '';
       if (content['Error']) { // content["Error"]["message"]
         postMessage(['warning', content['Error']]);
