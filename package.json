@@ -65,10 +65,11 @@
           "config": {
             "repository": {
               "owner": "jonathanmajh",
-              "name": "iko_mro_items",
-              "draft": false,
-              "prerelease": false
-            }
+              "name": "iko_mro_items"
+            },
+            "draft": false,
+            "prerelease": false,
+            "generateReleaseNotes": true
           }
         }
       ]

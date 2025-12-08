@@ -11,15 +11,19 @@ const sites = {
     'AAO: Brampton B4 Oxidizer Storeroom',
   ],
   ANT: ['AN1: Antwerp Mod Line Storeroom', 'AN2: Antwerp Coating Line Storeroom'],
-  BA: ['BAL: IKO Calgary Maintenance Storeroom'],
+  BA: ['BAL: Calgary Maintenance Storeroom'],
   BL: [
     'BLC: Hagerstown TPO Storeroom',
     'BLD: Hagerstown ISO Storeroom',
     'BLL: Hagerstown Maintenance Storeroom(Shared)',
   ],
-  CA: ['CAL: IKO Kankakee Maintenance Storeroom'],
-  CAM: ['C61: IKO Appley Bridge Maintenance Storeroom'],
+  CA: ['CAL: Kankakee Maintenance Storeroom'],
+  CAM: ['C61: Appley Bridge Maintenance Storeroom'],
+  CF: ['CFL: Chester Fiber Storeroom'],
+  CH: ['CHL: Clay Hill Storeroom'],
+  CM: ['CML: Chester Mat Storeroom'],
   COM: ['CB1: Combronde Maintenance Storeroom'],
+  ES: ['ESL: Ennis Storeroom'],
   GC: [
     'GCL: Sumas Maintenance Storeroom',
     'GCA: Sumas Shipping Storeroom',
@@ -29,15 +33,14 @@ const sites = {
     'GCK: Sumas Tank Farm Storeroom',
   ],
   GE: ['GEL: Ashcroft Maintenance Storeroom'],
-  GH: ['GHL: IKO Hawkesbury Maintenance Storeroom'],
-  GI: ['GIL: IKO Madoc Maintenance Storeroom'],
-  GJ: ['GJL: CRC Toronto Maintenance Storeroom'],
+  GH: ['GHL: Hawkesbury Maintenance Storeroom'],
+  GI: ['GIL: Madoc Maintenance Storeroom'],
   GK: [
     'GKA: IG Brampton B7 and B8 Storeroom',
     'GKC: IG Brampton B6 and Laminator Storeroom',
     'GKL: IG Brampton Maintenance Storeroom',
   ],
-  GM: ['GML: IG High River Maintenance Storeroom'],
+  GM: ['GML: IG High River Maintenance Storeroom', 'GMA: IG High River Pallet Pro Storeroom'],
   GP: ['GPL: CRC Brampton Maintenance Storeroom'],
   GR: ['GRL: Bramcal Maintenance Storeroom'],
   GS: ['GSL: Sylacauga Maintenance Storeroom'],
@@ -50,6 +53,7 @@ const sites = {
   ],
   PBM: ['PB6: Slovakia Maintenance Storeroom'],
   RAM: ['RA6: IKO Alconbury Maintenance Storeroom'],
+  SE: ['SEL: Blair Rubber Storeroom'],
   // Add more sites and storerooms as needed...
 };
 
@@ -218,7 +222,7 @@ function submitMail() {
     '/' +
     (currentdate.getMonth() + 1) +
     '/' +
-    (currentdate.getDate()) +
+    currentdate.getDate() +
     ' @ ' +
     currentdate.getHours() +
     ':' +
@@ -406,9 +410,8 @@ document.getElementById('imgInput').addEventListener('change', async (e) => {
   // generate a link to open items that are being uploaded to in maximo
 
   const url = `https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
-  document.getElementById(
-    'img-upload-status-text',
-  ).innerHTML = `<a href=${url} id="imgs-link">Selected Items:</a>`;
+  document.getElementById('img-upload-status-text').innerHTML =
+    `<a href=${url} id="imgs-link">Selected Items:</a>`;
   document.getElementById('imgs-link').addEventListener('click', function (e) {
     e.preventDefault();
     shell.openExternal(url);
@@ -477,9 +480,8 @@ document.getElementById('img-upload-btn').addEventListener('click', () => {
     } else if (result[0] == 'total failure') {
       finishedItems = imgsToUpload.length;
       progressBar.update(100, 'Error occurred while attempting upload!');
-      document.getElementById(
-        'img-upload-status-text',
-      ).innerHTML = `Upload Failed: ${result[1]}}`;
+      document.getElementById('img-upload-status-text').innerHTML =
+        `Upload Failed: ${result[1]}}`;
       clearBtn.disabled = false;
       uploadBtn.disabled = false;
     }
@@ -536,8 +538,7 @@ document.getElementById('related-table').addEventListener('click', (event) => {
 });
 
 document.getElementById('storeroom-btn').addEventListener('click', () => {
-  if (!(
-    document.getElementById('storeroom-storeroom').reportValidity())) {
+  if (!document.getElementById('storeroom-storeroom').reportValidity()) {
     console.log('Required fields still empty');
     return;
   }
@@ -553,7 +554,7 @@ document.getElementById('storeroom-btn').addEventListener('click', () => {
   worker.work(['uploadInventory', upload, true], (result) => {
     //log in firestore if upload is successful
     if (result[0] == 1) {
-      ipcRenderer.send("firestore-log", { event: CONSTANTS.FIRESTORE_EVENT_ADDTOINVENTORY })
+      ipcRenderer.send('firestore-log', { event: CONSTANTS.FIRESTORE_EVENT_ADDTOINVENTORY });
     }
   });
 });
@@ -618,9 +619,9 @@ document.getElementById('batch-copy-nums').addEventListener('click', () => {
       parseInt(document.getElementById('batch-items-table').getAttribute('data-rows')) - 1;
     let nums = '';
     for (let i = 2; i <= rows + 1; i++) {
-      nums += document.getElementById(`${i}-${colLoc.maximo}`).innerHTML ?
-        document.getElementById(`${i}-${colLoc.maximo}`).innerHTML + '\n' :
-        '';
+      nums += document.getElementById(`${i}-${colLoc.maximo}`).innerHTML
+        ? document.getElementById(`${i}-${colLoc.maximo}`).innerHTML + '\n'
+        : '';
     }
     navigator.clipboard.writeText(nums);
     new Toast('Item Numbers Copied to Clipboard!');
@@ -648,9 +649,8 @@ document.getElementById('batch-upload-btn').addEventListener('click', () => {
     itemsToUpload = getItemsFromTable('batch-items-table');
   } catch (error) {
     itemsToUpload = [];
-    document.getElementById(
-      'batch-upload-status-text',
-    ).innerHTML = `Error, check table format! (${error})`;
+    document.getElementById('batch-upload-status-text').innerHTML =
+      `Error, check table format! (${error})`;
     return;
   }
 
@@ -944,9 +944,8 @@ function getItemsFromTable(tableId) {
         }
       }
       missingCols = missingColArr.join(', ');
-      document.getElementById(
-        'batch-upload-status-text',
-      ).innerHTML = `Table is missing ${numMissing} column(s): (${missingCols}). Table will not be uploaded!`;
+      document.getElementById('batch-upload-status-text').innerHTML =
+        `Table is missing ${numMissing} column(s): (${missingCols}). Table will not be uploaded!`;
       return;
     }
   } else {
@@ -981,25 +980,25 @@ function getItemsFromTable(tableId) {
     let catNum = undefined;
     for (let i = 2; i <= rows; i++) {
       const desc = sanitizeString(
-        document.getElementById(i + '-' + colLoc.description).innerHTML,
+        document.getElementById(i + '-' + colLoc.description).innerHTML
       );
       const uom = sanitizeString(
-        document.getElementById(i + '-' + colLoc.uom).innerHTML,
+        document.getElementById(i + '-' + colLoc.uom).innerHTML
       ).toUpperCase();
       const commGroup = sanitizeString(
-        document.getElementById(i + '-' + colLoc.commGroup).innerHTML,
+        document.getElementById(i + '-' + colLoc.commGroup).innerHTML
       );
       const glclass = sanitizeString(
-        document.getElementById(i + '-' + colLoc.glClass).innerHTML,
+        document.getElementById(i + '-' + colLoc.glClass).innerHTML
       ).toUpperCase();
       if (colLoc.siteID != -1) {
         site = sanitizeString(
-          document.getElementById(i + '-' + colLoc.siteID).innerHTML,
+          document.getElementById(i + '-' + colLoc.siteID).innerHTML
         ).toUpperCase();
       }
       if (colLoc.storeroom != -1) {
         storeroom = sanitizeString(
-          document.getElementById(i + '-' + colLoc.storeroom).innerHTML,
+          document.getElementById(i + '-' + colLoc.storeroom).innerHTML
         ).toUpperCase();
       }
       if (colLoc.vendor != -1) {
@@ -1009,7 +1008,7 @@ function getItemsFromTable(tableId) {
         catNum = sanitizeString(document.getElementById(i + '-' + colLoc.catNum).innerHTML);
       }
       const maximo = sanitizeString(
-        document.getElementById(i + '-' + colLoc.maximo).innerHTML,
+        document.getElementById(i + '-' + colLoc.maximo).innerHTML
       );
       // if all required parameters are not available, don't create the item and move to next row
       if (
@@ -1039,7 +1038,7 @@ function getItemsFromTable(tableId) {
         site,
         storeroom,
         vendor,
-        catNum,
+        catNum
       );
       if (colLoc.maximo != -1 && maximo != 0 && maximo.toString().length === 7) {
         item.itemnumber = maximo;
@@ -1058,19 +1057,19 @@ function getItemsFromTable(tableId) {
   else {
     for (let i = 2; i <= rows; i++) {
       const desc = sanitizeString(
-        document.getElementById(i + '-' + colLoc.description).innerHTML,
+        document.getElementById(i + '-' + colLoc.description).innerHTML
       );
       const uom = sanitizeString(
-        document.getElementById(i + '-' + colLoc.uom).innerHTML,
+        document.getElementById(i + '-' + colLoc.uom).innerHTML
       ).toUpperCase();
       const commGroup = sanitizeString(
-        document.getElementById(i + '-' + colLoc.commGroup).innerHTML,
+        document.getElementById(i + '-' + colLoc.commGroup).innerHTML
       );
       const glclass = sanitizeString(
-        document.getElementById(i + '-' + colLoc.glClass).innerHTML,
+        document.getElementById(i + '-' + colLoc.glClass).innerHTML
       ).toUpperCase();
       const maximo = sanitizeString(
-        document.getElementById(i + '-' + colLoc.maximo).innerHTML,
+        document.getElementById(i + '-' + colLoc.maximo).innerHTML
       );
       // if all required parameters are not available, don't create the item and move to next row
       if (
@@ -1104,9 +1103,8 @@ function getItemsFromTable(tableId) {
   }
 
   if (invalidItems > 0) {
-    document.getElementById(
-      'batch-upload-status-text',
-    ).innerHTML = `Warning! ${invalidItems} invalid items will not be uploaded`;
+    document.getElementById('batch-upload-status-text').innerHTML =
+      `Warning! ${invalidItems} invalid items will not be uploaded`;
   }
   // return the item array
   return items;
@@ -1126,7 +1124,7 @@ async function uploadItem() {
     sanitizeString(document.getElementById('request-desc').value),
     sanitizeString(document.getElementById('uom-field').value),
     sanitizeString(document.getElementById('com-group').value),
-    sanitizeString(document.getElementById('gl-class').value),
+    sanitizeString(document.getElementById('gl-class').value)
   );
 
   if (document.getElementById('long-desc').value.length > 0) {
@@ -1141,9 +1139,8 @@ async function uploadItem() {
       document.getElementById('confirm-btn').disabled = false;
       new Toast('Upload Complete!', 'bg-success');
       const itemUrl = `https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
-      document.getElementById(
-        'error',
-      ).innerHTML = `Item Upload Successful! <a id="item-link" href = "${itemUrl}"> (Click to view item) </a>`;
+      document.getElementById('error').innerHTML =
+        `Item Upload Successful! <a id="item-link" href = "${itemUrl}"> (Click to view item) </a>`;
       document.getElementById('item-link').addEventListener('click', function (x) {
         x.preventDefault();
         shell.openExternal(itemUrl);
@@ -1182,9 +1179,9 @@ async function batchUploadItems(items) {
       parseInt(document.getElementById('batch-items-table').getAttribute('data-rows')) - 1;
     let nums = '';
     for (let i = 2; i <= rows + 1; i++) {
-      nums += document.getElementById(`${i}-${colLoc.maximo}`).innerHTML ?
-        document.getElementById(`${i}-${colLoc.maximo}`).innerHTML + ',' :
-        '';
+      nums += document.getElementById(`${i}-${colLoc.maximo}`).innerHTML
+        ? document.getElementById(`${i}-${colLoc.maximo}`).innerHTML + ','
+        : '';
     }
     if (e[2] > 0) {
       const itemUrl = `https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
@@ -1256,7 +1253,7 @@ function finishLoadingBatch(params) {
       document.getElementById('current-row').innerHTML = description.row;
       bar.update(
         (msg.data[1] / params[2]) * 100,
-        `Processing Description. Row: ${msg.data[1]} of ${params[2]}`,
+        `Processing Description. Row: ${msg.data[1]} of ${params[2]}`
       );
       processBatch(worker, msg.data[1], description);
     } else if (msg.data[0] === 'saveComplete') {
@@ -1332,7 +1329,7 @@ function validSingle(isExtended = false) {
   worker.work(['validSingle', raw_desc], (result) => {
     showResult(result, isExtended);
   });
-  ipcRenderer.send('firestore-log', { event: CONSTANTS.FIRESTORE_EVENT_SEARCH })
+  ipcRenderer.send('firestore-log', { event: CONSTANTS.FIRESTORE_EVENT_SEARCH });
 }
 
 function showResult(result, isExtended = false) {
@@ -1393,7 +1390,7 @@ function translationDescription(description) {
         document.getElementById('selected-language').value,
         'post',
       ],
-      displayTranslation,
+      displayTranslation
     );
   } else {
     // new Toast('Currently translation into English is not supported');
@@ -1402,9 +1399,8 @@ function translationDescription(description) {
 
 function displayTranslation(data) {
   document.getElementById('trans-desc').value = data[0];
-  document.getElementById(
-    'translation-description',
-  ).value = `The following words do not have a translation:\n${data[1]}\nPlease check logs at bottom of page for details`;
+  document.getElementById('translation-description').value =
+    `The following words do not have a translation:\n${data[1]}\nPlease check logs at bottom of page for details`;
   auto_grow('translation-description');
 }
 
@@ -1622,7 +1618,7 @@ function loadRelated() {
             // single characters aren't searched for
             itemDescription = itemDescription.replace(
               new RegExp(`${smallWord}`, 'i'),
-              `<b>${itemDescription.match(new RegExp(`${smallWord}`, 'i'))?.[0]}</b>`,
+              `<b>${itemDescription.match(new RegExp(`${smallWord}`, 'i'))?.[0]}</b>`
             );
           }
         }
@@ -1643,13 +1639,13 @@ function loadRelated() {
       html = `${html}\n<tr class="${color}">
             <td>${formatter.format(percentMatch)}</td>
             <td>${itemNum}</td>
-            ${isExtended ?
-          `<td>${itemDescription.substring(0, itemDescription.indexOf('|'))}</td>` :
-          `<td>${itemDescription}</td>`
+            ${isExtended
+          ? `<td>${itemDescription.substring(0, itemDescription.indexOf('|'))}</td>`
+          : `<td>${itemDescription}</td>`
         }
-            ${isExtended ?
-          `<td>${itemDescription.slice(itemDescription.indexOf('|') + 1)}</td>` :
-          ''
+            ${isExtended
+          ? `<td>${itemDescription.slice(itemDescription.indexOf('|') + 1)}</td>`
+          : ''
         }
             <td>${itemNames[itemNum][2]}</td>
             ${isPowerUser ? `<td>${itemNames[itemNum][3]}</td>` : ''} 
