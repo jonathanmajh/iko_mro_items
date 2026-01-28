@@ -113,7 +113,7 @@ onmessage = function (e) {
       uploadImages(e.data[1]);
       break;
     case 'uploadInventory':
-      if(e.data.length > 2){ //only adding to storeroom
+      if (e.data.length > 2) { //only adding to storeroom
         uploadInventory(e.data[1], e.data[2]).then((statuscode) => this.postMessage(['result', statuscode]));
       } else { //other uses
         uploadInventory(e.data[1]);
@@ -133,11 +133,11 @@ onmessage = function (e) {
 async function uploadInventory(item, rtrn) {
   const maximo = new Maximo();
   const statusCode = await maximo.uploadToInventory(item);
-  try{
-    if(rtrn == true) {
+  try {
+    if (rtrn == true) {
       return statusCode;
     }
-  } catch (err){
+  } catch (err) {
     console.error(err);
   }
 }
@@ -341,38 +341,27 @@ async function checkUser(credentials = {}) {
  * @param {String} version current app version
  */
 async function checkItemCache(version, login) {
+  try {
   // check internal cache of item information and update with new items in maximo
   postMessage(['debug', `Loading Item Module`]);
   const maximo = new Maximo();
   postMessage(['debug', `0%: Checking Program Version`]);
 
-  const db = new Database();
   const shareDB = new SharedDatabase();
   const remoteDB = new RemoteDatabase();
-  await remoteDB.extractDatabase();
-  remoteDB.initializeDB();
-  if (!(await shareDB.checkVersion(version))) {
-    db.createTables();
-    const filePath = path.join(
-      require('path').resolve(__dirname).replace('renderer', 'assets'),
-      'item_information.xlsx',
-    );
-    const excel = new ExcelReader(filePath);
-    postMessage(['debug', `10%: Loading cache data from file`]);
-    db.clearItemCache();
-    const data = await excel.getItemCache();
-    postMessage(['debug', `20%: Saving data to cache`]);
-    db.saveItemCache(data[0]);
-    db.saveInventoryCache(data[2]);
-    postMessage(['debug', `30%: Loading Manufacturer cache data from file`]);
-    const manu = await excel.getManufactures();
-    const abbr = await excel.getAbbreviations();
-    postMessage(['debug', `40%: Saving data to Manufacturer cache`]);
-    db.populateAbbr(abbr);
-    db.saveManufacturers(manu);
+  const remoteVersion = await remoteDB.getVersion();
+  if (remoteVersion != 'Error') {
+    if (!(await shareDB.checkVersion(remoteVersion))) {
+      // load remote database over local database
+      postMessage(['debug', `10%: Loading new remote database version: ${remoteVersion}`]);
+      await remoteDB.downloadAndExtract()
+      await shareDB.loadRemote(remoteDB.dbPath);
+    }
   }
+
   if (!login) postMessage(['result', 'done']);
   let curVersion;
+  const db = new Database();
   curVersion = db.getVersion('inventory');
   curVersion = curVersion[0].rowstamp;
   postMessage(['debug', `50%: Getting inventory with changes after: ${curVersion} from Maximo`]);
@@ -411,6 +400,10 @@ async function checkItemCache(version, login) {
   if (newItems) {
     postMessage(['debug', '90%: Saving maximo data to Manufacturer cache']);
     db.saveManufacturers(newItems[0]);
+  }
+  } catch (err) {
+    postMessage(['error', `Error checking item cache: ${err}\nNew items may not be available`]);
+    await new Promise(resolve => setTimeout(resolve, 10000)); // wait 10 seconds before continuing
   }
 
   postMessage(['result', 'done']);

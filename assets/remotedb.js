@@ -2,7 +2,6 @@ const Sql = require('better-sqlite3');
 const zip = require("@zip.js/zip.js");
 const fs = require('fs');
 const path = require('path');
-const https = require('https');
 
 /**
   * Database class to open remote zip database files
@@ -15,29 +14,33 @@ class RemoteDatabase {
     constructor() {
         this.url = 'https://iko-proxy.jonathanmajh.workers.dev/program.zip';
         this.dbPath = path.join(__dirname, 'program.db');
-        this.downloadAndExtract();
+        this.version = 'Error';
+    }
+
+    async getVersion() {
+        // download version file from https://iko-proxy.jonathanmajh.workers.dev/.version
+        const response = await fetch('https://iko-proxy.jonathanmajh.workers.dev/.version');
+        if (response.ok) {
+            this.version = await response.text();
+        }
+        return this.version;
     }
 
     async downloadAndExtract() {
-    }
-
-    async extractDatabase() {
-        const reader1 = new zip.ZipReader(new zip.HttpReader(this.url));
-        const entries = await reader1.getEntries();
-        debugger;
+        const reader = new zip.ZipReader(new zip.HttpReader(this.url));
+        const entries = await reader.getEntries();
         for (const entry of entries) {
             if (entry.filename.endsWith('.db')) {
                 const blob = await entry.getData(new zip.BlobWriter());
                 const arrayBuffer = await blob.arrayBuffer();
                 fs.writeFileSync(this.dbPath, Buffer.from(arrayBuffer));
-                this.initializeDB();
+                // this.initializeDB();
             }
         }
-        await reader1.close();
+        await reader.close();
     }
 
     initializeDB() {
-        debugger;
         this.db = new Sql(this.dbPath);
         console.log('Database initialized');
         let stmt;

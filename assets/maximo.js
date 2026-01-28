@@ -359,7 +359,6 @@ class Maximo {
   "storeroom": "${item.storeroomname}",
   "savenow": true,
   "istool": false,`;
-      debugger;
       if (item.vendorname.length > 0) {
         xmldoc = xmldoc + `"VENDOR": "${item.vendorname}",`;
       }
