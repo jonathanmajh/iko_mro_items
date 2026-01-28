@@ -30,6 +30,7 @@
     "npm-check-updates": "^19.1.2"
   },
   "dependencies": {
+    "@zip.js/zip.js": "^2.8.14",
     "better-sqlite3": "^12.4.1",
     "bootstrap": "^5.3.8",
     "electron-squirrel-startup": "^1.0.1",

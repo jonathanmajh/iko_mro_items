@@ -16,7 +16,7 @@ ipcMain.on('firestore-log', (event, data) => {
 })
 
 if (CONSTANTS.OPEN_DEV_TOOLS) {
-  require('electron-reload')(__dirname);
+  // require('electron-reload')(__dirname);
 }
 
 if (require('electron-squirrel-startup')) {

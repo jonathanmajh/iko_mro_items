@@ -11,6 +11,7 @@ const path = require('path');
 const Translation = require('../assets/item_translation/item-translation');
 const fs = require('fs');
 const CONSTANTS = require('../assets/constants.js');
+const RemoteDatabase = require('../assets/remotedb.js');
 /**
  * Handles messages from the WorkerHandler
  *
@@ -347,6 +348,9 @@ async function checkItemCache(version, login) {
 
   const db = new Database();
   const shareDB = new SharedDatabase();
+  const remoteDB = new RemoteDatabase();
+  await remoteDB.extractDatabase();
+  remoteDB.initializeDB();
   if (!(await shareDB.checkVersion(version))) {
     db.createTables();
     const filePath = path.join(

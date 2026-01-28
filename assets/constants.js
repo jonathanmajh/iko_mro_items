@@ -3,8 +3,8 @@
 const devMode = false; //set to true for testing. Remember to set it back to false when committing!
 
 const CONSTANTS = Object.freeze({
-  OPEN_DEV_TOOLS: devMode, // set true to open dev tools on application launch
-  ENV: devMode ? 'test.manage.test' : 'prod.manage.prod', // set false to use production environment and set true for test environments.
+  OPEN_DEV_TOOLS: true, // set true to open dev tools on application launch
+  ENV: devMode ? 'test2.manage.test2' : 'prod.manage.prod', // set false to use production environment and set true for test environments.
   REPLACEMENTS: Object.freeze({
     // single quote
     '`': '\'',
