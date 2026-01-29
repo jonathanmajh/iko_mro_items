@@ -18,7 +18,7 @@ class RemoteDatabase {
     }
 
     async getVersion() {
-        // download version file from https://iko-proxy.jonathanmajh.workers.dev/.version
+        // download version file
         const response = await fetch('https://iko-proxy.jonathanmajh.workers.dev/.version');
         if (response.ok) {
             this.version = await response.text();
