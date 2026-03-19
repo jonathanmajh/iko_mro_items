@@ -7,36 +7,42 @@ const updaterFeedURL = `https://jonathanmajh-iko-mro-items.onrender.com/update/`
 // replace updaterFeedURL with https://l3gxze.deta.dev
 
 function appUpdater() {
-	autoUpdater.setFeedURL(updaterFeedURL);
-	/* Log whats happening
-	TODO send autoUpdater events to renderer so that we could console log it in developer tools
-	You could alsoe use nslog or other logging to see what's happening */
-	autoUpdater.on('error', err => console.log(err));
-	autoUpdater.on('checking-for-update', () => console.log('checking-for-update'));
-	autoUpdater.on('update-available', () => {
-		console.log('update-available');
-	});
-	autoUpdater.on('update-not-available', () => console.log('update-not-available'));
+	// Only enable auto-update on Windows (Squirrel installer)
+	if (platform.startsWith('win32')) {
+		try {
+			autoUpdater.setFeedURL(updaterFeedURL);
+			/* Log whats happening
+			TODO send autoUpdater events to renderer so that we could console log it in developer tools
+			You could alsoe use nslog or other logging to see what's happening */
+			autoUpdater.on('error', err => console.log(err));
+			autoUpdater.on('checking-for-update', () => console.log('checking-for-update'));
+			autoUpdater.on('update-available', () => {
+				console.log('update-available');
+			});
+			autoUpdater.on('update-not-available', () => console.log('update-not-available'));
 
-	// Ask the user if update is available
-	autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
-		console.log('update-downloaded');
-		// Ask user to update the app
-		const selected = dialog.showMessageBoxSync({
-			type: 'question',
-			buttons: ['Update and Relaunch', 'Later'],
-			defaultId: 0,
-			message: 'Update Available!',
-			detail: `A new version of ${app.getName()} has been downloaded\nDo you want to update now?\nUpdate will be automatically installed on next start up.`,
+		// Ask the user if update is available
+		autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
+			console.log('update-downloaded');
+			// Ask user to update the app
+			const selected = dialog.showMessageBoxSync({
+				type: 'question',
+				buttons: ['Update and Relaunch', 'Later'],
+				defaultId: 0,
+				message: 'Update Available!',
+				detail: `A new version of ${app.getName()} has been downloaded\nDo you want to update now?\nUpdate will be automatically installed on next start up.`,
+			});
+			if (selected === 0) {
+				autoUpdater.quitAndInstall();
+			}
 		});
-		if (selected === 0) {
-			autoUpdater.quitAndInstall();
+		// init for updates
+		autoUpdater.checkForUpdates();
+		} catch (err) {
+			console.log('Auto-updater not available on this platform:', err.message);
 		}
-	});
-	// init for updates
-	autoUpdater.checkForUpdates();
+	}
 }
-
 exports = module.exports = {
 	appUpdater
 };

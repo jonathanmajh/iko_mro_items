@@ -198,7 +198,8 @@ function submitMail() {
       !(
         document.getElementById('part-num').reportValidity() &&
         document.getElementById('storeroom').reportValidity() &&
-        document.getElementById('item-descr').reportValidity()
+        document.getElementById('item-descr').reportValidity() &&
+        document.getElementById('pref-manu').reportValidity()
       )
     ) {
       console.log('Required fields still empty');
