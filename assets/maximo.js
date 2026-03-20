@@ -1,7 +1,7 @@
 // various functions for fetching data from maximo rest api
 const SharedDatabase = require('../assets/sharedDB');
 const CONSTANTS = require('../assets/constants.js');
-const Jimp = require('jimp');
+const { Jimp } = require('jimp');
 
 
 /**
@@ -489,21 +489,18 @@ class Maximo {
 async function padImage(oImage) {
   const mimeType = oImage.type;
   const oImgBuf = Buffer.from(await oImage.arrayBuffer());
-  const img = await new Promise((resolve, reject) => {
-    Jimp.read(oImgBuf)
-      .then((oImgJimp) => {
-        const largestDim = Math.max(oImgJimp.getWidth(), oImgJimp.getHeight());
-        new Jimp(largestDim, largestDim, '#ffffffff', (err, image) => {
-          image.blit(oImgJimp, (largestDim - oImgJimp.getWidth()) / 2, (largestDim - oImgJimp.getHeight()) / 2);
-          image.getBufferAsync(mimeType)
-            .then((buffer) => {
-              const newImg = new Blob([buffer], { type: mimeType });
-              resolve(newImg);
-            });
-        });
-      });
-  });
-  return img;
+
+  let image = await Jimp.read(oImgBuf);
+  if (image.width != image.height) {
+    const largestDim = Math.max(image.width, image.height)
+    let background = new Jimp({ width: largestDim, height: largestDim, color: 0xffffffff });
+    background.composite(image, (largestDim - image.width) / 2, (largestDim - image.height) / 2);
+    image = background;
+  }
+  const buffer = await image.getBuffer(mimeType);
+  payload = new Blob([buffer], { type: mimeType });
+  return payload;
+
 }
 
 module.exports = Maximo;
