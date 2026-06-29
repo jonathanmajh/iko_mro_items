@@ -2,6 +2,7 @@ const Sql = require('better-sqlite3');
 const zip = require("@zip.js/zip.js");
 const fs = require('fs');
 const path = require('path');
+const Maximo = require('./maximo.js');
 
 /**
   * Database class to open remote zip database files
@@ -15,19 +16,24 @@ class RemoteDatabase {
         this.url = 'https://iko-proxy.jonathanmajh.workers.dev/program.zip';
         this.dbPath = path.join(__dirname, 'program.db');
         this.version = 'Error';
+        this.maximo = new Maximo();
     }
 
     async getVersion() {
-        // download version file
-        const response = await fetch('https://iko-proxy.jonathanmajh.workers.dev/.version');
-        if (response.ok) {
-            this.version = await response.text();
+        const response = await this.maximo.proxy('https://iko-proxy.jonathanmajh.workers.dev/.version');
+        if (response) {
+            this.version = Buffer.from(response).toString('utf8').trim();
         }
         return this.version;
     }
 
     async downloadAndExtract() {
-        const reader = new zip.ZipReader(new zip.HttpReader(this.url));
+        const response = await this.maximo.proxy(this.url);
+        if (!response) {
+            throw new Error('Failed to download database via Maximo proxy');
+        }
+
+        const reader = new zip.ZipReader(new zip.Uint8ArrayReader(new Uint8Array(response)));
         const entries = await reader.getEntries();
         for (const entry of entries) {
             if (entry.filename.endsWith('.db')) {

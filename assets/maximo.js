@@ -13,6 +13,23 @@ class Maximo {
     this.login = this.shareDB.getPassword();
   }
 
+  async proxy(url) {
+    let response;
+    try {
+      response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/script/IKO_PROXY`, {
+        headers: {
+          'apikey': this.login.userid,
+          'x-proxy-target-url': url,
+        },
+      });
+      return await response.bytes();
+    } catch (err) {
+      postMessage(['error', 'Failed to fetch Data from Maximo, Please Check Network', err]);
+      return false;
+    }
+  }
+      
+
   async getMeters() {
     let response;
     let nextpage = true;
