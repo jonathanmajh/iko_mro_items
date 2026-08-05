@@ -435,10 +435,7 @@ async function uploadAllItems(items, doUpdate = false) { // NOTE: the current im
       if (item.itemnumber === 0 || item.itemnumber.length != 7) {
         // if the item number is 0 or is not 7 characters long, assign a new item number
         needsNewNum = true;
-        // get latest item number
-        num = await maximo.getCurItemNumber(item.series);
-        // increment it by 1 to get an unused item number
-        num++; // since we are incrementing nums, we can't use a 9S series number because it will be a string, not a number
+        num = await maximo.getNextAvailableItemNumber(item.series);
         // push the new item number and the row index to newNums
         newNums.push([num, rowIndex]);
         // set itemnumber property of the item to the new item number

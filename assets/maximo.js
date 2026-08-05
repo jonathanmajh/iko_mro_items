@@ -289,6 +289,46 @@ class Maximo {
     }
   }
 
+  async itemNumberExists(itemnum) {
+    if (!itemnum) {
+      return false;
+    }
+    let response;
+    try {
+      response = await fetch(`https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/os/mxitem?lean=1&oslc.where=itemnum="${itemnum}"&oslc.select=itemnum`, {
+        headers: {
+          'apikey': this.login.userid,
+        },
+      });
+    } catch (err) {
+      postMessage(['debug', 'Failed to verify item number existence with Maximo']);
+      throw new Error('Failed to verify item number existence with Maximo');
+    }
+    const content = await response.json();
+    if (content['oslc:Error']) {
+      return false;
+    }
+    const members = content['rdfs:member'] || content['member'];
+    return Array.isArray(members) && members.length > 0;
+  }
+
+  async getNextAvailableItemNumber(numSeries) {
+    let candidate;
+    let tries = 0;
+    const maxTries = 1000;
+    let latest = await this.getCurItemNumber(numSeries);
+    candidate = latest + 1;
+
+    while (tries < maxTries) {
+      if (!(await this.itemNumberExists(candidate))) {
+        return candidate;
+      }
+      candidate += 1;
+      tries += 1;
+    }
+    throw new Error('Unable to find available item number after multiple attempts');
+  }
+
   async checkLogin(userid = this.login.userid, password = this.login.password) {
     let response;
     try {
