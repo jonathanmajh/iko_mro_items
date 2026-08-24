@@ -410,7 +410,7 @@ document.getElementById('imgInput').addEventListener('change', async (e) => {
 
   // generate a link to open items that are being uploaded to in maximo
 
-  const url = `https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
+  const url = `https://${CONSTANTS.ENV}/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
   document.getElementById('img-upload-status-text').innerHTML =
     `<a href=${url} id="imgs-link">Selected Items:</a>`;
   document.getElementById('imgs-link').addEventListener('click', function (e) {
@@ -1139,7 +1139,7 @@ async function uploadItem() {
       document.getElementById('confirm-btn').innerHTML = 'Upload Item';
       document.getElementById('confirm-btn').disabled = false;
       new Toast('Upload Complete!', 'bg-success');
-      const itemUrl = `https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
+      const itemUrl = `https://${CONSTANTS.ENV}/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${item.itemnumber}`;
       document.getElementById('error').innerHTML =
         `Item Upload Successful! <a id="item-link" href = "${itemUrl}"> (Click to view item) </a>`;
       document.getElementById('item-link').addEventListener('click', function (x) {
@@ -1185,7 +1185,7 @@ async function batchUploadItems(items) {
         : '';
     }
     if (e[2] > 0) {
-      const itemUrl = `https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
+      const itemUrl = `https://${CONSTANTS.ENV}/maximo/oslc/graphite/manage-shell/index.html?event=loadapp&value=item&additionalevent=useqbe&additionaleventvalue=itemnum=${nums}`;
       finishText += `<a id="batch-link" href="${itemUrl}">Click to view:</a>`;
       document.getElementById('batch-upload-status-text').innerHTML = finishText;
       document.getElementById('batch-link').addEventListener('click', function (e) {

@@ -332,7 +332,7 @@ async function writeItemNum(data) {
 async function checkUser(credentials = {}) {
   postMessage(['debug', `Checking Maximo Login`]);
   const maximo = new Maximo();
-  console.log(`logging in to https://${CONSTANTS.ENV}.iko.max-it-eam.com/maximo/api/whoami?lean=1`);
+  console.log(`logging in to https://${CONSTANTS.ENV}/maximo/api/whoami?lean=1`);
   maximo.checkLogin(credentials?.userid, credentials?.password);
 }
 /**
