@@ -547,15 +547,26 @@ async function padImage(oImage) {
   const mimeType = oImage.type;
   const oImgBuf = Buffer.from(await oImage.arrayBuffer());
 
-  let image = await Jimp.read(oImgBuf);
+  // raise jpeg-js memory limit (default 512MB) so large images can be decoded
+  // note: must use fromBuffer (not Jimp.read) - Jimp.read drops options for Buffer input,
+  // and Jimp only forwards options keyed by mime type to the decoder
+  let image = await Jimp.fromBuffer(oImgBuf, { 'image/jpeg': { maxMemoryUsageInMB: 2048 } });
+
+  // downscale oversized images to keep memory usage and upload size reasonable
+  const MAX_DIM = 1024;
+  if (image.width > MAX_DIM || image.height > MAX_DIM) {
+    const scale = MAX_DIM / Math.max(image.width, image.height);
+    image.resize({ w: Math.round(image.width * scale) });
+  }
+
   if (image.width != image.height) {
     const largestDim = Math.max(image.width, image.height)
     let background = new Jimp({ width: largestDim, height: largestDim, color: 0xffffffff });
-    background.composite(image, (largestDim - image.width) / 2, (largestDim - image.height) / 2);
+    background.composite(image, Math.floor((largestDim - image.width) / 2), Math.floor((largestDim - image.height) / 2));
     image = background;
   }
   const buffer = await image.getBuffer(mimeType);
-  payload = new Blob([buffer], { type: mimeType });
+  const payload = new Blob([buffer], { type: mimeType });
   return payload;
 
 }
