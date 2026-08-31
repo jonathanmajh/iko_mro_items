@@ -119,12 +119,19 @@ For special cases the code sometimes uses a bare `Worker('./worker.js')` (e.g., 
 
 ## Configuration & Environments
 
-All environment-sensitive settings live in `assets/constants.js`:
+All environment-sensitive settings live in `assets/constants.js`, sourced from environment variables with **production-safe defaults**:
 
-- `ENV` — Maximo host. **UAT vs production** is switched by the `devMode` boolean at the top of the file.
-- `OPEN_DEV_TOOLS` — set `true` (via `devMode`) to auto-open DevTools.
+- `ENV` — Maximo host. Defaults to production; override with `MAXIMO_ENV` (e.g. `MAXIMO_ENV=mas.manage.uat.ikona-np.naviam.app`).
+- `OPEN_DEV_TOOLS` — opens DevTools at launch. Defaults to off; set `OPEN_DEV_TOOLS=true` to enable.
+- `FIREBASECONFIG.apiKey` — Firebase API key for usage tracking, supplied via `FIREBASE_API_KEY`. Non-secret Firebase settings remain inline.
 
-> ⚠️ `devMode` is a hard-coded flag. **Always set it back to `false` before committing** to avoid shipping the UAT environment and DevTools to production.
+Example launching against the UAT environment with DevTools:
+
+```bash
+MAXIMO_ENV=mas.manage.uat.ikona-np.naviam.app OPEN_DEV_TOOLS=true npm start
+```
+
+Environment overrides can also be placed in a gitignored local `.env` / `.env.local` file. Production is the default and requires no configuration.
 
 ## Data Storage (Local)
 
@@ -136,7 +143,7 @@ The app stores several SQLite databases in the OS user-data folder under the `EA
 | macOS | `~/Library/Preferences/EAM Spare Parts\` |
 | Linux | `~/.local/share/EAM Spare Parts\` |
 
-Files: `program.db` (item cache + settings), `obserlist.db` (observation lists), `translist.db` (translation dictionary). These are gitignored.
+Files: `program.db` (item cache + settings), `obserlist.db` (observation lists), `translist.db` (translation dictionary). These are gitignored. Paths are resolved centrally in `assets/paths.js`.
 
 `localStorage` holds user-scoped UI state: `theme`, `userSite`, `powerUser`.
 
@@ -222,6 +229,6 @@ Delete the local `program.db` (see "Data Storage") and restart; on startup the a
 - Match the existing style (Google-ish, 2-space indent, template literals, `postMessage`-based progress reporting). ESLint config is provided.
 - Keep heavy work in the worker, never in the renderer/DOM event handlers.
 - Put new business logic under `assets/` (or a subfolder for a new feature) and new screens in `renderer/`.
-- Revert `devMode` to `false` before committing.
+- Do **not** hard-code environment credentials; use the env-var config in `assets/constants.js` and the path helpers in `assets/paths.js`.
 - Update this doc if you add scripts, modules, or change architecture.
 - Follow existing JSDoc comment conventions.

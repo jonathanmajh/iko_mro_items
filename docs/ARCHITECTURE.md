@@ -68,7 +68,6 @@ Each HTML page is a distinct "module" (screen) loaded into the main window by th
 | `start_page.html` | Launch/login gate. Checks Maximo credentials, then loads the item module |
 | `item_main.html` | The primary Item Tool (search, validate, request, upload, batch upload, images) |
 | `observation_template.html` | Observation list comparison against Maximo (produces import spreadsheets) |
-| `item_translation.html` | (Partial/WIP) batch translation of descriptions |
 | `asset_translation.html` | Translates PM / JP / asset descriptions into CSV import files |
 | `setting.html` | Settings/modal window (refreshing translation definitions) |
 
@@ -85,8 +84,8 @@ The `assets/` directory contains all business logic and integrations:
 ```
 assets/
 ├── constants.js                         Global config (env URLs, Firebase config, char replacements)
+├── paths.js                             Central OS user-data path resolution for local DBs
 ├── common.js                            Shared UI helpers (loaded by renderer)
-├── worker.dispatch -> renderer/worker.js
 ├── maximo.js                            Maximo REST/OSLC API client
 ├── indexDB.js                           Local item/inventory/analysis SQLite store (program.db)
 ├── sharedDB.js                          Shared settings DB (program.db) - password, version, table schema
@@ -103,8 +102,7 @@ assets/
 │   └── item-translation-sqlite.js       Translation dictionary store (translist.db)
 └── asset_translation/
     ├── asset_translation_main.js        Asset/PM/JP translation orchestration
-    ├── asset_translation_excel.js       Reads translation workbooks & PM/JP workbooks
-    └── asset_translation_sqlite.js      (mostly unused stub)
+    └── asset_translation_excel.js       Reads translation workbooks & PM/JP workbooks
 ```
 
 ## Key Components
@@ -243,12 +241,13 @@ Core operations:
 
 ## Configuration
 
-All runtime configuration is centralized in `assets/constants.js`:
+All runtime configuration is centralized in `assets/constants.js`. Environment-sensitive values are sourced from environment variables with **production-safe defaults**:
 
-- `ENV` – the Maximo environment hostname (UAT vs production; controlled by the `devMode` flag, which must be reverted before committing)
-- `OPEN_DEV_TOOLS` – opens DevTools at launch when in dev mode
+- `ENV` – the Maximo environment hostname (UAT vs production), from `MAXIMO_ENV`, defaulting to production
+- `OPEN_DEV_TOOLS` – opens DevTools at launch when `OPEN_DEV_TOOLS=true` (default off)
 - `REPLACEMENTS` – smart-quote / hyphen normalization mapping used when sanitizing descriptions
-- `FIREBASECONFIG` – Firebase project credentials for usage tracking
+- `FIREBASECONFIG` – Firebase project settings for usage tracking; the API key is supplied via `FIREBASE_API_KEY`
+- Local user-data paths are resolved centrally via `assets/paths.js` rather than being hard-coded per module
 
 ## External Dependencies
 
@@ -289,4 +288,4 @@ renderer/*.js  ── WorkerHandler (common.js) ──>  renderer/worker.js
 - `contextIsolation: false` + `nodeIntegration: true` is a security trade-off that keeps the architecture simple but is not recommended for production-facing Electron apps.
 - Files named `exceljs.js` and `better-sqlite.js` export classes named `Spreadsheet` and `ObservationDatabase` respectively; there are effectively two Excel helper classes (`ExcelReader` in `spreadsheet.js` and `Spreadsheet` in `exceljs.js`) that are partially redundant.
 - `gitignore` excludes `program.db`, `obserlist.db`, and the `out/` build directory.
-- Some modules are marked legacy/deprecated in comments (e.g. `Spreadsheet.getDescriptions`, `item-translation.translate`, `asset_translation_sqlite.js`) and the renderer `item_translation` / `asset_translation` pages have hard-coded debug paths — these are work-in-progress.
+- Some modules are marked legacy/deprecated in comments (e.g. `Spreadsheet.getDescriptions`, `item-translation.translate`) — these are work-in-progress.

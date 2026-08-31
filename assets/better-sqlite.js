@@ -1,8 +1,9 @@
 const sql = require('better-sqlite3');
+const paths = require('./paths');
 
 class ObservationDatabase {
     constructor() {
-        this.db = new sql(`${process.env.APPDATA}/EAM Spare Parts/obserlist.db`);//, { verbose: console.log });
+        this.db = new sql(paths.obserlistDb());//, { verbose: console.log });
     }
 
     createTables() {

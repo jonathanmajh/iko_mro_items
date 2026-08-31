@@ -1,12 +1,11 @@
 const Sql = require('better-sqlite3');
-
-const dbPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Preferences' : process.env.HOME + "/.local/share")
+const paths = require('./paths');
 /**
   * Database class for setting related queries
   */
 class SharedDatabase {
   constructor() {
-    this.db = new Sql(`${dbPath}/EAM Spare Parts/program.db`);// , { verbose: console.log });
+    this.db = new Sql(paths.programDb());// , { verbose: console.log });
     const stmt = this.db.prepare('CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY, key TEXT UNIQUE NOT NULL, value TEXT NOT NULL)');
     stmt.run();
   }

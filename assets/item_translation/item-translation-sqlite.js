@@ -1,10 +1,11 @@
 const { SqliteError } = require('better-sqlite3');
 const sql = require('better-sqlite3');
+const paths = require('../paths');
 
 class TranslationDatabase {
     constructor() {
         // save location is in user %appdata%
-        this.db = new sql(`${process.env.APPDATA}/EAM Spare Parts/translist.db`);//, { verbose: console.log });
+        this.db = new sql(paths.translistDb());//, { verbose: console.log });
     }
 
     // save updated translation information

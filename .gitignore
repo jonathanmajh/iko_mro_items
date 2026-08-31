@@ -3,3 +3,8 @@ node_modules
 out/
 assets/obserlist.db
 */program.db
+
+# local environment / credential overrides
+.env
+.env.local
+.vscode/*.local.json
