@@ -56,8 +56,7 @@ iko_mro_items/
 │   ├── sharedDB.js             # Settings + schema + remote DB merge
 │   ├── remotedb.js             # Remote program.db download/extract
 │   ├── better-sqlite.js        # Observation list DB
-│   ├── spreadsheet.js          # ExcelReader
-│   ├── exceljs.js              # Spreadsheet (observation/jobtask/tranlation IO)
+│   ├── excel.js                # Unified Spreadsheet (item cache/batches + observation/jobtask/translation IO)
 │   ├── validators.js           # Description validation
 │   ├── utils.js / firestore.js / autoupdater.js
 │   └── item_translation/       # Item description translation

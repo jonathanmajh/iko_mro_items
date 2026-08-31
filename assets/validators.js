@@ -1,5 +1,5 @@
 const Database = require('./indexDB');
-const ExcelReader = require('./spreadsheet');
+const Spreadsheet = require('./excel');
 const utils = require('./utils');
 const CONSTANTS = require('./constants')
 
@@ -84,7 +84,7 @@ class Validate {
     async validateBatch(filePath) {
         postMessage(['debug', `Selected file path: "${filePath}"`]);
         filePath = filePath[0];
-        let excel = new ExcelReader(filePath);
+        let excel = new Spreadsheet(filePath);
         let result = await excel.getDescriptions();
         for (let i=0; i<result.length; i++) {
             result[i].result = await this.validateSingle(result[i].value);

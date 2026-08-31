@@ -1,6 +1,5 @@
 const Validate = require('../assets/validators');
-const ExcelReader = require('../assets/spreadsheet');
-const Spreadsheet = require('../assets/exceljs');
+const Spreadsheet = require('../assets/excel');
 const Database = require('../assets/indexDB');
 const SharedDatabase = require('../assets/sharedDB');
 const Maximo = require('../assets/maximo');
@@ -9,7 +8,6 @@ const ObservationDatabase = require('../assets/better-sqlite');
 const TranslationDatabase = require('../assets/item_translation/item-translation-sqlite');
 const path = require('path');
 const Translation = require('../assets/item_translation/item-translation');
-const fs = require('fs');
 const CONSTANTS = require('../assets/constants.js');
 const RemoteDatabase = require('../assets/remotedb.js');
 /**
@@ -73,9 +71,6 @@ onmessage = function (e) {
       break;
     case 'refreshTranslations':
       refreshTranslations(e.data[1]);
-      break;
-    case 'batchTranslate':
-      batchTranslate(e.data[1]);
       break;
     case 'nonInteractive':
       nonInteractiveSave(e.data[1]);
@@ -146,7 +141,7 @@ async function uploadInventory(item, rtrn) {
 async function saveProgress(params) {
   const db = new Database();
   const data = db.getAllWorkingDesc();
-  const excel = new ExcelReader(params[0].filePath);
+  const excel = new Spreadsheet(params[0].filePath);
   const result = await excel.saveNonInteractive(params, data);
   console.log(result);
   postMessage(['saveComplete', Number(params[1]) + 1]);
@@ -199,36 +194,8 @@ function nonInteractiveSave(params) {
   }
 }
 
-// depre
-async function batchTranslate(params) {
-  // translate description in file to all available languagues
-  const excel = new Spreadsheet(params.filePath);
-  const descs = await excel.getDescriptions(params);
-  const trans = new Translation();
-  const db = new TranslationDatabase();
-  const langs = db.getLanguages();
-  let translated;
-  let result;
-  let missing = [];
-  const allTranslated = [];
-  for (const desc of descs) {
-    translated = desc;
-    for (const lang of langs) {
-      result = trans.translate({ lang: lang, description: desc.description });
-      translated[lang] = result.description;
-      missing = missing.concat(result.missing);
-    }
-    allTranslated.push(translated);
-  }
-  console.log(allTranslated);
-  console.log(missing);
-  fs.copyFileSync(params.filePath, `${params.filePath}.backup`);
-  const writeExcel = new Spreadsheet(params.filePath);
-  writeExcel.saveTranslations({ langs: langs, item: allTranslated, missing: missing });
-}
-
 async function interactive(e) {
-  const excel = new ExcelReader(e.data[1].filePath);
+  const excel = new Spreadsheet(e.data[1].filePath);
   const data = await excel.getDescriptions(e.data[1]);
   const db = new Database();
   const dataSaved = db.saveDescription(data);
@@ -236,7 +203,7 @@ async function interactive(e) {
 }
 
 async function writeDesc(e) {
-  const excel = new ExcelReader(e.data[1][0].filePath);
+  const excel = new Spreadsheet(e.data[1][0].filePath);
   const result = await excel.saveDescription(e.data[1]);
   if (result) {
     postMessage(['result', result]);
@@ -247,7 +214,7 @@ async function writeDesc(e) {
 
 async function update(e) {
   const updateType = e.data[1];
-  const excel = new ExcelReader(e.data[2]);
+  const excel = new Spreadsheet(e.data[2]);
   const db = new Database();
   if (updateType === 'manufacturer') {
     const data = await excel.getManufactures();
@@ -319,7 +286,7 @@ async function writeItemNum(data) {
   const maximo = new Database();
   const item = maximo.loadItem(data[4]);
   if (item) {
-    const excel = new ExcelReader(data[0]);
+    const excel = new Spreadsheet(data[0]);
     const result = await excel.saveNumber(data);
     if (result) {
       postMessage(['result', result]);

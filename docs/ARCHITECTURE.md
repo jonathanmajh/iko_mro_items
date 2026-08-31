@@ -91,8 +91,7 @@ assets/
 ├── sharedDB.js                          Shared settings DB (program.db) - password, version, table schema
 ├── remotedb.js                          Downloads + unpacks a remote program.db zip via Maximo proxy
 ├── better-sqlite.js                     Observation list SQLite store (obserlist.db)
-├── spreadsheet.js                       ExcelReader - reads/writes item cache & batches (exceljs)
-├── exceljs.js                           Spreadsheet - observation/jobtask/translation import-export
+├── excel.js                             Unified Spreadsheet class - item cache, batches, observation/jobtask/translation import-export (exceljs)
 ├── validators.js                        Description validation (manufacturer, abbreviations, assembly)
 ├── utils.js                             Combination helpers, string cleanup constants
 ├── firestore.js                         Firebase usage-tracking client
@@ -140,7 +139,7 @@ Multiple SQLite files live in the OS user-data directory (`%APPDATA%\EAM Spare P
 
 Tables are created (with the schema defined in `sharedDB.js#createTables`) on first run and refreshed when a newer remote database is detected.
 
-**Why SQLite**: Maximo holds 100k+ item records; fetching them live is too slow. The app keeps a locally cached, searchable copy built via delta sync and through an initial bundled Excel spreadsheet (`spreadsheet.js#getItemCache`).
+**Why SQLite**: Maximo holds 100k+ item records; fetching them live is too slow. The app keeps a locally cached, searchable copy built via delta sync and through an initial bundled Excel spreadsheet (`excel.js#getItemCache`).
 
 ### Remote database distribution (`assets/remotedb.js`)
 
@@ -272,7 +271,7 @@ renderer/*.js  ── WorkerHandler (common.js) ──>  renderer/worker.js
                                                       │
     ┌───────────────┬───────────────┬────────────────┤
     ▼               ▼               ▼                ▼
- maximo.js      indexDB.js     sharedDB.js    spreadsheet.js / exceljs.js
+ maximo.js      indexDB.js     sharedDB.js    excel.js
     │               │               │
     ▼               ▼               ▼
  remotedb.js   better-sqlite.js  item-translation-sqlite.js
@@ -286,6 +285,6 @@ renderer/*.js  ── WorkerHandler (common.js) ──>  renderer/worker.js
 ## Known Architectural Traits / Notes
 
 - `contextIsolation: false` + `nodeIntegration: true` is a security trade-off that keeps the architecture simple but is not recommended for production-facing Electron apps.
-- Files named `exceljs.js` and `better-sqlite.js` export classes named `Spreadsheet` and `ObservationDatabase` respectively; there are effectively two Excel helper classes (`ExcelReader` in `spreadsheet.js` and `Spreadsheet` in `exceljs.js`) that are partially redundant.
+- `assets/excel.js` exports a single `Spreadsheet` class consolidating the former `ExcelReader` (item cache/batches) and the old `Spreadsheet` (observation/jobtask/translation import-export). `better-sqlite.js` exports `ObservationDatabase`.
 - `gitignore` excludes `program.db`, `obserlist.db`, and the `out/` build directory.
 - Some modules are marked legacy/deprecated in comments (e.g. `Spreadsheet.getDescriptions`, `item-translation.translate`) — these are work-in-progress.
