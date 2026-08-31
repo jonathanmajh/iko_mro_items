@@ -312,7 +312,7 @@ class Database {
     result = result.filter((item) => item !== false);
     if (result.length) {
       let arrayAsNum = [...Array(result.length).keys()]; // create an array with only integers to find combinations
-      arrayAsNum = getCombinations(arrayAsNum);
+      arrayAsNum = utils.getCombinations(arrayAsNum);
       const intersections = [];
       for (let i = arrayAsNum.length; i > 0; i--) { // convert combination of integers to combination of arrays
         const holder = [];
@@ -388,29 +388,6 @@ function matchAndScore(data) {
     });
   });
   return matchedScores;
-}
-
-// https://stackoverflow.com/a/59942031
-// Generate all possible non duplicate combinations of the arrays
-function getCombinations(valuesArray) {
-  const combi = [];
-  let temp = [];
-  const slent = Math.pow(2, valuesArray.length);
-
-  for (let i = 0; i < slent; i++) {
-    temp = [];
-    for (let j = 0; j < valuesArray.length; j++) {
-      if ((i & Math.pow(2, j))) {
-        temp.push(valuesArray[j]);
-      }
-    }
-    if (temp.length > 0) {
-      combi.push(temp);
-    }
-  }
-
-  combi.sort((a, b) => a.length - b.length);
-  return combi;
 }
 
 function itemOccurrence(data, manufs) {

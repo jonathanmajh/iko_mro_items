@@ -16,17 +16,6 @@ document.getElementById("select_output").addEventListener("click", selectFolder)
 document.getElementById("process").addEventListener("click", processFile);
 document.getElementById("dark-mode-switch").addEventListener("click", toggleTheme);
 
-function toggleTheme(){
-    theme = document.getElementById("dark-mode-switch").checked ? "light" : "dark";
-    let str = "[data-bs-theme=\"" + theme + "\"]";
-    theme = document.getElementById("dark-mode-switch").checked ? "dark" : "light";
-    //console.log(str);
-    let elms = document.querySelectorAll(str);
-    for(const elm of elms){
-        elm.setAttribute("data-bs-theme", theme);
-    }
-}
-
 function selectFile() {
     dialog.showOpenDialog([], {
         title: "Select Observation List Spreadsheet",
