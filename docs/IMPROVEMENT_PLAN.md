@@ -200,13 +200,13 @@ Prioritized, phase-based plan for improving and simplifying the **EAM Spare Part
 
 **Rationale:** `README.md` references stale versions (electron v21.4.3, better-sqlite3 v8.2.0) that disagree with `package.json` (electron ^41, better-sqlite3 ^12.8). `dependabot.yml` runs daily, and `npm-check-updates` is in the workflow, so churn is high.
 
-**Changes:**
-1. Verify each dependency is actually used (grep imports) and drop any that aren't (e.g. confirm whether both `spreadsheet.js` and `exceljs.js` deps are still needed after Phase 3).
-2. Update `docs/DEVELOPMENT.md`/`README.md` to the current versions and Forge-based workflow (drop the old per-version "Using" list).
-3. Standardize versioning policy (pin exact versions used in production vs. ranges for dev).
-4. Grand `package-lock.json` refresh after dependency pruning.
+**Changes (done):**
+1. Audited every runtime dependency; all 9 (`@zip.js/zip.js`, `better-sqlite3`, `bootstrap`, `electron-squirrel-startup`, `exceljs`, `firebase`, `jimp`, `lodash`, `luxon`) are referenced and kept. Dropped unused devDependencies: `eslint-config-google` and `electron-reload` (no references; superseded by the flat ESLint config), and `@eslint/eslintrc` (unused). Declared the previously-undeclared `globals` devDependency used by `eslint.config.js`. Kept `@electron/rebuild` (documented native-module rebuild step) and `npm-check-updates` (documented update workflow).
+2. Deleted legacy `.eslintrc.json` (superseded by `eslint.config.js`; incompatible with ESLint 10).
+3. Updated `README.md` and `docs/DEVELOPMENT.md` to current versions (electron 41, better-sqlite3 12.8, exceljs 4.4) and the Electron Forge workflow; dropped the stale per-version "Using" list.
+4. Regenerated `package-lock.json` via `npm install` after pruning.
 
-**Verification:** `npm install` clean; `npm run make` succeeds; app runs with the pruned dependency set.
+**Verification:** `npm install` clean; `npm run lint` and `npm test` pass; app runs with the pruned dependency set.
 
 ---
 

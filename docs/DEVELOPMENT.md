@@ -39,8 +39,8 @@ npx @electron/rebuild -f -w better-sqlite3
 | `npm run package` | Package the app into the platform output directory (`out/`) |
 | `npm run make` | Produce distributables (Squirrel installer on Windows, zip on macOS) |
 | `npm run publish` | Publish a release to GitHub |
-
-There is no test or lint `npm` script defined. ESLint is configured (`.eslintrc.json`, extends `google`) but must be invoked manually with `npx eslint .`; note `max-len` and `linebreak-style` are disabled, and mostly-commented/large files may produce many warnings.
+| `npm run lint` | Run ESLint (flat config in `eslint.config.js`) |
+| `npm test` | Run the Vitest unit-test suite |
 
 ## Project Layout
 

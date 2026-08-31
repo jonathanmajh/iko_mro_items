@@ -19,25 +19,24 @@ npm install
 npm start
 npm run make
 ```
-Note: Better-sqlite3 does not include prebuilt binaries for windows, this will have to be complied see [Better-Sqlite](https://github.com/JoshuaWise/better-sqlite3/blob/master/docs/troubleshooting.md) and [Working with Electron](https://github.com/JoshuaWise/better-sqlite3/issues/126)
+Note: This app reads and writes Excel (`.xls`/`.xlsx`/`.xlsm`/`.xlsb`), Maximo import spreadsheets, and SQLite databases (`better-sqlite3`). Native modules such as `better-sqlite3` are rebuilt for Electron automatically by the Forge toolchain, so use `npm install` then `npm run make` (do not open the HTML files directly in a browser).
 
 Using
 ```
-node v18.16.0
-electron v21.4.3
-better-sqlite3 v8.2.0
-electron-squirrel-startup v1.0.0
-xlsx v0.16.9
+node v24.18.1
+npm 11.x
+electron v41.0.3
+better-sqlite3 v12.8.0
+electron-squirrel-startup v1.0.1
+exceljs v4.4.0
 ```
 
-Auto updating using Nuts
-https://github.com/GitbookIO/nuts
-releases are created using tags
-npm version major/minor/patch
-
+Publishing: Electron Forge (`@electron-forge/publisher-github`) creates builds and releases from tags.
+```
+npm run make          # build distributables
 git push --follow-tags
-
-npx npm-check-updates (-u)
+npx npm-check-updates (-u)   # check for dependency updates
+```
 
 ## To edit
 ### Editing CSS:
