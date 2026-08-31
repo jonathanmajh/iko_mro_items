@@ -139,6 +139,6 @@ function appUpdater() {
 		}
 	}
 }
-exports = module.exports = {
+module.exports = {
 	appUpdater
 };

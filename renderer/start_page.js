@@ -11,7 +11,7 @@ window.onload = function () {
 function openItem(login) {
   const worker = new WorkerHandler();
 
-  version = ipcRenderer.sendSync('getVersion');
+  const version = ipcRenderer.sendSync('getVersion');
   worker.work(['checkItemCache', version, login], openMain);
 
   function openMain() {

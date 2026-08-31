@@ -503,7 +503,7 @@ document.getElementById('related-table').addEventListener('click', (event) => {
   // copy item number into field if item number is clicked
   if (col == 1 && row > 0) {
     document.getElementById('request-items-accordion-btn').classList.remove('collapsed');
-    html = new bootstrap.Collapse(document.getElementById('accordian-iteminfo'), {
+    const html = new bootstrap.Collapse(document.getElementById('accordian-iteminfo'), {
       toggle: false,
     });
     html.show();
@@ -1537,7 +1537,7 @@ async function showRelated(result, isExtended = false) {
   document.getElementById('related-items-accordion-btn').classList.remove('collapsed');
   // load a couple of items
   loadRelated();
-  html = new bootstrap.Collapse(document.getElementById('accordion-relatedItem'), {
+  const html = new bootstrap.Collapse(document.getElementById('accordion-relatedItem'), {
     toggle: false,
   });
   html.show();
@@ -1613,7 +1613,7 @@ function loadRelated() {
     if (itemDescription) {
       // Bold all words in item description that match the search query
       for (const word of searchWords) {
-        split = word.split(' ');
+        const split = word.split(' ');
         for (const smallWord of split) {
           if (smallWord.length > 1) {
             // single characters aren't searched for

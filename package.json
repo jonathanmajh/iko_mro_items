@@ -8,7 +8,9 @@
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "publish": "electron-forge publish"
+    "publish": "electron-forge publish",
+    "lint": "eslint .",
+    "test": "vitest run"
   },
   "repository": "https://github.com/jonathanmajh/iko_mro_items",
   "keywords": [],
@@ -23,11 +25,14 @@
     "@electron-forge/maker-zip": "^7.11.1",
     "@electron-forge/publisher-github": "^7.11.1",
     "@electron/rebuild": "^4.0.3",
+    "@eslint/eslintrc": "^3.3.6",
+    "@eslint/js": "^10.0.1",
     "electron": "^41.0.3",
     "electron-reload": "^2.0.0-alpha.1",
     "eslint": "^10.0.3",
     "eslint-config-google": "^0.14.0",
-    "npm-check-updates": "^19.6.5"
+    "npm-check-updates": "^19.6.5",
+    "vitest": "^4.1.11"
   },
   "dependencies": {
     "@zip.js/zip.js": "^2.8.23",

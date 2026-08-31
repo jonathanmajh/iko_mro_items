@@ -234,7 +234,7 @@ async function compareObservLists(data, savePath, jobTaskPath) {
   // compare condition domain definition
   const removeOldMeters = [];
   for (const meter of data[0]) {
-    result = sqlite.compareDomainDefinition(meter.list_id, meter.inspect, 1);
+    const result = sqlite.compareDomainDefinition(meter.list_id, meter.inspect, 1);
     if (!result) {
       removeOldMeters.push(meter.list_id);
     }
@@ -243,7 +243,7 @@ async function compareObservLists(data, savePath, jobTaskPath) {
   // compare condition domain values
   const removeOldObservations = [];
   for (const observation of data[1]) {
-    result = sqlite.compareDomainValues(observation.search_str, observation.observation);
+    const result = sqlite.compareDomainValues(observation.search_str, observation.observation);
     if (!result) {
       removeOldObservations.push(observation.search_str.replace('~', ':'));
     }
@@ -254,7 +254,7 @@ async function compareObservLists(data, savePath, jobTaskPath) {
   data = await maximo.getMeters();
   const removeOldMaximoMeters = [];
   for (const meter of data) {
-    result = sqlite.compareDomainDefinition(meter.list_id, meter.inspect, 2);
+    const result = sqlite.compareDomainDefinition(meter.list_id, meter.inspect, 2);
     if (!result) {
       removeOldMaximoMeters.push(meter.list_id);
     }

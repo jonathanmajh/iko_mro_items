@@ -177,23 +177,24 @@ class Spreadsheet {
   // write validated item information to the workbook
   // not used
   async writeDescriptions(descriptions, savePath) {
-    const workbook = xlsx.readFile(this.filePath, {cellStyles: true, bookVBA: true});
-    const worksheet = workbook.Sheets['Validate'];
+    const workbook = new Exceljs.Workbook();
+    await workbook.xlsx.readFile(this.filePath);
+    const worksheet = workbook.getWorksheet('Validate');
     descriptions.forEach((description) => {
-      worksheet[`E${description.row}`] = {t: `s`, v: description.result[3], w: undefined}; // maximo description
-      worksheet[`F${description.row}`] = {t: `s`, v: description.result[0], w: undefined}; // main description
-      worksheet[`G${description.row}`] = {t: `s`, v: description.result[1], w: undefined}; // ext1
-      worksheet[`H${description.row}`] = {t: `s`, v: description.result[2], w: undefined}; // ext2
-      worksheet[`I${description.row}`] = {t: `s`, v: description.messages, w: undefined}; // msg
+      worksheet.getCell(`E${description.row}`).value = description.result[3]; // maximo description
+      worksheet.getCell(`F${description.row}`).value = description.result[0]; // main description
+      worksheet.getCell(`G${description.row}`).value = description.result[1]; // ext1
+      worksheet.getCell(`H${description.row}`).value = description.result[2]; // ext2
+      worksheet.getCell(`I${description.row}`).value = description.messages; // msg
     });
     try {
-      xlsx.writeFile(workbook, savePath);
+      await workbook.xlsx.writeFile(savePath);
     } catch (error) {
       console.log(error);
       const suffix = Date.now();
       savePath = savePath.split(`.`);
       savePath = `${savePath[0]}${suffix}.${savePath[1]}`;
-      xlsx.writeFile(workbook, savePath);
+      await workbook.xlsx.writeFile(savePath);
     }
     return savePath;
   }

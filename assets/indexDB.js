@@ -514,6 +514,8 @@ class Database {
 }
 
 module.exports = Database;
+module.exports.itemOccurrence = itemOccurrence;
+module.exports.matchAndScore = matchAndScore;
 
 function matchAndScore(data) {
   postMessage(['progress', 80, 'Processing Item Descriptions']);

@@ -30,7 +30,7 @@ class TranslateDescription {
                 } else if (descriptions.slice(i, j).length > 1) {
                     postMessage(['debug', `${descriptions.slice(i, j).join(',')} has no translation to ${lang_code}`]);
                 } else {
-                    if (!(db2.isManufacturer(descriptions.slice(i, j)))) {
+                    if (!(db2.isManufacturer(descriptions[i]))) {
                         postMessage(['debug', `${descriptions.slice(i, j)} has no translation to ${lang_code}`]);
                         temp = descriptions[i].split(" ");
                         if (hasNumber.test(descriptions[i])) {
