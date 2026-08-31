@@ -1,5 +1,5 @@
 // various functions for fetching data from maximo rest api
-const SharedDatabase = require('../assets/sharedDB');
+const Database = require('./indexDB');
 const CONSTANTS = require('../assets/constants.js');
 const { Jimp } = require('jimp');
 
@@ -9,7 +9,7 @@ const { Jimp } = require('jimp');
  */
 class Maximo {
   constructor() {
-    this.shareDB = new SharedDatabase();
+    this.shareDB = new Database();
     this.login = this.shareDB.getPassword();
   }
 

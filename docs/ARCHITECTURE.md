@@ -87,8 +87,7 @@ assets/
 ├── paths.js                             Central OS user-data path resolution for local DBs
 ├── common.js                            Shared UI helpers (loaded by renderer)
 ├── maximo.js                            Maximo REST/OSLC API client
-├── indexDB.js                           Local item/inventory/analysis SQLite store (program.db)
-├── sharedDB.js                          Shared settings DB (program.db) - password, version, table schema
+├── indexDB.js                           Local item/inventory/analysis SQLite store + settings/schema/remote merge (program.db)
 ├── remotedb.js                          Downloads + unpacks a remote program.db zip via Maximo proxy
 ├── better-sqlite.js                     Observation list SQLite store (obserlist.db)
 ├── excel.js                             Unified Spreadsheet class - item cache, batches, observation/jobtask/translation import-export (exceljs)
@@ -133,17 +132,17 @@ Multiple SQLite files live in the OS user-data directory (`%APPDATA%\EAM Spare P
 
 | File | Class | Contents |
 |------|-------|----------|
-| `program.db` | `Database` (`indexDB.js`) + `SharedDatabase` | `itemCache`, `inventoryCache`, `manufacturers`, `abbreviations`, `workingDescription`, `itemDescAnalysis`, `settings` |
+| `program.db` | `Database` (`indexDB.js`) | `itemCache`, `inventoryCache`, `manufacturers`, `abbreviations`, `workingDescription`, `itemDescAnalysis`, `settings` |
 | `obserlist.db` | `ObservationDatabase` (`better-sqlite.js`) | `meters`, `observations`, `jobtasks` |
 | `translist.db` | `TranslationDatabase` (`item-translation-sqlite.js`) | `translations` (english -> lang_code dictionary) |
 
-Tables are created (with the schema defined in `sharedDB.js#createTables`) on first run and refreshed when a newer remote database is detected.
+Tables are created (with the schema defined in `indexDB.js#createTables`) on first run and refreshed when a newer remote database is detected.
 
 **Why SQLite**: Maximo holds 100k+ item records; fetching them live is too slow. The app keeps a locally cached, searchable copy built via delta sync and through an initial bundled Excel spreadsheet (`excel.js#getItemCache`).
 
 ### Remote database distribution (`assets/remotedb.js`)
 
-To keep the cache fresh without loading all of it from Maximo, a pre-built `program.db` is packaged into a `program.zip` hosted at a Cloudflare Worker URL (`https://iko-proxy.jonathanmajh.workers.dev/program.zip`). On startup, `checkItemCache` compares a `.version` file against the stored version; if newer, it downloads the zip (through the Maximo proxy) and unzips the `.db` via `@zip.js/zip.js`, then merges its tables into the local DB via SQL `ATTACH DATABASE` in `sharedDB.js#loadRemote`.
+To keep the cache fresh without loading all of it from Maximo, a pre-built `program.db` is packaged into a `program.zip` hosted at a Cloudflare Worker URL (`https://iko-proxy.jonathanmajh.workers.dev/program.zip`). On startup, `checkItemCache` compares a `.version` file against the stored version; if newer, it downloads the zip (through the Maximo proxy) and unzips the `.db` via `@zip.js/zip.js`, then merges its tables into the local DB via SQL `ATTACH DATABASE` in `indexDB.js#loadRemote`.
 
 ### Validation (`assets/validators.js`)
 
@@ -271,7 +270,7 @@ renderer/*.js  ── WorkerHandler (common.js) ──>  renderer/worker.js
                                                       │
     ┌───────────────┬───────────────┬────────────────┤
     ▼               ▼               ▼                ▼
- maximo.js      indexDB.js     sharedDB.js    excel.js
+ maximo.js      indexDB.js     excel.js
     │               │               │
     ▼               ▼               ▼
  remotedb.js   better-sqlite.js  item-translation-sqlite.js

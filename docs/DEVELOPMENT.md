@@ -52,8 +52,7 @@ iko_mro_items/
 │   ├── constants.js            # Config: env URLs, Firebase, replacements
 │   ├── common.js               # UI helpers (theme, WorkerHandler, Item, logs)
 │   ├── maximo.js               # Maximo REST client
-│   ├── indexDB.js              # Local item/inventory/analysis DB
-│   ├── sharedDB.js             # Settings + schema + remote DB merge
+│   ├── indexDB.js              # Local item/inventory/analysis DB + settings/schema/remote merge
 │   ├── remotedb.js             # Remote program.db download/extract
 │   ├── better-sqlite.js        # Observation list DB
 │   ├── excel.js                # Unified Spreadsheet (item cache/batches + observation/jobtask/translation IO)

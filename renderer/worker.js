@@ -1,7 +1,6 @@
 const Validate = require('../assets/validators');
 const Spreadsheet = require('../assets/excel');
 const Database = require('../assets/indexDB');
-const SharedDatabase = require('../assets/sharedDB');
 const Maximo = require('../assets/maximo');
 const AssetTranslate = require('../assets/asset_translation/asset_translation_main.js');
 const ObservationDatabase = require('../assets/better-sqlite');
@@ -314,7 +313,7 @@ async function checkItemCache(version, login) {
   const maximo = new Maximo();
   postMessage(['debug', `0%: Checking Program Version`]);
 
-  const shareDB = new SharedDatabase();
+  const shareDB = new Database();
   const remoteDB = new RemoteDatabase();
   const remoteVersion = await remoteDB.getVersion();
   if (remoteVersion != 'Error') {
