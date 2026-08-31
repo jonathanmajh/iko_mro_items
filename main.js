@@ -15,10 +15,6 @@ ipcMain.on('firestore-log', (event, data) => {
   firestore.log(data);
 })
 
-if (CONSTANTS.OPEN_DEV_TOOLS) {
-  // require('electron-reload')(__dirname);
-}
-
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
@@ -115,10 +111,6 @@ ipcMain.on('start_item_module', (event, arg) => {
 
 ipcMain.on('start_observation_template', (event, arg) => {
   mainWindow.loadFile(path.join('renderer', 'observation_template.html'));
-});
-
-ipcMain.on('start_item_translate', (event, arg) => {
-  mainWindow.loadFile(path.join('renderer', 'item_translation.html'));
 });
 
 ipcMain.on('start_asset_translate', (event, arg) => {

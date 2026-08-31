@@ -1,7 +1,3 @@
-// Debug stuff
-document.getElementById("selected_file").innerHTML = 'C:\\Users\\majona\\Documents\\GitHub\\iko_mro_items\\assets\\Translation_PM_JP_Asset.xlsx'
-document.getElementById("selected_jobtasks").innerHTML = `C:\\Users\\majona\\Documents\\jp_pm_translation-test_ant.xlsx`
-
 const { ipcRenderer } = require('electron');
 
 document.getElementById("topButton").addEventListener("click", toTop);

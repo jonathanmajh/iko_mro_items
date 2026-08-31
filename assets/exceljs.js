@@ -222,7 +222,7 @@ class Spreadsheet {
         const lastRow = ws.lastRow.number;
         let row = ws.getRow(1).values.slice(1);
         let jobTasks = [];
-        if (row.equals(['jpnum', 'jptask', 'description', 'orgid', 'siteid', 'metername', 'ldtext'])) {
+        if (arraysEqual(row, ['jpnum', 'jptask', 'description', 'orgid', 'siteid', 'metername', 'ldtext'])) {
             console.log('pass');
         } else {
             postMessage(['error', `Please Check Column Heading for JobTask Input expecting ${['jpnum', 'jptask', 'description', 'orgid', 'siteid', 'metername', 'ldtext']}`]);
@@ -319,36 +319,29 @@ function removeRichText(value) {
     }
 }
 
-//https://stackoverflow.com/a/14853974
-// Warn if overriding existing method
-// Check if two arrays are equal
-if (Array.prototype.equals)
-    console.warn("Overriding existing Array.prototype.equals. Possible causes: New API defines the method, there's a framework conflict or you've got double inclusions in your code.");
-// attach the .equals method to Array's prototype to call it on any array
-Array.prototype.equals = function (array) {
-    // if the other array is a falsy value, return
-    if (!array)
+/**
+ * Compare two arrays for deep equality
+ * @param {Array} a
+ * @param {Array} b
+ * @returns {boolean} true if arrays are deep-equal, else false
+ */
+function arraysEqual(a, b) {
+    if (!a || !b) {
         return false;
-
-    // compare lengths - can save a lot of time 
-    if (this.length != array.length)
+    }
+    if (a.length != b.length) {
         return false;
-
-    for (var i = 0, l = this.length; i < l; i++) {
-        // Check if we have nested arrays
-        if (this[i] instanceof Array && array[i] instanceof Array) {
-            // recurse into the nested arrays
-            if (!this[i].equals(array[i]))
+    }
+    for (let i = 0; i < a.length; i++) {
+        if (Array.isArray(a[i]) && Array.isArray(b[i])) {
+            if (!arraysEqual(a[i], b[i])) {
                 return false;
-        }
-        else if (this[i] != array[i]) {
-            // Warning - two different object instances will never be equal: {x:20} != {x:20}
+            }
+        } else if (a[i] != b[i]) {
             return false;
         }
     }
     return true;
-};
-// Hide method from for-in loops
-Object.defineProperty(Array.prototype, "equals", { enumerable: false });
+}
 
 module.exports = Spreadsheet;
