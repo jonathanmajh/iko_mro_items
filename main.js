@@ -97,24 +97,8 @@ ipcMain.handle('select-translations', async (event, arg) => {
   return result;
 });
 
-ipcMain.on('getPath', (event, arg) => {
-  event.returnValue = app.getPath('userData');
-});
-
 ipcMain.on('loading', (event, arg) => {
   mainWindow.loadFile(path.join('renderer', 'item_main.html'));
-});
-
-ipcMain.on('start_item_module', (event, arg) => {
-  mainWindow.loadFile(path.join('renderer', 'item_loading.html'));
-});
-
-ipcMain.on('start_observation_template', (event, arg) => {
-  mainWindow.loadFile(path.join('renderer', 'observation_template.html'));
-});
-
-ipcMain.on('start_asset_translate', (event, arg) => {
-  mainWindow.loadFile(path.join('renderer', 'asset_translation.html'));
 });
 
 function createWindow() {

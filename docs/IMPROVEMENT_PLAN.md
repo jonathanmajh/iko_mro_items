@@ -185,10 +185,10 @@ Prioritized, phase-based plan for improving and simplifying the **EAM Spare Part
 
 **Rationale:** `main.js` registers `start_item_module`, `start_item_translate`, `start_item_translation`, `start_asset_translate` handlers, but `start_page.js` has the corresponding module links **commented out** (`openItemTranslation`, `openAssetDescription`). This is dead navigation surface.
 
-**Changes:**
-1. Decide product intent: re-enable the translation/observation entry points in `start_page.html`, **or** remove the unused `start_*` IPC handlers and commented-out event listeners.
-2. Remove other unused handlers (`getPath`, `loading`) if nothing references them.
-3. Clean leftover commented code in `setting.js` (commented `updateManuf`/`updateAbbre`/`exportTables`/`createTables`).
+**Changes (DECIDED: remove dead surface):**
+1. Removed the unused `start_item_module`, `start_observation_template`, `start_asset_translate`, and `getPath` IPC handlers. (`start_item_module` also referenced a non-existent `item_loading.html`.) Kept `loading`, which the start page actually uses.
+2. Deleted the orphaned standalone pages `observation_template.html`/`.js` and `asset_translation.html`/`.js`, which had no navigation entry point. Their worker logic (`compareObservLists`, `assets/asset_translation/*`) is preserved and used by the Item Tool.
+3. Removed commented-out dead code in `renderer/setting.js` (`updateManuf`/`updateAbbre`/`exportTables`/`update`/`createTables`).
 
 **Verification:** Start page shows only working entry points; no orphan IPC handlers; lint passes.
 
