@@ -14,107 +14,103 @@ const RemoteDatabase = require('../assets/remotedb.js');
  *
  * @param {Array} e
  */
+/**
+ * Command handlers. Each entry maps a command string (as sent by
+ * WorkerHandler.work) to the function that executes it. A handler
+ * receives the full message payload `e` and returns/dispatches as needed.
+ */
+const handlers = {
+  'validSingle': (e) => {
+    const valid = new Validate();
+    valid.validateSingle(e.data[1]).then((result) => {
+      postMessage(['result', result]);
+    });
+  },
+  'validBatch': (e) => {
+    const valid = new Validate();
+    valid.validateBatch(e.data[1]).then((result) => {
+      postMessage(['result', result]);
+    });
+  },
+  'update': update,
+  'createDatabase': () => {
+    const db = new Database();
+    db.createAbbreviations();
+    db.createManufacturers();
+    postMessage(['result', 'done']);
+  },
+  'findRelated': (e) => {
+    new Database().findRelated(e.data[1], e.data[2], true, e.data[3]);
+  },
+  'interactive': interactive,
+  'writeDesc': writeDesc,
+  'writeNum': (e) => {
+    writeItemNum(e.data[1]);
+  },
+  'checkItemCache': (e) => {
+    checkItemCache(e.data[1], e.data[2]);
+  },
+  'processObservationList': (e) => {
+    const excel = new Spreadsheet(e.data[1][0]);
+    excel.readObservList(e.data[1][1]);
+  },
+  'getMaximoObservation': () => {
+    new Maximo().getObservations();
+  },
+  'compareObservLists': (e) => {
+    compareObservLists(e.data[1], e.data[2], e.data[3]);
+  },
+  'refreshTranslations': (e) => {
+    refreshTranslations(e.data[1]);
+  },
+  'nonInteractive': (e) => {
+    nonInteractiveSave(e.data[1]);
+  },
+  'loadItem': (e) => {
+    const maximo = new Database();
+    const result = maximo.loadItem(e.data[1]);
+    if (result) {
+      postMessage(['result', result]);
+    } else {
+      postMessage(['error', `${e.data[1]} cannot be found in Maximo`]);
+    }
+  },
+  'translatepms': (e) => {
+    new AssetTranslate().translate(e.data[1]);
+  },
+  'getCurItemNumber': (e) => {
+    getCurItemNum(e.data[1]);
+  },
+  'uploadItems': (e) => {
+    e.data[2] ? uploadAllItems(e.data[1], e.data[2]) : uploadAllItems(e.data[1]);
+  },
+  'translateItem': (e) => {
+    new Translation().contextTranslate(e.data[1], e.data[2], e.data[3]);
+  },
+  'saveProcessed': (e) => {
+    saveProgress(e.data[1]);
+  },
+  'checkUser': (e) => {
+    checkUser(e.data[1]);
+  },
+  'uploadImages': (e) => {
+    uploadImages(e.data[1]);
+  },
+  'uploadInventory': (e) => {
+    if (e.data.length > 2) { //only adding to storeroom
+      uploadInventory(e.data[1], e.data[2]).then((statuscode) => postMessage(['result', statuscode]));
+    } else { //other uses
+      uploadInventory(e.data[1]);
+    }
+  },
+};
+
 onmessage = function (e) {
-  let valid;
-  let maximo;
-  let result;
-  // decide which function to run based on the first element in the array
-  switch (e.data[0]) {
-    case 'validSingle':
-      valid = new Validate();
-      valid.validateSingle(e.data[1]).then((result) => {
-        postMessage(['result', result]);
-      });
-      break;
-    case 'validBatch':
-      valid = new Validate();
-      valid.validateBatch(e.data[1]).then((result) => {
-        postMessage(['result', result]);
-      });
-      break;
-    case 'update':
-      update(e);
-      break;
-    case 'createDatabase':
-      const db = new Database();
-      db.createAbbreviations();
-      db.createManufacturers();
-      postMessage(['result', 'done']);
-      break;
-    case 'findRelated':
-      maximo = new Database();
-      maximo.findRelated(e.data[1], e.data[2], true, e.data[3]);
-      break;
-    case 'interactive':
-      interactive(e);
-      break;
-    case 'writeDesc':
-      writeDesc(e);
-      break;
-    case 'writeNum':
-      writeItemNum(e.data[1]);
-      break;
-    case 'checkItemCache':
-      checkItemCache(e.data[1], e.data[2]);
-      break;
-    case 'processObservationList':
-      const excel = new Spreadsheet(e.data[1][0]);
-      excel.readObservList(e.data[1][1]);
-      break;
-    case 'getMaximoObservation':
-      maximo = new Maximo();
-      maximo.getObservations();
-      break;
-    case 'compareObservLists':
-      compareObservLists(e.data[1], e.data[2], e.data[3]);
-      break;
-    case 'refreshTranslations':
-      refreshTranslations(e.data[1]);
-      break;
-    case 'nonInteractive':
-      nonInteractiveSave(e.data[1]);
-      break;
-    case 'loadItem':
-      maximo = new Database();
-      result = maximo.loadItem(e.data[1]);
-      if (result) {
-        postMessage(['result', result]);
-      } else {
-        postMessage(['error', `${e.data[1]} cannot be found in Maximo`]);
-      }
-      break;
-    case 'translatepms':
-      const translate = new AssetTranslate();
-      translate.translate(e.data[1]);
-      break;
-    case 'getCurItemNumber':
-      getCurItemNum(e.data[1]);
-      break;
-    case 'uploadItems':
-      e.data[2] ? uploadAllItems(e.data[1], e.data[2]) : uploadAllItems(e.data[1]);
-      break;
-    case 'translateItem':
-      const trans = new Translation();
-      result = trans.contextTranslate(e.data[1], e.data[2], e.data[3]);
-      break;
-    case 'saveProcessed':
-      saveProgress(e.data[1]);
-      break;
-    case 'checkUser':
-      checkUser(e.data[1]);
-      break;
-    case 'uploadImages':
-      uploadImages(e.data[1]);
-      break;
-    case 'uploadInventory':
-      if (e.data.length > 2) { //only adding to storeroom
-        uploadInventory(e.data[1], e.data[2]).then((statuscode) => this.postMessage(['result', statuscode]));
-      } else { //other uses
-        uploadInventory(e.data[1]);
-      }
-      break;
-    default:
-      console.log(`Unimplimented work ${e.data[0]}`);
+  const handler = handlers[e.data[0]];
+  if (handler) {
+    handler(e);
+  } else {
+    console.log(`Unimplemented work ${e.data[0]}`);
   }
 };
 

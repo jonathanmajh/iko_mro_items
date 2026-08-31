@@ -75,7 +75,7 @@ Every page includes `assets/common.js`, which provides shared UI helpers: theme 
 
 ### Worker thread (`renderer/worker.js`)
 
-A single Web Worker that is the **orchestrator of all heavy work**. The renderer's `WorkerHandler.work(params, callback)` posts a message whose first element is a command string; `worker.js` switches on that string and instantiates the appropriate service class. See the "Worker command protocol" section below.
+A single Web Worker that is the **orchestrator of all heavy work**. The renderer's `WorkerHandler.work(params, callback)` posts a message whose first element is a command string; `worker.js` routes that string through a `handlers` registry and instantiates the appropriate service class. See the "Worker command protocol" section below.
 
 ## Module Map
 

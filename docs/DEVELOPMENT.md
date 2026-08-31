@@ -111,7 +111,7 @@ For special cases the code sometimes uses a bare `Worker('./worker.js')` (e.g., 
 
 ### Adding a new worker command
 
-1. In `renderer/worker.js`, add a `case '<command>':` in the `switch` that instantiates the relevant service and posts a result.
+1. In `renderer/worker.js`, add a `'<command>': (e) => { ... }` entry to the `handlers` registry that instantiates the relevant service and posts a result.
 2. Call it from the renderer via `handler.work(['<command>', ...args], callback)`.
 3. Add any new UI-status reply in `WorkerHandler.work` in `common.js` if it needs special handling.
 
