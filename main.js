@@ -30,7 +30,7 @@ ipcMain.on('write-file', (event, emailData) => {
   });
 });
 
-ipcMain.on('openSettings', (event, arg) => {
+ipcMain.on('openSettings', (_event, _arg) => {
   settingWindow = new BrowserWindow({
     parent: mainWindow,
     width: 800,
@@ -54,11 +54,11 @@ ipcMain.on('openSettings', (event, arg) => {
   }
 });
 
-ipcMain.on('getVersion', (event, arg) => {
+ipcMain.on('getVersion', (event, _arg) => {
   event.returnValue = app.getVersion();
 });
 
-ipcMain.handle('select-to-be-translated', async (event, arg) => {
+ipcMain.handle('select-to-be-translated', async (_event, _arg) => {
   const result = await dialog.showOpenDialog(mainWindow, {
     title: 'Select Spreadsheet',
     filters: [
@@ -71,7 +71,7 @@ ipcMain.handle('select-to-be-translated', async (event, arg) => {
   return result;
 });
 
-ipcMain.handle('select-excel-file', async (event, arg) => {
+ipcMain.handle('select-excel-file', async (_event, _arg) => {
   const result = await dialog.showOpenDialog(mainWindow, {
     title: 'Select Excel Spreadsheet',
     filters: [
@@ -84,7 +84,7 @@ ipcMain.handle('select-excel-file', async (event, arg) => {
   return result;
 });
 
-ipcMain.handle('select-translations', async (event, arg) => {
+ipcMain.handle('select-translations', async (_event, _arg) => {
   const result = await dialog.showOpenDialog(mainWindow, {
     title: 'Select Translation Definition Spreadsheet',
     filters: [
@@ -97,7 +97,7 @@ ipcMain.handle('select-translations', async (event, arg) => {
   return result;
 });
 
-ipcMain.on('loading', (event, arg) => {
+ipcMain.on('loading', (_event, _arg) => {
   mainWindow.loadFile(path.join('renderer', 'item_main.html'));
 });
 

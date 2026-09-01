@@ -5,7 +5,6 @@ const Maximo = require('../assets/maximo');
 const AssetTranslate = require('../assets/asset_translation/asset_translation_main.js');
 const ObservationDatabase = require('../assets/better-sqlite');
 const TranslationDatabase = require('../assets/item_translation/item-translation-sqlite');
-const path = require('path');
 const Translation = require('../assets/item_translation/item-translation');
 const CONSTANTS = require('../assets/constants.js');
 const RemoteDatabase = require('../assets/remotedb.js');

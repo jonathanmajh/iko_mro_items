@@ -79,7 +79,7 @@ class Logging {
 }
 
 class ProgressBar {
-  constructor(barId = 'progress-bar', textId = 'progress-text') {
+  constructor(_barId = 'progress-bar', _textId = 'progress-text') {
     this.progressBar = document.getElementById('progress-bar');
     this.progressText = document.getElementById('progress-text');
     this.currentProgress = this.progressBar.getAttribute('style');
@@ -164,10 +164,6 @@ class Item {
 }
 // functions
 // general
-function fixSwitch() {
-  document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
-}
-
 function toTop() {
   const element = document.getElementsByTagName('main');
   element[0].scrollTop = 0; // For Chrome, Firefox, IE and Opera
@@ -192,14 +188,6 @@ function setTheme(newTheme) {
   document.documentElement.setAttribute('data-bs-theme', newTheme);
 }
 
-function loadTheme() {
-  if (!(localStorage.getItem('theme'))) {
-    localStorage.setItem('theme', 'dark');
-  }
-
-  document.documentElement.setAttribute('data-bs-theme', localStorage.getItem('theme'));
-  // console.log('i have run');
-}
 // upload item related
 function getNextNumThenUpdate(series) {
   document.getElementById('error').innerHTML = 'Waiting for confirm...';
@@ -376,17 +364,4 @@ function updateItemStatus(status, itemindex) {
   } else {
     statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">pending</i>`;
   }
-}
-
-function fileBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = function() {
-      resolve(reader.result);
-    };
-    reader.onerror = function(error) {
-      reject(error);
-    };
-  });
 }

@@ -40,7 +40,6 @@ module.exports = [
         CONSTANTS: 'readonly',
         toggleTheme: 'readonly',
         setTheme: 'readonly',
-        loadTheme: 'readonly',
         toTop: 'readonly',
         toEnd: 'readonly',
         sanitizeString: 'readonly',
@@ -54,7 +53,14 @@ module.exports = [
       // Google-style allowances / legacy-codebase relaxations
       'max-len': ['warn', { code: 120 }],
       'linebreak-style': 'off',
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      // `no-unused-vars` only reports top-level vars in script files; common.js
+      // intentionally exposes global helpers (loaded via <script>) that are
+      // consumed by renderer pages, so whitelist them here.
+      'no-unused-vars': ['warn', {
+        argsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+        varsIgnorePattern: '^(Item|toTop|toEnd|toggleTheme|setTheme|getNextNumThenUpdate|poppulateModal|convertToTable)$',
+      }],
       // Strict rules that are too noisy for the legacy codebase
       'no-useless-assignment': 'off',
       'no-useless-escape': 'off',

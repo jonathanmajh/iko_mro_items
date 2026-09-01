@@ -73,7 +73,7 @@ class AssetExcel {
         for (const ws in wb.worksheets) {
             wsDetails.name = wb.worksheets[ws].name
             for (const column in columns) {
-                wsColumns = wb.worksheets[ws].getRow(1).values.map(function (x) { try { return x.toLowerCase(); } catch (err) { undefined } });
+                wsColumns = wb.worksheets[ws].getRow(1).values.map(function (x) { try { return x.toLowerCase(); } catch (_err) { undefined } });
                 // convert ws columns to lower case
                 colnum = wsColumns.indexOf(columns[column])
                 if (colnum === -1) {

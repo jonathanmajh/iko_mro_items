@@ -1,7 +1,6 @@
 const Database = require('./indexDB');
 const Spreadsheet = require('./excel');
 const utils = require('./utils');
-const CONSTANTS = require('./constants')
 const report = require('./reporting')
 
 class ManufacturerValidator {

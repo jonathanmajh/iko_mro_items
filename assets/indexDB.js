@@ -384,7 +384,7 @@ class Database {
       lastVersion = stmt.get().value;
       stmt = this.db.prepare(`UPDATE settings SET value = '${curVersion}' WHERE key = 'version'`);
       stmt.run();
-    } catch (SqliteError) {
+    } catch (_SqliteError) {
       stmt = this.db.prepare('CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY, key TEXT UNIQUE NOT NULL, value TEXT NOT NULL)');
       stmt.run();
       stmt = this.db.prepare(`INSERT INTO settings(key, value) VALUES ('version', '${curVersion}')`);
@@ -408,7 +408,7 @@ class Database {
       stmt = this.db.prepare(`SELECT value FROM settings WHERE key = 'password'`);
       const password = stmt.get()?.value;
       return {userid: userid, password: password};
-    } catch (SqliteError) {
+    } catch (_SqliteError) {
       return {userid: '', password: ''};
     }
   }

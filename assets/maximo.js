@@ -271,7 +271,7 @@ class Maximo {
           'apikey': this.login.userid,
         },
       });
-    } catch (err) {
+    } catch (_err) {
       report.debug('Failed to fetch data from Maximo, please check network (8)'); // this likely doesnt work, probably remove it
       throw new Error('Failed to fetch data from Maximo, please check network (8)');
     }
@@ -301,7 +301,7 @@ class Maximo {
           'apikey': this.login.userid,
         },
       });
-    } catch (err) {
+    } catch (_err) {
       report.debug('Failed to verify item number existence with Maximo');
       throw new Error('Failed to verify item number existence with Maximo');
     }
@@ -338,7 +338,7 @@ class Maximo {
           'apikey': userid,
         },
       });
-    } catch (err) {
+    } catch (_err) {
       report.result(1, 'Failed to fetch Data from Maximo, Please Check Network (9)');
       return false;
     }
@@ -453,7 +453,7 @@ class Maximo {
         report.error(content['Error']['message']);
       }
       return 0;
-    } catch (error) {
+    } catch (_error) {
       report.error('Failed to add item to inventory');
     }
   }

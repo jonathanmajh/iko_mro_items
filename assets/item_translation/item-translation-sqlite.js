@@ -1,4 +1,3 @@
-const { SqliteError } = require('better-sqlite3');
 const sql = require('better-sqlite3');
 const paths = require('../paths');
 const report = require('../reporting');

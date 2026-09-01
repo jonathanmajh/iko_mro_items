@@ -118,7 +118,7 @@ function appUpdater() {
 			autoUpdater.on('update-not-available', () => console.log('update-not-available'));
 
 			// Ask the user if update is available
-			autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
+			autoUpdater.on('update-downloaded', (_event, _releaseNotes, _releaseName) => {
 				console.log('update-downloaded');
 				// Ask user to update the app
 				const selected = dialog.showMessageBoxSync({
