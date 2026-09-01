@@ -1,6 +1,7 @@
 const Exceljs = require('exceljs');
 const fs = require('fs');
 const dt = require('luxon');
+const report = require('./reporting');
 
 /**
   * Unified class for reading and writing Excel workbooks.
@@ -145,17 +146,16 @@ class Spreadsheet {
     const workbook = new Exceljs.Workbook();
     await workbook.xlsx.readFile(this.filePath);
     fs.copyFileSync(this.filePath, `${this.filePath}.backup`);
-    postMessage(['info', `Backing up file as: "${this.filePath}.backup"`]);
+    report.info(`Backing up file as: "${this.filePath}.backup"`);
     const wsNames = workbook.worksheets.map(function(ele) {
       return ele.name;
     });
     if (!wsNames.includes(params.wsName)) {
-      postMessage(['info', 'Workbook has the following worksheets:']);
-      postMessage(['info', `${wsNames}`]);
-      postMessage([
-        'error',
+      report.info('Workbook has the following worksheets:');
+      report.info(`${wsNames}`);
+      report.error(
         `"${params.wsName} does not exist, Please check spelling & captitalization"`,
-      ]);
+      );
       return false;
     }
     const worksheet = workbook.getWorksheet(params.wsName);
@@ -254,7 +254,7 @@ class Spreadsheet {
       await workbook.xlsx.writeFile(savePath);
     } catch (error) {
       console.log(error);
-      postMessage([`error`, `Cannot edit old file make sure it is closed`]);
+      report.error(`Cannot edit old file make sure it is closed`);
     }
     return savePath;
   }
@@ -326,7 +326,7 @@ class Spreadsheet {
     }
 
     await wb.xlsx.writeFile(this.filePath);
-    postMessage(['result', 'done']);
+    report.result('done');
   }
 
   async saveObserListChanges(data) {
@@ -449,7 +449,7 @@ class Spreadsheet {
       }
     }
     await wb.xlsx.writeFile(this.filePath);
-    postMessage(['result', 'done']);
+    report.result('done');
   }
 
   async getJobTasks() {
@@ -468,7 +468,7 @@ class Spreadsheet {
     if (arraysEqual(row, ['jpnum', 'jptask', 'description', 'orgid', 'siteid', 'metername', 'ldtext'])) {
       console.log('pass');
     } else {
-      postMessage(['error', `Please Check Column Heading for JobTask Input expecting ${['jpnum', 'jptask', 'description', 'orgid', 'siteid', 'metername', 'ldtext']}`]);
+      report.error(`Please Check Column Heading for JobTask Input expecting ${['jpnum', 'jptask', 'description', 'orgid', 'siteid', 'metername', 'ldtext']}`);
     }
     for (let i = 2; i <= lastRow; i++) {
       row = ws.getRow(i).values;
@@ -504,7 +504,7 @@ class Spreadsheet {
         // check if row has meter definitions
         meter = removeRichText(row.values[1]);
         if (meters[meter]) {
-          postMessage(['error', `Duplicate Meter: ${meter} on Row: ${rowNumber}`]);
+          report.error(`Duplicate Meter: ${meter} on Row: ${rowNumber}`);
         } else {
           inspect = removeRichText(row.values[3]);
           desc = removeRichText(row.values[5]);
@@ -543,7 +543,7 @@ class Spreadsheet {
         observations.push(observation);
       }
     });
-    postMessage(['result', [meters.slice(1), observations.slice(1)]]);
+    report.result([meters.slice(1), observations.slice(1)]);
   }
 }
 
@@ -558,7 +558,7 @@ function removeRichText(value) {
   } else if (typeof (value) == "undefined") {
     return undefined;
   } else {
-    postMessage(['error', `Unknown cell type: ${typeof (value)}`]);
+    report.error(`Unknown cell type: ${typeof (value)}`);
   }
 }
 

@@ -73,10 +73,7 @@ function noMaximo() {
   }
 }
 
-// document.getElementById("openObserveTemp").addEventListener("click", openObserveTemp);
 document.getElementById('openItem').addEventListener('click', tryLoginItem);
-// document.getElementById("openItemTranslation").addEventListener("click", openItemTranslation);
-// document.getElementById("openAssetDescription").addEventListener("click", openAssetDescription);
 document.getElementById('continue').addEventListener('click', noMaximo);
 document.getElementById('tryLogin').addEventListener('click', tryLoginAgain);
 document.getElementById('dark-mode-switch').addEventListener('click', toggleTheme);

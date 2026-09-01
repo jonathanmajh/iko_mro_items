@@ -19,6 +19,25 @@ Prioritized, phase-based plan for improving and simplifying the **EAM Spare Part
 
 > **Ordering note:** Phase 8 (tooling) is intentionally listed later, but its **tooling pieces** (a lint script) should be adopted *before* Phases 3–6 so each refactor is verified. This is noted inline in each phase.
 
+## Implementation status
+
+Tracked against the current codebase. Phases marked **done** are fully or substantially implemented; **open** phases remain outstanding.
+
+| # | Phase | Status |
+|---|-------|--------|
+| 1 | Remove dead code & legacy modules | **done** (unused `sun.png`/`moon.png` removed; `asset_translation_sqlite.js`, dead `translate()`, monkey-patch, orphan pages, debug paths all gone. `Item` constructor params intentionally left as-is: all fields are referenced by the upload/inventory flows.) |
+| 2 | Centralize config & kill hard-coded env switching | **done** (`MAXIMO_ENV`/`OPEN_DEV_TOOLS`/`FIREBASE_*` env vars; Firebase defaults documented; `.vscode` credentials removed; all DB modules use `assets/paths.js`) |
+| 3 | De-duplicate Excel modules | **done** (single `assets/excel.js` `Spreadsheet` class) |
+| 4 | De-duplicate UI helpers & shared logic | **done** (shared `toggleTheme` used everywhere; `getCombinations` lives only in `utils.js`) |
+| 5 | Consolidate SQLite data layer | **done** (single `Database` in `indexDB.js`; `sharedDB.js` deleted) |
+| 6 | Standardize worker communication | **done** (handler registry in `worker.js`; business modules route through `assets/reporting.js`) |
+| 7 | Harden renderer security (preload + contextIsolation) | **open** (deferred intentionally) |
+| 8 | Add test harness + lint/typecheck | **done** (`lint`/`test` scripts, Vitest suite; CI runs lint + test) |
+| 9 | Reconcile navigation & remove dead IPC | **done** (dead IPC handlers, orphan pages, and commented-out links removed) |
+| 10 | Dependency & asset audit | **done** (deps pruned; versions documented; flat ESLint config) |
+
+---
+
 ---
 
 ## Phase 1 — Remove dead code & legacy modules

@@ -3,6 +3,7 @@ const Exceljs = require('exceljs');
 const path = require('path');
 const fs = require('fs');
 const { debug } = require('console');
+const report = require('../reporting');
 
 class AssetTranslateDescription {
     async translate(params) {
@@ -98,7 +99,7 @@ class AssetTranslateDescription {
 
         await logbook.csv.writeFile(path.join(new_folder, 'logs.csv'));
 
-        postMessage(['result', 'done']);
+        report.result('done');
     }
 
 

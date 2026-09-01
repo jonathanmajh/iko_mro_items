@@ -2,6 +2,7 @@ const Sql = require('better-sqlite3');
 const utils = require('../assets/utils');
 const intersection = require('lodash/intersection');
 const paths = require('./paths');
+const report = require('./reporting');
 // https://lodash.com/docs/4.17.15#intersection
 // fast library for intersection of arrays
 
@@ -304,11 +305,11 @@ class Database {
     }
     const phrases = data.split(',');
     let result = [];
-    postMessage(['progress', 25, 'Getting Item Descriptions From Maximo']);
+    report.progress(25, 'Getting Item Descriptions From Maximo');
     for (let i = 0; i < phrases.length; i++) {
       if (phrases[i].length > 1) { // ignore single characters searches since they add too much time
         result.push(this.fetchAndObjectify(phrases[i], ext, itemDict, siteID));
-        postMessage(['progress', 75, 'Processing Item Descriptions From Maximo']); // change this to per phrase
+        report.progress(75, 'Processing Item Descriptions From Maximo'); // change this to per phrase
       }
     }
     result = result.filter((item) => item !== false);
@@ -324,19 +325,19 @@ class Database {
         intersections.push([holder.length, intersection(...holder)]);
       }
       if (postmessage) {
-        postMessage(['result', matchAndScore(intersections), itemDict, data]);
+        report.result(matchAndScore(intersections), itemDict, data);
       } else {
         return [matchAndScore(intersections), itemDict, data];
       }
     } else {
-      postMessage(['warning', 'No related items returned from Maximo']);
-      postMessage(['result', false]);
+      report.warning('No related items returned from Maximo');
+      report.result(false);
     }
   }
 
   fetchAndObjectify(phrase, ext, itemDict, siteID) {
     phrase = phrase.toUpperCase();
-    postMessage(['debug', `Getting item from cache: "${phrase}"`]);
+    report.debug(`Getting item from cache: "${phrase}"`);
     let stmt;
     if (ext) {
       stmt = this.db.prepare(`SELECT *, (select group_concat(concat(location,'-',binnum)) from inventoryCache where siteid = ? and inventoryCache.itemnum = itemCache.itemnum) storeroom from itemCache where ext_search_text like ?`);
@@ -518,7 +519,7 @@ module.exports.itemOccurrence = itemOccurrence;
 module.exports.matchAndScore = matchAndScore;
 
 function matchAndScore(data) {
-  postMessage(['progress', 80, 'Processing Item Descriptions']);
+  report.progress(80, 'Processing Item Descriptions');
   const numPhases = data[0][0];
   const matchedScores = {};
   const saved = {};

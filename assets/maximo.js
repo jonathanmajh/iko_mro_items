@@ -2,6 +2,7 @@
 const Database = require('./indexDB');
 const CONSTANTS = require('../assets/constants.js');
 const { Jimp } = require('jimp');
+const report = require('./reporting');
 
 
 /**
@@ -24,7 +25,7 @@ class Maximo {
       });
       return await response.bytes();
     } catch (err) {
-      postMessage(['error', 'Failed to fetch Data from Maximo, Please Check Network', err]);
+      report.error('Failed to fetch Data from Maximo, Please Check Network', err);
       return false;
     }
   }
@@ -43,7 +44,7 @@ class Maximo {
           },
         });
       } catch (err) {
-        postMessage(['error', 'Failed to fetch Data from Maximo, Please Check Network', err]);
+        report.error('Failed to fetch Data from Maximo, Please Check Network', err);
         return false;
       }
       const content = await response.json();
@@ -78,7 +79,7 @@ class Maximo {
           },
         });
       } catch (err) {
-        postMessage(['error', 'Failed to fetch Data from Maximo, Please Check Network', err]);
+        report.error('Failed to fetch Data from Maximo, Please Check Network', err);
         return false;
       }
       const content = await response.json();
@@ -103,11 +104,11 @@ class Maximo {
             });
           });
         } else {
-          postMessage(['warning', `Meter: ${meter['domainid']} has no observation codes`]);
+          report.warning(`Meter: ${meter['domainid']} has no observation codes`);
         }
       });
     }
-    postMessage(['result', [meters, observations]]);
+    report.result([meters, observations]);
   }
 
   /**
@@ -121,7 +122,7 @@ class Maximo {
     let newRowStamp = 0;
     const inventory = [];
     while (nextpage) {
-      postMessage(['debug', `Loading inventory data page: ${pageno}`]);
+      report.debug(`Loading inventory data page: ${pageno}`);
       try {
         response = await fetch(`https://${CONSTANTS.ENV}/maximo/api/os/iko_inventory?lean=1&oslc.select=vendor,vendor.name,manufacturer,siteid,modelnum,itemnum,catalogcode,location,binnum&fetchmodedelta=1&lastfetchts=${rowstamp}&oslc.pageSize=1000&pageno=${pageno}`, {
           headers: {
@@ -129,7 +130,7 @@ class Maximo {
           },
         });
       } catch (err) {
-        postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (1)', err]);
+        report.warning('Failed to fetch Data from Maximo, Please Check Network (1)', err);
         return false;
       }
       const content = await response.json();
@@ -139,8 +140,8 @@ class Maximo {
         nextpage = false;
       }
       if (content['Error']) { // content["Error"]["message"]
-        postMessage(['warning', content['Error']]);
-        postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (2)']);
+        report.warning(content['Error']);
+        report.warning('Failed to fetch Data from Maximo, Please Check Network (2)');
         await new Promise((resolve) => setTimeout(resolve, 5000));
       } else {
         newRowStamp = response.headers.get('maxrowstamp');
@@ -175,7 +176,7 @@ class Maximo {
     const items = [];
     let previousDate = [new Date('2000-01-01'), ''];
     while (nextpage) {
-      postMessage(['debug', `Loading item data page: ${pageno}`]);
+      report.debug(`Loading item data page: ${pageno}`);
       try {
         response = await fetch(`https://${CONSTANTS.ENV}/maximo/api/os/mxitem?lean=1&oslc.where=in22>"${date}" and itemnum="9%25"&oslc.select=itemnum,in22,description,issueunit,commoditygroup,externalrefid,status,description_longdescription&oslc.pageSize=100&pageno=${pageno}`, {
           headers: {
@@ -183,7 +184,7 @@ class Maximo {
           },
         });
       } catch (err) {
-        postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (6)', err]);
+        report.warning('Failed to fetch Data from Maximo, Please Check Network (6)', err);
         return false;
       }
       const content = await response.json();
@@ -194,8 +195,8 @@ class Maximo {
       }
       let newDate = '';
       if (content['Error']) { // content["Error"]["message"]
-        postMessage(['warning', content['Error']]);
-        postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (3)']);
+        report.warning(content['Error']);
+        report.warning('Failed to fetch Data from Maximo, Please Check Network (3)');
         await new Promise((resolve) => setTimeout(resolve, 5000));
       } else {
         content['member'].forEach((item) => {
@@ -228,7 +229,7 @@ class Maximo {
         },
       });
     } catch (err) {
-      postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (7)', err]);
+      report.warning('Failed to fetch Data from Maximo, Please Check Network (7)', err);
       return false;
     }
     const content = await response.json();
@@ -236,8 +237,8 @@ class Maximo {
     let previousDate = [new Date('2000-01-01'), ''];
     let newDate = '';
     if (content['Error']) { // content["Error"]["message"]
-      postMessage(['warning', content['Error']['message'] ?? content['Error']]);
-      postMessage(['warning', 'Failed to fetch Data from Maximo, Please Check Network (4)']);
+      report.warning(content['Error']['message'] ?? content['Error']);
+      report.warning('Failed to fetch Data from Maximo, Please Check Network (4)');
       await new Promise((resolve) => setTimeout(resolve, 5000));
     } else {
       content['member'].forEach((item) => {
@@ -271,12 +272,12 @@ class Maximo {
         },
       });
     } catch (err) {
-      postMessage(['debug', 'Failed to fetch data from Maximo, please check network (8)']); // this likely doesnt work, probably remove it
+      report.debug('Failed to fetch data from Maximo, please check network (8)'); // this likely doesnt work, probably remove it
       throw new Error('Failed to fetch data from Maximo, please check network (8)');
     }
     const content = await response.json();
     if (content['Error']) { // content["Error"]["message"]
-      postMessage(['debug', 'Failed to fetch Data from Maximo, Please Check Network (5)']); // this likely doesnt work, probably remove it
+      report.debug('Failed to fetch Data from Maximo, Please Check Network (5)'); // this likely doesnt work, probably remove it
       throw new Error('Failed to fetch data from Maximo, please check network (5)');
     } else {
       try {
@@ -301,7 +302,7 @@ class Maximo {
         },
       });
     } catch (err) {
-      postMessage(['debug', 'Failed to verify item number existence with Maximo']);
+      report.debug('Failed to verify item number existence with Maximo');
       throw new Error('Failed to verify item number existence with Maximo');
     }
     const content = await response.json();
@@ -338,13 +339,13 @@ class Maximo {
         },
       });
     } catch (err) {
-      postMessage(['result', 1, 'Failed to fetch Data from Maximo, Please Check Network (9)']);
+      report.result(1, 'Failed to fetch Data from Maximo, Please Check Network (9)');
       return false;
     }
     const content = await response.json();
     if (content['Error']) {
-      postMessage(['result', 1, 'Failed to login to Maximo, Please Check User Name & Password']);
-      postMessage(['result', 1, content['Error']['message']]);
+      report.result(1, 'Failed to login to Maximo, Please Check User Name & Password');
+      report.result(1, content['Error']['message']);
       return false;
     } else {
       const userSite = content['insertSite'];
@@ -353,8 +354,8 @@ class Maximo {
       this.shareDB.savePassword(userid, password);
       this.login.password = password;
       this.login.userid = userid;
-      postMessage(['debug', `Successfully logged in to Maximo as: ${content.displayName}`]);
-      postMessage(['result', 0, 'Successfully logged in to Maximo', siteID]);
+      report.debug(`Successfully logged in to Maximo as: ${content.displayName}`);
+      report.result(0, 'Successfully logged in to Maximo', siteID);
       return { siteID, status };
     }
   }
@@ -446,14 +447,14 @@ class Maximo {
       const content = await response.json();
       // if upload to storeroom succeeded
       if (response.status == 200) {
-        postMessage(['info', 'Item added to inventory']);
+        report.info('Item added to inventory');
         return 1;
       } else {
-        postMessage(['error', content['Error']['message']]);
+        report.error(content['Error']['message']);
       }
       return 0;
     } catch (error) {
-      postMessage(['error', 'Failed to add item to inventory']);
+      report.error('Failed to add item to inventory');
     }
   }
 

@@ -11,5 +11,9 @@ jobs:
         node-version: 22
     - name: install dependencies
       run: npm install
+    - name: lint
+      run: npm run lint
+    - name: test
+      run: npm run test
     - name: build
       run: npm run make

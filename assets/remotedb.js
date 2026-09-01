@@ -1,8 +1,8 @@
 const Sql = require('better-sqlite3');
 const zip = require("@zip.js/zip.js");
 const fs = require('fs');
-const path = require('path');
 const Maximo = require('./maximo.js');
+const paths = require('./paths');
 
 /**
   * Database class to open remote zip database files
@@ -14,7 +14,7 @@ class RemoteDatabase {
      */
     constructor() {
         this.url = 'https://iko-proxy.jonathanmajh.workers.dev/program.zip';
-        this.dbPath = path.join(__dirname, 'program.db');
+        this.dbPath = paths.programDb();
         this.version = 'Error';
         this.maximo = new Maximo();
     }
