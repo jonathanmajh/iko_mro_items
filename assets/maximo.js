@@ -14,6 +14,14 @@ class Maximo {
     this.login = this.shareDB.getPassword();
   }
 
+  close() {
+    try {
+      this.shareDB.close();
+    } catch (_e) {
+      // already closed — ignore
+    }
+  }
+
   async proxy(url) {
     let response;
     try {

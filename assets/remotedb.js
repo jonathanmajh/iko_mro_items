@@ -1,6 +1,6 @@
-const Sql = require('better-sqlite3');
 const zip = require("@zip.js/zip.js");
 const fs = require('fs');
+const path = require('path');
 const Maximo = require('./maximo.js');
 const paths = require('./paths');
 
@@ -14,45 +14,73 @@ class RemoteDatabase {
      */
     constructor() {
         this.url = 'https://iko-proxy.jonathanmajh.workers.dev/program.zip';
+        // Live database path (kept for compatibility). Never write the
+        // download here: overwriting the live file while handles are open
+        // causes SQLITE_BUSY and wipes the settings table (saved API key).
         this.dbPath = paths.programDb();
+        this.tmpPath = path.join(paths.appDir(), 'program.remote.db');
         this.version = 'Error';
-        this.maximo = new Maximo();
+    }
+
+    // Use a short-lived Maximo (which holds program.db open) so we don't
+    // leak a Database handle for the lifetime of this object.
+    async _withMaximo(fn) {
+        const maximo = new Maximo();
+        try {
+            return await fn(maximo);
+        } finally {
+            if (typeof maximo.close === 'function') {
+                maximo.close();
+            }
+        }
     }
 
     async getVersion() {
-        const response = await this.maximo.proxy('https://iko-proxy.jonathanmajh.workers.dev/.version');
-        if (response) {
-            this.version = Buffer.from(response).toString('utf8').trim();
-        }
-        return this.version;
+        return this._withMaximo(async (maximo) => {
+            const response = await maximo.proxy('https://iko-proxy.jonathanmajh.workers.dev/.version');
+            if (response) {
+                this.version = Buffer.from(response).toString('utf8').trim();
+            }
+            return this.version;
+        });
     }
 
     async downloadAndExtract() {
-        const response = await this.maximo.proxy(this.url);
-        if (!response) {
-            throw new Error('Failed to download database via Maximo proxy');
-        }
-
-        const reader = new zip.ZipReader(new zip.Uint8ArrayReader(new Uint8Array(response)));
-        const entries = await reader.getEntries();
-        for (const entry of entries) {
-            if (entry.filename.endsWith('.db')) {
-                const blob = await entry.getData(new zip.BlobWriter());
-                const arrayBuffer = await blob.arrayBuffer();
-                fs.writeFileSync(this.dbPath, Buffer.from(arrayBuffer));
-                // this.initializeDB();
+        const dbBytes = await this._withMaximo(async (maximo) => {
+            const response = await maximo.proxy(this.url);
+            if (!response) {
+                throw new Error('Failed to download database via Maximo proxy');
             }
-        }
-        await reader.close();
+
+            const reader = new zip.ZipReader(new zip.Uint8ArrayReader(new Uint8Array(response)));
+            try {
+                const entries = await reader.getEntries();
+                for (const entry of entries) {
+                    if (entry.filename.endsWith('.db')) {
+                        const blob = await entry.getData(new zip.BlobWriter());
+                        const arrayBuffer = await blob.arrayBuffer();
+                        return Buffer.from(arrayBuffer);
+                    }
+                }
+            } finally {
+                await reader.close();
+            }
+            throw new Error('No .db entry found in remote program.zip');
+        });
+
+        fs.mkdirSync(paths.appDir(), { recursive: true });
+        fs.writeFileSync(this.tmpPath, dbBytes);
+        return this.tmpPath;
     }
 
-    initializeDB() {
-        this.db = new Sql(this.dbPath);
-        console.log('Database initialized');
-        let stmt;
-        stmt = this.db.prepare('select * from itemCache limit 1;');
-        const row = stmt.get();
-        console.log(row);
+    cleanup() {
+        try {
+            if (this.tmpPath && fs.existsSync(this.tmpPath)) {
+                fs.unlinkSync(this.tmpPath);
+            }
+        } catch (_e) {
+            // best-effort temp cleanup
+        }
     }
 }
 

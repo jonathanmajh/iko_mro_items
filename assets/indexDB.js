@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const Sql = require('better-sqlite3');
 const utils = require('../assets/utils');
 const intersection = require('lodash/intersection');
@@ -14,9 +16,23 @@ class Database {
  * Open default db file
  */
   constructor() {
-    this.db = new Sql(paths.programDb());// , { verbose: console.log });
+    fs.mkdirSync(paths.appDir(), { recursive: true });
+    // timeout + WAL keep concurrent renderer/worker handles from failing
+    // immediately with SQLITE_BUSY ("database is locked").
+    this.db = new Sql(paths.programDb(), { timeout: 10000 });
+    this.db.pragma('journal_mode = WAL');
+    this.db.pragma('busy_timeout = 10000');
+    this.db.pragma('synchronous = NORMAL');
     const stmt = this.db.prepare('CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY, key TEXT UNIQUE NOT NULL, value TEXT NOT NULL)');
     stmt.run();
+  }
+
+  close() {
+    try {
+      this.db.close();
+    } catch (_e) {
+      // already closed — ignore
+    }
   }
 
   clearItemCache() {
@@ -377,36 +393,35 @@ class Database {
   * @return {boolean} if version is same as db version
   */
   checkVersion(curVersion) {
-    let stmt;
-    let lastVersion = '0.0.0';
-    try {
-      stmt = this.db.prepare(`SELECT value FROM settings WHERE key = 'version'`);
-      lastVersion = stmt.get().value;
-      stmt = this.db.prepare(`UPDATE settings SET value = '${curVersion}' WHERE key = 'version'`);
-      stmt.run();
-    } catch (_SqliteError) {
-      stmt = this.db.prepare('CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY, key TEXT UNIQUE NOT NULL, value TEXT NOT NULL)');
-      stmt.run();
-      stmt = this.db.prepare(`INSERT INTO settings(key, value) VALUES ('version', '${curVersion}')`);
-      stmt.run();
-    }
+    this.db.prepare(
+      'CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY, key TEXT UNIQUE NOT NULL, value TEXT NOT NULL)',
+    ).run();
+    const row = this.db.prepare(`SELECT value FROM settings WHERE key = 'version'`).get();
+    const lastVersion = row?.value ?? '0.0.0';
+    // Parameterized upsert: previous string interpolation broke on special
+    // characters and could leave the version row unwritten.
+    this.db.prepare(
+      `INSERT INTO settings(key, value) VALUES ('version', ?)
+       ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+    ).run(curVersion);
     return (lastVersion == curVersion);
   }
 
   savePassword(userid, password) {
-    let stmt;
-    stmt = this.db.prepare('CREATE UNIQUE INDEX if not EXISTS idx_key ON settings(key);'); // patch table to have unique keys
-    stmt.run();
-    stmt = this.db.prepare(`replace into settings(key, value) VALUES ('userid', '${userid}'), ('password', '${password}')`);
-    stmt.run();
+    // patch table to have unique keys
+    this.db.prepare('CREATE UNIQUE INDEX if not EXISTS idx_key ON settings(key);').run();
+    // Parameterized: API keys may contain quotes; interpolating them into SQL
+    // breaks the statement and silently drops the saved login (user gets
+    // asked for the key on every launch).
+    this.db.prepare(
+      `replace into settings(key, value) VALUES ('userid', ?), ('password', ?)`,
+    ).run(userid ?? '', password ?? '');
   }
 
   getPassword() {
     try {
-      let stmt = this.db.prepare(`SELECT value FROM settings WHERE key = 'userid'`);
-      const userid = stmt.get()?.value;
-      stmt = this.db.prepare(`SELECT value FROM settings WHERE key = 'password'`);
-      const password = stmt.get()?.value;
+      const userid = this.db.prepare(`SELECT value FROM settings WHERE key = 'userid'`).get()?.value ?? '';
+      const password = this.db.prepare(`SELECT value FROM settings WHERE key = 'password'`).get()?.value ?? '';
       return {userid: userid, password: password};
     } catch (_SqliteError) {
       return {userid: '', password: ''};
@@ -414,22 +429,33 @@ class Database {
   }
 
   loadRemote(remotePath) {
-    let stmt;
+    // remotePath must be a temp download, never the live program.db itself:
+    // overwriting/attaching the live file while handles are open causes
+    // SQLITE_BUSY and wipes the settings table (saved API key).
+    if (path.resolve(remotePath) === path.resolve(paths.programDb())) {
+      throw new Error('loadRemote: refusing to attach live database to itself; pass a temp download path');
+    }
+    if (!fs.existsSync(remotePath)) {
+      throw new Error(`loadRemote: remote database not found at ${remotePath}`);
+    }
     this.createTables();
-    stmt = this.db.prepare(`ATTACH DATABASE '${remotePath}' AS remoteDB;`);
-    stmt.run();
-    stmt = this.db.prepare(`INSERT OR REPLACE INTO manufacturers SELECT * FROM remoteDB.manufacturers;`);
-    stmt.run();
-    stmt = this.db.prepare(`INSERT OR REPLACE INTO abbreviations SELECT * FROM remoteDB.abbreviations;`);
-    stmt.run();
-    stmt = this.db.prepare(`INSERT OR REPLACE INTO workingDescription SELECT * FROM remoteDB.workingDescription;`);
-    stmt.run();
-    stmt = this.db.prepare(`INSERT OR REPLACE INTO itemCache SELECT * FROM remoteDB.itemCache;`);
-    stmt.run();
-    stmt = this.db.prepare(`INSERT OR REPLACE INTO inventoryCache SELECT * FROM remoteDB.inventoryCache;`);
-    stmt.run();
-    stmt = this.db.prepare(`DETACH DATABASE remoteDB;`);
-    stmt.run();
+    const safePath = remotePath.replace(/'/g, "''");
+    // NOTE: settings table is intentionally NOT copied, so the saved
+    // userid/password survives remote database updates.
+    try {
+      this.db.prepare(`ATTACH DATABASE '${safePath}' AS remoteDB;`).run();
+      this.db.prepare(`INSERT OR REPLACE INTO manufacturers SELECT * FROM remoteDB.manufacturers;`).run();
+      this.db.prepare(`INSERT OR REPLACE INTO abbreviations SELECT * FROM remoteDB.abbreviations;`).run();
+      this.db.prepare(`INSERT OR REPLACE INTO workingDescription SELECT * FROM remoteDB.workingDescription;`).run();
+      this.db.prepare(`INSERT OR REPLACE INTO itemCache SELECT * FROM remoteDB.itemCache;`).run();
+      this.db.prepare(`INSERT OR REPLACE INTO inventoryCache SELECT * FROM remoteDB.inventoryCache;`).run();
+    } finally {
+      try {
+        this.db.prepare(`DETACH DATABASE remoteDB;`).run();
+      } catch (_e) {
+        // detach best-effort so a failed copy can't wedge later statements
+      }
+    }
     console.log('loaded remote database');
   }
 

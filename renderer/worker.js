@@ -293,8 +293,12 @@ async function writeItemNum(data) {
 async function checkUser(credentials = {}) {
   postMessage(['debug', `Checking Maximo Login`]);
   const maximo = new Maximo();
-  console.log(`logging in to https://${CONSTANTS.ENV}/maximo/api/whoami?lean=1`);
-  maximo.checkLogin(credentials?.userid, credentials?.password);
+  try {
+    console.log(`logging in to https://${CONSTANTS.ENV}/maximo/api/whoami?lean=1`);
+    await maximo.checkLogin(credentials?.userid, credentials?.password);
+  } finally {
+    maximo.close();
+  }
 }
 /**
  * Check cache of item information
@@ -302,69 +306,102 @@ async function checkUser(credentials = {}) {
  * @param {String} version current app version
  */
 async function checkItemCache(version, login) {
+  let maximo = null;
+  let shareDB = null;
+  let db = null;
+  let remoteDB = null;
   try {
   // check internal cache of item information and update with new items in maximo
   postMessage(['debug', `Loading Item Module`]);
-  const maximo = new Maximo();
+  maximo = new Maximo();
   postMessage(['debug', `0%: Checking Program Version`]);
 
-  const shareDB = new Database();
-  const remoteDB = new RemoteDatabase();
+  shareDB = new Database();
+  remoteDB = new RemoteDatabase();
   const remoteVersion = await remoteDB.getVersion();
-  if (remoteVersion != 'Error') {
+  if (remoteVersion && remoteVersion != 'Error') {
     if (!(await shareDB.checkVersion(remoteVersion))) {
-      // load remote database over local database
+      // load remote database over local database via a temp file — never
+      // overwrite the live program.db while handles are open (SQLITE_BUSY)
+      // and never wipe the settings table (saved API key).
       postMessage(['debug', `10%: Loading new remote database version: ${remoteVersion}`]);
-      await remoteDB.downloadAndExtract()
-      await shareDB.loadRemote(remoteDB.dbPath);
+      const tmpPath = await remoteDB.downloadAndExtract();
+      try {
+        await shareDB.loadRemote(tmpPath);
+      } finally {
+        remoteDB.cleanup();
+      }
     }
   }
 
+  // shareDB is only needed for the version check / remote load above;
+  // release it before the long network sync to minimize lock contention.
+  shareDB.close();
+  shareDB = null;
+
   if (!login) postMessage(['result', 'done']);
-  let curVersion;
-  const db = new Database();
-  curVersion = db.getVersion('inventory');
-  curVersion = curVersion[0].rowstamp;
-  postMessage(['debug', `50%: Getting inventory with changes after: ${curVersion} from Maximo`]);
-  const newInventory = await maximo.getNewInventory(curVersion);
-  if (newInventory) {
+  db = new Database();
+  const invRow = db.getVersion('inventory')?.[0] ?? {};
+  const invStamp = invRow.rowstamp ?? invRow.changed_date ?? 0;
+  postMessage(['debug', `50%: Getting inventory with changes after: ${invStamp} from Maximo`]);
+  const newInventory = await maximo.getNewInventory(invStamp);
+  if (newInventory && newInventory[0]) {
     postMessage(['debug', '55%: Saving maximo data to inventory cache']);
     db.saveInventoryCache(newInventory[0]);
   }
 
-  curVersion = db.getVersion('maximo');
-  curVersion = curVersion[0].changed_date;
-  postMessage(['debug', `60%: Getting items with changes after: ${curVersion} from Maximo`]);
-  let newItems = await maximo.getNewItems(curVersion);
-  if (newItems) {
+  const itemRow = db.getVersion('maximo')?.[0] ?? {};
+  const itemStamp = itemRow.changed_date ?? '2022-01-01 00:00:00';
+  postMessage(['debug', `60%: Getting items with changes after: ${itemStamp} from Maximo`]);
+  let newItems = await maximo.getNewItems(itemStamp);
+  if (newItems && newItems[0]) {
     postMessage(['debug', '70%: Saving maximo data to item cache']);
     db.saveItemCache(newItems[0]);
   }
   const itemNums = new Map();
-  newInventory[0].forEach((inventory) => {
+  for (const inventory of (newInventory?.[0] ?? [])) {
     if (!itemNums.has(inventory[0])) {
       itemNums.set(inventory[0], inventory[0]);
     }
-  });
-  newItems[0].forEach((item) => {
+  }
+  for (const item of (newItems?.[0] ?? [])) {
     if (!itemNums.has(item[0])) {
       itemNums.set(item[0], item[0]);
     }
-  });
-  const processedItems = db.processNewItems(itemNums);
-  db.saveItemCache(processedItems);
+  }
+  if (itemNums.size > 0) {
+    const processedItems = db.processNewItems(itemNums);
+    db.saveItemCache(processedItems);
+  }
 
-  curVersion = db.getVersion('manufacturer');
-  curVersion = curVersion[0].changed_date;
-  postMessage(['debug', `80%: Getting Manufacturer with changes after: ${curVersion} from Maximo`]);
-  newItems = await maximo.getNewManufacturers(curVersion);
-  if (newItems) {
+  const manufRow = db.getVersion('manufacturer')?.[0] ?? {};
+  const manufStamp = manufRow.changed_date ?? '2022-01-01 00:00:00';
+  postMessage(['debug', `80%: Getting Manufacturer with changes after: ${manufStamp} from Maximo`]);
+  newItems = await maximo.getNewManufacturers(manufStamp);
+  if (newItems && newItems[0]) {
     postMessage(['debug', '90%: Saving maximo data to Manufacturer cache']);
     db.saveManufacturers(newItems[0]);
   }
   } catch (err) {
     postMessage(['error', `Error checking item cache: ${err}\nNew items may not be available`]);
-    await new Promise(resolve => setTimeout(resolve, 10000)); // wait 10 seconds before continuing
+  } finally {
+    // Always release handles (and temp files) so we never hold the
+    // database locked while idle.
+    try {
+      db?.close();
+    } catch (_e) { /* ignore */ }
+    try {
+      shareDB?.close();
+    } catch (_e) { /* ignore */ }
+    try {
+      maximo?.close();
+    } catch (_e) { /* ignore */ }
+    try {
+      remoteDB?.cleanup();
+    } catch (_e) { /* ignore */ }
+    db = null;
+    shareDB = null;
+    maximo = null;
   }
 
   postMessage(['result', 'done']);
