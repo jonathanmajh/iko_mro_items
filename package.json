@@ -12,6 +12,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "build:firestore": "esbuild assets/firestore.sdk.js --bundle --platform=node --format=cjs --minify --outfile=assets/firestore.bundle.cjs --log-level=warning",
+    "vendor:bootstrap": "node scripts/vendor-bootstrap.js",
     "postinstall": "npm run build:firestore",
     "prepackage": "npm run build:firestore",
     "premake": "npm run build:firestore"
@@ -30,6 +31,7 @@
     "@electron-forge/publisher-github": "^7.11.1",
     "@electron/rebuild": "^4.0.3",
     "@eslint/js": "^10.0.1",
+    "bootstrap": "^5.3.8",
     "electron": "^41.0.3",
     "esbuild": "^0.28.2",
     "eslint": "^10.0.3",

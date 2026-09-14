@@ -256,7 +256,7 @@ All runtime configuration is centralized in `assets/constants.js`. Environment-s
 | `@zip.js/zip.js` | Unzip the remote `program.db` bundle |
 | `firebase` | Firestore usage tracking — build-time only; the packaged app ships an esbuild tree-shaken bundle (`assets/firestore.bundle.cjs`, see `npm run build:firestore`) instead of the SDK |
 | `electron-squirrel-startup` | Squirrel windows install handling |
-| _(vendored)_ `renderer/vendor-bootstrap.*` | Bootstrap 5 UI framework/theming (copied from the npm package; `bootstrap` is no longer a dependency) |
+| _(vendored)_ `renderer/vendor-bootstrap.*` | Bootstrap 5 UI framework/theming. `bootstrap` is a devDependency (version tracker only, pruned from the installer); update via `npm install -D bootstrap@<version> && npm run vendor:bootstrap`, then commit the two vendor files |
 | _(removed)_ `jimp` | Was image processing before upload; replaced by `OffscreenCanvas`/`createImageBitmap` in `maximo.js#padImage` |
 | _(removed)_ `lodash`, `luxon` | Were `intersection` and Excel serial-date formatting; replaced by natives in `indexDB.js` / `excel.js#excelSerialToString` |
 
