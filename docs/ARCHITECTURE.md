@@ -37,7 +37,7 @@ Key design points:
 
 - **The UI thread never does heavy work.** All database access, network calls to Maximo, and Excel processing happen inside a Web Worker so the renderer stays responsive.
 - **Both main and renderer processes** share the same `assets/` modules via `require()`.
-- Heavy compute (image processing via `jimp`, batch uploads, data sync) runs off the main thread.
+- Heavy compute (canvas-based image processing, batch uploads, data sync) runs off the main thread.
 - State is persisted locally in **SQLite databases** and the **browser `localStorage`** (theme, user site, power-user mode).
 
 ## Process Architecture
@@ -122,7 +122,7 @@ Endpoints used:
 
 `getNewItems`, `getNewInventory`, and `getNewManufacturers` all follow a **delta-sync** pattern: they page through results (`pageno`, `oslc.pageSize`) and return the highest timestamp so the caller can store it as the "version" for the next incremental fetch.
 
-Images are padded to a square and downscaled (max 1024px) with `jimp` before upload (`padImage`).
+Images are padded to a square and downscaled (max 1024px) with `OffscreenCanvas`/`createImageBitmap` before upload (`padImage`).
 
 ### Local data layer (SQLite via `better-sqlite3`)
 
@@ -231,7 +231,7 @@ Core operations:
 
 ## Deployment / Update Channel
 
-- **Packaging**: Electron Forge (Squirrel for Windows, zip for macOS). Icon: `AppIcon.ico` / `AppIcon.png`.
+- **Packaging**: Electron Forge (Squirrel for Windows, zip for macOS). Icon: `AppIcon.ico` / `AppIcon.png`. Config lives in `forge.config.js`: `asar` + `prune` enabled, sourcemaps/tests/local DBs/unused locales (en-US only) stripped, Firebase SDK replaced by the prebuilt bundle (see above). `assets/program.db` is gitignored and excluded from the installer — fresh installs recreate the schema and sync via `remotedb.js`.
 - **Publishing**: `package.json` config points at the GitHub repo; GitHub Actions (`release.yml`) runs `npm run publish` on tags / releases.
 - **Updates**: Squirrel-based `autoUpdater` feed is `https://mro-update.vercel.app/update/<platform>/<version>`. On Windows it checks for updates; if the `autoUpdater` errors, it falls back to querying the GitHub latest release and prompting the user (see `autoupdater.js`).
 
@@ -254,12 +254,11 @@ All runtime configuration is centralized in `assets/constants.js`. Environment-s
 | `better-sqlite3` | Synchronous SQLite access for all local stores |
 | `exceljs` | Read/write `.xlsx` workbooks (item cache, imports/exports) |
 | `@zip.js/zip.js` | Unzip the remote `program.db` bundle |
-| `jimp` | Image processing before Maximo image upload |
-| `firebase` | Firestore usage tracking |
-| `bootstrap` | UI framework / theming |
-| `lodash` | `intersection` for related-item search |
-| `luxon` | Date/time conversion for Excel serial dates |
+| `firebase` | Firestore usage tracking — build-time only; the packaged app ships an esbuild tree-shaken bundle (`assets/firestore.bundle.cjs`, see `npm run build:firestore`) instead of the SDK |
 | `electron-squirrel-startup` | Squirrel windows install handling |
+| _(vendored)_ `renderer/vendor-bootstrap.*` | Bootstrap 5 UI framework/theming (copied from the npm package; `bootstrap` is no longer a dependency) |
+| _(removed)_ `jimp` | Was image processing before upload; replaced by `OffscreenCanvas`/`createImageBitmap` in `maximo.js#padImage` |
+| _(removed)_ `lodash`, `luxon` | Were `intersection` and Excel serial-date formatting; replaced by natives in `indexDB.js` / `excel.js#excelSerialToString` |
 
 ## Component Relationships (dependency graph)
 

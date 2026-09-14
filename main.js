@@ -19,8 +19,10 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 // Write eml file
+// NOTE: must use the OS temp dir, not __dirname — the app ships inside a
+// read-only app.asar archive, so writing next to the code fails (ENOENT).
 ipcMain.on('write-file', (event, emailData) => {
-  const pathToFile = path.resolve(__dirname, 'downloadedFile.eml');
+  const pathToFile = path.join(app.getPath('temp'), 'downloadedFile.eml');
   fs.writeFile(pathToFile, emailData, (err) => {
     if (err) {
       console.error(`Error writing file: ${err}`);

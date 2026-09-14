@@ -1,7 +1,19 @@
 const Exceljs = require('exceljs');
 const fs = require('fs');
-const dt = require('luxon');
 const report = require('./reporting');
+
+// Convert an Excel serial date cell to 'yyyy-MM-dd HH:mm:ss' in local time.
+// Replaces luxon DateTime.fromSeconds(...).toFormat(...): Excel serials count
+// days since 1899-12-30, 25569 is the offset to the Unix epoch, and +14400s
+// preserves the previous UTC-4 adjustment. Formatting uses local getters,
+// matching luxon's default local-zone behavior.
+function excelSerialToString(text) {
+  const seconds = (parseFloat(text) - 25569) * 86400 + 14400;
+  const d = new Date(seconds * 1000);
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ` +
+    `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
 
 /**
   * Unified class for reading and writing Excel workbooks.
@@ -20,9 +32,7 @@ class Spreadsheet {
     const wb = new Exceljs.Workbook();
     await wb.xlsx.readFile(this.filePath);
     const ws = wb.getWorksheet('Sheet2');
-    const version = dt.DateTime.fromSeconds(
-        (parseFloat(ws.getCell('A2').text) - 25569) * 86400 + 14400,
-    ).toFormat('yyyy-LL-dd HH:mm:ss');
+    const version = excelSerialToString(ws.getCell('A2').text);
     return version;
   }
 
@@ -80,9 +90,7 @@ class Spreadsheet {
         data.push([
           ws.getCell(`A${i}`).text,
           ws.getCell(`B${i}`).text,
-          dt.DateTime.fromSeconds(
-              (parseFloat(ws.getCell(`C${i}`).text) - 25569) * 86400 + 14400,
-          ).toFormat('yyyy-LL-dd HH:mm:ss'),
+          excelSerialToString(ws.getCell(`C${i}`).text),
           ws.getCell(`D${i}`).text,
           ws.getCell(`E${i}`).text,
           ws.getCell(`F${i}`).text,
@@ -97,9 +105,7 @@ class Spreadsheet {
     const ws2 = wb.getWorksheet('Sheet2');
     return [
       data,
-      dt.DateTime.fromSeconds(
-          (parseFloat(ws2.getCell('A2').text) - 25569) * 86400 + 14400,
-      ).toFormat('yyyy-LL-dd HH:mm:ss'),
+      excelSerialToString(ws2.getCell('A2').text),
       allInventory,
     ];
     // to convert excel datetime in number format to string
@@ -116,8 +122,7 @@ class Spreadsheet {
       if (worksheet.getCell(`A${i}`).text) {
         data.push([
           worksheet.getCell(`A${i}`).text,
-          dt.DateTime.fromSeconds(
-              (parseFloat(worksheet.getCell(`B${i}`).text) - 25569) * 86400 + 14400).toFormat('yyyy-LL-dd HH:mm:ss'),
+          excelSerialToString(worksheet.getCell(`B${i}`).text),
           worksheet.getCell(`C${i}`).text,
           worksheet.getCell(`D${i}`).text,
         ]);
@@ -588,3 +593,4 @@ function arraysEqual(a, b) {
 }
 
 module.exports = Spreadsheet;
+module.exports.excelSerialToString = excelSerialToString;

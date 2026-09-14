@@ -2,11 +2,24 @@ const fs = require('fs');
 const path = require('path');
 const Sql = require('better-sqlite3');
 const utils = require('../assets/utils');
-const intersection = require('lodash/intersection');
 const paths = require('./paths');
 const report = require('./reporting');
-// https://lodash.com/docs/4.17.15#intersection
-// fast library for intersection of arrays
+// Native replacement for lodash/intersection: unique values from the first
+// array present in every other array, preserving first-array order.
+function intersection(...arrays) {
+  if (arrays.length === 0) return [];
+  const [first, ...rest] = arrays;
+  if (!Array.isArray(first)) return [];
+  const sets = rest.map((arr) => new Set(arr));
+  const seen = new Set();
+  const result = [];
+  for (const value of first) {
+    if (seen.has(value)) continue;
+    seen.add(value);
+    if (sets.every((set) => set.has(value))) result.push(value);
+  }
+  return result;
+}
 
 /**
  * Database Class containing more Database functions

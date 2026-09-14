@@ -1,7 +1,6 @@
 // various functions for fetching data from maximo rest api
 const Database = require('./indexDB');
 const CONSTANTS = require('../assets/constants.js');
-const { Jimp } = require('jimp');
 const report = require('./reporting');
 
 
@@ -549,35 +548,38 @@ class Maximo {
 
 /**
  * adds white space to the given image's border to make it a square
- * @param {File} oImage - image to pad 
- * @returns {File} - square image with padding
+ *
+ * Runs in the renderer worker (OffscreenCanvas + createImageBitmap are
+ * available there), so no image-codec dependency is needed.
+ * @param {File} oImage - image to pad (validated upstream as jpeg/png)
+ * @returns {Blob} - square image with white padding
  */
 async function padImage(oImage) {
-  const mimeType = oImage.type;
-  const oImgBuf = Buffer.from(await oImage.arrayBuffer());
+  const mimeType = oImage.type === 'image/png' ? 'image/png' : 'image/jpeg';
 
-  // raise jpeg-js memory limit (default 512MB) so large images can be decoded
-  // note: must use fromBuffer (not Jimp.read) - Jimp.read drops options for Buffer input,
-  // and Jimp only forwards options keyed by mime type to the decoder
-  let image = await Jimp.fromBuffer(oImgBuf, { 'image/jpeg': { maxMemoryUsageInMB: 2048 } });
+  // decode with the platform image decoder (streams; no 512MB jpeg-js limit)
+  const bitmap = await createImageBitmap(oImage);
+  try {
+    // downscale oversized images to keep memory usage and upload size reasonable
+    const MAX_DIM = 1024;
+    const scale = Math.min(1, MAX_DIM / Math.max(bitmap.width, bitmap.height));
+    const w = Math.max(1, Math.round(bitmap.width * scale));
+    const h = Math.max(1, Math.round(bitmap.height * scale));
 
-  // downscale oversized images to keep memory usage and upload size reasonable
-  const MAX_DIM = 1024;
-  if (image.width > MAX_DIM || image.height > MAX_DIM) {
-    const scale = MAX_DIM / Math.max(image.width, image.height);
-    image.resize({ w: Math.round(image.width * scale) });
+    // pad into a square on a white background (same as previous 0xffffffff)
+    const dim = Math.max(w, h);
+    const canvas = new OffscreenCanvas(dim, dim);
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, dim, dim);
+    ctx.drawImage(bitmap, Math.floor((dim - w) / 2), Math.floor((dim - h) / 2), w, h);
+
+    return await canvas.convertToBlob(
+      mimeType === 'image/png' ? {type: 'image/png'} : {type: 'image/jpeg', quality: 0.92},
+    );
+  } finally {
+    bitmap.close();
   }
-
-  if (image.width != image.height) {
-    const largestDim = Math.max(image.width, image.height)
-    let background = new Jimp({ width: largestDim, height: largestDim, color: 0xffffffff });
-    background.composite(image, Math.floor((largestDim - image.width) / 2), Math.floor((largestDim - image.height) / 2));
-    image = background;
-  }
-  const buffer = await image.getBuffer(mimeType);
-  const payload = new Blob([buffer], { type: mimeType });
-  return payload;
-
 }
 
 module.exports = Maximo;

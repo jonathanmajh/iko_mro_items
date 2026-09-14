@@ -1,6 +1,6 @@
 @charset "UTF-8";
 @import "table_style.css";
-@import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
+@import "./vendor-bootstrap.min.css";
 
 /*
 --> custom styles for elements
