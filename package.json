@@ -1,14 +1,22 @@
 {
   "name": "iko_utility",
   "productName": "EAM Spare Parts",
-  "version": "3.9.2",
+  "version": "3.9.4",
   "description": "Tool to help automate various Reliability Processes",
   "main": "main.js",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "publish": "electron-forge publish"
+    "publish": "electron-forge publish",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "build:firestore": "esbuild assets/firestore.sdk.js --bundle --platform=node --format=cjs --minify --outfile=assets/firestore.bundle.cjs --log-level=warning",
+    "rebuild:native": "electron-rebuild -f",
+    "vendor:bootstrap": "node scripts/vendor-bootstrap.js",
+    "postinstall": "npm run build:firestore",
+    "prepackage": "npm run build:firestore && npm run rebuild:native",
+    "premake": "npm run build:firestore && npm run rebuild:native"
   },
   "repository": "https://github.com/jonathanmajh/iko_mro_items",
   "keywords": [],
@@ -23,57 +31,24 @@
     "@electron-forge/maker-zip": "^7.11.1",
     "@electron-forge/publisher-github": "^7.11.1",
     "@electron/rebuild": "^4.0.3",
+    "@eslint/js": "^10.0.1",
+    "bootstrap": "^5.3.8",
     "electron": "^41.0.3",
-    "electron-reload": "^2.0.0-alpha.1",
+    "esbuild": "^0.28.2",
     "eslint": "^10.0.3",
-    "eslint-config-google": "^0.14.0",
-    "npm-check-updates": "^19.6.5"
+    "globals": "^14.0.0",
+    "npm-check-updates": "^19.6.5",
+    "vitest": "^4.1.11"
   },
   "dependencies": {
     "@zip.js/zip.js": "^2.8.23",
     "better-sqlite3": "^12.8.0",
-    "bootstrap": "^5.3.8",
+    "dotenv": "^17.4.2",
     "electron-squirrel-startup": "^1.0.1",
     "exceljs": "^4.4.0",
-    "firebase": "^12.11.0",
-    "jimp": "^1.6.0",
-    "lodash": "^4.17.23",
-    "luxon": "^3.7.2"
+    "firebase": "^12.11.0"
   },
   "config": {
-    "forge": {
-      "packagerConfig": {
-        "icon": "AppIcon.ico"
-      },
-      "makers": [
-        {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "name": "iko_utility",
-            "setupIcon": "AppIcon.ico"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-zip",
-          "platforms": [
-            "darwin"
-          ]
-        }
-      ],
-      "publishers": [
-        {
-          "name": "@electron-forge/publisher-github",
-          "config": {
-            "repository": {
-              "owner": "jonathanmajh",
-              "name": "iko_mro_items"
-            },
-            "draft": false,
-            "prerelease": false,
-            "generateReleaseNotes": true
-          }
-        }
-      ]
-    }
+    "forge": "./forge.config.js"
   }
 }

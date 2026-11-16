@@ -1,4 +1,4 @@
-const { clipboard, ipcRenderer, shell } = require('electron');
+const { ipcRenderer, shell } = require('electron');
 // const { dialog } = require('electron').remote;
 const Database = require('../assets/indexDB');
 const Validate = require('../assets/validators');
@@ -370,7 +370,7 @@ document.getElementById('everything').addEventListener('scroll', () => {
 });
 
 // Generate UI when files are selected by user
-document.getElementById('imgInput').addEventListener('change', async (e) => {
+document.getElementById('imgInput').addEventListener('change', async (_e) => {
   const progressBar = new ProgressBar();
 
   // reset UI
@@ -503,7 +503,7 @@ document.getElementById('related-table').addEventListener('click', (event) => {
   // copy item number into field if item number is clicked
   if (col == 1 && row > 0) {
     document.getElementById('request-items-accordion-btn').classList.remove('collapsed');
-    html = new bootstrap.Collapse(document.getElementById('accordian-iteminfo'), {
+    const html = new bootstrap.Collapse(document.getElementById('accordian-iteminfo'), {
       toggle: false,
     });
     html.show();
@@ -626,7 +626,7 @@ document.getElementById('batch-copy-nums').addEventListener('click', () => {
     }
     navigator.clipboard.writeText(nums);
     new Toast('Item Numbers Copied to Clipboard!');
-  } catch (error) {
+  } catch (_error) {
     // console.log(error);
     new Toast('Unable to copy numbers, please check table formatting!');
   }
@@ -1491,7 +1491,7 @@ async function showRelated(result, isExtended = false) {
   // technically this isn't the best way to do
   // this because results aren't guaranteed
   // to be in order of oldest to newest.
-  for (const [key, value] of Object.entries(result[0])) {
+  for (const key of Object.keys(result[0])) {
     result[0][key] = result[0][key].reverse();
   }
   // populate global variable with search results (bad practice, but it works)
@@ -1537,7 +1537,7 @@ async function showRelated(result, isExtended = false) {
   document.getElementById('related-items-accordion-btn').classList.remove('collapsed');
   // load a couple of items
   loadRelated();
-  html = new bootstrap.Collapse(document.getElementById('accordion-relatedItem'), {
+  const html = new bootstrap.Collapse(document.getElementById('accordion-relatedItem'), {
     toggle: false,
   });
   html.show();
@@ -1613,7 +1613,7 @@ function loadRelated() {
     if (itemDescription) {
       // Bold all words in item description that match the search query
       for (const word of searchWords) {
-        split = word.split(' ');
+        const split = word.split(' ');
         for (const smallWord of split) {
           if (smallWord.length > 1) {
             // single characters aren't searched for
@@ -1667,25 +1667,3 @@ function loadRelated() {
   }
 }
 
-// unused function (was used to copy item validation): probably remove this
-function copyResult(copy) {
-  if (copy === 'single') {
-    const content = document.getElementById('result-single').innerText;
-    clipboard.writeText(content);
-    new Toast('Single Description Copied to Clipboard!');
-  } else {
-    const desc = [];
-    let content = '';
-    content = document.getElementById('result-triple-main').innerText;
-    desc.push(content);
-    content = document.getElementById('result-triple-ext1').innerText;
-    desc.push(content);
-    content = document.getElementById('result-triple-ext2').innerText;
-    desc.push(content);
-    clipboard.write({
-      text: document.getElementById('result-single').innerText,
-      html: `<table><tbody><tr><td>${desc[0]}</td><td>${desc[1]}</td><td>${desc[2]}</td></tr></tbody></table>`,
-    });
-    new Toast('Triple Description Copied to Clipboard!');
-  }
-}

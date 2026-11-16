@@ -1,15 +1,11 @@
 const Validate = require('../assets/validators');
-const ExcelReader = require('../assets/spreadsheet');
-const Spreadsheet = require('../assets/exceljs');
+const Spreadsheet = require('../assets/excel');
 const Database = require('../assets/indexDB');
-const SharedDatabase = require('../assets/sharedDB');
 const Maximo = require('../assets/maximo');
 const AssetTranslate = require('../assets/asset_translation/asset_translation_main.js');
 const ObservationDatabase = require('../assets/better-sqlite');
 const TranslationDatabase = require('../assets/item_translation/item-translation-sqlite');
-const path = require('path');
 const Translation = require('../assets/item_translation/item-translation');
-const fs = require('fs');
 const CONSTANTS = require('../assets/constants.js');
 const RemoteDatabase = require('../assets/remotedb.js');
 /**
@@ -17,110 +13,103 @@ const RemoteDatabase = require('../assets/remotedb.js');
  *
  * @param {Array} e
  */
+/**
+ * Command handlers. Each entry maps a command string (as sent by
+ * WorkerHandler.work) to the function that executes it. A handler
+ * receives the full message payload `e` and returns/dispatches as needed.
+ */
+const handlers = {
+  'validSingle': (e) => {
+    const valid = new Validate();
+    valid.validateSingle(e.data[1]).then((result) => {
+      postMessage(['result', result]);
+    });
+  },
+  'validBatch': (e) => {
+    const valid = new Validate();
+    valid.validateBatch(e.data[1]).then((result) => {
+      postMessage(['result', result]);
+    });
+  },
+  'update': update,
+  'createDatabase': () => {
+    const db = new Database();
+    db.createAbbreviations();
+    db.createManufacturers();
+    postMessage(['result', 'done']);
+  },
+  'findRelated': (e) => {
+    new Database().findRelated(e.data[1], e.data[2], true, e.data[3]);
+  },
+  'interactive': interactive,
+  'writeDesc': writeDesc,
+  'writeNum': (e) => {
+    writeItemNum(e.data[1]);
+  },
+  'checkItemCache': (e) => {
+    checkItemCache(e.data[1], e.data[2]);
+  },
+  'processObservationList': (e) => {
+    const excel = new Spreadsheet(e.data[1][0]);
+    excel.readObservList(e.data[1][1]);
+  },
+  'getMaximoObservation': () => {
+    new Maximo().getObservations();
+  },
+  'compareObservLists': (e) => {
+    compareObservLists(e.data[1], e.data[2], e.data[3]);
+  },
+  'refreshTranslations': (e) => {
+    refreshTranslations(e.data[1]);
+  },
+  'nonInteractive': (e) => {
+    nonInteractiveSave(e.data[1]);
+  },
+  'loadItem': (e) => {
+    const maximo = new Database();
+    const result = maximo.loadItem(e.data[1]);
+    if (result) {
+      postMessage(['result', result]);
+    } else {
+      postMessage(['error', `${e.data[1]} cannot be found in Maximo`]);
+    }
+  },
+  'translatepms': (e) => {
+    new AssetTranslate().translate(e.data[1]);
+  },
+  'getCurItemNumber': (e) => {
+    getCurItemNum(e.data[1]);
+  },
+  'uploadItems': (e) => {
+    e.data[2] ? uploadAllItems(e.data[1], e.data[2]) : uploadAllItems(e.data[1]);
+  },
+  'translateItem': (e) => {
+    new Translation().contextTranslate(e.data[1], e.data[2], e.data[3]);
+  },
+  'saveProcessed': (e) => {
+    saveProgress(e.data[1]);
+  },
+  'checkUser': (e) => {
+    checkUser(e.data[1]);
+  },
+  'uploadImages': (e) => {
+    uploadImages(e.data[1]);
+  },
+  'uploadInventory': (e) => {
+    if (e.data.length > 2) { //only adding to storeroom
+      uploadInventory(e.data[1], e.data[2]).then((statuscode) => postMessage(['result', statuscode]));
+    } else { //other uses
+      uploadInventory(e.data[1]);
+    }
+  },
+};
+
 onmessage = function (e) {
-  let valid;
-  let maximo;
-  let result;
-  // decide which function to run based on the first element in the array
-  switch (e.data[0]) {
-    case 'validSingle':
-      valid = new Validate();
-      valid.validateSingle(e.data[1]).then((result) => {
-        postMessage(['result', result]);
-      });
-      break;
-    case 'validBatch':
-      valid = new Validate();
-      valid.validateBatch(e.data[1]).then((result) => {
-        postMessage(['result', result]);
-      });
-      break;
-    case 'update':
-      update(e);
-      break;
-    case 'createDatabase':
-      const db = new Database();
-      db.createAbbreviations();
-      db.createManufacturers();
-      postMessage(['result', 'done']);
-      break;
-    case 'findRelated':
-      maximo = new Database();
-      maximo.findRelated(e.data[1], e.data[2], true, e.data[3]);
-      break;
-    case 'interactive':
-      interactive(e);
-      break;
-    case 'writeDesc':
-      writeDesc(e);
-      break;
-    case 'writeNum':
-      writeItemNum(e.data[1]);
-      break;
-    case 'checkItemCache':
-      checkItemCache(e.data[1], e.data[2]);
-      break;
-    case 'processObservationList':
-      const excel = new Spreadsheet(e.data[1][0]);
-      excel.readObservList(e.data[1][1]);
-      break;
-    case 'getMaximoObservation':
-      maximo = new Maximo();
-      maximo.getObservations();
-      break;
-    case 'compareObservLists':
-      compareObservLists(e.data[1], e.data[2], e.data[3]);
-      break;
-    case 'refreshTranslations':
-      refreshTranslations(e.data[1]);
-      break;
-    case 'batchTranslate':
-      batchTranslate(e.data[1]);
-      break;
-    case 'nonInteractive':
-      nonInteractiveSave(e.data[1]);
-      break;
-    case 'loadItem':
-      maximo = new Database();
-      result = maximo.loadItem(e.data[1]);
-      if (result) {
-        postMessage(['result', result]);
-      } else {
-        postMessage(['error', `${e.data[1]} cannot be found in Maximo`]);
-      }
-      break;
-    case 'translatepms':
-      const translate = new AssetTranslate();
-      translate.translate(e.data[1]);
-      break;
-    case 'getCurItemNumber':
-      getCurItemNum(e.data[1]);
-      break;
-    case 'uploadItems':
-      e.data[2] ? uploadAllItems(e.data[1], e.data[2]) : uploadAllItems(e.data[1]);
-      break;
-    case 'translateItem':
-      const trans = new Translation();
-      result = trans.contextTranslate(e.data[1], e.data[2], e.data[3]);
-      break;
-    case 'saveProcessed':
-      saveProgress(e.data[1]);
-      break;
-    case 'checkUser':
-      checkUser(e.data[1]);
-      break;
-    case 'uploadImages':
-      uploadImages(e.data[1]);
-      break;
-    case 'uploadInventory':
-      if (e.data.length > 2) { //only adding to storeroom
-        uploadInventory(e.data[1], e.data[2]).then((statuscode) => this.postMessage(['result', statuscode]));
-      } else { //other uses
-        uploadInventory(e.data[1]);
-      }
-      break;
-    default:
-      console.log(`Unimplimented work ${e.data[0]}`);
+  const handler = handlers[e.data[0]];
+  if (handler) {
+    handler(e);
+  } else {
+    console.log(`Unimplemented work ${e.data[0]}`);
   }
 };
 
@@ -146,7 +135,7 @@ async function uploadInventory(item, rtrn) {
 async function saveProgress(params) {
   const db = new Database();
   const data = db.getAllWorkingDesc();
-  const excel = new ExcelReader(params[0].filePath);
+  const excel = new Spreadsheet(params[0].filePath);
   const result = await excel.saveNonInteractive(params, data);
   console.log(result);
   postMessage(['saveComplete', Number(params[1]) + 1]);
@@ -199,36 +188,8 @@ function nonInteractiveSave(params) {
   }
 }
 
-// depre
-async function batchTranslate(params) {
-  // translate description in file to all available languagues
-  const excel = new Spreadsheet(params.filePath);
-  const descs = await excel.getDescriptions(params);
-  const trans = new Translation();
-  const db = new TranslationDatabase();
-  const langs = db.getLanguages();
-  let translated;
-  let result;
-  let missing = [];
-  const allTranslated = [];
-  for (const desc of descs) {
-    translated = desc;
-    for (const lang of langs) {
-      result = trans.translate({ lang: lang, description: desc.description });
-      translated[lang] = result.description;
-      missing = missing.concat(result.missing);
-    }
-    allTranslated.push(translated);
-  }
-  console.log(allTranslated);
-  console.log(missing);
-  fs.copyFileSync(params.filePath, `${params.filePath}.backup`);
-  const writeExcel = new Spreadsheet(params.filePath);
-  writeExcel.saveTranslations({ langs: langs, item: allTranslated, missing: missing });
-}
-
 async function interactive(e) {
-  const excel = new ExcelReader(e.data[1].filePath);
+  const excel = new Spreadsheet(e.data[1].filePath);
   const data = await excel.getDescriptions(e.data[1]);
   const db = new Database();
   const dataSaved = db.saveDescription(data);
@@ -236,7 +197,7 @@ async function interactive(e) {
 }
 
 async function writeDesc(e) {
-  const excel = new ExcelReader(e.data[1][0].filePath);
+  const excel = new Spreadsheet(e.data[1][0].filePath);
   const result = await excel.saveDescription(e.data[1]);
   if (result) {
     postMessage(['result', result]);
@@ -247,7 +208,7 @@ async function writeDesc(e) {
 
 async function update(e) {
   const updateType = e.data[1];
-  const excel = new ExcelReader(e.data[2]);
+  const excel = new Spreadsheet(e.data[2]);
   const db = new Database();
   if (updateType === 'manufacturer') {
     const data = await excel.getManufactures();
@@ -272,7 +233,7 @@ async function compareObservLists(data, savePath, jobTaskPath) {
   // compare condition domain definition
   const removeOldMeters = [];
   for (const meter of data[0]) {
-    result = sqlite.compareDomainDefinition(meter.list_id, meter.inspect, 1);
+    const result = sqlite.compareDomainDefinition(meter.list_id, meter.inspect, 1);
     if (!result) {
       removeOldMeters.push(meter.list_id);
     }
@@ -281,7 +242,7 @@ async function compareObservLists(data, savePath, jobTaskPath) {
   // compare condition domain values
   const removeOldObservations = [];
   for (const observation of data[1]) {
-    result = sqlite.compareDomainValues(observation.search_str, observation.observation);
+    const result = sqlite.compareDomainValues(observation.search_str, observation.observation);
     if (!result) {
       removeOldObservations.push(observation.search_str.replace('~', ':'));
     }
@@ -292,7 +253,7 @@ async function compareObservLists(data, savePath, jobTaskPath) {
   data = await maximo.getMeters();
   const removeOldMaximoMeters = [];
   for (const meter of data) {
-    result = sqlite.compareDomainDefinition(meter.list_id, meter.inspect, 2);
+    const result = sqlite.compareDomainDefinition(meter.list_id, meter.inspect, 2);
     if (!result) {
       removeOldMaximoMeters.push(meter.list_id);
     }
@@ -319,7 +280,7 @@ async function writeItemNum(data) {
   const maximo = new Database();
   const item = maximo.loadItem(data[4]);
   if (item) {
-    const excel = new ExcelReader(data[0]);
+    const excel = new Spreadsheet(data[0]);
     const result = await excel.saveNumber(data);
     if (result) {
       postMessage(['result', result]);
@@ -332,8 +293,12 @@ async function writeItemNum(data) {
 async function checkUser(credentials = {}) {
   postMessage(['debug', `Checking Maximo Login`]);
   const maximo = new Maximo();
-  console.log(`logging in to https://${CONSTANTS.ENV}/maximo/api/whoami?lean=1`);
-  maximo.checkLogin(credentials?.userid, credentials?.password);
+  try {
+    console.log(`logging in to https://${CONSTANTS.ENV}/maximo/api/whoami?lean=1`);
+    await maximo.checkLogin(credentials?.userid, credentials?.password);
+  } finally {
+    maximo.close();
+  }
 }
 /**
  * Check cache of item information
@@ -341,69 +306,102 @@ async function checkUser(credentials = {}) {
  * @param {String} version current app version
  */
 async function checkItemCache(version, login) {
+  let maximo = null;
+  let shareDB = null;
+  let db = null;
+  let remoteDB = null;
   try {
   // check internal cache of item information and update with new items in maximo
   postMessage(['debug', `Loading Item Module`]);
-  const maximo = new Maximo();
+  maximo = new Maximo();
   postMessage(['debug', `0%: Checking Program Version`]);
 
-  const shareDB = new SharedDatabase();
-  const remoteDB = new RemoteDatabase();
+  shareDB = new Database();
+  remoteDB = new RemoteDatabase();
   const remoteVersion = await remoteDB.getVersion();
-  if (remoteVersion != 'Error') {
+  if (remoteVersion && remoteVersion != 'Error') {
     if (!(await shareDB.checkVersion(remoteVersion))) {
-      // load remote database over local database
+      // load remote database over local database via a temp file — never
+      // overwrite the live program.db while handles are open (SQLITE_BUSY)
+      // and never wipe the settings table (saved API key).
       postMessage(['debug', `10%: Loading new remote database version: ${remoteVersion}`]);
-      await remoteDB.downloadAndExtract()
-      await shareDB.loadRemote(remoteDB.dbPath);
+      const tmpPath = await remoteDB.downloadAndExtract();
+      try {
+        await shareDB.loadRemote(tmpPath);
+      } finally {
+        remoteDB.cleanup();
+      }
     }
   }
 
+  // shareDB is only needed for the version check / remote load above;
+  // release it before the long network sync to minimize lock contention.
+  shareDB.close();
+  shareDB = null;
+
   if (!login) postMessage(['result', 'done']);
-  let curVersion;
-  const db = new Database();
-  curVersion = db.getVersion('inventory');
-  curVersion = curVersion[0].rowstamp;
-  postMessage(['debug', `50%: Getting inventory with changes after: ${curVersion} from Maximo`]);
-  const newInventory = await maximo.getNewInventory(curVersion);
-  if (newInventory) {
+  db = new Database();
+  const invRow = db.getVersion('inventory')?.[0] ?? {};
+  const invStamp = invRow.rowstamp ?? invRow.changed_date ?? 0;
+  postMessage(['debug', `50%: Getting inventory with changes after: ${invStamp} from Maximo`]);
+  const newInventory = await maximo.getNewInventory(invStamp);
+  if (newInventory && newInventory[0]) {
     postMessage(['debug', '55%: Saving maximo data to inventory cache']);
     db.saveInventoryCache(newInventory[0]);
   }
 
-  curVersion = db.getVersion('maximo');
-  curVersion = curVersion[0].changed_date;
-  postMessage(['debug', `60%: Getting items with changes after: ${curVersion} from Maximo`]);
-  let newItems = await maximo.getNewItems(curVersion);
-  if (newItems) {
+  const itemRow = db.getVersion('maximo')?.[0] ?? {};
+  const itemStamp = itemRow.changed_date ?? '2022-01-01 00:00:00';
+  postMessage(['debug', `60%: Getting items with changes after: ${itemStamp} from Maximo`]);
+  let newItems = await maximo.getNewItems(itemStamp);
+  if (newItems && newItems[0]) {
     postMessage(['debug', '70%: Saving maximo data to item cache']);
     db.saveItemCache(newItems[0]);
   }
   const itemNums = new Map();
-  newInventory[0].forEach((inventory) => {
+  for (const inventory of (newInventory?.[0] ?? [])) {
     if (!itemNums.has(inventory[0])) {
       itemNums.set(inventory[0], inventory[0]);
     }
-  });
-  newItems[0].forEach((item) => {
+  }
+  for (const item of (newItems?.[0] ?? [])) {
     if (!itemNums.has(item[0])) {
       itemNums.set(item[0], item[0]);
     }
-  });
-  const processedItems = db.processNewItems(itemNums);
-  db.saveItemCache(processedItems);
+  }
+  if (itemNums.size > 0) {
+    const processedItems = db.processNewItems(itemNums);
+    db.saveItemCache(processedItems);
+  }
 
-  curVersion = db.getVersion('manufacturer');
-  curVersion = curVersion[0].changed_date;
-  postMessage(['debug', `80%: Getting Manufacturer with changes after: ${curVersion} from Maximo`]);
-  newItems = await maximo.getNewManufacturers(curVersion);
-  if (newItems) {
+  const manufRow = db.getVersion('manufacturer')?.[0] ?? {};
+  const manufStamp = manufRow.changed_date ?? '2022-01-01 00:00:00';
+  postMessage(['debug', `80%: Getting Manufacturer with changes after: ${manufStamp} from Maximo`]);
+  newItems = await maximo.getNewManufacturers(manufStamp);
+  if (newItems && newItems[0]) {
     postMessage(['debug', '90%: Saving maximo data to Manufacturer cache']);
     db.saveManufacturers(newItems[0]);
   }
   } catch (err) {
     postMessage(['error', `Error checking item cache: ${err}\nNew items may not be available`]);
-    await new Promise(resolve => setTimeout(resolve, 10000)); // wait 10 seconds before continuing
+  } finally {
+    // Always release handles (and temp files) so we never hold the
+    // database locked while idle.
+    try {
+      db?.close();
+    } catch (_e) { /* ignore */ }
+    try {
+      shareDB?.close();
+    } catch (_e) { /* ignore */ }
+    try {
+      maximo?.close();
+    } catch (_e) { /* ignore */ }
+    try {
+      remoteDB?.cleanup();
+    } catch (_e) { /* ignore */ }
+    db = null;
+    shareDB = null;
+    maximo = null;
   }
 
   postMessage(['result', 'done']);

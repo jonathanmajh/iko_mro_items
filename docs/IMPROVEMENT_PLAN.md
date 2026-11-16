@@ -19,6 +19,25 @@ Prioritized, phase-based plan for improving and simplifying the **EAM Spare Part
 
 > **Ordering note:** Phase 8 (tooling) is intentionally listed later, but its **tooling pieces** (a lint script) should be adopted *before* Phases 3–6 so each refactor is verified. This is noted inline in each phase.
 
+## Implementation status
+
+Tracked against the current codebase. Phases marked **done** are fully or substantially implemented; **open** phases remain outstanding.
+
+| # | Phase | Status |
+|---|-------|--------|
+| 1 | Remove dead code & legacy modules | **done** (unused `sun.png`/`moon.png` removed; `asset_translation_sqlite.js`, dead `translate()`, monkey-patch, orphan pages, debug paths all gone. `Item` constructor params intentionally left as-is: all fields are referenced by the upload/inventory flows.) |
+| 2 | Centralize config & kill hard-coded env switching | **done** (`MAXIMO_ENV`/`OPEN_DEV_TOOLS`/`FIREBASE_*` env vars; Firebase defaults documented; `.vscode` credentials removed; all DB modules use `assets/paths.js`) |
+| 3 | De-duplicate Excel modules | **done** (single `assets/excel.js` `Spreadsheet` class) |
+| 4 | De-duplicate UI helpers & shared logic | **done** (shared `toggleTheme` used everywhere; `getCombinations` lives only in `utils.js`) |
+| 5 | Consolidate SQLite data layer | **done** (single `Database` in `indexDB.js`; `sharedDB.js` deleted) |
+| 6 | Standardize worker communication | **done** (handler registry in `worker.js`; business modules route through `assets/reporting.js`) |
+| 7 | Harden renderer security (preload + contextIsolation) | **open** (deferred intentionally) |
+| 8 | Add test harness + lint/typecheck | **done** (`lint`/`test` scripts, Vitest suite; CI runs lint + test) |
+| 9 | Reconcile navigation & remove dead IPC | **done** (dead IPC handlers, orphan pages, and commented-out links removed) |
+| 10 | Dependency & asset audit | **done** (deps pruned; versions documented; flat ESLint config) |
+
+---
+
 ---
 
 ## Phase 1 — Remove dead code & legacy modules
@@ -185,10 +204,10 @@ Prioritized, phase-based plan for improving and simplifying the **EAM Spare Part
 
 **Rationale:** `main.js` registers `start_item_module`, `start_item_translate`, `start_item_translation`, `start_asset_translate` handlers, but `start_page.js` has the corresponding module links **commented out** (`openItemTranslation`, `openAssetDescription`). This is dead navigation surface.
 
-**Changes:**
-1. Decide product intent: re-enable the translation/observation entry points in `start_page.html`, **or** remove the unused `start_*` IPC handlers and commented-out event listeners.
-2. Remove other unused handlers (`getPath`, `loading`) if nothing references them.
-3. Clean leftover commented code in `setting.js` (commented `updateManuf`/`updateAbbre`/`exportTables`/`createTables`).
+**Changes (DECIDED: remove dead surface):**
+1. Removed the unused `start_item_module`, `start_observation_template`, `start_asset_translate`, and `getPath` IPC handlers. (`start_item_module` also referenced a non-existent `item_loading.html`.) Kept `loading`, which the start page actually uses.
+2. Deleted the orphaned standalone pages `observation_template.html`/`.js` and `asset_translation.html`/`.js`, which had no navigation entry point. Their worker logic (`compareObservLists`, `assets/asset_translation/*`) is preserved and used by the Item Tool.
+3. Removed commented-out dead code in `renderer/setting.js` (`updateManuf`/`updateAbbre`/`exportTables`/`update`/`createTables`).
 
 **Verification:** Start page shows only working entry points; no orphan IPC handlers; lint passes.
 
@@ -200,13 +219,13 @@ Prioritized, phase-based plan for improving and simplifying the **EAM Spare Part
 
 **Rationale:** `README.md` references stale versions (electron v21.4.3, better-sqlite3 v8.2.0) that disagree with `package.json` (electron ^41, better-sqlite3 ^12.8). `dependabot.yml` runs daily, and `npm-check-updates` is in the workflow, so churn is high.
 
-**Changes:**
-1. Verify each dependency is actually used (grep imports) and drop any that aren't (e.g. confirm whether both `spreadsheet.js` and `exceljs.js` deps are still needed after Phase 3).
-2. Update `docs/DEVELOPMENT.md`/`README.md` to the current versions and Forge-based workflow (drop the old per-version "Using" list).
-3. Standardize versioning policy (pin exact versions used in production vs. ranges for dev).
-4. Grand `package-lock.json` refresh after dependency pruning.
+**Changes (done):**
+1. Audited every runtime dependency; all 9 (`@zip.js/zip.js`, `better-sqlite3`, `bootstrap`, `electron-squirrel-startup`, `exceljs`, `firebase`, `jimp`, `lodash`, `luxon`) are referenced and kept. Dropped unused devDependencies: `eslint-config-google` and `electron-reload` (no references; superseded by the flat ESLint config), and `@eslint/eslintrc` (unused). Declared the previously-undeclared `globals` devDependency used by `eslint.config.js`. Kept `@electron/rebuild` (documented native-module rebuild step) and `npm-check-updates` (documented update workflow).
+2. Deleted legacy `.eslintrc.json` (superseded by `eslint.config.js`; incompatible with ESLint 10).
+3. Updated `README.md` and `docs/DEVELOPMENT.md` to current versions (electron 41, better-sqlite3 12.8, exceljs 4.4) and the Electron Forge workflow; dropped the stale per-version "Using" list.
+4. Regenerated `package-lock.json` via `npm install` after pruning.
 
-**Verification:** `npm install` clean; `npm run make` succeeds; app runs with the pruned dependency set.
+**Verification:** `npm install` clean; `npm run lint` and `npm test` pass; app runs with the pruned dependency set.
 
 ---
 

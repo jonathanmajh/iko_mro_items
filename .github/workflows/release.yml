@@ -17,6 +17,8 @@ jobs:
         node-version: 22
     - name: install dependencies
       run: npm install
+    - name: rebuild native modules for Electron
+      run: npm run rebuild:native
     - name: publish
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

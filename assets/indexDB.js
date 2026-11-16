@@ -1,9 +1,25 @@
+const fs = require('fs');
+const path = require('path');
 const Sql = require('better-sqlite3');
 const utils = require('../assets/utils');
-const intersection = require('lodash/intersection');
-// https://lodash.com/docs/4.17.15#intersection
-// fast library for intersection of arrays
-const dbPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Preferences' : process.env.HOME + "/.local/share")
+const paths = require('./paths');
+const report = require('./reporting');
+// Native replacement for lodash/intersection: unique values from the first
+// array present in every other array, preserving first-array order.
+function intersection(...arrays) {
+  if (arrays.length === 0) return [];
+  const [first, ...rest] = arrays;
+  if (!Array.isArray(first)) return [];
+  const sets = rest.map((arr) => new Set(arr));
+  const seen = new Set();
+  const result = [];
+  for (const value of first) {
+    if (seen.has(value)) continue;
+    seen.add(value);
+    if (sets.every((set) => set.has(value))) result.push(value);
+  }
+  return result;
+}
 
 /**
  * Database Class containing more Database functions
@@ -13,7 +29,23 @@ class Database {
  * Open default db file
  */
   constructor() {
-    this.db = new Sql(`${dbPath}/EAM Spare Parts/program.db`);// , { verbose: console.log });
+    fs.mkdirSync(paths.appDir(), { recursive: true });
+    // timeout + WAL keep concurrent renderer/worker handles from failing
+    // immediately with SQLITE_BUSY ("database is locked").
+    this.db = new Sql(paths.programDb(), { timeout: 10000 });
+    this.db.pragma('journal_mode = WAL');
+    this.db.pragma('busy_timeout = 10000');
+    this.db.pragma('synchronous = NORMAL');
+    const stmt = this.db.prepare('CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY, key TEXT UNIQUE NOT NULL, value TEXT NOT NULL)');
+    stmt.run();
+  }
+
+  close() {
+    try {
+      this.db.close();
+    } catch (_e) {
+      // already closed — ignore
+    }
   }
 
   clearItemCache() {
@@ -302,17 +334,17 @@ class Database {
     }
     const phrases = data.split(',');
     let result = [];
-    postMessage(['progress', 25, 'Getting Item Descriptions From Maximo']);
+    report.progress(25, 'Getting Item Descriptions From Maximo');
     for (let i = 0; i < phrases.length; i++) {
       if (phrases[i].length > 1) { // ignore single characters searches since they add too much time
         result.push(this.fetchAndObjectify(phrases[i], ext, itemDict, siteID));
-        postMessage(['progress', 75, 'Processing Item Descriptions From Maximo']); // change this to per phrase
+        report.progress(75, 'Processing Item Descriptions From Maximo'); // change this to per phrase
       }
     }
     result = result.filter((item) => item !== false);
     if (result.length) {
       let arrayAsNum = [...Array(result.length).keys()]; // create an array with only integers to find combinations
-      arrayAsNum = getCombinations(arrayAsNum);
+      arrayAsNum = utils.getCombinations(arrayAsNum);
       const intersections = [];
       for (let i = arrayAsNum.length; i > 0; i--) { // convert combination of integers to combination of arrays
         const holder = [];
@@ -322,19 +354,19 @@ class Database {
         intersections.push([holder.length, intersection(...holder)]);
       }
       if (postmessage) {
-        postMessage(['result', matchAndScore(intersections), itemDict, data]);
+        report.result(matchAndScore(intersections), itemDict, data);
       } else {
         return [matchAndScore(intersections), itemDict, data];
       }
     } else {
-      postMessage(['warning', 'No related items returned from Maximo']);
-      postMessage(['result', false]);
+      report.warning('No related items returned from Maximo');
+      report.result(false);
     }
   }
 
   fetchAndObjectify(phrase, ext, itemDict, siteID) {
     phrase = phrase.toUpperCase();
-    postMessage(['debug', `Getting item from cache: "${phrase}"`]);
+    report.debug(`Getting item from cache: "${phrase}"`);
     let stmt;
     if (ext) {
       stmt = this.db.prepare(`SELECT *, (select group_concat(concat(location,'-',binnum)) from inventoryCache where siteid = ? and inventoryCache.itemnum = itemCache.itemnum) storeroom from itemCache where ext_search_text like ?`);
@@ -366,12 +398,167 @@ class Database {
     });
     return itemNums;
   }
+
+  /**
+  * Return true if the version recorded in the settings table matches
+  * running app version, updating it as a side effect.
+  * @param {String} curVersion running app version
+  * @return {boolean} if version is same as db version
+  */
+  checkVersion(curVersion) {
+    this.db.prepare(
+      'CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY, key TEXT UNIQUE NOT NULL, value TEXT NOT NULL)',
+    ).run();
+    const row = this.db.prepare(`SELECT value FROM settings WHERE key = 'version'`).get();
+    const lastVersion = row?.value ?? '0.0.0';
+    // Parameterized upsert: previous string interpolation broke on special
+    // characters and could leave the version row unwritten.
+    this.db.prepare(
+      `INSERT INTO settings(key, value) VALUES ('version', ?)
+       ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+    ).run(curVersion);
+    return (lastVersion == curVersion);
+  }
+
+  savePassword(userid, password) {
+    // patch table to have unique keys
+    this.db.prepare('CREATE UNIQUE INDEX if not EXISTS idx_key ON settings(key);').run();
+    // Parameterized: API keys may contain quotes; interpolating them into SQL
+    // breaks the statement and silently drops the saved login (user gets
+    // asked for the key on every launch).
+    this.db.prepare(
+      `replace into settings(key, value) VALUES ('userid', ?), ('password', ?)`,
+    ).run(userid ?? '', password ?? '');
+  }
+
+  getPassword() {
+    try {
+      const userid = this.db.prepare(`SELECT value FROM settings WHERE key = 'userid'`).get()?.value ?? '';
+      const password = this.db.prepare(`SELECT value FROM settings WHERE key = 'password'`).get()?.value ?? '';
+      return {userid: userid, password: password};
+    } catch (_SqliteError) {
+      return {userid: '', password: ''};
+    }
+  }
+
+  loadRemote(remotePath) {
+    // remotePath must be a temp download, never the live program.db itself:
+    // overwriting/attaching the live file while handles are open causes
+    // SQLITE_BUSY and wipes the settings table (saved API key).
+    if (path.resolve(remotePath) === path.resolve(paths.programDb())) {
+      throw new Error('loadRemote: refusing to attach live database to itself; pass a temp download path');
+    }
+    if (!fs.existsSync(remotePath)) {
+      throw new Error(`loadRemote: remote database not found at ${remotePath}`);
+    }
+    this.createTables();
+    const safePath = remotePath.replace(/'/g, "''");
+    // NOTE: settings table is intentionally NOT copied, so the saved
+    // userid/password survives remote database updates.
+    try {
+      this.db.prepare(`ATTACH DATABASE '${safePath}' AS remoteDB;`).run();
+      this.db.prepare(`INSERT OR REPLACE INTO manufacturers SELECT * FROM remoteDB.manufacturers;`).run();
+      this.db.prepare(`INSERT OR REPLACE INTO abbreviations SELECT * FROM remoteDB.abbreviations;`).run();
+      this.db.prepare(`INSERT OR REPLACE INTO workingDescription SELECT * FROM remoteDB.workingDescription;`).run();
+      this.db.prepare(`INSERT OR REPLACE INTO itemCache SELECT * FROM remoteDB.itemCache;`).run();
+      this.db.prepare(`INSERT OR REPLACE INTO inventoryCache SELECT * FROM remoteDB.inventoryCache;`).run();
+    } finally {
+      try {
+        this.db.prepare(`DETACH DATABASE remoteDB;`).run();
+      } catch (_e) {
+        // detach best-effort so a failed copy can't wedge later statements
+      }
+    }
+    console.log('loaded remote database');
+  }
+
+  createTables() {
+    const dropTables = this.db.prepare('DROP TABLE IF EXISTS manufacturers');
+    const dropTables2 = this.db.prepare('DROP TABLE IF EXISTS abbreviations');
+    const dropTables3 = this.db.prepare('DROP TABLE IF EXISTS workingDescription');
+    const dropTables4 = this.db.prepare('DROP TABLE IF EXISTS itemCache');
+    const dropTables5 = this.db.prepare('DROP TABLE IF EXISTS itemDescAnalysis');
+    const dropTables6 = this.db.prepare('DROP TABLE IF EXISTS inventoryCache');
+    const runQuery2 = this.db.transaction(() => {
+      dropTables.run();
+      dropTables2.run();
+      dropTables3.run();
+      dropTables4.run();
+      dropTables5.run();
+      dropTables6.run();
+    });
+    runQuery2();
+    const createTable1 = this.db.prepare(`CREATE TABLE manufacturers(
+            id INTEGER PRIMARY KEY,
+            full_name TEXT NOT NULL COLLATE NOCASE,
+            short_name TEXT NOT NULL UNIQUE COLLATE NOCASE,
+            homepage TEXT,
+            changed_date TEXT COLLATE NOCASE
+            );`);
+    const createTable2 = this.db.prepare(`CREATE TABLE abbreviations(
+            id INTEGER PRIMARY KEY,
+            orig_text TEXT NOT NULL COLLATE NOCASE,
+            replace_text TEXT NOT NULL COLLATE NOCASE
+            )`);
+    const createTable3 = this.db.prepare(`CREATE TABLE workingDescription (
+            row INTEGER NOT NULL,
+            description TEXT NOT NULL COLLATE NOCASE,
+            analysis TEXT,
+            related TEXT,
+            translate TEXT,
+            orgid TEXT COLLATE NOCASE
+        )`);
+    const createTable4 = this.db.prepare(`CREATE TABLE itemCache (
+            itemnum TEXT PRIMARY KEY,
+            description TEXT NOT NULL COLLATE NOCASE,
+            details TEXT COLLATE NOCASE,
+            changed_date TEXT COLLATE NOCASE,
+            search_text TEXT COLLATE NOCASE,
+            gl_class TEXT COLLATE NOCASE,
+            uom TEXT COLLATE NOCASE,
+            commodity_group TEXT COLLATE NOCASE,
+            ext_search_text TEXT COLLATE NOCASE,
+            ext_description TEXT COLLATE NOCASE
+        )`);
+    const createTable5 = this.db.prepare(`CREATE TABLE itemDescAnalysis (
+            tree TEXT PRIMARY KEY COLLATE NOCASE,
+            descriptor TEXT NOT NULL COLLATE NOCASE,
+            parent TEXT,
+            count INTEGER,
+            level INTEGER
+        )`);
+    const createTable6 = this.db.prepare(`CREATE TABLE inventoryCache (
+            itemnum TEXT NOT NULL COLLATE NOCASE,
+            siteid TEXT NOT NULL COLLATE NOCASE,
+            catalogcode TEXT COLLATE NOCASE,
+            modelnum TEXT COLLATE NOCASE,
+            vendor TEXT COLLATE NOCASE,
+            manufacturer TEXT COLLATE NOCASE,
+            companyname TEXT COLLATE NOCASE,
+            rowstamp TEXT,
+            location TEXT NOT NULL COLLATE NOCASE,
+            binnum TEXT COLLATE NOCASE,
+            PRIMARY KEY (itemnum, location)
+        )`);
+    const runQuery = this.db.transaction(() => {
+      createTable1.run();
+      createTable2.run();
+      createTable3.run();
+      createTable4.run();
+      createTable5.run();
+      createTable6.run();
+    });
+    runQuery();
+    console.log('refreshed tables');
+  }
 }
 
 module.exports = Database;
+module.exports.itemOccurrence = itemOccurrence;
+module.exports.matchAndScore = matchAndScore;
 
 function matchAndScore(data) {
-  postMessage(['progress', 80, 'Processing Item Descriptions']);
+  report.progress(80, 'Processing Item Descriptions');
   const numPhases = data[0][0];
   const matchedScores = {};
   const saved = {};
@@ -388,29 +575,6 @@ function matchAndScore(data) {
     });
   });
   return matchedScores;
-}
-
-// https://stackoverflow.com/a/59942031
-// Generate all possible non duplicate combinations of the arrays
-function getCombinations(valuesArray) {
-  const combi = [];
-  let temp = [];
-  const slent = Math.pow(2, valuesArray.length);
-
-  for (let i = 0; i < slent; i++) {
-    temp = [];
-    for (let j = 0; j < valuesArray.length; j++) {
-      if ((i & Math.pow(2, j))) {
-        temp.push(valuesArray[j]);
-      }
-    }
-    if (temp.length > 0) {
-      combi.push(temp);
-    }
-  }
-
-  combi.sort((a, b) => a.length - b.length);
-  return combi;
 }
 
 function itemOccurrence(data, manufs) {

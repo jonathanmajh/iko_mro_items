@@ -1,10 +1,11 @@
-const { SqliteError } = require('better-sqlite3');
 const sql = require('better-sqlite3');
+const paths = require('../paths');
+const report = require('../reporting');
 
 class TranslationDatabase {
     constructor() {
         // save location is in user %appdata%
-        this.db = new sql(`${process.env.APPDATA}/EAM Spare Parts/translist.db`);//, { verbose: console.log });
+        this.db = new sql(paths.translistDb());//, { verbose: console.log });
     }
 
     // save updated translation information
@@ -36,16 +37,16 @@ class TranslationDatabase {
                 try {
                     insert.run(translation);
                 } catch (SqliteError) {
-                    postMessage(['debug', SqliteError.message]);
+                    report.debug(SqliteError.message);
                     console.log(SqliteError.message);
                     if (SqliteError.code == "SQLITE_CONSTRAINT_UNIQUE") {
-                        postMessage(['error', 'Duplicate Value in English']);
+                        report.error('Duplicate Value in English');
                     }
                 }
             }
         });
         insertMany(data);
-        postMessage(['result', 'complete']);
+        report.result('complete');
     }
 
     // get translation of a word in the requested language

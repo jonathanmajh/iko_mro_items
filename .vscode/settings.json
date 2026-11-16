@@ -6,7 +6,6 @@
     "mxscript.serverSettings.port": 443,
     "mxscript.authentication.username": "",
     "mxscript.authentication.password": "",
-    "mxscript.authentication.apikey": "cjut5nfsrfq9a94ts2h6it8qdrfmmcbigimvkj6g",
     "mxscript.authentication.authenticationType": "apikey",
     "mxscript.serverSettings.objectStructure": "MXSCRIPT",
     "mxscript.serverSettings.httpProtocol": "https",

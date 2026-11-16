@@ -15,16 +15,14 @@ ipcMain.on('firestore-log', (event, data) => {
   firestore.log(data);
 })
 
-if (CONSTANTS.OPEN_DEV_TOOLS) {
-  // require('electron-reload')(__dirname);
-}
-
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
 // Write eml file
+// NOTE: must use the OS temp dir, not __dirname — the app ships inside a
+// read-only app.asar archive, so writing next to the code fails (ENOENT).
 ipcMain.on('write-file', (event, emailData) => {
-  const pathToFile = path.resolve(__dirname, 'downloadedFile.eml');
+  const pathToFile = path.join(app.getPath('temp'), 'downloadedFile.eml');
   fs.writeFile(pathToFile, emailData, (err) => {
     if (err) {
       console.error(`Error writing file: ${err}`);
@@ -34,7 +32,7 @@ ipcMain.on('write-file', (event, emailData) => {
   });
 });
 
-ipcMain.on('openSettings', (event, arg) => {
+ipcMain.on('openSettings', (_event, _arg) => {
   settingWindow = new BrowserWindow({
     parent: mainWindow,
     width: 800,
@@ -58,11 +56,11 @@ ipcMain.on('openSettings', (event, arg) => {
   }
 });
 
-ipcMain.on('getVersion', (event, arg) => {
+ipcMain.on('getVersion', (event, _arg) => {
   event.returnValue = app.getVersion();
 });
 
-ipcMain.handle('select-to-be-translated', async (event, arg) => {
+ipcMain.handle('select-to-be-translated', async (_event, _arg) => {
   const result = await dialog.showOpenDialog(mainWindow, {
     title: 'Select Spreadsheet',
     filters: [
@@ -75,7 +73,7 @@ ipcMain.handle('select-to-be-translated', async (event, arg) => {
   return result;
 });
 
-ipcMain.handle('select-excel-file', async (event, arg) => {
+ipcMain.handle('select-excel-file', async (_event, _arg) => {
   const result = await dialog.showOpenDialog(mainWindow, {
     title: 'Select Excel Spreadsheet',
     filters: [
@@ -88,7 +86,7 @@ ipcMain.handle('select-excel-file', async (event, arg) => {
   return result;
 });
 
-ipcMain.handle('select-translations', async (event, arg) => {
+ipcMain.handle('select-translations', async (_event, _arg) => {
   const result = await dialog.showOpenDialog(mainWindow, {
     title: 'Select Translation Definition Spreadsheet',
     filters: [
@@ -101,28 +99,8 @@ ipcMain.handle('select-translations', async (event, arg) => {
   return result;
 });
 
-ipcMain.on('getPath', (event, arg) => {
-  event.returnValue = app.getPath('userData');
-});
-
-ipcMain.on('loading', (event, arg) => {
+ipcMain.on('loading', (_event, _arg) => {
   mainWindow.loadFile(path.join('renderer', 'item_main.html'));
-});
-
-ipcMain.on('start_item_module', (event, arg) => {
-  mainWindow.loadFile(path.join('renderer', 'item_loading.html'));
-});
-
-ipcMain.on('start_observation_template', (event, arg) => {
-  mainWindow.loadFile(path.join('renderer', 'observation_template.html'));
-});
-
-ipcMain.on('start_item_translate', (event, arg) => {
-  mainWindow.loadFile(path.join('renderer', 'item_translation.html'));
-});
-
-ipcMain.on('start_asset_translate', (event, arg) => {
-  mainWindow.loadFile(path.join('renderer', 'asset_translation.html'));
 });
 
 function createWindow() {

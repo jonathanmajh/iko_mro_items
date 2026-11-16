@@ -1,8 +1,10 @@
 const sql = require('better-sqlite3');
+const paths = require('./paths');
+const report = require('./reporting');
 
 class ObservationDatabase {
     constructor() {
-        this.db = new sql(`${process.env.APPDATA}/EAM Spare Parts/obserlist.db`);//, { verbose: console.log });
+        this.db = new sql(paths.obserlistDb());//, { verbose: console.log });
     }
 
     createTables() {
@@ -105,11 +107,11 @@ class ObservationDatabase {
                 stmt.run(list_id);
                 return true;
             } else {
-                postMessage(['debug', `Update Meter: "${list_id}" changed New: "${meter[0].inspect}" Old: "${inspect}"`]);
+                report.debug(`Update Meter: "${list_id}" changed New: "${meter[0].inspect}" Old: "${inspect}"`);
                 return true;
             }
         } else {
-            postMessage(['debug', `Old Meter: ${list_id}: ${inspect} can be removed`]);
+            report.debug(`Old Meter: ${list_id}: ${inspect} can be removed`);
             return false;
         }
     }
@@ -132,7 +134,7 @@ class ObservationDatabase {
                     }
                 }
             } else {
-                postMessage(['debug', `Meter: ${newJobTask.name} not used by any existing Job Tasks`]);
+                report.debug(`Meter: ${newJobTask.name} not used by any existing Job Tasks`);
             }
         }
     }
@@ -147,11 +149,11 @@ class ObservationDatabase {
                 stmt.run(search);
                 return true;
             } else {
-                postMessage(['debug', `Update Observation: "${search}" changed New: "${observ[0].observation}" Old: "${observation}"`]);
+                report.debug(`Update Observation: "${search}" changed New: "${observ[0].observation}" Old: "${observation}"`);
                 return true;
             }
         } else {
-            postMessage(['debug', `Old Observation: ${search}: ${observation} can be removed`]);
+            report.debug(`Old Observation: ${search}: ${observation} can be removed`);
             return false;
         }
     }

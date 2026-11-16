@@ -2,7 +2,7 @@ const TransDB = require('./asset_translation_excel.js');
 const Exceljs = require('exceljs');
 const path = require('path');
 const fs = require('fs');
-const { debug } = require('console');
+const report = require('../reporting');
 
 class AssetTranslateDescription {
     async translate(params) {
@@ -23,7 +23,7 @@ class AssetTranslateDescription {
                 i = i + 1;
                 new_folder = path.join(folder, `${date.toDateString()}(${i})`);
             }
-        } catch (err) {
+        } catch (_err) {
             fs.mkdirSync(new_folder);
         }
 
@@ -98,7 +98,7 @@ class AssetTranslateDescription {
 
         await logbook.csv.writeFile(path.join(new_folder, 'logs.csv'));
 
-        postMessage(['result', 'done']);
+        report.result('done');
     }
 
 
@@ -161,9 +161,7 @@ class AssetTranslateDescription {
         const route_regex = /^\w{1,3}\d{1,4}/g; //matches routes / asset numbers
         const freq_regex = /^(d|w|m|y)\d+/g; //matches frequency
         const work_regex = /^\w{3}/g; //matches work type
-        const lc_regex = /^lf\d{1}/g; // matches lifecycle
         const labor_regex = /^o|m|e/g; //matches labor type
-        const dup_regex = /^\d*$/g; //matches duplicate pm number
         const lc_item = /(?<=LC-\w+\s).*/g;
         const freqs = {
             d: 'day',
@@ -233,7 +231,7 @@ class AssetTranslateDescription {
                 match = info.description.match(route_desc_regex);
                 try {
                     specs['route_name'] = match[0].trim();
-                } catch (error) {
+                } catch (_error) {
                     specs['route_name'] = 'number & description mismatch';
                     console.log('number & description mismatch');
                     console.log(info.description);
@@ -260,7 +258,7 @@ class AssetTranslateDescription {
             }
             try {
                 specs['dup'] = parseInt(text);
-            } catch (error) {
+            } catch (_error) {
                 console.log('bad dup number');
                 console.log(specs['dup']);
             }

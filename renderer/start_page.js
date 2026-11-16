@@ -11,7 +11,7 @@ window.onload = function () {
 function openItem(login) {
   const worker = new WorkerHandler();
 
-  version = ipcRenderer.sendSync('getVersion');
+  const version = ipcRenderer.sendSync('getVersion');
   worker.work(['checkItemCache', version, login], openMain);
 
   function openMain() {
@@ -73,10 +73,7 @@ function noMaximo() {
   }
 }
 
-// document.getElementById("openObserveTemp").addEventListener("click", openObserveTemp);
 document.getElementById('openItem').addEventListener('click', tryLoginItem);
-// document.getElementById("openItemTranslation").addEventListener("click", openItemTranslation);
-// document.getElementById("openAssetDescription").addEventListener("click", openAssetDescription);
 document.getElementById('continue').addEventListener('click', noMaximo);
 document.getElementById('tryLogin').addEventListener('click', tryLoginAgain);
 document.getElementById('dark-mode-switch').addEventListener('click', toggleTheme);

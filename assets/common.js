@@ -60,18 +60,30 @@ class Logging {
   }
 
   warning(msg) {
+    if (!this.logTable) {
+      console.warn(msg);
+      return;
+    }
     const row = this.logTable.insertRow(0);
     row.innerHTML = `<td>WARNING</td><td>${msg}</td>`;
     row.classList.add('table-warning');
   }
 
   error(msg) {
+    if (!this.logTable) {
+      console.error(msg);
+      return;
+    }
     const row = this.logTable.insertRow(0);
     row.innerHTML = `<td>ERROR</td><td>${msg}</td>`;
     row.classList.add('table-danger');
   }
 
   info(msg) {
+    if (!this.logTable) {
+      console.info(msg);
+      return;
+    }
     const row = this.logTable.insertRow(0);
     row.innerHTML = `<td>INFO</td><td>${msg}</td>`;
     row.classList.add('table-primary');
@@ -79,20 +91,29 @@ class Logging {
 }
 
 class ProgressBar {
-  constructor(barId = 'progress-bar', textId = 'progress-text') {
-    this.progressBar = document.getElementById('progress-bar');
-    this.progressText = document.getElementById('progress-text');
-    this.currentProgress = this.progressBar.getAttribute('style');
-    this.currentProgress = this.currentProgress.slice(7, this.currentProgress.length - 2);
+  constructor(_barId = 'progress-bar', _textId = 'progress-text') {
+    this.progressBar = document.getElementById(_barId);
+    this.progressText = document.getElementById(_textId);
+    this.currentProgress = 0;
+    if (this.progressBar) {
+      const style = this.progressBar.getAttribute('style') || '';
+      const match = /width:\s*([\d.]+)%/.exec(style);
+      if (match) {
+        this.currentProgress = parseFloat(match[1]);
+      }
+    }
   }
 
   updateProgressBar(percent) {
+    if (!this.progressBar) {
+      return;
+    }
     this.progressBar.setAttribute('style', `width: ${percent}%;`);
   }
 
   update(percent, message, color = '') {
     this.updateProgressBar(percent);
-    if (message) {
+    if (message && this.progressText) {
       this.progressText.innerText = message;
     }
     if (!color && percent == 0) {
@@ -103,19 +124,22 @@ class ProgressBar {
   }
 
   updateColor(color) {
+    if (!this.progressBar) {
+      return;
+    }
     color = color + ' ';
     const regx = new RegExp('\\b' + 'bg-' + '[^ ]*[ ]?\\b', 'g');
     this.progressBar.className = this.progressBar.className.replace(regx, color);
   }
 
   addProgressBar(percent, message = null) {
-    this.update(percent + this.currentProgress, message);
+    this.update(Number(percent) + Number(this.currentProgress), message);
   }
 
   getProgress() {
     return {
       'percent': this.currentProgress,
-      'message': this.progressText.innerText,
+      'message': this.progressText ? this.progressText.innerText : '',
     };
   }
 }
@@ -124,10 +148,17 @@ class Toast {
   // popup thingy in top right corner
   constructor(newMessage, color = 'bg-primary') { // uses Bootstrap 4 colors
     this.toastContainer = document.getElementById('toastPlacement');
+    if (!this.toastContainer) {
+      console.info(newMessage);
+      return;
+    }
     this.newToast(newMessage, color);
   }
 
   newToast(message, color) {
+    if (!this.toastContainer) {
+      return;
+    }
     const toast = document.createElement('div');
     toast.setAttribute('class', `toast d-flex align-items-center border-0 text-white  ${color}`);
     toast.innerHTML = `<div class="toast-body">${message}</div><button type="button" class="btn-close ms-auto me-2" data-bs-dismiss="toast"></button>`;
@@ -164,10 +195,6 @@ class Item {
 }
 // functions
 // general
-function fixSwitch() {
-  document.getElementById('dark-mode-switch').checked = (localStorage.getItem('theme') === 'dark' ? true : false);
-}
-
 function toTop() {
   const element = document.getElementsByTagName('main');
   element[0].scrollTop = 0; // For Chrome, Firefox, IE and Opera
@@ -192,14 +219,6 @@ function setTheme(newTheme) {
   document.documentElement.setAttribute('data-bs-theme', newTheme);
 }
 
-function loadTheme() {
-  if (!(localStorage.getItem('theme'))) {
-    localStorage.setItem('theme', 'dark');
-  }
-
-  document.documentElement.setAttribute('data-bs-theme', localStorage.getItem('theme'));
-  // console.log('i have run');
-}
 // upload item related
 function getNextNumThenUpdate(series) {
   document.getElementById('error').innerHTML = 'Waiting for confirm...';
@@ -327,12 +346,18 @@ function updateTableColors(itemindex, category) {
     siteID: -1,
   };
   const table = document.getElementById('batch-items-table');
+  if (!table) {
+    return;
+  }
   // Assign column locations
   const cols = parseInt(table.getAttribute('data-cols'));
   // go through first row to find headings.
   for (let i = 1; i <= cols; i++) {
     // get a cell in the table by its id
     const cell = document.getElementById('1-' + i);
+    if (!cell) {
+      continue;
+    }
     // see if cell value matches any of the required parameters to create an item object
     if (cell.innerHTML.toUpperCase() === 'DESCRIPTION') {
       colLoc.description = i;
@@ -356,6 +381,9 @@ function updateTableColors(itemindex, category) {
   }
   const colNum = colLoc[category];
   const cell = document.getElementById(`${itemindex}-${colNum}`);
+  if (!cell) {
+    return;
+  }
   // change color of cell
   cell.classList.add('table-danger');
 }
@@ -363,6 +391,9 @@ function updateTableColors(itemindex, category) {
 function updateItemStatus(status, itemindex) {
   // Changes item status column to reflect status
   const statusimg = document.getElementById(`item-${itemindex}-status`);
+  if (!statusimg) {
+    return;
+  }
   if (status == 'fail') {
     statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">close</i>`;
   } else if (status == 'success') {
@@ -376,17 +407,4 @@ function updateItemStatus(status, itemindex) {
   } else {
     statusimg.innerHTML = `<i class="material-symbols-outlined mt-2">pending</i>`;
   }
-}
-
-function fileBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = function() {
-      resolve(reader.result);
-    };
-    reader.onerror = function(error) {
-      reject(error);
-    };
-  });
 }
