@@ -33,7 +33,7 @@ try {
   // plain environment variables and built-in defaults.
 }
 
-const MAXIMO_ENV = process.env.MAXIMO_ENV || 'prod.manage.prod.iko.max-it-eam.com';
+const MAXIMO_ENV = process.env.MAXIMO_ENV || 'mas.manage.ikona.naviam.appm';
 const OPEN_DEV_TOOLS = process.env.OPEN_DEV_TOOLS === 'true';
 
 const CONSTANTS = Object.freeze({

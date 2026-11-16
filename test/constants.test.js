@@ -18,7 +18,7 @@ describe('constants', () => {
 
   it('defaults ENV to production maximo when MAXIMO_ENV not set', () => {
     delete process.env.MAXIMO_ENV;
-    expect(loadConstants().ENV).toBe('prod.manage.prod.iko.max-it-eam.com');
+    expect(loadConstants().ENV).toBe('mas.manage.ikona.naviam.app');
   });
 
   it('uses MAXIMO_ENV when provided', () => {
