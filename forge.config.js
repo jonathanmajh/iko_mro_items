@@ -32,6 +32,14 @@ const ignorePatterns = [
   /\.d\.ts$/,
   // better-sqlite3 C source + tests (~9MB sqlite3.c alone). The compiled
   // binding in build/Release is kept (and unpacked from asar, see below).
+  //
+  // IMPORTANT: because `binding.gyp` is also ignored (see below), Forge's
+  // native-rebuild hook finds zero modules in the staged copy and does
+  // nothing. `better_sqlite3.node` must therefore already be built for the
+  // Electron ABI before packaging — `npm run rebuild:native` (wired into
+  // prepackage/premake and the CI workflows) does this. Otherwise the app
+  // ships with the Node.js-ABI prebuild that `npm install` downloads and
+  // crashes on launch with a NODE_MODULE_VERSION mismatch.
   /[/\\]better-sqlite3[/\\]deps([/\\]|$)/,
   /[/\\]better-sqlite3[/\\]test([/\\]|$)/,
   // Test fixtures in transitive deps (e.g. gifwrap 1.3MB gif).

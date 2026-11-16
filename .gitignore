@@ -10,3 +10,5 @@ assets/firestore.bundle.cjs
 .env
 .env.local
 .vscode/*.local.json
+
+logs/**
